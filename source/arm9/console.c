@@ -34,7 +34,9 @@ distribution.
 
 #include <stdio.h>
 #include <stdarg.h>
+#ifndef NO_DEVOPTAB
 #include <sys/iosupport.h>
+#endif
 
 
 PrintConsole defaultConsole =
@@ -197,7 +199,11 @@ static void consoleClearLine(char mode) {
 }
 
 //---------------------------------------------------------------------------------
+#ifndef NO_DEVOPTAB
 ssize_t nocash_write(struct _reent *r, void *fd, const char *ptr, size_t len) {
+#else
+ssize_t nocash_write(const char *ptr, size_t len) {
+#endif
 //---------------------------------------------------------------------------------
 	nocashWrite(ptr,len);
 	return len;
@@ -205,7 +211,11 @@ ssize_t nocash_write(struct _reent *r, void *fd, const char *ptr, size_t len) {
 
 
 //---------------------------------------------------------------------------------
+#ifndef NO_DEVOPTAB
 ssize_t con_write(struct _reent *r,void *fd,const char *ptr, size_t len) {
+#else
+ssize_t con_write(const char *ptr, size_t len) {
+#endif
 //---------------------------------------------------------------------------------
 
 	char chr;
@@ -331,6 +341,8 @@ ssize_t con_write(struct _reent *r,void *fd,const char *ptr, size_t len) {
 	return count;
 }
 
+#ifndef NO_DEVOPTAB
+
 static const devoptab_t dotab_stdout = {
 	"con",
 	0,
@@ -364,6 +376,15 @@ static const devoptab_t dotab_null = {
 	NULL,
 	NULL
 };
+
+#else
+
+typedef ssize_t (* fn_write_ptr)(const char *, size_t);
+
+fn_write_ptr libnds_stdout_write = NULL;
+fn_write_ptr libnds_stderr_write = NULL;
+
+#endif
 
 //---------------------------------------------------------------------------------
 void consoleLoadFont(PrintConsole* console) {
@@ -482,11 +503,19 @@ PrintConsole* consoleInit(PrintConsole* console, int layer,
 	static bool firstConsoleInit = true;
 
 	if(firstConsoleInit) {
+#ifndef NO_DEVOPTAB
 		devoptab_list[STD_OUT] = &dotab_stdout;
 		devoptab_list[STD_ERR] = &dotab_stdout;
 
 		setvbuf(stdout, NULL , _IONBF, 0);
 		setvbuf(stderr, NULL , _IONBF, 0);
+#else
+		libnds_stdout_write = con_write;
+		libnds_stderr_write = con_write;
+
+		setvbuf(stdout, NULL , _IOLBF, 0);
+		setvbuf(stderr, NULL , _IOLBF, 0);
+#endif
 
 		firstConsoleInit = false;
 	}
@@ -547,14 +576,27 @@ void consoleDebugInit(DebugDevice device){
 	switch(device) {
 
 	case DebugDevice_NOCASH:
+#ifndef NO_DEVOPTAB
 		devoptab_list[STD_ERR] = &dotab_nocash;
+#else
+		libnds_stderr_write = nocash_write;
+#endif
 		buffertype = _IOLBF;
 		break;
 	case DebugDevice_CONSOLE:
+#ifndef NO_DEVOPTAB
 		devoptab_list[STD_ERR] = &dotab_stdout;
+#else
+		libnds_stderr_write = con_write;
+		buffertype = _IOLBF;
+#endif
 		break;
 	case DebugDevice_NULL:
+#ifndef NO_DEVOPTAB
 		devoptab_list[STD_ERR] = &dotab_null;
+#else
+		libnds_stderr_write = NULL;
+#endif
 		break;
 	}
 	setvbuf(stderr, NULL , buffertype, 0);

@@ -26,7 +26,9 @@ distribution.
 
 ---------------------------------------------------------------------------------*/
 
+#ifndef NO_DEVOPTAB
 #include <sys/iosupport.h>
+#endif
 #include "keyboardGfx.h"
 #include <nds/ndstypes.h>
 #include <nds/interrupts.h>
@@ -263,7 +265,11 @@ int keyboardUpdate(void) {
 
 
 
+#ifndef NO_DEVOPTAB
 ssize_t keyboardRead(struct _reent *r, void *unused, char *ptr, size_t len) {
+#else
+ssize_t keyboardRead(char *ptr, size_t len) {
+#endif
 
 	int wasHidden = 0;
 	int tempLen;
@@ -302,6 +308,8 @@ ssize_t keyboardRead(struct _reent *r, void *unused, char *ptr, size_t len) {
 	return tempLen;
 }
 
+#ifndef NO_DEVOPTAB
+
 const devoptab_t std_in = {
 	"stdin",
 	0,
@@ -317,11 +325,17 @@ const devoptab_t std_in = {
 	NULL
 };
 
+#else
+
+typedef ssize_t (* fn_stdin_read)(char *, size_t);
+
+fn_stdin_read libnds_stdin_read = NULL;
+
+#endif
 
 Keyboard* keyboardGetDefault(void) {
 	return &defaultKeyboard;
 }
-
 
 Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, int mapBase, int tileBase, bool mainDisplay, bool loadGraphics) {
 	if(keyboard) {
@@ -366,8 +380,12 @@ Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, 
 	bgHide(keyboard->background);
 
 	bgUpdate();
-	
+
+#ifndef NO_DEVOPTAB
 	devoptab_list[STD_IN] = &std_in;
+#else
+	libnds_stdin_read = keyboardRead;
+#endif
 
 	return keyboard;
 }
