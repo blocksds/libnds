@@ -227,7 +227,7 @@ PrintConsole* consoleInit(PrintConsole* console, int layer, BgType type, BgSize 
 */
 PrintConsole* consoleDemoInit(void);
 
-//! Clears the screan by using iprintf("\x1b[2J");
+//! Clears the screan by using printf("\x1b[2J");
 void consoleClear(void);
 
 /*!	\brief Initializes debug console output on stderr to the specified device

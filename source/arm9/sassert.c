@@ -37,18 +37,18 @@ void __sassert(const char *fileName, int lineNumber, const char* conditionString
 
     consoleDemoInit();
 
-    iprintf("\x1b[j"               /* clear screen */
-            "\x1b[42mAssertion!\n" /* print in green? */
-            "\x1b[39mFile: \n"     /* print in default color */
-            "%s\n\n"               /* print filename */
-            "Line: %d\n\n"         /* print line number */
-            "Condition:\n"
-            "%s\n\n"               /* print condition message */
-            "\x1b[41m",            /* change font color to red */
-            fileName, lineNumber, conditionString);
+    printf("\x1b[j"               /* clear screen */
+           "\x1b[42mAssertion!\n" /* print in green? */
+           "\x1b[39mFile: \n"     /* print in default color */
+           "%s\n\n"               /* print filename */
+           "Line: %d\n\n"         /* print line number */
+           "Condition:\n"
+           "%s\n\n"               /* print condition message */
+           "\x1b[41m",            /* change font color to red */
+           fileName, lineNumber, conditionString);
 
     va_start(ap, format);
-    viprintf(format, ap);
+    vprintf(format, ap);
     va_end(ap);
 
     //todo: exit properly

@@ -248,22 +248,22 @@ ssize_t con_write(const char *ptr, size_t len) {
 					// Cursor directional movement
 					/////////////////////////////////////////
 					case 'A':
-						siscanf(escapeseq,"[%dA", &parameter);
+						sscanf(escapeseq,"[%dA", &parameter);
 						currentConsole->cursorY  =  (currentConsole->cursorY  - parameter) < 0 ? 0 : currentConsole->cursorY  - parameter;
 						escaping = false;
 						break;
 					case 'B':
-						siscanf(escapeseq,"[%dB", &parameter);
+						sscanf(escapeseq,"[%dB", &parameter);
 						currentConsole->cursorY  =  (currentConsole->cursorY  + parameter) > currentConsole->windowHeight - 1 ? currentConsole->windowHeight - 1 : currentConsole->cursorY  + parameter;
 						escaping = false;
 						break;
 					case 'C':
-						siscanf(escapeseq,"[%dC", &parameter);
+						sscanf(escapeseq,"[%dC", &parameter);
 						currentConsole->cursorX  =  (currentConsole->cursorX  + parameter) > currentConsole->windowWidth - 1 ? currentConsole->windowWidth - 1 : currentConsole->cursorX  + parameter;
 						escaping = false;
 						break;
 					case 'D':
-						siscanf(escapeseq,"[%dD", &parameter);
+						sscanf(escapeseq,"[%dD", &parameter);
 						currentConsole->cursorX  =  (currentConsole->cursorX  - parameter) < 0 ? 0 : currentConsole->cursorX  - parameter;
 						escaping = false;
 						break;
@@ -272,7 +272,7 @@ ssize_t con_write(const char *ptr, size_t len) {
 						/////////////////////////////////////////
 					case 'H':
 					case 'f':
-						siscanf(escapeseq,"[%d;%df", &currentConsole->cursorY , &currentConsole->cursorX );
+						sscanf(escapeseq,"[%d;%df", &currentConsole->cursorY , &currentConsole->cursorX );
 						escaping = false;
 						break;
 						/////////////////////////////////////////
@@ -309,7 +309,7 @@ ssize_t con_write(const char *ptr, size_t len) {
 						// Color scan codes
 						/////////////////////////////////////////
 					case 'm':
-						siscanf(escapeseq,"[%d;%dm", &parameter, &intensity);
+						sscanf(escapeseq,"[%d;%dm", &parameter, &intensity);
 
 						//only handle 30-37,39 and intensity for the color changes
 						parameter -= 30;
@@ -506,16 +506,12 @@ PrintConsole* consoleInit(PrintConsole* console, int layer,
 #ifndef NO_DEVOPTAB
 		devoptab_list[STD_OUT] = &dotab_stdout;
 		devoptab_list[STD_ERR] = &dotab_stdout;
-
-		setvbuf(stdout, NULL , _IONBF, 0);
-		setvbuf(stderr, NULL , _IONBF, 0);
 #else
 		libnds_stdout_write = con_write;
 		libnds_stderr_write = con_write;
-
-		setvbuf(stdout, NULL , _IOLBF, 0);
-		setvbuf(stderr, NULL , _IOLBF, 0);
 #endif
+		setvbuf(stdout, NULL , _IONBF, 0);
+		setvbuf(stderr, NULL , _IONBF, 0);
 
 		firstConsoleInit = false;
 	}
@@ -578,17 +574,16 @@ void consoleDebugInit(DebugDevice device){
 	case DebugDevice_NOCASH:
 #ifndef NO_DEVOPTAB
 		devoptab_list[STD_ERR] = &dotab_nocash;
+		buffertype = _IOLBF;
 #else
 		libnds_stderr_write = nocash_write;
 #endif
-		buffertype = _IOLBF;
 		break;
 	case DebugDevice_CONSOLE:
 #ifndef NO_DEVOPTAB
 		devoptab_list[STD_ERR] = &dotab_stdout;
 #else
 		libnds_stderr_write = con_write;
-		buffertype = _IOLBF;
 #endif
 		break;
 	case DebugDevice_NULL:
@@ -700,7 +695,7 @@ void consolePrintChar(char c) {
 //---------------------------------------------------------------------------------
 void consoleClear(void) {
 //---------------------------------------------------------------------------------
-	iprintf("\x1b[2J");
+	printf("\x1b[2J");
 }
 
 //---------------------------------------------------------------------------------
