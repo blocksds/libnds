@@ -43,108 +43,127 @@ extern "C" {
 
 //////////////////////////////////////////////////////////////////////
 
-#include "nds.h"
+#include <stddef.h>
+#include <stdint.h>
 
 //////////////////////////////////////////////////////////////////////
 
-#define CPUID_IMPLEMENTOR(id) ((id)>>24)
-#define CPUID_ARCH(id)        (((id)>>16) & 0xF)
-#define CPUID_PART(id)        (((id)>>4) & 0xFFF)
-#define CPUID_VERSION(id)     ((id) & 0xF)
+// Flush functions invalidate cache entries. Clean functions force the memory to
+// be updated to the contents of the cache
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetID(void);
+#define ICACHE_SIZE           0x2000
+#define DCACHE_SIZE           0x1000
+#define CACHE_LINE_SIZE       32
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetCacheType(void);
+#define CPUID_IMPLEMENTOR(id) ((id) >> 24)          // 0x41
+#define CPUID_ARCH(id)        (((id) >> 16) & 0xF)  // 0x04
+#define CPUID_PART(id)        (((id) >> 4) & 0xFFF) // 0x946
+#define CPUID_VERSION(id)     ((id) & 0xF)          // Revision
+
+uint32_t CP15_GetID(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetTCMSize(void);
+uint32_t CP15_GetCacheType(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetControl(void);
-extern void CP15_SetControl(uint32 data);
+uint32_t CP15_GetTCMSize(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetDataCachable(void);
-extern uint32 CP15_GetInstructionCachable(void);
-extern void CP15_SetDataCachable(void);
-extern void CP15_SetInstructionCachable(void);
-extern uint32 CP15_GetDataBufferable(void);
-extern void CP15_SetDataBufferable(void);
+uint32_t CP15_GetControl(void);
+void CP15_SetControl(uint32_t data);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetDataPermissions(void);
-extern uint32 CP15_GetInstructionPermissions(void);
-extern void CP15_SetDataPermissions(void);
-extern void CP15_SetInstructionPermissions(void);
+uint32_t CP15_GetDataCachable(void);
+uint32_t CP15_GetInstructionCachable(void);
+void CP15_SetDataCachable(void);
+void CP15_SetInstructionCachable(void);
+uint32_t CP15_GetDataBufferable(void);
+void CP15_SetDataBufferable(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetRegion0(void);
-extern uint32 CP15_GetRegion1(void);
-extern uint32 CP15_GetRegion2(void);
-extern uint32 CP15_GetRegion3(void);
-extern uint32 CP15_GetRegion4(void);
-extern uint32 CP15_GetRegion5(void);
-extern uint32 CP15_GetRegion6(void);
-extern uint32 CP15_GetRegion7(void);
-extern void CP15_SetRegion0(uint32 data);
-extern void CP15_SetRegion1(uint32 data);
-extern void CP15_SetRegion2(uint32 data);
-extern void CP15_SetRegion3(uint32 data);
-extern void CP15_SetRegion4(uint32 data);
-extern void CP15_SetRegion5(uint32 data);
-extern void CP15_SetRegion6(uint32 data);
-extern void CP15_SetRegion7(uint32 data);
+uint32_t CP15_GetDataPermissions(void);
+uint32_t CP15_GetInstructionPermissions(void);
+void CP15_SetDataPermissions(void);
+void CP15_SetInstructionPermissions(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern void CP15_FlushICache(void);
-extern void CP15_FlushICacheEntry(uint32 address);
-extern void CP15_PrefetchICacheLine(uint32 address);
-extern void CP15_FlushDCache(void);
-extern void CP15_FlushDCacheEntry(uint32 address);
-extern void CP15_CleanDCacheEntry(uint32 address);
-extern void CP15_CleanAndFlushDCacheEntry(uint32 address);
-extern void CP15_CleanDCacheEntryByIndex(uint32 index);
-extern void CP15_CleanAndFlushDCacheEntryByIndex(uint32 index);
-extern void CP15_DrainWriteBuffer(void);
+uint32_t CP15_GetRegion0(void);
+uint32_t CP15_GetRegion1(void);
+uint32_t CP15_GetRegion2(void);
+uint32_t CP15_GetRegion3(void);
+uint32_t CP15_GetRegion4(void);
+uint32_t CP15_GetRegion5(void);
+uint32_t CP15_GetRegion6(void);
+uint32_t CP15_GetRegion7(void);
+void CP15_SetRegion0(uint32_t data);
+void CP15_SetRegion1(uint32_t data);
+void CP15_SetRegion2(uint32_t data);
+void CP15_SetRegion3(uint32_t data);
+void CP15_SetRegion4(uint32_t data);
+void CP15_SetRegion5(uint32_t data);
+void CP15_SetRegion6(uint32_t data);
+void CP15_SetRegion7(uint32_t data);
 
 //////////////////////////////////////////////////////////////////////
 
-extern void CP15_WaitForInterrupt(void);
+// Flush entire instruction cache
+void CP15_FlushICache(void);
+
+void CP15_FlushICacheEntry(uintptr_t address);
+void CP15_PrefetchICacheLine(uintptr_t address);
+
+// Flush entire data cache
+void CP15_FlushDCache(void);
+
+void CP15_FlushDCacheEntry(uintptr_t address);
+void CP15_CleanDCacheEntry(uintptr_t address);
+void CP15_CleanAndFlushDCacheEntry(uintptr_t address);
+void CP15_CleanDCacheEntryByIndex(uint32_t index);
+void CP15_CleanAndFlushDCacheEntryByIndex(uint32_t index);
+
+// This stalls the processor core until any outstanding accesses in the write
+// buffer are completed, that is, until all data is written to external memory.
+void CP15_DrainWriteBuffer(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetDCacheLockdown(void);
-extern uint32 CP15_GetICacheLockdown(void);
-extern void CP15_SetDCacheLockdown(uint32 data);
-extern void CP15_SetICacheLockdown(uint32 data);
+void CP15_WaitForInterrupt(void);
 
 //////////////////////////////////////////////////////////////////////
 
-extern uint32 CP15_GetDTCM(void);
-extern uint32 CP15_GetITCM(void);
-extern void CP15_SetDTCM(uint32 data);
-extern void CP15_SetITCM(uint32 data);
+uint32_t CP15_GetDCacheLockdown(void);
+uint32_t CP15_GetICacheLockdown(void);
+void CP15_SetDCacheLockdown(uint32_t data);
+void CP15_SetICacheLockdown(uint32_t data);
 
 //////////////////////////////////////////////////////////////////////
-extern void CP15_ITCMEnableDefault(void);
+
+uint32_t CP15_GetDTCM(void);
+uint32_t CP15_GetITCM(void);
+void CP15_SetDTCM(uint32_t data);
+void CP15_SetITCM(uint32_t data);
 
 //////////////////////////////////////////////////////////////////////
+void CP15_ITCMEnableDefault(void);
+
+//////////////////////////////////////////////////////////////////////
+
 #ifdef __cplusplus
 }
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
-#endif
+#endif // CP15_INCLUDE
 
 //////////////////////////////////////////////////////////////////////
