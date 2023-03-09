@@ -546,6 +546,11 @@ PrintConsole* consoleInit(PrintConsole* console, int layer,
 //---------------------------------------------------------------------------------
 PrintConsole *consoleSelect(PrintConsole* console){
 //---------------------------------------------------------------------------------
+	// Make sure that the buffers for the current console are flushed before
+	// switching consoles.
+	fflush(stdout);
+	fflush(stderr);
+
 	PrintConsole *tmp = currentConsole;
 	currentConsole = console;
 	return tmp;
