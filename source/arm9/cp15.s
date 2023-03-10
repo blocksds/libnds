@@ -320,4 +320,35 @@ BEGIN_ASM_FUNC CP15_ITCMEnableDefault
 
 	bx lr
 
+#define DCACHE_SIZE           0x1000
+#define CACHE_LINE_SIZE       32
+#define ENTRIES_PER_SEGMENT   4
+
+BEGIN_ASM_FUNC CP15_CleanAndFlushDcache
+
+	// Routine obtained from page 3-11 of ARM DDI 0201D
+
+	// Loop in all 4 segments
+	mov	r1, #0
+outer_loop:
+
+	// Loop in all entries in one segment
+	mov	r0, #0
+inner_loop:
+	orr	r2, r1, r0 // Generate segment and line address
+	mcr	p15, 0, r2, c7, c14, 2 // Clean and flush the line
+	add	r0, r0, #CACHE_LINE_SIZE // Increment to next line
+	cmp	r0, #(DCACHE_SIZE / ENTRIES_PER_SEGMENT)
+	bne	inner_loop
+
+	add	r1, r1, #0x40000000 // Increment segment counter
+	cmp	r1, #0x0
+	bne	outer_loop
+
+	// Drain write buffer
+	mov r0, #0
+	mcr p15, 0, r0, c7, c10, 4
+
+	bx lr
+
 	.end

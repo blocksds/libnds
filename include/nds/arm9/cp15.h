@@ -2,9 +2,8 @@
 //
 // CP15.h -- CP15 control for the ARM9
 //
-// version 0.1, February 14, 2005
-//
 //  Copyright (C) 2005 Michael Noland (joat) and Jason Rogers (dovoto)
+//  Copyright (C) 2023 Antonio Niño Díaz
 //
 //  This software is provided 'as-is', without any express or implied
 //  warranty.  In no event will the authors be held liable for any
@@ -22,9 +21,6 @@
 //     must not be misrepresented as being the original software.
 //  3. This notice may not be removed or altered from any source
 //     distribution.
-//
-// Changelog:
-//   0.1: First version
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -154,7 +150,16 @@ void CP15_SetDTCM(uint32_t data);
 void CP15_SetITCM(uint32_t data);
 
 //////////////////////////////////////////////////////////////////////
+
+// Helper functions
+
 void CP15_ITCMEnableDefault(void);
+
+void CP15_CleanAndFlushDcacheRange(const void *base, size_t size);
+void CP15_FlushDcacheRange(const void *base, size_t size);
+void CP15_CleanAndFlushDcache(void);
+
+void CP15_FlushIcacheRange(const void *base, size_t size);
 
 //////////////////////////////////////////////////////////////////////
 

@@ -49,6 +49,9 @@
 #define TWL_DATA	__attribute__((section(".twl")))
 #define TWL_BSS		__attribute__((section(".twl_bss")))
 
+#define ARM_CODE	__attribute__((target("arm")))
+#define THUMB_CODE	__attribute__((target("thumb")))
+
 //! aligns a struct (and other types?) to m, making sure that the size of the struct is a multiple of m.
 #define ALIGN(m)	__attribute__((aligned (m)))
 
