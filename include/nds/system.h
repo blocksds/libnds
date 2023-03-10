@@ -410,7 +410,7 @@ struct __argv {
 	int length;			// total length of command line
 	int argc;			// internal use, number of arguments
 	char **argv;		// internal use, argv pointer
-	int dummy;			// internal use
+	char **endARGV;		// internal use, pointer to the end of argv in the heap
 	u32 host;			// internal use, host ip for dslink 
 };
 
