@@ -38,11 +38,12 @@ extern "C" {
 
 #include "nds/ndstypes.h"
 
+#include "nds/arm9/cp15.h"
 
 /*! \fn IC_InvalidateAll()
 	\brief invalidate entire instruction cache.
 */
-void	IC_InvalidateAll();
+#define IC_InvalidateAll CP15_FlushICache
 
 
 /*! \fn IC_InvalidateRange(const void *base, u32 size)
@@ -50,13 +51,13 @@ void	IC_InvalidateAll();
 	\param base base address of the region to invalidate
 	\param size size of the region to invalidate.
 */
-void	IC_InvalidateRange(const void *base, u32 size);
+#define IC_InvalidateRange CP15_FlushIcacheRange
 
 
 /*! \fn DC_FlushAll()
 	\brief flush the entire data cache to memory.
 */
-void	DC_FlushAll();
+#define DC_FlushAll CP15_CleanAndFlushDcache
 
 
 /*! \fn DC_FlushRange(const void *base, u32 size)
@@ -64,13 +65,13 @@ void	DC_FlushAll();
 	\param base base address of the region to flush.
 	\param size size of the region to flush.
 */
-void	DC_FlushRange(const void *base, u32 size);
+#define DC_FlushRange CP15_CleanAndFlushDcacheRange
 
 
 /*! \fn DC_InvalidateAll()
 	\brief invalidate the entire data cache.
 */
-void	DC_InvalidateAll();
+#define DC_InvalidateAll CP15_FlushDCache
 
 
 /*! \fn DC_InvalidateRange(const void *base, u32 size)
@@ -78,7 +79,7 @@ void	DC_InvalidateAll();
 	\param base base address of the region to invalidate
 	\param size size of the region to invalidate.
 */
-void	DC_InvalidateRange(const void *base, u32 size);
+#define DC_InvalidateRange CP15_FlushDcacheRange
 
 #ifdef __cplusplus
 }
