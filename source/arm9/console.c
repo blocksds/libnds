@@ -46,9 +46,9 @@ PrintConsole defaultConsole =
 		(u16*)default_font_bin, //font gfx
 		0, //font palette
 		0, //font color count
-		4, //bpp
-		0, //first ascii character in the set
-		128, //number of characters in the font set
+		1, //bpp
+		32, //first ascii character in the set
+		95, //number of characters in the font set
 		true //convert single color
 	},
 	0, //font background map
@@ -399,11 +399,8 @@ void consoleLoadFont(PrintConsole* console) {
 	}
 
 
-	if (console->font.bpp == 1) {
-
-	} else if (console->font.bpp == 4) {
-
-		if(!console->font.convertSingleColor) {
+	if (console->font.bpp == 1 || console->font.bpp == 4) {
+		if(console->font.bpp == 4 && !console->font.convertSingleColor) {
 
 			if(console->font.gfx)
 				dmaCopy(console->font.gfx, console->fontBgGfx, console->font.numChars * 64 / 2);
@@ -414,22 +411,36 @@ void consoleLoadFont(PrintConsole* console) {
 		} else {
 			console->fontCurPal = 15 << 12;
 
-			for (i = 0; i < console->font.numChars * 16; i++) {
-				u16 temp = 0;
+			if (console->font.bpp == 1) {
+				for (i = 0; i < console->font.numChars * 8; i++) {
+					u8 row = ((const u8*) console->font.gfx)[i];
+					u32 temp = 0;
+					if(row & 0x80) temp |= 0xF;
+					if(row & 0x40) temp |= 0xF0;
+					if(row & 0x20) temp |= 0xF00;
+					if(row & 0x10) temp |= 0xF000;
+					if(row & 0x08) temp |= 0xF0000;
+					if(row & 0x04) temp |= 0xF00000;
+					if(row & 0x02) temp |= 0xF000000;
+					if(row & 0x01) temp |= 0xF0000000;
+					((u32*) console->fontBgGfx)[i] = temp;
+				}
+			} else {
+				for (i = 0; i < console->font.numChars * 16; i++) {
+					u16 temp = 0;
 
-				if(console->font.gfx[i] & 0xF)
-					temp |= 0xF;
-				if(console->font.gfx[i] & 0xF0)
-					temp |= 0xF0;
-				if(console->font.gfx[i] & 0xF00)
-					temp |= 0xF00;
-				if(console->font.gfx[i] & 0xF000)
-					temp |= 0xF000;
+					if(console->font.gfx[i] & 0xF)
+						temp |= 0xF;
+					if(console->font.gfx[i] & 0xF0)
+						temp |= 0xF0;
+					if(console->font.gfx[i] & 0xF00)
+						temp |= 0xF00;
+					if(console->font.gfx[i] & 0xF000)
+						temp |= 0xF000;
 
-				console->fontBgGfx[i] = temp;
+					console->fontBgGfx[i] = temp;
+				}
 			}
-
-
 
 			//set up the palette for color printing
 			palette[1 * 16 - 1] = RGB15(0,0,0); //30 normal black
