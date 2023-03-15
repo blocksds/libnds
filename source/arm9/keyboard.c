@@ -28,6 +28,7 @@ distribution.
 
 #ifndef NO_DEVOPTAB
 #include <sys/iosupport.h>
+#define USE_KEY_BUFFER
 #endif
 #include "keyboardGfx.h"
 #include <nds/ndstypes.h>
@@ -39,20 +40,18 @@ distribution.
 #include <string.h>
 #include <stdio.h>
 
-
-#define KEY_BUFFER_SIZE 256
-
-
-//keybuffer state
+#ifdef USE_KEY_BUFFER
 int keyBufferOffset = 0;
 int keyBufferLength = 0;
-int lastKey = -1;
-bool stdioRead = false;
+#define KEY_BUFFER_SIZE 256
 char keyBuffer[KEY_BUFFER_SIZE];
+bool stdioRead = false;
+#endif
 
+s16 lastKey = -1;
 
 //default keyboard map
-int SimpleKbdLower[] = {
+const s16 SimpleKbdLower[] = {
 
 	DVK_FOLD, DVK_FOLD, NOKEY, '1', '1', '2', '2', '3', '3', '4', '4', '5', '5', '6', '6', '7',
 	'7', '8', '8', '9', '9', '0', '0', '-', '-', '=', '=', DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE ,
@@ -73,7 +72,7 @@ int SimpleKbdLower[] = {
 
 };
 
-int SimpleKbdUpper[] = {
+const s16 SimpleKbdUpper[] = {
 
 	DVK_FOLD, DVK_FOLD, NOKEY, '!', '!', '@', '@', '#', '#', '$', '$', '%', '%', '^', '^', '&',
 	'&', '*', '*', '(', '(', ')', ')', '_', '_', '+', '+', DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE ,
@@ -139,13 +138,15 @@ Keyboard defaultKeyboard = {
 
 Keyboard *curKeyboard = &defaultKeyboard;
 
+s16 keyboardGetKey(int x, int y) {
+	KeyMap * keymap = curKeyboard->mappings[curKeyboard->state];
+	x = (x - curKeyboard->offset_x) / curKeyboard->grid_width;
+	y = (y + curKeyboard->offset_y) / curKeyboard->grid_height;
 
-int keyboardGetKey(int x, int y) {
-	//todo: check lower bounds as well
-	if(x < curKeyboard->offset_x || y + curKeyboard->offset_y < 0)
+	if(x < 0 || y < 0 || x >= keymap->width || y >= keymap->height)
 		return NOKEY;
 
-	lastKey = curKeyboard->mappings[curKeyboard->state]->keymap[((x - curKeyboard->offset_x) / curKeyboard->grid_width) + ((y + curKeyboard->offset_y) / curKeyboard->grid_height) * 32];
+	lastKey = keymap->keymap[x + y * keymap->width];
 
 	return lastKey;
 }
@@ -187,9 +188,9 @@ void swapKeyGfx(int key, bool pressed) {
 				}
 		}
 	}
-
 }
-int keyboardUpdate(void) {
+
+s16 keyboardUpdate(void) {
 	static int pressed = 0;
 	touchPosition touch;
 
@@ -236,8 +237,8 @@ int keyboardUpdate(void) {
 
 			swapKeyGfx(key, true);
 
+#ifdef USE_KEY_BUFFER
 			if(key == DVK_BACKSPACE) {
-
 				if(keyBufferLength > 0) {
 					keyBufferLength--;
 					keyBufferOffset--;
@@ -253,6 +254,7 @@ int keyboardUpdate(void) {
 
 				if(keyBufferOffset >= KEY_BUFFER_SIZE) keyBufferOffset = 0;
 			}
+#endif
 
 			if(curKeyboard->OnKeyPressed) curKeyboard->OnKeyPressed(lastKey);
 
@@ -289,7 +291,7 @@ ssize_t keyboardRead(struct _reent *r, void *unused, char *ptr, size_t len) {
 	tempLen = keyBufferLength;
 
 	while(len > 0 && keyBufferLength > 0) {
-		c = keyBuffer[(keyBufferOffset - keyBufferLength) % 256];
+		c = keyBuffer[(keyBufferOffset - keyBufferLength) % KEY_BUFFER_SIZE];
 
 		*ptr++ = c;
 
@@ -326,7 +328,6 @@ const devoptab_t std_in = {
 Keyboard* keyboardGetDefault(void) {
 	return &defaultKeyboard;
 }
-
 
 Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, int mapBase, int tileBase, bool mainDisplay, bool loadGraphics) {
 	if(keyboard) {
@@ -365,7 +366,6 @@ Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, 
 	keyboard->offset_x = 0;
 	keyboard->offset_y = -192 + map->height * keyboard->grid_height;
 
-	
 	keyboard->visible = 0;
 
 	bgHide(keyboard->background);
@@ -426,9 +426,8 @@ void keyboardHide(void) {
 	bgUpdate();
 }
 
-int keyboardGetChar(void) {
+s16 keyboardGetChar(void) {
 	int pressed;
-
 
 	while(1) {
 		swiWaitForVBlank();

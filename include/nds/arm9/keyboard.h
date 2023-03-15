@@ -64,7 +64,7 @@ typedef enum
 typedef struct KeyMap {
 	const u16* mapDataPressed;	/*!< the map for keys pressed*/
 	const u16* mapDataReleased;	/*!< the map for keys released */
-	const int* keymap; 			/*!< the lookup table for x y grid location to corresponding key */
+	const s16* keymap; 			/*!< the lookup table for x y grid location to corresponding key */
 	int width; 					/*!< width of the keyboard in grid spaces */
 	int height; 				/*!< height of the keyboard in grid spaces*/
 }KeyMap;
@@ -162,7 +162,7 @@ void keyboardHide(void);
 	\param y the pixel y location
 	\return the key pressed or NOKEY if user pressed outside the keypad
 */
-int keyboardGetKey(int x, int y);
+s16 keyboardGetKey(int x, int y);
 
 /*!	\brief reads the input until a the return key is pressed or the maxLen is exceeded.
 	\param buffer a buffer to hold the input string
@@ -173,13 +173,13 @@ void keyboardGetString(char * buffer, int maxLen);
 /*!	\brief Waits for user to press a key and returns the key pressed.
 	Use keyboardUpdate instead for async operation.
 */
-int keyboardGetChar(void);
+s16 keyboardGetChar(void);
 
 /*!	\brief Processes the keyboard.
 	Should be called once per frame when using the keyboard in an async manner.
 	\return the ascii code of the key pressed or -1 if no key was pressed.
 */
-int keyboardUpdate(void);
+s16 keyboardUpdate(void);
 
 #ifdef __cplusplus
 }
