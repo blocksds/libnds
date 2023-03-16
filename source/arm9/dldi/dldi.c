@@ -28,7 +28,10 @@
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <nds/arm9/cache.h>
 #include <nds/arm9/dldi.h>
+#include <nds/fifocommon.h>
+#include <nds/fifomessages.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -49,15 +52,151 @@ extern DLDI_INTERFACE _io_dldi_stub;
 
 const DLDI_INTERFACE* io_dldi_data = &_io_dldi_stub;
 
-const DISC_INTERFACE* dldiGetInternal (void) {
-	if (_io_dldi_stub.ioInterface.features & FEATURE_SLOT_GBA) {
-		sysSetCartOwner(BUS_OWNER_ARM9);
-	}
-	if (_io_dldi_stub.ioInterface.features & FEATURE_SLOT_NDS) {
-		sysSetCardOwner(BUS_OWNER_ARM9);
+// -----------------------------------------------------------------------------
+
+bool dldi_arm7_startup(void)
+{
+	FifoMessage msg;
+	msg.type = DLDI_STARTUP;
+	msg.sdParams.buffer = &_io_dldi_stub.ioInterface;
+
+	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
+
+	fifoWaitValue32(FIFO_SDMMC);
+
+	int result = fifoGetValue32(FIFO_SDMMC);
+	return result != 0;
+}
+
+bool dldi_arm7_is_inserted(void)
+{
+	fifoSendValue32(FIFO_SDMMC, DLDI_IS_INSERTED);
+
+	fifoWaitValue32(FIFO_SDMMC);
+
+	int result = fifoGetValue32(FIFO_SDMMC);
+	return result != 0;
+}
+
+bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
+{
+	DC_FlushRange(buffer, numSectors * 512);
+
+	FifoMessage msg;
+	msg.type = DLDI_READ_SECTORS;
+	msg.sdParams.startsector = sector;
+	msg.sdParams.numsectors = numSectors;
+	msg.sdParams.buffer = buffer;
+
+	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
+
+	fifoWaitValue32(FIFO_SDMMC);
+
+	int result = fifoGetValue32(FIFO_SDMMC);
+	return result != 0;
+}
+
+bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
+{
+	DC_FlushRange(buffer, numSectors * 512);
+
+	FifoMessage msg;
+	msg.type = DLDI_WRITE_SECTORS;
+	msg.sdParams.startsector = sector;
+	msg.sdParams.numsectors = numSectors;
+	msg.sdParams.buffer = (void *)buffer;
+
+	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
+
+	fifoWaitValue32(FIFO_SDMMC);
+
+	int result = fifoGetValue32(FIFO_SDMMC);
+	return result != 0;
+}
+
+bool dldi_arm7_clear_status(void)
+{
+	fifoSendValue32(FIFO_SDMMC, DLDI_CLEAR_STATUS);
+
+	fifoWaitValue32(FIFO_SDMMC);
+
+	int result = fifoGetValue32(FIFO_SDMMC);
+	return result != 0;
+}
+
+bool dldi_arm7_shutdown(void)
+{
+	fifoSendValue32(FIFO_SDMMC, DLDI_SHUTDOWN);
+
+	fifoWaitValue32(FIFO_SDMMC);
+
+	int result = fifoGetValue32(FIFO_SDMMC);
+	return result != 0;
+}
+
+// Driver that sends commands to the ARM7 to perform operations
+DISC_INTERFACE __io_dldi_arm7_interface = {
+	0, // Filled at runtime
+	0, // Filled at runtime
+	&dldi_arm7_startup,
+	&dldi_arm7_is_inserted,
+	&dldi_arm7_read_sectors,
+	&dldi_arm7_write_sectors,
+	&dldi_arm7_clear_status,
+	&dldi_arm7_shutdown
+};
+
+// -----------------------------------------------------------------------------
+
+static DLDI_MODE dldi_mode = DLDI_MODE_AUTODETECT;
+
+void dldiSetMode(DLDI_MODE mode)
+{
+	dldi_mode = mode;
+}
+
+DLDI_MODE dldiGetMode(void)
+{
+	return dldi_mode;
+}
+
+const DISC_INTERFACE* dldiGetInternal(void)
+{
+	if (dldi_mode == DLDI_MODE_AUTODETECT)
+	{
+		if (_io_dldi_stub.ioInterface.features & FEATURE_ARM7_CAPABLE)
+			dldi_mode = DLDI_MODE_ARM7;
+		else
+			dldi_mode = DLDI_MODE_ARM9;
 	}
 
-	return &_io_dldi_stub.ioInterface;
+	int bus_owner;
+	const DISC_INTERFACE *interface = NULL;
+
+	if (dldi_mode == DLDI_MODE_ARM7)
+	{
+		bus_owner = BUS_OWNER_ARM7;
+
+		__io_dldi_arm7_interface.ioType = _io_dldi_stub.ioInterface.ioType;
+		__io_dldi_arm7_interface.features = _io_dldi_stub.ioInterface.features;
+
+		interface = &__io_dldi_arm7_interface;
+	}
+	else
+	{
+		bus_owner = BUS_OWNER_ARM9;
+		interface = &_io_dldi_stub.ioInterface;
+	}
+
+	// If this is a slot-2 flashcart, set the owner of slot-2
+	if (_io_dldi_stub.ioInterface.features & FEATURE_SLOT_GBA)
+		sysSetCartOwner(bus_owner);
+
+	// If this is a slot-1 flashcard, set the owner of slot-1
+	if (_io_dldi_stub.ioInterface.features & FEATURE_SLOT_NDS)
+		sysSetCardOwner(bus_owner);
+
+	return interface;
 }
 
 

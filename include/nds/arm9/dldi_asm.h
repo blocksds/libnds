@@ -1,7 +1,8 @@
 #define FEATURE_MEDIUM_CANREAD	0x00000001
 #define FEATURE_MEDIUM_CANWRITE	0x00000002
-#define FEATURE_SLOT_GBA		0x00000010
-#define FEATURE_SLOT_NDS		0x00000020
+#define FEATURE_SLOT_GBA		0x00000010 // This is a slot-2 flashcard
+#define FEATURE_SLOT_NDS		0x00000020 // This is a slot-1 flashcart
+#define FEATURE_ARM7_CAPABLE	0x00000100 // It can be used from ARM7 and ARM9
 
 #define FIX_ALL		0x01
 #define FIX_GLUE	0x02

@@ -1,5 +1,6 @@
 #include <nds/system.h>
 #include <nds/bios.h>
+#include <nds/disc_io.h>
 #include <nds/arm7/sdmmc.h>
 #include <nds/interrupts.h>
 #include <nds/fifocommon.h>
@@ -465,33 +466,27 @@ void sdmmc_get_cid(int devicenumber, u32 *cid) {
 }
 
 //---------------------------------------------------------------------------------
-void sdmmcMsgHandler(int bytes, void *user_data) {
+int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg) {
 //---------------------------------------------------------------------------------
-    FifoMessage msg;
     int retval = 0;
 
-    fifoGetDatamsg(FIFO_SDMMC, bytes, (u8*)&msg);
-
-    int oldIME = enterCriticalSection();
-    switch (msg.type) {
+    switch (msg->type) {
 
     case SDMMC_SD_READ_SECTORS:
-        retval = sdmmc_readsectors(&deviceSD, msg.sdParams.startsector, msg.sdParams.numsectors, msg.sdParams.buffer);
+        retval = sdmmc_readsectors(&deviceSD, msg->sdParams.startsector, msg->sdParams.numsectors, msg->sdParams.buffer);
         break;
     case SDMMC_SD_WRITE_SECTORS:
-        retval = sdmmc_writesectors(&deviceSD, msg.sdParams.startsector, msg.sdParams.numsectors, msg.sdParams.buffer);
+        retval = sdmmc_writesectors(&deviceSD, msg->sdParams.startsector, msg->sdParams.numsectors, msg->sdParams.buffer);
         break;
     case SDMMC_NAND_READ_SECTORS:
-        retval = sdmmc_readsectors(&deviceNAND, msg.sdParams.startsector, msg.sdParams.numsectors, msg.sdParams.buffer);
+        retval = sdmmc_readsectors(&deviceNAND, msg->sdParams.startsector, msg->sdParams.numsectors, msg->sdParams.buffer);
         break;
     case SDMMC_NAND_WRITE_SECTORS:
-        retval = sdmmc_writesectors(&deviceNAND, msg.sdParams.startsector, msg.sdParams.numsectors, msg.sdParams.buffer);
+        retval = sdmmc_writesectors(&deviceNAND, msg->sdParams.startsector, msg->sdParams.numsectors, msg->sdParams.buffer);
         break;
     }
 
-    leaveCriticalSection(oldIME);
-
-    fifoSendValue32(FIFO_SDMMC, retval);
+    return retval;
 }
 
 //---------------------------------------------------------------------------------
@@ -509,11 +504,10 @@ int sdmmc_sd_startup() {
 }
 
 //---------------------------------------------------------------------------------
-void sdmmcValueHandler(u32 value, void* user_data) {
+int sdmmcValueHandler(u32 value, void *user_data) {
 //---------------------------------------------------------------------------------
     int result = 0;
     int sdflag = 0;
-    int oldIME = enterCriticalSection();
 
     switch(value) {
 
@@ -544,9 +538,7 @@ void sdmmcValueHandler(u32 value, void* user_data) {
         break;
     }
 
-    leaveCriticalSection(oldIME);
-
-    fifoSendValue32(FIFO_SDMMC, result);
+    return result;
 }
 
 //---------------------------------------------------------------------------------

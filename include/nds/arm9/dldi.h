@@ -70,12 +70,27 @@ typedef struct DLDI_INTERFACE {
 	DISC_INTERFACE ioInterface;
 } DLDI_INTERFACE;
 
+typedef enum {
+	DLDI_MODE_AUTODETECT = -1, // Look for FEATURE_ARM7_CAPABLE in DLDI header
+	DLDI_MODE_ARM9 = 0,
+	DLDI_MODE_ARM7 = 1,
+} DLDI_MODE;
 
 /*
 Pointer to the internal DLDI, not directly usable by libfat.
 You'll need to set the bus permissions appropriately before using.
 */
 extern const DLDI_INTERFACE* io_dldi_data;
+
+/*
+Set DLDI runtime mode.
+ */
+void dldiSetMode(DLDI_MODE mode);
+
+/*
+Get DLDI runtime mode.
+ */
+DLDI_MODE dldiGetMode(void);
 
 /*
 Return a pointer to the internal IO interface, 
