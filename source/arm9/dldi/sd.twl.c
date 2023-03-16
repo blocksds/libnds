@@ -6,7 +6,7 @@
 #include <nds/arm9/cache.h>
 
 //---------------------------------------------------------------------------------
-bool sdio_Startup() {
+bool sdio_Startup(void) {
 //---------------------------------------------------------------------------------
 	fifoSendValue32(FIFO_SDMMC,SDMMC_HAVE_SD);
 	while(!fifoCheckValue32(FIFO_SDMMC));
@@ -24,7 +24,7 @@ bool sdio_Startup() {
 }
 
 //---------------------------------------------------------------------------------
-bool sdio_IsInserted() {
+bool sdio_IsInserted(void) {
 //---------------------------------------------------------------------------------
 	fifoSendValue32(FIFO_SDMMC,SDMMC_SD_IS_INSERTED);
 
@@ -79,13 +79,13 @@ bool sdio_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer) {
 
 
 //---------------------------------------------------------------------------------
-bool sdio_ClearStatus() {
+bool sdio_ClearStatus(void) {
 //---------------------------------------------------------------------------------
 	return true;
 }
 
 //---------------------------------------------------------------------------------
-bool sdio_Shutdown() {
+bool sdio_Shutdown(void) {
 //---------------------------------------------------------------------------------
 	return true;
 }
@@ -93,12 +93,12 @@ bool sdio_Shutdown() {
 const DISC_INTERFACE __io_dsisd = {
 	DEVICE_TYPE_DSI_SD,
 	FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,
-	(FN_MEDIUM_STARTUP)&sdio_Startup,
-	(FN_MEDIUM_ISINSERTED)&sdio_IsInserted,
-	(FN_MEDIUM_READSECTORS)&sdio_ReadSectors,
-	(FN_MEDIUM_WRITESECTORS)&sdio_WriteSectors,
-	(FN_MEDIUM_CLEARSTATUS)&sdio_ClearStatus,
-	(FN_MEDIUM_SHUTDOWN)&sdio_Shutdown
+	&sdio_Startup,
+	&sdio_IsInserted,
+	&sdio_ReadSectors,
+	&sdio_WriteSectors,
+	&sdio_ClearStatus,
+	&sdio_Shutdown
 };
 
 const DISC_INTERFACE* get_io_dsisd (void) {
