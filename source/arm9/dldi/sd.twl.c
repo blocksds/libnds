@@ -1,6 +1,7 @@
 #include <nds/disc_io.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
+#include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/arm9/cache.h>
 
@@ -99,3 +100,7 @@ const DISC_INTERFACE __io_dsisd = {
 	(FN_MEDIUM_CLEARSTATUS)&sdio_ClearStatus,
 	(FN_MEDIUM_SHUTDOWN)&sdio_Shutdown
 };
+
+const DISC_INTERFACE* get_io_dsisd (void) {
+	return (isDSiMode() && __NDSHeader->unitCode ) ? &__io_dsisd : NULL;
+}

@@ -202,9 +202,3 @@ DLDI_INTERFACE* dldiLoadFromFile (const char* path) {
 void dldiFree (DLDI_INTERFACE* dldi) {
 	free(dldi);
 }
-
-extern const DISC_INTERFACE __io_dsisd;
-
-const DISC_INTERFACE* get_io_dsisd (void) {
-	return (isDSiMode() && __NDSHeader->unitCode ) ? &__io_dsisd : NULL;
-}
