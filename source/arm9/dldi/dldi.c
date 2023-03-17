@@ -91,8 +91,10 @@ bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
 	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
 
 	fifoWaitValue32(FIFO_SDMMC);
+	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_SDMMC);
+
 	return result != 0;
 }
 
@@ -109,8 +111,10 @@ bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
 	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
 
 	fifoWaitValue32(FIFO_SDMMC);
+	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_SDMMC);
+
 	return result != 0;
 }
 
