@@ -27,6 +27,7 @@
 #ifndef NDS_CARD_INCLUDE
 #define NDS_CARD_INCLUDE
 
+#include <stddef.h>
 
 #include "ndstypes.h"
 
@@ -120,6 +121,9 @@ void cardParamCommand (u8 command, u32 parameter, u32 flags, u32 *destination, u
 void cardReadHeader(u8 *header);
 u32 cardReadID(u32 flags);
 void cardReset();
+
+// The destination and size must be word-aligned
+void cardRead(void *dest, size_t offset, size_t size);
 
 //---------------------------------------------------------------------------------
 static inline void eepromWaitBusy() {

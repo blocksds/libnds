@@ -2,6 +2,7 @@
 //
 // SPDX-FileContributor: Antonio Niño Díaz, 2023
 
+#include <nds/card.h>
 #include <nds/system.h>
 #include <nds/disc_io.h>
 #include <nds/interrupts.h>
@@ -55,6 +56,11 @@ void storageMsgHandler(int bytes, void *user_data)
                                            msg.sdParams.numsectors,
                                            msg.sdParams.buffer);
         }
+        break;
+    case SLOT1_CARD_READ:
+        cardRead(msg.sdParams.buffer, msg.sdParams.startsector,
+                 msg.sdParams.numsectors);
+        retval = 1;
         break;
     }
 

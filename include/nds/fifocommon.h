@@ -71,6 +71,7 @@ typedef enum {
 	DLDI_WRITE_SECTORS,
 	DLDI_CLEAR_STATUS,
 	DLDI_SHUTDOWN,
+	SLOT1_CARD_READ,
 } FifoSdmmcCommands;
 
 typedef enum {

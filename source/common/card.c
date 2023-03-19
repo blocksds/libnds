@@ -145,6 +145,34 @@ void cardReset() {
 	} while(REG_ROMCTRL&CARD_BUSY);
 }
 
+#define NDS_CARD_BLOCK_SIZE 0x200 // CARD_BLK_SIZE(1)
 
+// Size must be smaller or equal than NDS_CARD_BLOCK_SIZE
+static void cardReadBlock(void *dest, size_t offset, size_t size)
+{
+	const uint32_t flags =
+		CARD_DELAY1(0x1FFF) | CARD_DELAY2(0x3F) | CARD_CLK_SLOW |
+		CARD_nRESET | CARD_SEC_CMD | CARD_SEC_DAT | CARD_ACTIVATE |
+		CARD_BLK_SIZE(1);
 
+	cardParamCommand(CARD_CMD_DATA_READ, offset, flags, dest, size);
+}
 
+// The destination and size must be word-aligned
+void cardRead(void *dest, size_t offset, size_t size)
+{
+	char *curr_dest = dest;
+
+	while (size > 0)
+	{
+		// The cardReadBlock() function can only read up to NDS_CARD_BLOCK_SIZE
+		size_t curr_size = size;
+		if (curr_size > NDS_CARD_BLOCK_SIZE)
+			curr_size = NDS_CARD_BLOCK_SIZE;
+
+		cardReadBlock(curr_dest, offset, curr_size);
+		curr_dest += curr_size;
+		offset += curr_size;
+		size -= curr_size;
+	}
+}
