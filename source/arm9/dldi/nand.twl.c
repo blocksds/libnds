@@ -9,17 +9,17 @@
 //---------------------------------------------------------------------------------
 bool nand_Startup() {
 //---------------------------------------------------------------------------------
-	fifoSendValue32(FIFO_SDMMC,SDMMC_HAVE_SD);
-	while(!fifoCheckValue32(FIFO_SDMMC));
-	int result = fifoGetValue32(FIFO_SDMMC);
+	fifoSendValue32(FIFO_STORAGE, SDMMC_HAVE_SD);
+	while(!fifoCheckValue32(FIFO_STORAGE));
+	int result = fifoGetValue32(FIFO_STORAGE);
 
 	if(result==0) return false;
 
-	fifoSendValue32(FIFO_SDMMC,SDMMC_NAND_START);
+	fifoSendValue32(FIFO_STORAGE, SDMMC_NAND_START);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 
-	result = fifoGetValue32(FIFO_SDMMC);
+	result = fifoGetValue32(FIFO_STORAGE);
 
 	return result == 0;
 }
@@ -42,12 +42,12 @@ bool nand_ReadSectors(sec_t sector, sec_t numSectors,void* buffer) {
 	msg.sdParams.numsectors = numSectors;
 	msg.sdParams.buffer = buffer;
 
-	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8*)&msg);
+	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8*)&msg);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 
 	return result == 0;
 }
@@ -64,12 +64,12 @@ bool nand_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer) {
 	msg.sdParams.numsectors = numSectors;
 	msg.sdParams.buffer = (void*)buffer;
 
-	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8*)&msg);
+	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8*)&msg);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 
 	return result == 0;
 }
@@ -90,11 +90,11 @@ bool nand_Shutdown() {
 //---------------------------------------------------------------------------------
 ssize_t nand_GetSize() {
 //---------------------------------------------------------------------------------
-	fifoSendValue32(FIFO_SDMMC, SDMMC_NAND_SIZE);
+	fifoSendValue32(FIFO_STORAGE, SDMMC_NAND_SIZE);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 
-	return fifoGetValue32(FIFO_SDMMC);
+	return fifoGetValue32(FIFO_STORAGE);
 
 }
 /*const DISC_INTERFACE __io_dsisd = {

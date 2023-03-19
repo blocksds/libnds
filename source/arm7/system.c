@@ -158,10 +158,9 @@ void installSystemFIFO(void) {
 //---------------------------------------------------------------------------------
 
 	fifoSetValue32Handler(FIFO_PM, powerValueHandler, 0);
-	fifoSetValue32Handler(FIFO_SDMMC, storageValueHandler, 0);
-	fifoSetDatamsgHandler(FIFO_SDMMC, storageMsgHandler, 0);
+	fifoSetValue32Handler(FIFO_STORAGE, storageValueHandler, 0);
+	fifoSetDatamsgHandler(FIFO_STORAGE, storageMsgHandler, 0);
 	fifoSetDatamsgHandler(FIFO_FIRMWARE, firmwareMsgHandler, 0);
-	
 }
 
 

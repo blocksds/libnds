@@ -60,21 +60,21 @@ bool dldi_arm7_startup(void)
 	msg.type = DLDI_STARTUP;
 	msg.sdParams.buffer = &_io_dldi_stub.ioInterface;
 
-	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
+	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 	return result != 0;
 }
 
 bool dldi_arm7_is_inserted(void)
 {
-	fifoSendValue32(FIFO_SDMMC, DLDI_IS_INSERTED);
+	fifoSendValue32(FIFO_STORAGE, DLDI_IS_INSERTED);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 	return result != 0;
 }
 
@@ -88,12 +88,12 @@ bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
 	msg.sdParams.numsectors = numSectors;
 	msg.sdParams.buffer = buffer;
 
-	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
+	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 
 	return result != 0;
 }
@@ -108,33 +108,33 @@ bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
 	msg.sdParams.numsectors = numSectors;
 	msg.sdParams.buffer = (void *)buffer;
 
-	fifoSendDatamsg(FIFO_SDMMC, sizeof(msg), (u8 *)&msg);
+	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 
 	return result != 0;
 }
 
 bool dldi_arm7_clear_status(void)
 {
-	fifoSendValue32(FIFO_SDMMC, DLDI_CLEAR_STATUS);
+	fifoSendValue32(FIFO_STORAGE, DLDI_CLEAR_STATUS);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 	return result != 0;
 }
 
 bool dldi_arm7_shutdown(void)
 {
-	fifoSendValue32(FIFO_SDMMC, DLDI_SHUTDOWN);
+	fifoSendValue32(FIFO_STORAGE, DLDI_SHUTDOWN);
 
-	fifoWaitValue32(FIFO_SDMMC);
+	fifoWaitValue32(FIFO_STORAGE);
 
-	int result = fifoGetValue32(FIFO_SDMMC);
+	int result = fifoGetValue32(FIFO_STORAGE);
 	return result != 0;
 }
 

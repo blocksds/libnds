@@ -20,7 +20,7 @@ void storageMsgHandler(int bytes, void *user_data)
     FifoMessage msg;
     int retval = 0;
 
-    fifoGetDatamsg(FIFO_SDMMC, bytes, (u8*)&msg);
+    fifoGetDatamsg(FIFO_STORAGE, bytes, (u8*)&msg);
 
     int oldIME = enterCriticalSection();
     switch (msg.type) {
@@ -60,7 +60,7 @@ void storageMsgHandler(int bytes, void *user_data)
 
     leaveCriticalSection(oldIME);
 
-    fifoSendValue32(FIFO_SDMMC, retval);
+    fifoSendValue32(FIFO_STORAGE, retval);
 }
 
 void storageValueHandler(u32 value, void *user_data)
@@ -98,5 +98,5 @@ void storageValueHandler(u32 value, void *user_data)
 
     leaveCriticalSection(oldIME);
 
-    fifoSendValue32(FIFO_SDMMC, result);
+    fifoSendValue32(FIFO_STORAGE, result);
 }
