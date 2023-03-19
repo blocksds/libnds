@@ -1021,15 +1021,15 @@ int glLoadSpriteSet( glImage              *sprite,
 {
 
 
-	int textureID; 
+	int textureID;
 	glGenTextures( 1, &textureID );
 	glBindTexture( 0, textureID );
 	glTexImage2D( 0, 0, type, sizeX, sizeY, 0, param, texture );
 	glColorTableEXT( 0, 0, pallette_width, 0, 0, palette );
-	
-	int i;
+
+	unsigned int i;
 	// init sprites texture coords and texture ID
-	for ( i=0; i < numframes; i++)
+	for (i = 0; i < numframes; i++)
 	{
 		int j = i * 4; // texcoords array is u_off, wid, hei
 		sprite[i].textureID = textureID;
