@@ -60,6 +60,7 @@
  - \ref memory.h "General memory definitions"
  - \ref memory.h "nds and gba header structure"
  - \ref dma.h "Direct Memory Access"
+ - \ref ndma.h "DSi New Direct Memory Access"
 
  \section system_api System
  - \ref ndstypes.h "Custom DS types"
@@ -248,6 +249,7 @@ extern "C" {
 #include "nds/input.h"
 #include "nds/sha1.h"
 
+#include "nds/ndma.h"
 
 //---------------------------------------------------------------------------------
 #ifdef ARM9

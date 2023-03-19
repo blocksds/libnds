@@ -64,12 +64,12 @@ dmaCopy(source, destination, sizeof(dataToCopy));
 #define DMA3_CR        (*(vuint32*)0x040000DC)
 
 
-#define DMA_SRC(n)     (*(vuint32*)(0x040000B0+(n*12)))
-#define DMA_DEST(n)    (*(vuint32*)(0x040000B4+(n*12)))
-#define DMA_CR(n)      (*(vuint32*)(0x040000B8+(n*12)))
+#define DMA_SRC(n)     (*(vuint32*)(0x040000B0+((n)*12)))
+#define DMA_DEST(n)    (*(vuint32*)(0x040000B4+((n)*12)))
+#define DMA_CR(n)      (*(vuint32*)(0x040000B8+((n)*12)))
 
 #ifdef ARM9
-#define DMA_FILL(n)    (*(vuint32*)(0x040000E0+(n*4)))
+#define DMA_FILL(n)    (*(vuint32*)(0x040000E0+((n)*4)))
 #endif
 
 // DMA control register contents
