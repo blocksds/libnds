@@ -176,7 +176,7 @@ uint32 cardEepromGetSize() {
 
 		if (id == 0xffffff) {
 			int sr = cardEepromCommand(SPI_EEPROM_RDSR);
-			if (sr == 2) { // Pokémon Mystery Dungeon - Explorers of Sky
+			if (sr == 2) {
 				return 128*1024; // 1Mbit (128KByte)
 			}
 		}
