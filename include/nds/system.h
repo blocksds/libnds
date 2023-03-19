@@ -68,18 +68,6 @@ typedef enum
 */
 #define	REG_POWERCNT	*(vu16*)0x4000304
 
-#define REG_SCFG_ROM		*(vu16*)0x4004000
-
-#ifdef ARM7
-#define REG_SCFG_A9ROM		*(vu8*)0x4004000
-#define REG_SCFG_A7ROM		*(vu8*)0x4004001  // ??
-#endif
-
-#define REG_SCFG_CLK		*(vu16*)0x4004004
-#define REG_SCFG_RST		*(vu16*)0x4004006
-#define REG_SCFG_EXT		*(vu32*)0x4004008
-#define REG_SCFG_MC			*(vu16*)0x4004010
-
 static inline
 /*!
 	\brief sets the Y trigger(?)
@@ -446,6 +434,72 @@ void resetARM7(u32 address);
 
 #ifdef ARM7
 void resetARM9(u32 address);
+#endif
+
+// DSi SCFG registers
+
+#define REG_SCFG_ROM		*(vu16*)0x4004000
+#define REG_SCFG_CLK		*(vu16*)0x4004004
+#define REG_SCFG_RST		*(vu16*)0x4004006
+#define REG_SCFG_EXT		*(vu32*)0x4004008
+#define REG_SCFG_MC		*(vu16*)0x4004010
+
+#ifdef ARM7
+#define REG_SCFG_A9ROM		*(vu8*)0x4004000
+#define REG_SCFG_A7ROM		*(vu8*)0x4004001
+
+#define SCFG_CLK_SDMMC		BIT(0)
+#define SCFG_CLK_MBK_RAM	BIT(7)
+#define SCFG_CLK_TOUCH		BIT(8)
+
+#define SCFG_EXT_DMA		IT(0)
+#define SCFG_EXT_SOUND_DMA	BIT(1)
+#define SCFG_EXT_SOUND		BIT(2)
+#define SCFG_EXT_CARD		BIT(7)
+#define SCFG_EXT_INTERRUPT	BIT(8)
+#define SCFG_EXT_SPI		BIT(9)
+#define SCFG_EXT_SOUND_DMA_EXT	BIT(10)
+#define SCFG_EXT_LCD		BIT(12)
+#define SCFG_EXT_VRAM		BIT(13)
+#define SCFG_EXT_RAM_DEBUG	BIT(14)
+#define SCFG_EXT_RAM_TWL	BIT(15)
+#define SCFG_EXT_NDMA		BIT(16)
+#define SCFG_EXT_AES		BIT(17)
+#define SCFG_EXT_SDMMC		BIT(18)
+#define SCFG_EXT_WIFI_SDIO	BIT(19)
+#define SCFG_EXT_MIC		BIT(20)
+#define SCFG_EXT_SNDEXCNT	BIT(21)
+#define SCFG_EXT_I2C		BIT(22)
+#define SCFG_EXT_GPIO		BIT(23)
+#define SCFG_EXT_MBK_RAM	BIT(25)
+#define SCFG_EXT_SCFG_MBK_REG	BIT(31)
+#endif
+
+#ifdef ARM9
+#define SCFG_CLK_ARM9_TWL	BIT(0)
+#define SCFG_CLK_DSP		BIT(1)
+#define SCFG_CLK_CAMERA_IF	BIT(2)
+#define SCFG_CLK_MBK_RAM	BIT(7)
+#define SCFG_CLK_CAMERA_EXT	BIT(8)
+
+#define SCFG_RST_DSP		BIT(0)
+
+#define SCFG_EXT_DMA		BIT(0)
+#define SCFG_EXT_GEOMETRY	BIT(1)
+#define SCFG_EXT_RENDERER	BIT(2)
+#define SCFG_EXT_2D		BIT(3)
+#define SCFG_EXT_DIVIDER	BIT(4)
+#define SCFG_EXT_CARD		BIT(7)
+#define SCFG_EXT_INTERRUPT	BIT(8)
+#define SCFG_EXT_LCD		BIT(12)
+#define SCFG_EXT_VRAM		BIT(13)
+#define SCFG_EXT_RAM_DEBUG	BIT(14)
+#define SCFG_EXT_RAM_TWL	BIT(15)
+#define SCFG_EXT_NDMA		BIT(16)
+#define SCFG_EXT_CAMERA		BIT(17)
+#define SCFG_EXT_DSP		BIT(18)
+#define SCFG_EXT_MBK_RAM	BIT(25)
+#define SCFG_EXT_SCFG_MBK_REG	BIT(31)
 #endif
 
 #endif
