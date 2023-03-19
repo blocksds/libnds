@@ -14,7 +14,6 @@ enum{
 
 void inputGetAndSend(void){
 
-	static bool penDown = false;
 	static int sleepCounter = 0;
 
 	touchPosition tempPos = {0};
@@ -31,22 +30,14 @@ void inputGetAndSend(void){
 
 	msg.SystemInput.keys = keys;
 
-	if(keys & KEY_TOUCH) {
-		penDown = false;	
-	} else {
+	if(!(keys & KEY_TOUCH)) {
 		msg.SystemInput.keys |= KEY_TOUCH;
 
-		if(penDown) {
-			touchReadXY(&tempPos);	
-			
-			if(tempPos.rawx && tempPos.rawy) {
-				msg.SystemInput.keys &= ~KEY_TOUCH;
-				msg.SystemInput.touch = tempPos;
-			} else {
-				penDown = false;
-			}
-		} else {
-			penDown = true;
+		touchReadXY(&tempPos);	
+
+		if(tempPos.rawx && tempPos.rawy) {
+			msg.SystemInput.keys &= ~KEY_TOUCH;
+			msg.SystemInput.touch = tempPos;
 		}
 	}	
 
