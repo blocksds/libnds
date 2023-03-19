@@ -44,7 +44,7 @@ void irqDummy(void) {}
 
 struct IntTable irqTable[MAX_INTERRUPTS] INT_TABLE_SECTION;
 #ifdef ARM7
-struct IntTable irqTableAUX[MAX_INTERRUPTS] TWL_BSS;
+struct IntTable irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
 
 static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
@@ -69,6 +69,17 @@ TWL_CODE void i2cIRQHandler() {
 }
 
 //---------------------------------------------------------------------------------
+TWL_CODE void irqInitAUX(void) {
+//---------------------------------------------------------------------------------
+	// Set all interrupts to dummy functions.
+	for(int i = 0; i < MAX_INTERRUPTS_AUX; i++)
+	{
+		irqTableAUX[i].handler = irqDummy;
+		irqTableAUX[i].mask = 0;
+	}
+}
+
+//---------------------------------------------------------------------------------
 VoidFn setPowerButtonCB(VoidFn CB) {
 //---------------------------------------------------------------------------------
 	if (!isDSiMode()) return CB;
@@ -79,16 +90,16 @@ VoidFn setPowerButtonCB(VoidFn CB) {
 #endif
 
 //---------------------------------------------------------------------------------
-static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[] ) {
+static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 max ) {
 //---------------------------------------------------------------------------------
 	if (!mask) return;
 
 	int i;
 
-	for	(i=0;i<MAX_INTERRUPTS;i++)
+	for	(i=0;i<max;i++)
 		if	(!irqTable[i].mask || irqTable[i].mask == mask) break;
 
-	if ( i == MAX_INTERRUPTS ) return;
+	if ( i == max ) return;
 
 	irqTable[i].handler	= handler;
 	irqTable[i].mask	= mask;
@@ -98,7 +109,7 @@ static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[] ) {
 void irqSet(u32 mask, IntFn handler) {
 //---------------------------------------------------------------------------------
 	int oldIME = enterCriticalSection();
-	__irqSet(mask,handler,irqTable);
+	__irqSet(mask,handler,irqTable,MAX_INTERRUPTS);
 	if(mask & IRQ_VBLANK)
 		REG_DISPSTAT |= DISP_VBLANK_IRQ ;
 	if(mask & IRQ_HBLANK)
@@ -132,7 +143,7 @@ void irqInit() {
 	irqInitHandler(IntrMain);
 
 	// Set all interrupts to dummy functions.
-	for(i = 0; i < MAX_INTERRUPTS; i ++)
+	for(i = 0; i < MAX_INTERRUPTS; i++)
 	{
 		irqTable[i].handler = irqDummy;
 		irqTable[i].mask = 0;
@@ -140,6 +151,7 @@ void irqInit() {
 
 #ifdef ARM7
 	if (isDSiMode()) {
+		irqInitAUX();
 		irqSetAUX(IRQ_I2C, i2cIRQHandler);
 		irqEnableAUX(IRQ_I2C);
 	}
@@ -183,14 +195,14 @@ void irqDisable(uint32 irq) {
 }
 
 //---------------------------------------------------------------------------------
-static void __irqClear(u32 mask, struct IntTable irqTable[]) {
+static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max) {
 //---------------------------------------------------------------------------------
 	int i = 0;
 
-	for	(i=0;i<MAX_INTERRUPTS;i++)
+	for	(i=0;i<max;i++)
 		if	(irqTable[i].mask == mask) break;
 
-	if ( i == MAX_INTERRUPTS ) return;
+	if ( i == max ) return;
 
 	irqTable[i].handler	= irqDummy;
 }
@@ -199,7 +211,7 @@ static void __irqClear(u32 mask, struct IntTable irqTable[]) {
 void irqClear(u32 mask) {
 //---------------------------------------------------------------------------------
 	int oldIME = enterCriticalSection();
-	__irqClear(mask,irqTable);
+	__irqClear(mask,irqTable,MAX_INTERRUPTS);
 	irqDisable( mask);
 	leaveCriticalSection(oldIME);
 }
@@ -209,7 +221,7 @@ void irqClear(u32 mask) {
 TWL_CODE void irqSetAUX(u32 mask, IntFn handler) {
 //---------------------------------------------------------------------------------
 	int oldIME = enterCriticalSection();
-	__irqSet(mask,handler,irqTableAUX);
+	__irqSet(mask,handler,irqTableAUX,MAX_INTERRUPTS_AUX);
 	leaveCriticalSection(oldIME);
 }
 
@@ -217,7 +229,7 @@ TWL_CODE void irqSetAUX(u32 mask, IntFn handler) {
 TWL_CODE void irqClearAUX(u32 mask) {
 //---------------------------------------------------------------------------------
 	int oldIME = enterCriticalSection();
-	__irqClear(mask,irqTableAUX);
+	__irqClear(mask,irqTableAUX,MAX_INTERRUPTS_AUX);
 	irqDisable( mask);
 	leaveCriticalSection(oldIME);
 }

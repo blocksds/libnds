@@ -275,7 +275,7 @@ void initClockIRQ() {
 //---------------------------------------------------------------------------------
 
 	REG_RCNT = 0x8100;
-	irqSet(IRQ_NETWORK, syncRTC);
+	irqSet(IRQ_RTC, syncRTC);
 	// Reset the clock if needed
 	rtcReset();
 
