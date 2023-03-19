@@ -275,7 +275,7 @@ static void touchReadDSMode(touchPosition *touchPos) {
 	u8 error, error_where, first_check, i;
 
 	first_check = CheckStylus();
-	if(first_check != 0){
+	if (first_check != 0) {
 		error_where = 0;
 
 		touchPos->z1 =  readTouchValue(TSC_MEASURE_Z1 | 1, &dist_max, &error);
@@ -320,8 +320,8 @@ static void touchReadDSMode(touchPosition *touchPos) {
 
 			break;
 		}
-
-	}else{
+	} else {
+		dist_max = 0;
 		error_where = 3;
 		touchPos->rawx = 0;
 		touchPos->rawy = 0;

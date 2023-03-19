@@ -220,7 +220,7 @@ ssize_t con_write(const char *ptr, size_t len) {
 
 	char chr;
 
-	int i, count = 0;
+	size_t i, count = 0;
 	char *tmp = (char*)ptr;
 	int intensity = 0;
 
