@@ -106,7 +106,7 @@ uint32 cardEepromGetSize() {
 
 		// Loop until the EEPROM mirrors and the first word shows up again
 		int size = 8192;
-		while (1) {
+		while (size <= 0x800000) {
 			cardReadEeprom(size,(u8*)&buf2,4,type);
 			// Check if it matches, if so check again with another value to ensure no false positives
 			if (buf2 == buf3) {
