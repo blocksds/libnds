@@ -121,7 +121,7 @@ uint32 cardEepromGetSize() {
 				// False match, write "TEST" back and keep going
 				cardWriteEeprom(0,(u8*)&buf3,4,type);
 			}
-			size += 8192;
+			size <<= 1;
 		}
 
 		// Restore the first word
