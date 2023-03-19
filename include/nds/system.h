@@ -444,6 +444,13 @@ void resetARM9(u32 address);
 #define REG_SCFG_EXT		*(vu32*)0x4004008
 #define REG_SCFG_MC		*(vu16*)0x4004010
 
+#define SCFG_MC_EJECTED		0x01
+#define SCFG_MC_PWR_MASK	0x0C
+#define SCFG_MC_PWR_OFF		0x00
+#define SCFG_MC_PWR_RESET	0x04
+#define SCFG_MC_PWR_ON		0x08
+#define SCFG_MC_PWR_REQUEST_OFF	0x0C
+
 #ifdef ARM7
 #define REG_SCFG_A9ROM		*(vu8*)0x4004000
 #define REG_SCFG_A7ROM		*(vu8*)0x4004001

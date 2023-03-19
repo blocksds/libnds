@@ -31,13 +31,13 @@
 void twlEnableSlot1() {
 	int oldIME = enterCriticalSection();
 
-	while((REG_SCFG_MC & 0x0c) == 0x0c) swiDelay(1 * BASE_DELAY);
+	while((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF) swiDelay(1 * BASE_DELAY);
 
-	if(!(REG_SCFG_MC & 0x0c)) {
+	if((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_OFF) {
 
-		REG_SCFG_MC = (REG_SCFG_MC & ~0x0c) | 4;
+		REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_RESET;
 		swiDelay(10 * BASE_DELAY);
-		REG_SCFG_MC = (REG_SCFG_MC & ~0x0c) | 8;
+		REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_ON;
 		swiDelay(10 * BASE_DELAY);
 	}
 	leaveCriticalSection(oldIME);
@@ -46,12 +46,12 @@ void twlEnableSlot1() {
 void twlDisableSlot1() {
 	int oldIME = enterCriticalSection();
 
-	while((REG_SCFG_MC & 0x0c) == 0x0c) swiDelay(1 * BASE_DELAY);
+	while((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF) swiDelay(1 * BASE_DELAY);
 
-	if((REG_SCFG_MC & 0x0c) == 8) {
+	if((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_ON) {
 
-		REG_SCFG_MC = (REG_SCFG_MC & ~0x0c) | 0x0c;
-		while((REG_SCFG_MC & 0x0c) != 0) swiDelay(1 * BASE_DELAY);
+		REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_REQUEST_OFF;
+		while((REG_SCFG_MC & SCFG_MC_PWR_MASK) != SCFG_MC_PWR_OFF) swiDelay(1 * BASE_DELAY);
 	}
 
 	leaveCriticalSection(oldIME);

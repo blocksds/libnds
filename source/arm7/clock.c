@@ -284,7 +284,7 @@ void initClockIRQ() {
 	rtcTransaction(command, 1, &command[1], 1);
 
 	command[0] = WRITE_STATUS_REG2;
-	command[1] = 0x41;
+	command[1] = STATUS_INT2AE | STATUS_INT1FE;
 	rtcTransaction(command, 2, 0, 0);
 
 	command[0] = WRITE_INT_REG1;
