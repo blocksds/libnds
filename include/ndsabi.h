@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include <stdint.h>
 
 /**
  * Copies n bytes from src to dest (forward)
@@ -96,9 +97,9 @@ void __ndsabi_wordset4(void* dest, size_t n, int c) __attribute__((nonnull(1)));
  * @param joined Flag if the coroutine has joined
  */
 typedef struct {
-    unsigned int arm_sp : 31;
-    unsigned int joined : 1;
-    unsigned int arg;
+    uint32_t arm_sp : 31;
+    uint32_t joined : 1;
+    uint32_t arg;
 } __ndsabi_coro_t;
 
 /**
