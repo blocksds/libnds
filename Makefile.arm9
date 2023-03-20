@@ -17,7 +17,7 @@ BINDIRS		:= source/arm9
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:= -DNO_DEVOPTAB
+DEFINES		:=
 
 # Libraries
 # ---------

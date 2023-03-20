@@ -26,10 +26,6 @@ distribution.
 
 ---------------------------------------------------------------------------------*/
 
-#ifndef NO_DEVOPTAB
-#include <sys/iosupport.h>
-#define USE_KEY_BUFFER
-#endif
 #include "keyboardGfx.h"
 #include <nds/ndstypes.h>
 #include <nds/interrupts.h>
@@ -39,14 +35,6 @@ distribution.
 #include <nds/arm9/background.h>
 #include <string.h>
 #include <stdio.h>
-
-#ifdef USE_KEY_BUFFER
-int keyBufferOffset = 0;
-int keyBufferLength = 0;
-#define KEY_BUFFER_SIZE 256
-char keyBuffer[KEY_BUFFER_SIZE];
-bool stdioRead = false;
-#endif
 
 s16 lastKey = -1;
 
@@ -237,25 +225,6 @@ s16 keyboardUpdate(void) {
 
 			swapKeyGfx(key, true);
 
-#ifdef USE_KEY_BUFFER
-			if(key == DVK_BACKSPACE) {
-				if(keyBufferLength > 0) {
-					keyBufferLength--;
-					keyBufferOffset--;
-
-					if(keyBufferOffset < 0) keyBufferOffset = KEY_BUFFER_SIZE - 1;
-				} else if(stdioRead) {
-					return -1;
-				}
-			} else if(key >= 0) {
-				keyBuffer[keyBufferOffset++] = (char)key;
-
-				if(keyBufferLength < KEY_BUFFER_SIZE) keyBufferLength++;
-
-				if(keyBufferOffset >= KEY_BUFFER_SIZE) keyBufferOffset = 0;
-			}
-#endif
-
 			if(curKeyboard->OnKeyPressed) curKeyboard->OnKeyPressed(lastKey);
 
 			return lastKey;
@@ -264,66 +233,6 @@ s16 keyboardUpdate(void) {
 
 	return -1;
 }
-
-
-
-#ifndef NO_DEVOPTAB
-
-ssize_t keyboardRead(struct _reent *r, void *unused, char *ptr, size_t len) {
-
-	int wasHidden = 0;
-	int tempLen;
-	int c = NOKEY;
-
-	stdioRead = true;
-
-	if(!curKeyboard->visible) {
-		wasHidden = 1;
-		keyboardShow();
-	}
-
-	do {
-		keyboardUpdate();
-		swiWaitForVBlank();
-
-	} while(keyBufferLength <= 0 || (keyBufferLength < KEY_BUFFER_SIZE && lastKey != DVK_ENTER));
-
-	tempLen = keyBufferLength;
-
-	while(len > 0 && keyBufferLength > 0) {
-		c = keyBuffer[(keyBufferOffset - keyBufferLength) % KEY_BUFFER_SIZE];
-
-		*ptr++ = c;
-
-		keyBufferLength--;
-		len--;
-	}
-
-	if(wasHidden) {
-		keyboardHide();
-	}
-
-	stdioRead = false;
-
-	return tempLen;
-}
-
-const devoptab_t std_in = {
-	"stdin",
-	0,
-	NULL,
-	NULL,
-	NULL,
-	keyboardRead,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-#endif
 
 Keyboard* keyboardGetDefault(void) {
 	return &defaultKeyboard;
@@ -371,10 +280,6 @@ Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, 
 	bgHide(keyboard->background);
 
 	bgUpdate();
-
-#ifndef NO_DEVOPTAB
-	devoptab_list[STD_IN] = &std_in;
-#endif
 
 	return keyboard;
 }

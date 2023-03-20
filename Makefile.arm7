@@ -15,7 +15,7 @@ INCLUDEDIRS	:= include source/common
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:= -DNO_DEVOPTAB
+DEFINES		:=
 
 # Libraries
 # ---------

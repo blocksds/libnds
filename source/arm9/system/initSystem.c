@@ -39,40 +39,9 @@ distribution.
 #include <time.h>
 #include <libnds_internal.h>
 
-#ifndef NO_DEVOPTAB
-#include <sys/iosupport.h>
-#include <sys/time.h>
-
-void __libnds_exit(int rc);
-#endif
 bool __dsimode; // set in crt0
 
 time_t *punixTime;
-
-#ifndef NO_DEVOPTAB
-//---------------------------------------------------------------------------------
-int __SYSCALL(gettod_r)(struct _reent *ptr, struct timeval *tp, struct timezone *tz) {
-//---------------------------------------------------------------------------------
-
-        if (tp != NULL) {
-                tp->tv_sec = *punixTime;
-                tp->tv_usec = 0;
-        }
-        if (tz != NULL) {
-                tz->tz_minuteswest = 0;
-                tz->tz_dsttime = 0;
-        }
-
-        return 0;
-}
-
-
-//---------------------------------------------------------------------------------
-void __SYSCALL(exit)(int rc) {
-//---------------------------------------------------------------------------------
-	__libnds_exit(rc);
-}
-#endif
 
 //---------------------------------------------------------------------------------
 // Reset the DS registers to sensible defaults
