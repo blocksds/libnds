@@ -28,6 +28,7 @@
 #define _libnds_internal_h_
 //---------------------------------------------------------------------------------
 #include <time.h>
+#include <nds/ndstypes.h>
 #include <nds/arm9/input.h>
 #include <nds/system.h>
 

@@ -8,6 +8,8 @@
 #include <sys/_timeval.h>
 #include <time.h>
 
+#include "libnds_internal.h"
+
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib:
 //
@@ -139,14 +141,11 @@ int gettimeofday(struct timeval *tp, void *tz)
     (void)tp;
     (void)tz;
 
-    // This is available in libnds in `__transferRegion()->unixTime;`, but it
-    // needs to be exposed externally.
-
-    //if (tp != NULL)
-    //{
-    //    tp->tv_sec = *punixTime;
-    //    tp->tv_usec = 0;
-    //}
+    if (tp != NULL)
+    {
+        tp->tv_sec = __transferRegion()->unixTime;
+        tp->tv_usec = 0;
+    }
 
     //return 0;
     return -1;
