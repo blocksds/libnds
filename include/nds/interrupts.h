@@ -47,7 +47,10 @@ enum IRQ_MASKS {
 	IRQ_TIMER1			=	BIT(4),		/*!< timer 1 interrupt mask */
 	IRQ_TIMER2			=	BIT(5),		/*!< timer 2 interrupt mask */
 	IRQ_TIMER3			=	BIT(6),		/*!< timer 3 interrupt mask */
-	IRQ_NETWORK			=	BIT(7),		/*!< serial interrupt mask */
+#ifdef ARM7
+	IRQ_NETWORK			=	BIT(7),		/*!< serial/RTC interrupt mask (ARM7) (deprecated name) */
+	IRQ_RTC				=	BIT(7),		/*!< serial/RTC interrupt mask (ARM7) */
+#endif
 	IRQ_DMA0			=	BIT(8),		/*!< DMA 0 interrupt mask */
 	IRQ_DMA1			=	BIT(9),		/*!< DMA 1 interrupt mask */
 	IRQ_DMA2			=	BIT(10),	/*!< DMA 2 interrupt mask */
@@ -59,21 +62,39 @@ enum IRQ_MASKS {
 	IRQ_FIFO_NOT_EMPTY	=	BIT(18),	/*!< Receive FIFO not empty interrupt mask */
 	IRQ_CARD			=	BIT(19),	/*!< interrupt mask DS Card Slot*/
 	IRQ_CARD_LINE		=	BIT(20),	/*!< interrupt mask */
-	IRQ_GEOMETRY_FIFO	=	BIT(21),	/*!< geometry FIFO interrupt mask */
-	IRQ_LID				=	BIT(22),	/*!< interrupt mask DS hinge*/
+#ifdef ARM9
+	IRQ_GEOMETRY_FIFO	=	BIT(21),	/*!< Geometry FIFO interrupt mask (ARM9) */
+	IRQ_DSP			=	BIT(24),	/*!< DSP interrupt mask (DSi ARM9) */
+	IRQ_CAMERA		=	BIT(25),	/*!< camera interrupt mask (DSi ARM9) */
+#endif
+#ifdef ARM7
+	IRQ_LID				=	BIT(22),	/*!< hinge open interrupt mask */
 	IRQ_SPI				=	BIT(23),	/*!< SPI interrupt mask */
-	IRQ_WIFI			=	BIT(24),	/*!< WIFI interrupt mask (ARM7)*/
+	IRQ_WIFI			=	BIT(24),	/*!< WIFI interrupt mask (ARM7) */
+#endif
+	IRQ_NDMA0		=	BIT(28),	/*!< NDMA 0 interrupt mask (DSi) */
+	IRQ_NDMA1		=	BIT(29),	/*!< NDMA 1 interrupt mask (DSi) */
+	IRQ_NDMA2		=	BIT(30),	/*!< NDMA 2 interrupt mask (DSi) */
+	IRQ_NDMA3		=	BIT(31),	/*!< NDMA 3 interrupt mask (DSi) */
 	IRQ_ALL				=	(~0)		/*!< 'mask' for all interrupt */
 };
 
 typedef enum IRQ_MASKS IRQ_MASK;
 
-
+#ifdef ARM7
 //! values allowed for REG_AUXIE and REG_AUXIF
 enum IRQ_MASKSAUX {
-	IRQ_I2C	=	BIT(6),	/*!< I2C interrupt mask (DSi ARM7)*/
-	IRQ_SDMMC = 	BIT(8)  /*!< Sdmmc interrupt mask (DSi ARM7)*/
+	IRQ_HEADPHONE = 	BIT(5), /*!< Headphone interrupt mask (DSi ARM7) */
+	IRQ_I2C	=		BIT(6),	/*!< I2C interrupt mask (DSi ARM7) */
+	IRQ_SDMMC = 		BIT(8), /*!< SD/MMC controller interrupt mask (DSi ARM7) */
+	IRQ_SD_DATA = 		BIT(9), /*!< SD/MMC data interrupt mask (DSi ARM7) */
+	IRQ_SDIO = 		BIT(10), /*!< SDIO controller interrupt mask (DSi ARM7) */
+	IRQ_SDIO_DATA = 	BIT(11), /*!< SDIO data interrupt mask (DSi ARM7) */
+	IRQ_AES =		BIT(12), /*!< AES interrupt mask (DSi ARM7) */
+// TODO: bit 13 (second DSi ARM7 I2C interrupt)
+	IRQ_MICEXT =		BIT(14) /*!< microphone interrupt mask (DSi ARM7) */
 };
+#endif
 
 /*!
 	\brief returns the mask for a given timer.
@@ -84,10 +105,14 @@ enum IRQ_MASKSAUX {
 */
 #define IRQ_TIMER(n) (1 << ((n) + 3))
 
+#define IRQ_DMA(n) (1 << ((n) + 8))
+#define IRQ_NDMA(n) (1 << ((n) + 28))
+
 //! maximum number of interrupts.
-#define MAX_INTERRUPTS  25
-
-
+#define MAX_INTERRUPTS  32
+#ifdef ARM7
+#define MAX_INTERRUPTS_AUX  15
+#endif
 
 /*! \def REG_IE
 
@@ -97,7 +122,9 @@ enum IRQ_MASKSAUX {
 	the corresponding bit is set, the IRQ will be masked out.
 */
 #define REG_IE	(*(vuint32*)0x04000210)
+#ifdef ARM7
 #define REG_AUXIE	(*(vuint32*)0x04000218)
+#endif
 
 /*! \def REG_IF
 
@@ -110,7 +137,9 @@ enum IRQ_MASKSAUX {
 
 */
 #define REG_IF	(*(vuint32*)0x04000214)
+#ifdef ARM7
 #define REG_AUXIF	(*(vuint32*)0x0400021C)
+#endif
 
 /*! \def REG_IME
 
@@ -170,14 +199,18 @@ void irqInit();
 	\warning Only one IRQ_MASK can be specified with this function.
 */
 void irqSet(u32 irq, VoidFn handler);
+#ifdef ARM7
 void irqSetAUX(u32 irq, VoidFn handler);
+#endif
 
 /*! \fn irqClear(u32 irq)
 	\brief remove the handler associated with the interrupt mask irq.
 	\param irq Mask associated with the interrupt.
 */
 void irqClear(u32 irq);
+#ifdef ARM7
 void irqClearAUX(u32 irq);
+#endif
 
 /*! \fn irqInitHandler(VoidFn handler)
 	\brief Install a user interrupt dispatcher.
@@ -196,7 +229,9 @@ void irqInitHandler(VoidFn handler);
 	\note Specify multiple interrupts to enable by ORing several IRQ_MASKS.
 */
 void irqEnable(u32 irq);
+#ifdef ARM7
 void irqEnableAUX(u32 irq);
+#endif
 
 /*! \fn irqDisable(u32 irq)
 	\brief Prevent the given interrupt from occuring.
@@ -204,7 +239,9 @@ void irqEnableAUX(u32 irq);
 	\note Specify multiple interrupts to disable by ORing several IRQ_MASKS.
 */
 void irqDisable(u32 irq);
+#ifdef ARM7
 void irqDisableAUX(u32 irq);
+#endif
 
 /*! \fn swiIntrWait(u32 waitForSet, uint32 flags)
 
