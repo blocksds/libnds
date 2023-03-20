@@ -7,11 +7,9 @@
 #include <nds/interrupts.h>
 #include <nds/arm9/keyboard.h>
 
-// Defined in libnds
-typedef ssize_t (* fn_write_ptr)(const char *, size_t);
-extern fn_write_ptr libnds_stdout_write, libnds_stderr_write;
+#include "../libc_private.h"
 
-// Buffers so that we can send libnds full ANSI escape sequences.
+// Buffers so that we can send to the console full ANSI escape sequences.
 #define BUFFER_SIZE 16
 static char stdout_buf[BUFFER_SIZE + 1];
 static int stdout_buf_len = 0;

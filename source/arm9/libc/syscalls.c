@@ -8,14 +8,13 @@
 #include <sys/_timeval.h>
 #include <time.h>
 
+#include "../libc_private.h"
+
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib and picolibc:
 //
 //     https://sourceware.org/newlib/libc.html#Syscalls
 //     https://github.com/picolibc/picolibc/blob/main/doc/os.md
-
-// Defined in libnds
-void __libnds_exit(int rc);
 
 void __attribute__((noreturn)) _exit(int status)
 {
@@ -59,9 +58,6 @@ int fork(void)
 int gettimeofday(struct timeval *tp, void *tz)
 {
     (void)tz;
-
-    // Defined in libnds
-    extern time_t *punixTime;
 
     if (tp != NULL)
     {
