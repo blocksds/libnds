@@ -10,7 +10,7 @@ endif
 # -----------------
 
 SOURCEDIRS	:= source/arm9 source/common
-INCLUDEDIRS	:= include source/common
+INCLUDEDIRS	:= include source/common source/common/ndsabi
 GFXDIRS		:= source/arm9/gfx
 BINDIRS		:= source/arm9
 
