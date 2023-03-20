@@ -12,7 +12,7 @@
 //
 //   argvMagic:   ARGV_MAGIC
 //   commandLine: A copy of the command line string, copied to the heap base.
-//   length:      Lenght of the command line.
+//   length:      Length of the command line.
 //   argc:        0
 //   argv:        NULL
 //   endARGV:     NULL

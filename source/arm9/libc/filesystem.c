@@ -333,7 +333,7 @@ int rename(const char *old, const char *new)
 
 static int ftruncate_internal(int fd, off_t length)
 {
-    // This function assumes that the new lenght is different from the current
+    // This function assumes that the new length is different from the current
     // one, so it doesn't have any shortcuts in case they are the same. The
     // callers must implement them.
 
