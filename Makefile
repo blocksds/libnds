@@ -1,80 +1,51 @@
-ifeq ($(strip $(DEVKITPRO)),)
-$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro)
-endif
+# SPDX-License-Identifier: Zlib
+#
+# Copyright (c) 2023 Antonio Niño Díaz
 
-export TOPDIR	:=	$(CURDIR)
+# Defines
+# -------
 
-export LIBNDS_MAJOR	:= 1
-export LIBNDS_MINOR	:= 8
-export LIBNDS_PATCH	:= 0
+LIBNDS_MAJOR	:= 1
+LIBNDS_MINOR	:= 8
+LIBNDS_PATCH	:= 0
+VERSION		:= $(LIBNDS_MAJOR).$(LIBNDS_MINOR).$(LIBNDS_PATCH)
+VERSION_HEADER	:= include/nds/libversion.h
 
+# Tools
+# -----
 
-VERSION	:=	$(LIBNDS_MAJOR).$(LIBNDS_MINOR).$(LIBNDS_PATCH)
+MAKE		:= make
+RM		:= rm -rf
 
+# Targets
+# -------
 
-.PHONY: release debug clean all docs
+.PHONY: all arm7 arm9 clean docs
 
-all: include/nds/libversion.h release debug
+all: $(VERSION_HEADER) arm9 arm7
 
-#-------------------------------------------------------------------------------
-release: lib
-#-------------------------------------------------------------------------------
-	$(MAKE) -C arm9 BUILD=release || { exit 1;}
-	$(MAKE) -C arm7 BUILD=release || { exit 1;}
-
-#-------------------------------------------------------------------------------
-debug: lib
-#-------------------------------------------------------------------------------
-	$(MAKE) -C arm9 BUILD=debug || { exit 1;}
-	$(MAKE) -C arm7 BUILD=debug || { exit 1;}
-
-#-------------------------------------------------------------------------------
-lib:
-#-------------------------------------------------------------------------------
-	mkdir lib
-
-#-------------------------------------------------------------------------------
-clean:
-#-------------------------------------------------------------------------------
-	@$(MAKE) -C arm9 clean
-	@$(MAKE) -C arm7 clean
-
-#-------------------------------------------------------------------------------
-dist-src:
-#-------------------------------------------------------------------------------
-	@tar --exclude=*CVS* --exclude=.svn -cjf libnds-src-$(VERSION).tar.bz2 arm7/Makefile arm9/Makefile source include icon.bmp Makefile libnds_license.txt Doxyfile
-
-#-------------------------------------------------------------------------------
-dist-bin: all
-#-------------------------------------------------------------------------------
-	@tar --exclude=*CVS* --exclude=.svn -cjf libnds-$(VERSION).tar.bz2 include lib icon.bmp libnds_license.txt
-
-dist: dist-bin dist-src
-
-#-------------------------------------------------------------------------------
-install: dist-bin
-#-------------------------------------------------------------------------------
-	mkdir -p $(DESTDIR)$(DEVKITPRO)/libnds
-	bzip2 -cd libnds-$(VERSION).tar.bz2 | tar -xf - -C $(DESTDIR)$(DEVKITPRO)/libnds
-
-#---------------------------------------------------------------------------------
-docs:
-#---------------------------------------------------------------------------------
-	doxygen Doxyfile
-	cat warn.log
-
-#---------------------------------------------------------------------------------
-include/nds/libversion.h : Makefile
-#---------------------------------------------------------------------------------
+$(VERSION_HEADER): Makefile
 	@echo "#ifndef __LIBNDSVERSION_H__" > $@
 	@echo "#define __LIBNDSVERSION_H__" >> $@
 	@echo >> $@
-	@echo "#define _LIBNDS_MAJOR_	$(LIBNDS_MAJOR)" >> $@
-	@echo "#define _LIBNDS_MINOR_	$(LIBNDS_MINOR)" >> $@
-	@echo "#define _LIBNDS_PATCH_	$(LIBNDS_PATCH)" >> $@
+	@echo "#define _LIBNDS_MAJOR_ $(LIBNDS_MAJOR)" >> $@
+	@echo "#define _LIBNDS_MINOR_ $(LIBNDS_MINOR)" >> $@
+	@echo "#define _LIBNDS_PATCH_ $(LIBNDS_PATCH)" >> $@
 	@echo >> $@
 	@echo '#define _LIBNDS_STRING "libNDS Release '$(LIBNDS_MAJOR).$(LIBNDS_MINOR).$(LIBNDS_PATCH)'"' >> $@
 	@echo >> $@
 	@echo "#endif // __LIBNDSVERSION_H__" >> $@
 
+arm9:
+	@+$(MAKE) -f Makefile.arm9 --no-print-directory
 
+arm7:
+	@+$(MAKE) -f Makefile.arm7 --no-print-directory
+
+clean:
+	@echo "  CLEAN"
+	@$(RM) $(VERSION_HEADER) lib build
+
+docs:
+	@echo "  DOXYGEN"
+	@doxygen Doxyfile
