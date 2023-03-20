@@ -10,7 +10,7 @@
 void __libnds_exit(int rc);
 
 typedef ssize_t (* fn_write_ptr)(const char *, size_t);
-fn_write_ptr libnds_stdout_write, libnds_stderr_write;
+extern fn_write_ptr libnds_stdout_write, libnds_stderr_write;
 
 extern time_t *punixTime;
 
