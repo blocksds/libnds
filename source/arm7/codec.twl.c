@@ -30,17 +30,17 @@
 static u8 readTSC(u8 reg) {
 //---------------------------------------------------------------------------------
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
 	REG_SPIDATA = 1 | (reg << 1);
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
 	REG_SPIDATA = 0;
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 	return REG_SPIDATA;
 }
 
@@ -48,12 +48,12 @@ static u8 readTSC(u8 reg) {
 static void writeTSC(u8 reg, u8 value) {
 //---------------------------------------------------------------------------------
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
 	REG_SPIDATA = reg << 1;
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
 	REG_SPIDATA = value;
@@ -85,23 +85,23 @@ void cdcReadRegArray(u8 bank, u8 reg, void* data, u8 size) {
 	u8* out = (u8*)data;
 	bankSwitchTSC(bank);
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
 	REG_SPIDATA = 1 | (reg << 1);
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	for (; size > 1; size--) {
 		REG_SPIDATA = 0;
-		while (REG_SPICNT & 0x80);
+		SerialWaitBusy();
 		*out++ = REG_SPIDATA;
 	}
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
 	REG_SPIDATA = 0;
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	*out++ = REG_SPIDATA;
 }
@@ -129,16 +129,16 @@ void cdcWriteRegArray(u8 bank, u8 reg, const void* data, u8 size) {
 	const u8* in = (u8*)data;
 	bankSwitchTSC(bank);
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
 	REG_SPIDATA = reg << 1;
 
-	while (REG_SPICNT & 0x80);
+	SerialWaitBusy();
 
 	for (; size > 1; size--) {
 		REG_SPIDATA = *in++;
-		while (REG_SPICNT & 0x80);
+		SerialWaitBusy();
 	}
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
@@ -149,24 +149,32 @@ void cdcWriteRegArray(u8 bank, u8 reg, const void* data, u8 size) {
 void cdcTouchInit(void) {
 //---------------------------------------------------------------------------------
 
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x0E, 0x80, 0<<7);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x02, 0x18, 3<<3);
-	cdcWriteReg    (CDC_TOUCHCNT, 0x0F, 0xA0);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x0E, 0x38, 5<<3);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x0E, 0x40, 0<<6);
-	cdcWriteReg    (CDC_TOUCHCNT, 0x03, 0x8B);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x05, 0x07, 4<<0);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x04, 0x07, 6<<0);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x04, 0x70, 4<<4);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x12, 0x07, 0<<0);
-	cdcWriteRegMask(CDC_TOUCHCNT, 0x0E, 0x80, 1<<7);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN,
+		CDC_TOUCHCNT_TWL_PEN_DOWN_ENABLE, 0);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_SAR_ADC_CTRL1,
+		CDC_TOUCHCNT_SAR_ADC_CLOCK_DIV_MASK, CDC_TOUCHCNT_SAR_ADC_CLOCK_DIV_8);
+	cdcWriteReg    (CDC_TOUCHCNT, CDC_TOUCHCNT_SCAN_MODE_TIMER, 0xA0);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN, 0x38, 5<<3);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN, 0x40, 0<<6);
+	cdcWriteReg    (CDC_TOUCHCNT, CDC_TOUCHCNT_SAR_ADC_CTRL2,
+		CDC_TOUCHCNT_SAR_ADC_CONVERSION_SELF | CDC_TOUCHCNT_SAR_ADC_SCAN_XYZ | 3); // TODO: The IRQ value used should be documented.
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_PANEL_VOLTAGE_STABILIZATION,
+		CDC_TOUCHCNT_PANEL_VOLTAGE_STABILIZATION_TIME_MASK, CDC_TOUCHCNT_PANEL_VOLTAGE_STABILIZATION_TIME_30US);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_PRECHARGE_SENSE,
+		CDC_TOUCHCNT_SENSE_TIME_MASK, CDC_TOUCHCNT_SENSE_TIME_300US);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_PRECHARGE_SENSE,
+		CDC_TOUCHCNT_PRECHARGE_TIME_MASK, CDC_TOUCHCNT_PRECHARGE_TIME_30US);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_DEBOUNCE_PENUP,
+		CDC_TOUCHCNT_DEBOUNCE_TIME_MASK, CDC_TOUCHCNT_DEBOUNCE_TIME_0US);
+	cdcWriteRegMask(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN,
+		CDC_TOUCHCNT_TWL_PEN_DOWN_ENABLE, CDC_TOUCHCNT_TWL_PEN_DOWN_ENABLE);
 }
 
 //---------------------------------------------------------------------------------
 bool cdcTouchPenDown(void) {
 //---------------------------------------------------------------------------------
 
-	return (cdcReadReg(CDC_TOUCHCNT, 0x09) & 0xC0) != 0x40 && !(cdcReadReg(CDC_TOUCHCNT, 0x0E) & 0x02);
+	return (cdcReadReg(CDC_TOUCHCNT, CDC_TOUCHCNT_STATUS) & 0xC0) != 0x40 && !(cdcReadReg(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN) & 0x02);
 }
 
 //---------------------------------------------------------------------------------
