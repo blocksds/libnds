@@ -5,6 +5,10 @@
 #ifndef NDS_COTHREAD_H__
 #define NDS_COTHREAD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -61,5 +65,9 @@ int cothread_delete(int thread);
 // Tells the scheduler to switch to a different thread. This can also be called
 // from main().
 void cothread_sleep(void);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif // NDS_COTHREAD_H__
