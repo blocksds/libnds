@@ -17,24 +17,37 @@ extern "C" {
 // cothread_has_joined() or cothread_get_exit_code() isn't allowed.
 #define COTHREAD_DETACHED   (1 << 0)
 
-// Create a thread.
+// Create a thread and allocate the stack for it. This stack will be freed when
+// the thread is deleted.
 //
 // entrypoint: Function to be run. The first argument is an opaque pointer to a
 //             context, unused for now. The second argument is the value of
 //             'arg' passed to cothread_create().
 // arg:        Argument to be passed to entrypoint.
-// stack_base: Pointer to the base of the memory to be used as stack. If NULL,
-//             it will be allocated on the heap with malloc(). If not NULL, the
-//             caller is responsible for freeing the memory after the thread
-//             ends.
-// stack_size: Size of the stack. If stack_base is NULL, and this size is 0, it
-//             will be set to a default size. If stack_base is not NULL, even if
-//             the stack_size is zero, it will preserve that size.
+// stack_size: Size of the stack. If it is set to zero it will use a default
+//             value. If non-zero, it must be aligned to 32 bit.
 // flags:      Set of ORed flags (for now, only COTHREAD_DETACHED) or 0.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
 int cothread_create(int (*entrypoint)(void*, void*), void *arg,
-                    void *stack_base, size_t stack_size, unsigned int flags);
+                    size_t stack_size, unsigned int flags);
+
+// Create a thread. The stack is owned by the caller of this function, and it
+// has to be freed after the thread ends.
+//
+// entrypoint: Function to be run. The first argument is an opaque pointer to a
+//             context, unused for now. The second argument is the value of
+//             'arg' passed to cothread_create().
+// arg:        Argument to be passed to entrypoint.
+// stack_base: Pointer to the base of the memory to be used as stack. Must be
+//             aligned to 32 bit.
+// stack_size: Size of the stack. Must be aligned to 32 bit.
+// flags:      Set of ORed flags (for now, only COTHREAD_DETACHED) or 0.
+//
+// On success, it returns 0. On failure, it returns -1 and sets errno.
+int cothread_create_manual(int (*entrypoint)(void*, void*), void *arg,
+                           void *stack_base, size_t stack_size,
+                           unsigned int flags);
 
 // Detach the specified thread.
 //

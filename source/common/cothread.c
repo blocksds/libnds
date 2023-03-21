@@ -124,14 +124,19 @@ int cothread_delete(int thread)
     return 0;
 }
 
-int cothread_create(int (*entrypoint)(void*, void*), void *arg,
-                    void *stack_base, size_t stack_size, unsigned int flags)
+int cothread_create_manual(int (*entrypoint)(void*, void*), void *arg,
+                           void *stack_base, size_t stack_size,
+                           unsigned int flags)
 {
+    // stack_size can be zero, like for the main() thread.
+
+    if ((stack_base == NULL) || (entrypoint == NULL))
+
+        goto invalid_args;
+
+    // They must be aligned to 32 bit
     if (((stack_size & 3) != 0) || (((uintptr_t)stack_base & 3) != 0))
-    {
-        errno = EINVAL;
-        return -1;
-    }
+        goto invalid_args;
 
     // Setup context
 
@@ -144,31 +149,6 @@ int cothread_create(int (*entrypoint)(void*, void*), void *arg,
 
     ctx->flags = flags;
 
-    // Setup stack
-    if (stack_base == NULL)
-    {
-        // The user hasn't specified a memory region to use as stack. Allocate
-        // it automatically.
-
-        if (stack_size == 0)
-            stack_size = DEFAULT_STACK_SIZE_CHILD;
-
-        stack_base = malloc(stack_size);
-        if (stack_base == NULL)
-        {
-            free(ctx);
-            errno = ENOMEM;
-            return -1;
-        }
-
-        ctx->stack_base = stack_base;
-    }
-    else
-    {
-        // If the user has provided the stack pointer, trust the stack pointer
-        // and the size.
-    }
-
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
     // Add context to the scheduler
@@ -178,7 +158,51 @@ int cothread_create(int (*entrypoint)(void*, void*), void *arg,
     __ndsabi_coro_make((void *)ctx, stack_top, (void *)entrypoint, arg);
 
     return (int)ctx;
+
+invalid_args:
+    errno = EINVAL;
+    return -1;
 }
+
+int cothread_create(int (*entrypoint)(void*, void*), void *arg,
+                    size_t stack_size, unsigned int flags)
+{
+    // Setup stack
+
+    if ((stack_size & 3) != 0)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (stack_size == 0)
+        stack_size = DEFAULT_STACK_SIZE_CHILD;
+
+    void *stack_base = malloc(stack_size);
+    if (stack_base == NULL)
+    {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    // Create thread
+
+    int id = cothread_create_manual(entrypoint, arg,
+                                    stack_base, stack_size, flags);
+    if (id == -1)
+    {
+        free(stack_base);
+        return -1;
+    }
+
+    // Set this stack pointer as owned by cothread
+
+    cothread_info_t *ctx = (cothread_info_t *)id;
+    ctx->stack_base = stack_base;
+
+    return id;
+}
+
 
 int cothread_detach(int thread)
 {
@@ -317,7 +341,7 @@ int cothread_start(int argc, char **argv)
     uint8_t *stack = alloca(DEFAULT_STACK_SIZE_MAIN);
     uint8_t *stack_top = stack + DEFAULT_STACK_SIZE_MAIN;
 
-    int id = cothread_create(cothread_main, &main_args, stack_top, 0, 0);
+    int id = cothread_create_manual(cothread_main, &main_args, stack_top, 0, 0);
 
     cothread_scheduler_start();
 
