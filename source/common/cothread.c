@@ -24,7 +24,7 @@ typedef struct {
 
     // Specific to libnds
     void *stack_base; // If not NULL, it has to be freed by the scheduler
-    void *prev, *next;
+    void *next;
     uint32_t flags;
 } cothread_info_t;
 
@@ -35,7 +35,7 @@ static cothread_info_t *cothread_active_thread = NULL;
 
 static void cothread_list_add_ctx(cothread_info_t *ctx)
 {
-    if (cothread_list == NULL) // This should only happen for main()
+    if (cothread_list == NULL) // This should only happen when adding main()
     {
         cothread_list = ctx;
         return;
@@ -48,45 +48,31 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
     while (p->next != NULL)
         p = p->next;
 
+    // Append the new context to the end
+
     p->next = ctx;
-    ctx->prev = p;
 }
 
 static void cothread_list_remove_ctx(cothread_info_t *ctx)
 {
     // cothread_list should never be NULL because main() should always be in the
-    // list of active threads, so this function can be simplified.
-    //
-    // Also, it isn't possible to remove main(), so the first element can never
-    // be removed.
+    // list of active threads. Also, it isn't possible to remove main(), that
+    // will cause the application to end, so the first element can never be
+    // removed.
 
-    cothread_info_t *p = cothread_list->next;
+    cothread_info_t *p = cothread_list;
 
-    if (p == NULL)
-        return;
-
-    while (1)
+    for ( ; p->next != NULL; p = p->next)
     {
-        if (p == ctx)
+        if (p->next == ctx)
         {
-            cothread_info_t *prev = p->prev;
-            cothread_info_t *next = p->next;
-
-            // There is always a previous element because main() is always there
-            prev->next = next;
-
-            // Check if this is the end of the list
-            if (next != NULL)
-                next->prev = prev;
-
+            // Skip the context that we have just found
+            p->next = ((cothread_info_t *)p->next)->next;
             return;
         }
-
-        if (p->next == NULL)
-            break;
-
-        p = p->next;
     }
+
+    // Reaching this point means that there is a bug somewhere in the code.
 }
 
 static bool cothread_list_contains_ctx(cothread_info_t *ctx)
