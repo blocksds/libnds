@@ -34,19 +34,15 @@ static cothread_info_t *cothread_active_thread = NULL;
 
 //-------------------------------------------------------------------
 
-static cothread_info_t *cothread_list = NULL;
+// This context is the start of the linked list that contains the contexts of
+// all threads. It is also used for the main() thread, which can never be freed.
+static cothread_info_t cothread_list;
 
 static void cothread_list_add_ctx(cothread_info_t *ctx)
 {
-    if (cothread_list == NULL) // This should only happen when adding main()
-    {
-        cothread_list = ctx;
-        return;
-    }
-
     // Find last node of the list
 
-    cothread_info_t *p = cothread_list;
+    cothread_info_t *p = &cothread_list;
 
     while (p->next != NULL)
         p = p->next;
@@ -61,12 +57,10 @@ ITCM_CODE
 #endif
 static void cothread_list_remove_ctx(cothread_info_t *ctx)
 {
-    // cothread_list should never be NULL because main() should always be in the
-    // list of active threads. Also, it isn't possible to remove main(), that
-    // will cause the application to end, so the first element can never be
-    // removed.
+    // The first element of cothread_list is statically allocated. It is the
+    // main() thread, which can never be deleted.
 
-    cothread_info_t *p = cothread_list;
+    cothread_info_t *p = &cothread_list;
 
     for ( ; p->next != NULL; p = p->next)
     {
@@ -83,7 +77,7 @@ static void cothread_list_remove_ctx(cothread_info_t *ctx)
 
 static bool cothread_list_contains_ctx(cothread_info_t *ctx)
 {
-    cothread_info_t *p = cothread_list;
+    cothread_info_t *p = &cothread_list;
 
     while (1)
     {
@@ -130,6 +124,18 @@ int cothread_delete(int thread)
     return 0;
 }
 
+static int cothread_create_internal(cothread_info_t *ctx,
+                                    int (*entrypoint)(void *), void *arg,
+                                    void *stack_top, unsigned int flags)
+{
+    ctx->flags = flags;
+
+    // Initialize context
+    __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
+
+    return (int)ctx;
+}
+
 int cothread_create_manual(int (*entrypoint)(void *), void *arg,
                            void *stack_base, size_t stack_size,
                            unsigned int flags)
@@ -137,7 +143,6 @@ int cothread_create_manual(int (*entrypoint)(void *), void *arg,
     // stack_size can be zero, like for the main() thread.
 
     if ((stack_base == NULL) || (entrypoint == NULL))
-
         goto invalid_args;
 
     // They must be aligned to 32 bit
@@ -153,17 +158,12 @@ int cothread_create_manual(int (*entrypoint)(void *), void *arg,
         return -1;
     }
 
-    ctx->flags = flags;
-
-    void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
-
     // Add context to the scheduler
     cothread_list_add_ctx(ctx);
 
-    // Initialize context
-    __ndsabi_coro_make_noctx((void *)ctx, stack_top, (void *)entrypoint, arg);
+    void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
-    return (int)ctx;
+    return cothread_create_internal(ctx, entrypoint, arg, stack_top, flags);
 
 invalid_args:
     errno = EINVAL;
@@ -276,7 +276,7 @@ ITCM_CODE
 #endif
 static int cothread_scheduler_start(void)
 {
-    cothread_info_t *ctx = cothread_list;
+    cothread_info_t *ctx = &cothread_list;
 
     while (1)
     {
@@ -294,7 +294,7 @@ static int cothread_scheduler_start(void)
             {
                 // If this is the main() thread, exit the whole program with the
                 // exit code returned by main().
-                if (ctx == cothread_list)
+                if (ctx == &cothread_list)
                     return ctx->arg;
 
                 // This is a regular thread.
@@ -315,7 +315,7 @@ static int cothread_scheduler_start(void)
             // Get the next thread
             ctx = ctx->next;
             if (ctx == NULL)
-                ctx = cothread_list;
+                ctx = &cothread_list;
 
             cothread_delete_internal(ctx_to_delete);
         }
@@ -324,7 +324,7 @@ static int cothread_scheduler_start(void)
             // Get next thread normally
             ctx = ctx->next;
             if (ctx == NULL)
-                ctx = cothread_list;
+                ctx = &cothread_list;
         }
     }
 }
@@ -355,7 +355,11 @@ int cothread_start(int argc, char **argv)
     uint8_t *stack = alloca(DEFAULT_STACK_SIZE_MAIN);
     uint8_t *stack_top = stack + DEFAULT_STACK_SIZE_MAIN;
 
-    int id = cothread_create_manual(cothread_main, &main_args, stack_top, 0, 0);
+    // The first element of cothread_list is statically allocated, used for the
+    // main() thread.
+    int id = cothread_create_internal(&cothread_list,
+                                      cothread_main, NULL,
+                                      stack_top, 0);
 
     cothread_scheduler_start();
 
