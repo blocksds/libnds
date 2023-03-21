@@ -28,10 +28,12 @@ typedef struct {
     uint32_t flags;
 } cothread_info_t;
 
+// Thread that is currently running
+static cothread_info_t *cothread_active_thread = NULL;
+
 //-------------------------------------------------------------------
 
 static cothread_info_t *cothread_list = NULL;
-static cothread_info_t *cothread_active_thread = NULL;
 
 static void cothread_list_add_ctx(cothread_info_t *ctx)
 {
@@ -259,6 +261,11 @@ void cothread_sleep(void)
 }
 
 //-------------------------------------------------------------------
+
+int cothread_get_current(void)
+{
+    return (int)cothread_active_thread;
+}
 
 static int cothread_scheduler_start(void)
 {

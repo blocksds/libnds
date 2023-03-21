@@ -80,6 +80,9 @@ int cothread_delete(int thread);
 // from main().
 void cothread_sleep(void);
 
+// Returns ID of the thread that is running currently.
+int cothread_get_current(void);
+
 #ifdef __cplusplus
 };
 #endif
