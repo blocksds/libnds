@@ -14,7 +14,7 @@
 #include <nds/ndstypes.h>
 
 // The stack of main() goes into DTCM, which is 16 KiB in total.
-#define DEFAULT_STACK_SIZE_MAIN  (4 * 1024)
+#define DEFAULT_STACK_SIZE_MAIN  (1 * 1024)
 #define DEFAULT_STACK_SIZE_CHILD (1 * 1024)
 
 // This extends __ndsabi_coro_t
