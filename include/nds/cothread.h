@@ -20,24 +20,22 @@ extern "C" {
 // Create a thread and allocate the stack for it. This stack will be freed when
 // the thread is deleted.
 //
-// entrypoint: Function to be run. The first argument is an opaque pointer to a
-//             context, unused for now. The second argument is the value of
-//             'arg' passed to cothread_create().
+// entrypoint: Function to be run. The argument is the value of 'arg' passed to
+//             cothread_create().
 // arg:        Argument to be passed to entrypoint.
 // stack_size: Size of the stack. If it is set to zero it will use a default
 //             value. If non-zero, it must be aligned to 32 bit.
 // flags:      Set of ORed flags (for now, only COTHREAD_DETACHED) or 0.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
-int cothread_create(int (*entrypoint)(void*, void*), void *arg,
+int cothread_create(int (*entrypoint)(void *), void *arg,
                     size_t stack_size, unsigned int flags);
 
 // Create a thread. The stack is owned by the caller of this function, and it
 // has to be freed after the thread ends.
 //
-// entrypoint: Function to be run. The first argument is an opaque pointer to a
-//             context, unused for now. The second argument is the value of
-//             'arg' passed to cothread_create().
+// entrypoint: Function to be run. The argument is the value of 'arg' passed to
+//             cothread_create_manual().
 // arg:        Argument to be passed to entrypoint.
 // stack_base: Pointer to the base of the memory to be used as stack. Must be
 //             aligned to 32 bit.
@@ -45,7 +43,7 @@ int cothread_create(int (*entrypoint)(void*, void*), void *arg,
 // flags:      Set of ORed flags (for now, only COTHREAD_DETACHED) or 0.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
-int cothread_create_manual(int (*entrypoint)(void*, void*), void *arg,
+int cothread_create_manual(int (*entrypoint)(void *), void *arg,
                            void *stack_base, size_t stack_size,
                            unsigned int flags);
 

@@ -68,3 +68,32 @@ __ndsabi_coro_pop:
     str     r2, [r1]
 
     bx      lr
+
+    .section .text.__ndsabi_coro_pop_noctx, "ax", %progbits
+    .global __ndsabi_coro_pop_noctx
+    .type __ndsabi_coro_pop_noctx, %function
+__ndsabi_coro_pop_noctx:
+    ldr     r0, [r0, #4] // Load argument
+
+    ldr     r2, [sp, #4] // Load entrypoint
+    mov     lr, pc       // Load return address (current + 8)
+    bx      r2           // Jump to entrypoint
+
+    ldr     r1, [sp]
+    @ r0 contains return value
+    @ r1 points to ndsabi_coro_t*
+
+    @ Allocate space for storing r4-r12, lr
+    sub     r2, sp, #40
+    ldr     r3, =__ndsabi_coro_pop_noctx
+    str     r3, [r2, #36] @ Next resume will call __ndsabi_coro_pop_noctx
+
+    @ Load suspend context
+    ldr     sp, [r1]
+    pop     {r4-r11, lr}
+
+    @ Set "joined" flag
+    orr     r2, r2, #0x80000000
+    str     r2, [r1]
+
+    bx      lr

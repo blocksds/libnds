@@ -126,7 +126,7 @@ int cothread_delete(int thread)
     return 0;
 }
 
-int cothread_create_manual(int (*entrypoint)(void*, void*), void *arg,
+int cothread_create_manual(int (*entrypoint)(void *), void *arg,
                            void *stack_base, size_t stack_size,
                            unsigned int flags)
 {
@@ -157,7 +157,7 @@ int cothread_create_manual(int (*entrypoint)(void*, void*), void *arg,
     cothread_list_add_ctx(ctx);
 
     // Initialize context
-    __ndsabi_coro_make((void *)ctx, stack_top, (void *)entrypoint, arg);
+    __ndsabi_coro_make_noctx((void *)ctx, stack_top, (void *)entrypoint, arg);
 
     return (int)ctx;
 
@@ -166,7 +166,7 @@ invalid_args:
     return -1;
 }
 
-int cothread_create(int (*entrypoint)(void*, void*), void *arg,
+int cothread_create(int (*entrypoint)(void *), void *arg,
                     size_t stack_size, unsigned int flags)
 {
     // Setup stack
@@ -327,7 +327,7 @@ typedef struct {
     char **argv;
 } main_args_t;
 
-int cothread_main(void *ctx, void *arg)
+int cothread_main(void *arg)
 {
     main_args_t *main_args = arg;
 
