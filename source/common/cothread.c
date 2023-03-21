@@ -263,25 +263,24 @@ static int cothread_scheduler_start(void)
         {
             // Set this thread as the active one and resume it.
             cothread_active_thread = ctx;
-            ctx->arg = __ndsabi_coro_resume((void *)ctx);
+            int ret = __ndsabi_coro_resume((void *)ctx);
 
             // Check if the thread has just ended
             if (ctx->joined)
             {
+                // If this is the main() thread, exit the whole program with the
+                // exit code returned by main().
                 if (ctx == cothread_list)
-                {
-                    // If this is the main() thread, exit the whole program with
-                    // the exit code returned by main().
                     return ctx->arg;
-                }
+
+                // This is a regular thread.
+
+                // If it is detached, delete it. If not, save the exit code so
+                // that the user can check it later.
+                if (ctx->flags & COTHREAD_DETACHED)
+                    delete_thread = true;
                 else
-                {
-                    // This is a regular thread, detect if this a detached
-                    // thread. In that case, delete it. If not, let the user
-                    // delete it after checking the exit code.
-                    if (ctx->flags & COTHREAD_DETACHED)
-                        delete_thread = true;
-                }
+                    ctx->arg = ret;
             }
         }
 
