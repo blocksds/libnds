@@ -57,7 +57,8 @@ bool cothread_has_joined(int thread);
 // to EBUSY).
 int cothread_get_exit_code(int thread);
 
-// Deletes a running thread and frees all memory used by it.
+// Deletes a running thread and frees all memory used by it. It isn't possible
+// to delete the currently running thread.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
 int cothread_delete(int thread);

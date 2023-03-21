@@ -296,8 +296,6 @@ typedef struct {
     char **argv;
 } main_args_t;
 
-static main_args_t main_args;
-
 int cothread_main(void *ctx, void *arg)
 {
     main_args_t *main_args = arg;
@@ -309,6 +307,9 @@ int cothread_main(void *ctx, void *arg)
 
 int cothread_start(int argc, char **argv)
 {
+    // Allocate this in main RAM rather than the stack to save DTCM
+    static main_args_t main_args;
+
     main_args.argc = argc;
     main_args.argv = argv;
 
