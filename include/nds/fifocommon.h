@@ -2,6 +2,7 @@
 #define FIFOCOMMON_H
 
 #include "ndstypes.h"
+#include "cothread.h"
 #include "interrupts.h"
 
 /*! \file fifocommon.h
@@ -339,7 +340,11 @@ static inline void fifoWaitValue32(int channel) {
 //---------------------------------------------------------------------------------
 
 	while(!fifoCheckValue32(channel)) {
+#ifdef ARM9
+		cothread_sleep();
+#else
 		swiIntrWait(1,IRQ_FIFO_NOT_EMPTY);
+#endif
 	}
 
 }
