@@ -11,6 +11,7 @@
 #include <ndsabi.h>
 
 #include <nds/cothread.h>
+#include <nds/ndstypes.h>
 
 // The stack of main() goes into DTCM, which is 16 KiB in total.
 #define DEFAULT_STACK_SIZE_MAIN  (4 * 1024)
@@ -55,6 +56,9 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
     p->next = ctx;
 }
 
+#ifdef ARM9
+ITCM_CODE
+#endif
 static void cothread_list_remove_ctx(cothread_info_t *ctx)
 {
     // cothread_list should never be NULL because main() should always be in the
@@ -267,6 +271,9 @@ int cothread_get_current(void)
     return (int)cothread_active_thread;
 }
 
+#ifdef ARM9
+ITCM_CODE
+#endif
 static int cothread_scheduler_start(void)
 {
     cothread_info_t *ctx = cothread_list;
