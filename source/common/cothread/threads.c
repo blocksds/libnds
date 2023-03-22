@@ -317,31 +317,32 @@ static int cothread_scheduler_start(void)
         bool delete_thread = false;
 
         // If the thread has finished, skip it
-        if (ctx->joined == 0)
+        if (ctx->joined)
+            goto next_thread;
+
+        // Set this thread as the active one and resume it.
+        cothread_active_thread = ctx;
+        int ret = __ndsabi_coro_resume((void *)ctx);
+
+        // Check if the thread has just ended
+        if (ctx->joined)
         {
-            // Set this thread as the active one and resume it.
-            cothread_active_thread = ctx;
-            int ret = __ndsabi_coro_resume((void *)ctx);
+            // If this is the main() thread, exit the whole program with the
+            // exit code returned by main().
+            if (ctx == &cothread_list)
+                return ctx->arg;
 
-            // Check if the thread has just ended
-            if (ctx->joined)
-            {
-                // If this is the main() thread, exit the whole program with the
-                // exit code returned by main().
-                if (ctx == &cothread_list)
-                    return ctx->arg;
+            // This is a regular thread.
 
-                // This is a regular thread.
-
-                // If it is detached, delete it. If not, save the exit code so
-                // that the user can check it later.
-                if (ctx->flags & COTHREAD_DETACHED)
-                    delete_thread = true;
-                else
-                    ctx->arg = ret;
-            }
+            // If it is detached, delete it. If not, save the exit code so that
+            // the user can check it later.
+            if (ctx->flags & COTHREAD_DETACHED)
+                delete_thread = true;
+            else
+                ctx->arg = ret;
         }
 
+next_thread:
         if (delete_thread)
         {
             cothread_info_t *ctx_to_delete = ctx;
