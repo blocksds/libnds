@@ -18,7 +18,7 @@ typedef enum {
 	FIFO_DSWIFI		= 4,	/*!< \brief fifo channel reserved for the dswifi library. */
 	FIFO_STORAGE	= 5,	/*!< \brief fifo channel reserved for cart reads, DLDI and DSi SDmmc control. */
 	FIFO_FIRMWARE	= 6,	/*!< \brief fifo channel reserved for firmware access. */
-	FIFO_CAMERA	= 7,	/*!< \brief fico channel reserved for camera access. */
+	FIFO_CAMERA	= 7,	/*!< \brief fifo channel reserved for camera access. */
 	FIFO_USER_01	= 8,	/*!< \brief fifo channel available for users. */
 	FIFO_USER_02	= 9,	/*!< \brief fifo channel available for users. */
 	FIFO_USER_03	= 10,	/*!< \brief fifo channel available for users. */
