@@ -11,6 +11,7 @@
 #include <ndsabi.h>
 
 #include <nds/cothread.h>
+#include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 
 // The stack of main() goes into DTCM, which is 16 KiB in total.
@@ -33,17 +34,65 @@ typedef struct {
     // Specific to libnds
     void *stack_base; // If not NULL, it has to be freed by the scheduler
     void *next;
+    uint32_t wait_irq_flags;
+#ifdef ARM7
+    uint32_t wait_irq_aux_flags;
+#endif
     uint32_t flags;
 } cothread_info_t;
 
 // Thread that is currently running
 static cothread_info_t *cothread_active_thread = NULL;
 
-//-------------------------------------------------------------------
-
 // This context is the start of the linked list that contains the contexts of
 // all threads. It is also used for the main() thread, which can never be freed.
 static cothread_info_t cothread_list;
+
+//-------------------------------------------------------------------
+
+#ifdef ARM9
+DTCM_BSS
+#endif
+volatile uint32_t cothread_irq_flags;
+
+#ifdef ARM7
+volatile uint32_t cothread_irq_aux_flags;
+#endif
+
+#ifdef ARM9
+ITCM_CODE
+#endif
+void cothread_scheduler_refresh_irq_flags(void)
+{
+    // We need to fetch and clear the current flags in a critical section in
+    // case there is an interrupt right when we are reading and clearing the
+    // variable.
+
+    int oldIME = enterCriticalSection();
+
+    uint32_t flags = cothread_irq_flags;
+    cothread_irq_flags = 0;
+#ifdef ARM7
+    uint32_t flags_aux = cothread_irq_aux_flags;
+    cothread_irq_aux_flags = 0;
+#endif
+
+    leaveCriticalSection(oldIME);
+
+    cothread_info_t *p = &cothread_list;
+
+    for (; p != NULL; p = p->next)
+    {
+        if (p->wait_irq_flags)
+            p->wait_irq_flags &= ~flags;
+#ifdef ARM7
+        if (p->wait_irq_aux_flags)
+            p->wait_irq_aux_flags &= ~flags_aux;
+#endif
+    }
+}
+
+//-------------------------------------------------------------------
 
 static void cothread_list_add_ctx(cothread_info_t *ctx)
 {
@@ -276,23 +325,21 @@ void cothread_yield(void)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
-void cothread_yield_irq(uint32_t flag)
+void cothread_yield_irq(uint32_t flags)
 {
     cothread_info_t *ctx = cothread_active_thread;
 
-    // TODO: This needs to tell the scheduler to not wake up this thread until
-    // the specified IRQ has happened.
+    ctx->wait_irq_flags = flags;
 
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
 #ifdef ARM7
-void cothread_yield_irq_aux(uint32_t flag)
+void cothread_yield_irq_aux(uint32_t flags)
 {
     cothread_info_t *ctx = cothread_active_thread;
 
-    // TODO: This needs to tell the scheduler to not wake up this thread until
-    // the specified IRQ has happened.
+    ctx->wait_irq_aux_flags = flags;
 
     __ndsabi_coro_yield((void *)ctx, 0);
 }
@@ -314,11 +361,21 @@ static int cothread_scheduler_start(void)
 
     while (1)
     {
-        bool delete_thread = false;
+        bool delete_current_thread = false;
+        cothread_info_t *ctx_to_delete = NULL;
 
         // If the thread has finished, skip it
         if (ctx->joined)
             goto next_thread;
+
+        // If this thread is waiting for any interrupt to happen, skip it
+#ifdef ARM9
+        if (ctx->wait_irq_flags)
+            goto next_thread;
+#elif defined(ARM7)
+        if (ctx->wait_irq_flags || ctx->wait_irq_aux_flags)
+            goto next_thread;
+#endif
 
         // Set this thread as the active one and resume it.
         cothread_active_thread = ctx;
@@ -337,30 +394,26 @@ static int cothread_scheduler_start(void)
             // If it is detached, delete it. If not, save the exit code so that
             // the user can check it later.
             if (ctx->flags & COTHREAD_DETACHED)
-                delete_thread = true;
+                delete_current_thread = true;
             else
                 ctx->arg = ret;
         }
 
 next_thread:
-        if (delete_thread)
+
+        if (delete_current_thread)
+            ctx_to_delete = ctx;
+
+        // Get the next thread
+        ctx = ctx->next;
+        if (ctx == NULL)
         {
-            cothread_info_t *ctx_to_delete = ctx;
+            ctx = &cothread_list;
+            cothread_scheduler_refresh_irq_flags();
+        }
 
-            // Get the next thread
-            ctx = ctx->next;
-            if (ctx == NULL)
-                ctx = &cothread_list;
-
+        if (delete_current_thread)
             cothread_delete_internal(ctx_to_delete);
-        }
-        else
-        {
-            // Get next thread normally
-            ctx = ctx->next;
-            if (ctx == NULL)
-                ctx = &cothread_list;
-        }
     }
 }
 

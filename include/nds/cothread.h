@@ -89,12 +89,12 @@ void cothread_yield(void);
 
 // Tells the scheduler to switch to a different thread until the specified IRQ
 // has happened.
-void cothread_yield_irq(uint32_t flag);
+void cothread_yield_irq(uint32_t flags);
 
 #ifdef ARM7
 // Tells the scheduler to switch to a different thread until the specified ARM7
 // AUX IRQ has happened.
-void cothread_yield_irq_aux(uint32_t flag);
+void cothread_yield_irq_aux(uint32_t flags);
 #endif
 
 // Returns ID of the thread that is running currently.
