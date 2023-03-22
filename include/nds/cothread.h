@@ -76,7 +76,7 @@ int cothread_delete(int thread);
 
 // Tells the scheduler to switch to a different thread. This can also be called
 // from main().
-void cothread_sleep(void);
+void cothread_yield(void);
 
 // Returns ID of the thread that is running currently.
 int cothread_get_current(void);

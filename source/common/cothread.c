@@ -269,7 +269,7 @@ int cothread_get_exit_code(int thread)
     return ctx->arg;
 }
 
-void cothread_sleep(void)
+void cothread_yield(void)
 {
     cothread_info_t *ctx = cothread_active_thread;
 
