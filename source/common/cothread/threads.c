@@ -276,6 +276,28 @@ void cothread_yield(void)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
+void cothread_yield_irq(uint32_t flag)
+{
+    cothread_info_t *ctx = cothread_active_thread;
+
+    // TODO: This needs to tell the scheduler to not wake up this thread until
+    // the specified IRQ has happened.
+
+    __ndsabi_coro_yield((void *)ctx, 0);
+}
+
+#ifdef ARM7
+void cothread_yield_irq_aux(uint32_t flag)
+{
+    cothread_info_t *ctx = cothread_active_thread;
+
+    // TODO: This needs to tell the scheduler to not wake up this thread until
+    // the specified IRQ has happened.
+
+    __ndsabi_coro_yield((void *)ctx, 0);
+}
+#endif
+
 //-------------------------------------------------------------------
 
 cothread_t cothread_get_current(void)
