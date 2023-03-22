@@ -42,7 +42,11 @@ typedef enum {
 	SDMMC_SD_READ_SECTORS,
 	SDMMC_SD_WRITE_SECTORS,
 	SDMMC_NAND_READ_SECTORS,
-	SDMMC_NAND_WRITE_SECTORS
+	SDMMC_NAND_WRITE_SECTORS,
+	CAMERA_APT_READ_I2C,
+	CAMERA_APT_WRITE_I2C,
+	CAMERA_APT_READ_MCU,
+	CAMERA_APT_WRITE_MCU
 } FifoMessageType;
 
 typedef struct FifoMessage {
@@ -62,7 +66,7 @@ typedef struct FifoMessage {
 			u8 channel;
 		} SoundPlay;
 
-		struct{
+		struct {
 			u16 freq;
 			u8 dutyCycle;
 			u8 volume;
@@ -70,34 +74,40 @@ typedef struct FifoMessage {
 			u8 channel;
 		} SoundPsg;
 
-		struct{
+		struct {
 			void* buffer;
 			u32 bufferLength;
 			u16 freq;
 			u8 format;
 		} MicRecord;
 
-		struct{
+		struct {
 			void* buffer;
 			u32 length;
 		} MicBufferFull;
 
-		struct{
+		struct {
 			touchPosition touch;
 			u16 keys;
 		} SystemInput;
-		
-		struct{
+
+		struct {
 			void *buffer;
 			u32 startsector;
-			u32	numsectors;
+			u32 numsectors;
 		} sdParams;
 
-		struct{
+		struct {
 			void *buffer;
 			u32 address;
-			u32	length;
+			u32 length;
 		} blockParams;
+
+		struct {
+			u16 reg;
+			u16 value;
+			u8 device;
+		} aptRegParams;
 	};
 
 } ALIGN(4) FifoMessage;

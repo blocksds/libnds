@@ -55,11 +55,15 @@ enum i2cDevices {
 #define I2CREGPM_PWRCNT		0x11
 #define I2CREGPM_MMCPWR		0x12
 #define I2CREGPM_BATTERY	0x20
+#define I2CREGPM_WIFILED	0x30
 #define I2CREGPM_CAMLED		0x31
 #define I2CREGPM_VOL		0x40
+#define I2CREGPM_BACKLIGHT	0x41
 #define I2CREGPM_RESETFLAG	0x70
 
 u8 i2cWriteRegister(u8 device, u8 reg, u8 data);
 u8 i2cReadRegister(u8 device, u8 reg);
+u8 i2cWriteRegister16(u8 device, u16 reg, u16 data);
+u16 i2cReadRegister16(u8 device, u16 reg);
 
 #endif // I2C_ARM7_INCLUDE
