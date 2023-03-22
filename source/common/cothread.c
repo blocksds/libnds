@@ -17,6 +17,13 @@
 #define DEFAULT_STACK_SIZE_MAIN  (1 * 1024)
 #define DEFAULT_STACK_SIZE_CHILD (1 * 1024)
 
+// This is a trick so that the garbage collector of the linker can remove free()
+// from any application that doesn't actually create any thread. This pointer is
+// set to free() when any thread is created. At that point, free is needed to
+// clean the resources used by the newly created thread. The main() thread is
+// never freed, so this is only needed when a second thread is created.
+static void (*free_fn)(void *) = NULL;
+
 // This extends __ndsabi_coro_t
 typedef struct {
     uint32_t arm_sp : 31;
@@ -98,9 +105,9 @@ static void cothread_delete_internal(cothread_info_t *ctx)
     cothread_list_remove_ctx(ctx);
 
     if (ctx->stack_base)
-        free(ctx->stack_base);
+        free_fn(ctx->stack_base);
 
-    free(ctx);
+    free_fn(ctx);
 }
 
 int cothread_delete(int thread)
@@ -158,6 +165,11 @@ int cothread_create_manual(int (*entrypoint)(void *), void *arg,
         return -1;
     }
 
+    // Assign the free() function to the pointer because now we are sure that we
+    // will need to free the resources of the newly created thread eventually.
+
+    free_fn = free;
+
     // Add context to the scheduler
     cothread_list_add_ctx(ctx);
 
@@ -197,7 +209,7 @@ int cothread_create(int (*entrypoint)(void *), void *arg,
                                     stack_base, stack_size, flags);
     if (id == -1)
     {
-        free(stack_base);
+        free_fn(stack_base);
         return -1;
     }
 
