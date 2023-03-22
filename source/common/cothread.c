@@ -341,27 +341,33 @@ static int cothread_scheduler_start(void)
     }
 }
 
+#ifdef ARM9
 typedef struct {
     int argc;
     char **argv;
 } main_args_t;
 
+// Allocate this in main RAM rather than the stack to save DTCM
+static main_args_t main_args;
+#endif
+
 int cothread_main(void *arg)
 {
-    main_args_t *main_args = arg;
-
     extern int main(int argc, char **argv);
 
-    return main(main_args->argc, main_args->argv);
+#ifdef ARM9
+    return main(main_args.argc, main_args.argv);
+#else
+    return main(0, NULL);
+#endif
 }
 
 int cothread_start(int argc, char **argv)
 {
-    // Allocate this in main RAM rather than the stack to save DTCM
-    static main_args_t main_args;
-
+#ifdef ARM9
     main_args.argc = argc;
     main_args.argv = argv;
+#endif
 
     // For main(), allocate the stack in the regular stack (DTCM)
     uint8_t *stack = alloca(DEFAULT_STACK_SIZE_MAIN);
