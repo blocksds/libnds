@@ -110,7 +110,7 @@ static void cothread_delete_internal(cothread_info_t *ctx)
     free_fn(ctx);
 }
 
-int cothread_delete(int thread)
+int cothread_delete(cothread_t thread)
 {
     cothread_info_t *ctx = (cothread_info_t *)thread;
 
@@ -131,21 +131,21 @@ int cothread_delete(int thread)
     return 0;
 }
 
-static int cothread_create_internal(cothread_info_t *ctx,
-                                    int (*entrypoint)(void *), void *arg,
-                                    void *stack_top, unsigned int flags)
+static cothread_t cothread_create_internal(cothread_info_t *ctx,
+                                           int (*entrypoint)(void *), void *arg,
+                                           void *stack_top, unsigned int flags)
 {
     ctx->flags = flags;
 
     // Initialize context
     __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
 
-    return (int)ctx;
+    return (cothread_t)ctx;
 }
 
-int cothread_create_manual(int (*entrypoint)(void *), void *arg,
-                           void *stack_base, size_t stack_size,
-                           unsigned int flags)
+cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
+                                  void *stack_base, size_t stack_size,
+                                  unsigned int flags)
 {
     // stack_size can be zero, like for the main() thread.
 
@@ -182,8 +182,8 @@ invalid_args:
     return -1;
 }
 
-int cothread_create(int (*entrypoint)(void *), void *arg,
-                    size_t stack_size, unsigned int flags)
+cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
+                           size_t stack_size, unsigned int flags)
 {
     // Setup stack
 
@@ -205,8 +205,8 @@ int cothread_create(int (*entrypoint)(void *), void *arg,
 
     // Create thread
 
-    int id = cothread_create_manual(entrypoint, arg,
-                                    stack_base, stack_size, flags);
+    cothread_t id = cothread_create_manual(entrypoint, arg,
+                                           stack_base, stack_size, flags);
     if (id == -1)
     {
         free_fn(stack_base);
@@ -222,7 +222,7 @@ int cothread_create(int (*entrypoint)(void *), void *arg,
 }
 
 
-int cothread_detach(int thread)
+int cothread_detach(cothread_t thread)
 {
     cothread_info_t *ctx = (cothread_info_t *)thread;
 
@@ -237,7 +237,7 @@ int cothread_detach(int thread)
     return 0;
 }
 
-bool cothread_has_joined(int thread)
+bool cothread_has_joined(cothread_t thread)
 {
     cothread_info_t *ctx = (cothread_info_t *)thread;
 
@@ -250,7 +250,7 @@ bool cothread_has_joined(int thread)
     return ctx->joined != 0;
 }
 
-int cothread_get_exit_code(int thread)
+int cothread_get_exit_code(cothread_t thread)
 {
     cothread_info_t *ctx = (cothread_info_t *)thread;
 
@@ -278,9 +278,9 @@ void cothread_yield(void)
 
 //-------------------------------------------------------------------
 
-int cothread_get_current(void)
+cothread_t cothread_get_current(void)
 {
-    return (int)cothread_active_thread;
+    return (cothread_t)cothread_active_thread;
 }
 
 #ifdef ARM9
@@ -375,9 +375,9 @@ int cothread_start(int argc, char **argv)
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.
-    int id = cothread_create_internal(&cothread_list,
-                                      cothread_main, NULL,
-                                      stack_top, 0);
+    cothread_t id = cothread_create_internal(&cothread_list,
+                                             cothread_main, NULL,
+                                             stack_top, 0);
 
     cothread_scheduler_start();
 

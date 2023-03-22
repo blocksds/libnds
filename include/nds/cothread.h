@@ -13,6 +13,8 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
+typedef int cothread_t;
+
 // A detached thread deallocates all memory used by it when it ends. Calling
 // cothread_has_joined() or cothread_get_exit_code() isn't allowed.
 #define COTHREAD_DETACHED   (1 << 0)
@@ -28,8 +30,8 @@ extern "C" {
 // flags:      Set of ORed flags (for now, only COTHREAD_DETACHED) or 0.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
-int cothread_create(int (*entrypoint)(void *), void *arg,
-                    size_t stack_size, unsigned int flags);
+cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
+                           size_t stack_size, unsigned int flags);
 
 // Create a thread. The stack is owned by the caller of this function, and it
 // has to be freed after the thread ends.
@@ -43,21 +45,21 @@ int cothread_create(int (*entrypoint)(void *), void *arg,
 // flags:      Set of ORed flags (for now, only COTHREAD_DETACHED) or 0.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
-int cothread_create_manual(int (*entrypoint)(void *), void *arg,
-                           void *stack_base, size_t stack_size,
-                           unsigned int flags);
+cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
+                                  void *stack_base, size_t stack_size,
+                                  unsigned int flags);
 
 // Detach the specified thread.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
-int cothread_detach(int thread);
+int cothread_detach(cothread_t thread);
 
 // Used to determine if a thread is running or if it has ended (joined).
 //
 // Don't call this if the thread is detached.
 //
 // Returns true if the thread has ended, false otherwise. It can also set errno.
-bool cothread_has_joined(int thread);
+bool cothread_has_joined(cothread_t thread);
 
 // If the thread has ended, this function returns the exit code.
 //
@@ -66,20 +68,20 @@ bool cothread_has_joined(int thread);
 // Returns the exit code if the thread has finished, -1 otherwise. It will set
 // errno as well (for example, if the thread is still running, it will set errno
 // to EBUSY).
-int cothread_get_exit_code(int thread);
+int cothread_get_exit_code(cothread_t thread);
 
 // Deletes a running thread and frees all memory used by it. It isn't possible
 // to delete the currently running thread.
 //
 // On success, it returns 0. On failure, it returns -1 and sets errno.
-int cothread_delete(int thread);
+int cothread_delete(cothread_t thread);
 
 // Tells the scheduler to switch to a different thread. This can also be called
 // from main().
 void cothread_yield(void);
 
 // Returns ID of the thread that is running currently.
-int cothread_get_current(void);
+cothread_t cothread_get_current(void);
 
 #ifdef __cplusplus
 };
