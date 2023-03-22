@@ -57,14 +57,20 @@ int cothread_detach(cothread_t thread);
 
 // Used to determine if a thread is running or if it has ended (joined).
 //
-// Don't call this if the thread is detached.
+// Don't call this if the thread is detached. It will always return false
+// because as soon as the thread ends all information associated to it will be
+// deleted (and, at that point, it won't exist, so the function will return
+// false along an error code).
 //
 // Returns true if the thread has ended, false otherwise. It can also set errno.
 bool cothread_has_joined(cothread_t thread);
 
 // If the thread has ended, this function returns the exit code.
 //
-// Don't call this if the thread is detached.
+// Don't call this if the thread is detached, it will never return an exit code
+// because the thread information will be deleted as soon as the thread ends
+// (and, at that point, it won't exist, so the function will return an error
+// code).
 //
 // Returns the exit code if the thread has finished, -1 otherwise. It will set
 // errno as well (for example, if the thread is still running, it will set errno
