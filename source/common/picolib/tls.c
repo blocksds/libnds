@@ -50,11 +50,8 @@ void *__tls;
  * to align up to the alignment of .tdata/.tbss.
  */
 #define TCB_SIZE	8
-extern char __arm32_tls_tcb_offset;
-#define TP_OFFSET ((size_t)&__arm32_tls_tcb_offset)
 
-void
-_set_tls(void *tls)
+void _set_tls(void *tls)
 {
-	__tls = (uint8_t *) tls - TP_OFFSET;
+	__tls = (uint8_t *) tls - TCB_SIZE;
 }

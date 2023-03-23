@@ -50,13 +50,9 @@ __aeabi_read_tp:
 	.cfi_sections .debug_frame
 	.cfi_startproc
 	/* Load the address of __tls */
-	ldr r0,1f
+	ldr r0,=__tls
 	/* Dereference to get the value of __tls */
 	ldr r0,[r0]
 	/* All done, return to caller */
 	bx lr
 	.cfi_endproc
-
-	/* Holds the address of __tls */
-	.align 2
-1: .word __tls

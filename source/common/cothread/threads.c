@@ -34,6 +34,7 @@ typedef struct {
 
     // Specific to libnds
     void *stack_base; // If not NULL, it has to be freed by the scheduler
+    void *tls;
     void *next;
     uint32_t wait_irq_flags;
 #ifdef ARM7
@@ -196,9 +197,11 @@ int cothread_delete(cothread_t thread)
 
 static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            int (*entrypoint)(void *), void *arg,
-                                           void *stack_top, unsigned int flags)
+                                           void *stack_top, void *tls,
+                                           unsigned int flags)
 {
     ctx->flags = flags;
+    ctx->tls = tls;
 
     // Initialize context
     __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
@@ -228,6 +231,22 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         return -1;
     }
 
+    // Defined by the linker
+    extern char __tls_start[];
+    extern char __tls_end[];
+    size_t __tls_size = (uintptr_t)__tls_end - (uintptr_t)__tls_start;
+
+    void *tls = malloc(__tls_size);
+    if (tls == NULL)
+    {
+        free(ctx);
+        errno = ENOMEM;
+        return -1;
+    }
+
+    extern void _init_tls(void *__tls);
+    _init_tls(tls);
+
     // Assign the free() function to the pointer because now we are sure that we
     // will need to free the resources of the newly created thread eventually.
 
@@ -238,7 +257,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
-    return cothread_create_internal(ctx, entrypoint, arg, stack_top, flags);
+    return cothread_create_internal(ctx, entrypoint, arg, stack_top, tls, flags);
 
 invalid_args:
     errno = EINVAL;
@@ -393,6 +412,10 @@ static int cothread_scheduler_start(void)
 
         // Set this thread as the active one and resume it.
         cothread_active_thread = ctx;
+
+        extern void _set_tls(void *tls);
+        _set_tls(ctx->tls);
+
         int ret = __ndsabi_coro_resume((void *)ctx);
 
         // Check if the thread has just ended
@@ -477,11 +500,14 @@ int cothread_start(int argc, char **argv)
     uint8_t *stack = alloca(DEFAULT_STACK_SIZE_MAIN);
     uint8_t *stack_top = stack + DEFAULT_STACK_SIZE_MAIN;
 
+    // Thread local storage for the main thread, defined by the linker
+    extern char __tls_start[];
+
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.
     cothread_t id = cothread_create_internal(&cothread_list,
                                              cothread_main, NULL,
-                                             stack_top, 0);
+                                             stack_top, __tls_start, 0);
 
     cothread_scheduler_start();
 
