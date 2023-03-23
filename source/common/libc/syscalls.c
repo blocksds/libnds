@@ -77,3 +77,13 @@ int execve(const char *name, char * const *argv, char * const *env)
     errno = ENOMEM;
     return -1;
 }
+
+int getentropy(void *buffer, size_t length) {
+    (void)buffer;
+    (void)length;
+
+    // TODO
+
+    errno = ENOSYS;
+    return -1;
+}
