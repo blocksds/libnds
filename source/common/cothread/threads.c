@@ -10,6 +10,7 @@
 
 #include <ndsabi.h>
 
+#include <nds/bios.h>
 #include <nds/cothread.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
@@ -59,11 +60,15 @@ volatile uint32_t cothread_irq_flags;
 volatile uint32_t cothread_irq_aux_flags;
 #endif
 
+// This function returns true if there is any thread that isn't waiting for an
+// interrupt to happen, false otherwise.
 #ifdef ARM9
 ITCM_CODE
 #endif
-void cothread_scheduler_refresh_irq_flags(void)
+bool cothread_scheduler_refresh_irq_flags(void)
 {
+    bool any_thread_available = false;
+
     // We need to fetch and clear the current flags in a critical section in
     // case there is an interrupt right when we are reading and clearing the
     // variable.
@@ -89,7 +94,16 @@ void cothread_scheduler_refresh_irq_flags(void)
         if (p->wait_irq_aux_flags)
             p->wait_irq_aux_flags &= ~flags_aux;
 #endif
+
+        if (p->wait_irq_flags == 0)
+            any_thread_available = true;
+#ifdef ARM7
+        if (p->wait_irq_aux_flags == 0)
+            any_thread_available = true;
+#endif
     }
+
+    return any_thread_available;
 }
 
 //-------------------------------------------------------------------
@@ -404,16 +418,30 @@ next_thread:
         if (delete_current_thread)
             ctx_to_delete = ctx;
 
+        bool any_thread_active = true;
+
         // Get the next thread
         ctx = ctx->next;
         if (ctx == NULL)
         {
             ctx = &cothread_list;
-            cothread_scheduler_refresh_irq_flags();
+            any_thread_active = cothread_scheduler_refresh_irq_flags();
         }
 
         if (delete_current_thread)
             cothread_delete_internal(ctx_to_delete);
+
+        if (any_thread_active == false)
+        {
+            // If no thread is active that means that all threads are
+            // waiting for an interrupt to happen. Use BIOS calls to enter
+            // low power mode.
+#ifdef ARM9
+            swiWaitForIRQ();
+#elif defined(ARM7)
+            swiHalt();
+#endif
+        }
     }
 }
 
