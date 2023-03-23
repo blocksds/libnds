@@ -36,14 +36,11 @@
 #include <picotls.h>
 #include <string.h>
 #include <stdint.h>
-#include "arm_tls.h"
 
 /* This needs to be global so that __aeabi_read_tp can
  * refer to it in an asm statement
  */
-#ifndef ARM_TLS_CP15
 void *__tls;
-#endif
 
 /* The size of the thread control block.
  * TLS relocations are generated relative to
@@ -59,9 +56,5 @@ extern char __arm32_tls_tcb_offset;
 void
 _set_tls(void *tls)
 {
-#ifdef ARM_TLS_CP15
-	__asm__("mcr 15, 0, %0, cr13, cr0, 3" : : "r" (tls - TP_OFFSET));
-#else
 	__tls = (uint8_t *) tls - TP_OFFSET;
-#endif
 }
