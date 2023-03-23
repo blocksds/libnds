@@ -502,6 +502,8 @@ int cothread_start(int argc, char **argv)
 
     // Thread local storage for the main thread, defined by the linker
     extern char __tls_start[];
+    extern void _init_tls(void *__tls);
+    _init_tls(__tls_start);
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.
