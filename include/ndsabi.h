@@ -113,6 +113,22 @@ void __ndsabi_coro_make(__ndsabi_coro_t* __restrict__ coro,
     void* __restrict__ sp_top, int(*coproc)(__ndsabi_coro_t*, void*), void *arg)
     __attribute__((nonnull(1, 2, 3)));
 
+
+/**
+ * Initializes a coro struct to call a given coroutine. The only difference is
+ * that the coroutine won't get the coroutine context as an argument. Because of
+ * that, this function can't be used for simple coroutines, it's designed to be
+ * used by a multithreading scheduler.
+ *
+ * @param coro pointer to coro struct to initialize
+ * @param sp_top the TOP of the stack for this coroutine (stack grows down!)
+ * @param coproc procedure to call as a coroutine
+ * @param arg initial argument to be passed to the coroutine.
+ */
+void __ndsabi_coro_make_noctx(__ndsabi_coro_t* __restrict__ coro,
+    void* __restrict__ sp_top, int(*coproc)(void*), void *arg)
+    __attribute__((nonnull(1, 2, 3)));
+
 /**
  * Starts/resumes a given coroutine
  * @param coro coroutine to start/resume

@@ -54,8 +54,18 @@ IntrMain:
 	ands	r1, r1, r2
 	ldr	r0, =__irq_flags	@ defined by linker script
 	ldr	r2, =irqTable
+
+	ldr	r3,[r0]
+	orr	r3,r3,r1
+	str	r3,[r0]
+
+	ldr	r0, =cothread_irq_flags
+
+	ldr	r3,[r0]
+	orr	r3,r3,r1
+	str	r3,[r0]
 #ifdef ARM7
-	bne	setflags
+	bne	endsetflags
 	
 	add	r12, r12, #8
 	ldmia	r12, {r1,r2}
@@ -63,11 +73,17 @@ IntrMain:
 	ldr	r0, =__irq_flagsaux
 	ldr	r2, =irqTableAUX
 
-#endif
-setflags:
 	ldr	r3,[r0]
 	orr	r3,r3,r1
 	str	r3,[r0]
+
+	ldr	r0, =cothread_irq_aux_flags
+
+	ldr	r3,[r0]
+	orr	r3,r3,r1
+	str	r3,[r0]
+#endif
+endsetflags:
 
 @---------------------------------------------------------------------------------
 findIRQ:

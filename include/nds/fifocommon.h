@@ -341,7 +341,7 @@ static inline void fifoWaitValue32(int channel) {
 
 	while(!fifoCheckValue32(channel)) {
 #ifdef ARM9
-		cothread_sleep();
+		cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
 #else
 		swiIntrWait(1,IRQ_FIFO_NOT_EMPTY);
 #endif

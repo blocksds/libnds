@@ -479,6 +479,26 @@ int chmod(const char *path, mode_t mode)
     return -1;
 }
 
+int fchmod(int fd, mode_t mode)
+{
+    (void)fd;
+    (void)mode;
+
+    errno = ENOSYS;
+    return -1;
+}
+
+int fchmodat(int dir_fd, const char *path, mode_t mode, int flags)
+{
+    (void)dir_fd;
+    (void)path;
+    (void)mode;
+    (void)flags;
+
+    errno = ENOSYS;
+    return -1;
+}
+
 int chown(const char *path, uid_t owner, gid_t group)
 {
     // FAT doesn't support file and group owners.
@@ -486,6 +506,28 @@ int chown(const char *path, uid_t owner, gid_t group)
     (void)path;
     (void)owner;
     (void)group;
+
+    errno = ENOSYS;
+    return -1;
+}
+
+int fchown(int fd, uid_t owner, gid_t group)
+{
+    (void)fd;
+    (void)owner;
+    (void)group;
+
+    errno = ENOSYS;
+    return -1;
+}
+
+int fchownat(int dir_fd, const char *path, uid_t owner, gid_t group, int flags)
+{
+    (void)dir_fd;
+    (void)path;
+    (void)owner;
+    (void)group;
+    (void)flags;
 
     errno = ENOSYS;
     return -1;
@@ -514,3 +556,25 @@ int access(const char *path, int amode)
 
     return 0;
 }
+
+ssize_t readlink(const char *path, char *buf, size_t length)
+{
+    // FAT doesn't support symbolic links.
+
+    (void)path;
+    (void)buf;
+    (void)length;
+
+    errno = ENOSYS;
+    return -1;
+}
+
+int symlink(const char *target, const char *path)
+{
+    (void)target;
+    (void)path;
+
+    errno = ENOSYS;
+    return -1;
+}
+
