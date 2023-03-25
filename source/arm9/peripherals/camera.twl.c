@@ -56,9 +56,11 @@ bool cameraInit(void) {
 	REG_SCFG_CLK |= SCFG_CLK_CAMERA_EXT;
 	swiDelay(20);
 
+	fifoMutexAcquire(FIFO_CAMERA);
 	fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_INIT, 0));
-	fifoWaitValue32(FIFO_CAMERA);
+	fifoWaitValueAsync32(FIFO_CAMERA);
 	u32 result = fifoGetValue32(FIFO_CAMERA);
+	fifoMutexRelease(FIFO_CAMERA);
 
 	REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_EXT;
 	REG_SCFG_CLK |= SCFG_CLK_CAMERA_EXT;
@@ -69,9 +71,11 @@ bool cameraInit(void) {
 
 bool cameraDeinit(void) {
 	if (REG_CAM_MCNT & BIT(5)) {
+		fifoMutexAcquire(FIFO_CAMERA);
 		fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_DEINIT, 0));
 		fifoWaitValue32(FIFO_CAMERA);
 		fifoGetValue32(FIFO_CAMERA);
+		fifoMutexRelease(FIFO_CAMERA);
 	}
 
 	if (!(REG_CAM_MCNT || (REG_SCFG_CLK & (SCFG_CLK_CAMERA_IF | SCFG_CLK_CAMERA_EXT)))) {
@@ -90,9 +94,12 @@ bool cameraDeinit(void) {
 }
 
 bool cameraSelect(u8 device) {
+	fifoMutexAcquire(FIFO_CAMERA);
 	fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SELECT, device));
 	fifoWaitValue32(FIFO_CAMERA);
-	if (fifoGetValue32(FIFO_CAMERA)) {
+	bool result = fifoGetValue32(FIFO_CAMERA);
+	fifoMutexRelease(FIFO_CAMERA);
+	if (result) {
 		activeDevice = device;
 		return true;
 	} else {
@@ -110,9 +117,11 @@ bool cameraStartTransfer(u16 *buffer, u8 captureMode, u8 ndmaId) {
 		cameraStopTransfer();
 	}
 
+	fifoMutexAcquire(FIFO_CAMERA);
 	fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SEND_SEQ_CMD, captureMode));
 	fifoWaitValue32(FIFO_CAMERA);
 	fifoGetValue32(FIFO_CAMERA);
+	fifoMutexRelease(FIFO_CAMERA);
 
 	REG_CAM_CNT &= ~0x200F;
 	if (preview) {
@@ -140,9 +149,13 @@ static u16 cameraLLCall(int type, u8 device, u16 reg, u16 value) {
 	msg.aptRegParams.device = device;
 	msg.aptRegParams.reg = reg;
 	msg.aptRegParams.value = value;
+
+	fifoMutexAcquire(FIFO_CAMERA);
 	fifoSendDatamsg(FIFO_CAMERA, sizeof(msg), (u8*) &msg);
 	fifoWaitValue32(FIFO_CAMERA);
-	return fifoGetValue32(FIFO_CAMERA);
+	u16 result = fifoGetValue32(FIFO_CAMERA);
+	fifoMutexRelease(FIFO_CAMERA);
+	return result;
 }
 
 u16 cameraI2cRead(u8 device, u16 reg) {
