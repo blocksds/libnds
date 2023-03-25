@@ -10,10 +10,6 @@
 #include "fatfs/ff.h"
 #include "fatfs_internal.h"
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
 int chdir(const char *path)
 {
     char *divide = strstr(path, ":/");

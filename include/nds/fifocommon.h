@@ -335,20 +335,21 @@ int fifoGetDatamsg(int channel, int buffersize, u8 * destbuffer);
 	\param channel the channel to check.
 
 */
-//---------------------------------------------------------------------------------
-static inline void fifoWaitValue32(int channel) {
-//---------------------------------------------------------------------------------
 
-	while(!fifoCheckValue32(channel)) {
-#ifdef ARM9
-		cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
-#else
-		swiIntrWait(1,IRQ_FIFO_NOT_EMPTY);
-#endif
-	}
-
+static inline void fifoWaitValue32(int channel)
+{
+	while (!fifoCheckValue32(channel))
+		swiIntrWait(1, IRQ_FIFO_NOT_EMPTY);
 }
 
+static inline void fifoWaitValueAsync32(int channel)
+{
+	while (!fifoCheckValue32(channel))
+		cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
+}
+
+void fifoMutexAcquire(int channel);
+void fifoMutexRelease(int channel);
 
 #ifdef __cplusplus
 };

@@ -100,17 +100,58 @@ void cothread_yield_irq_aux(uint32_t flags);
 // Returns ID of the thread that is running currently.
 cothread_t cothread_get_current(void);
 
+// Initialize a mutex.
+static inline bool comutex_init(comutex_t *mutex)
+{
+    *mutex = 0;
+    return true;
+}
+
 // Try to acquire a mutex. If the mutex is available, it is acquired and the
 // function returns true. If the mutex can't be acquired, it returns false.
-bool comutex_try_acquire(comutex_t *mutex);
+static inline bool comutex_try_acquire(comutex_t *mutex)
+{
+    if (*mutex != 0)
+        return false;
+
+    *mutex = 1;
+    return true;
+}
 
 // Waits in a loop until the mutex is available. The main body of the loop calls
 // cothread_yield() after each try, so that other threads can take control of
 // the CPU and eventually release the mutex.
-void comutex_acquire(comutex_t *mutex);
+static inline void comutex_acquire(comutex_t *mutex)
+{
+    while (comutex_try_acquire(mutex) == false)
+        cothread_yield();
+}
 
 // Releases a mutex.
-void comutex_release(comutex_t *mutex);
+static inline void comutex_release(comutex_t *mutex)
+{
+    *mutex = 0;
+}
+
+// Private thread information. It is private to the library, but exposed here
+// to make it possible to write tests for cothread. It extends __ndsabi_coro_t.
+typedef struct
+{
+    // Present in __ndsabi_coro_t
+    uint32_t arm_sp : 31;
+    uint32_t joined : 1;
+    uint32_t arg;
+
+    // Specific to cothread
+    void *stack_base; // If not NULL, it has to be freed by the scheduler
+    void *tls;
+    void *next;
+    uint32_t wait_irq_flags;
+#ifdef ARM7
+    uint32_t wait_irq_aux_flags;
+#endif
+    uint32_t flags;
+} cothread_info_t;
 
 #ifdef __cplusplus
 };
