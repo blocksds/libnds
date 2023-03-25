@@ -18,14 +18,19 @@ bool cardReadArm7(void *dest, size_t offset, size_t size)
 	msg.sdParams.numsectors = size;
 	msg.sdParams.buffer = dest;
 
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	// Let the ARM7 access the slot-1
 	sysSetCardOwner(BUS_OWNER_ARM7);
 
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValue32(FIFO_STORAGE);
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	DC_InvalidateRange(dest, size);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
+
 	return result != 0;
 }
