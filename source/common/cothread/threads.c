@@ -154,6 +154,8 @@ static void cothread_delete_internal(cothread_info_t *ctx)
     if (ctx->stack_base)
         free_fn(ctx->stack_base);
 
+    free(ctx->tls);
+
     free_fn(ctx);
 }
 
