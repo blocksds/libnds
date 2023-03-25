@@ -250,6 +250,7 @@ extern "C" {
 #include "nds/input.h"
 #include "nds/sha1.h"
 
+#include "nds/camera.h"
 #include "nds/ndma.h"
 
 //---------------------------------------------------------------------------------
@@ -281,6 +282,7 @@ extern "C" {
 #include "nds/arm9/video.h"
 #include "nds/arm9/videoGL.h"
 #include "nds/arm9/nand.h"
+#include "nds/arm9/camera.h"
 
 //---------------------------------------------------------------------------------
 #endif // #ifdef ARM9
@@ -291,6 +293,7 @@ extern "C" {
 //---------------------------------------------------------------------------------
 #include "nds/arm7/aes.h"
 #include "nds/arm7/audio.h"
+#include "nds/arm7/camera.h"
 #include "nds/arm7/clock.h"
 #include "nds/arm7/codec.h"
 #include "nds/arm7/input.h"
