@@ -1,7 +1,8 @@
-#include <nds/fifocommon.h>
-#include <nds/ipc.h>
-#include <nds/interrupts.h>
 #include <nds/bios.h>
+#include <nds/cothread.h>
+#include <nds/fifocommon.h>
+#include <nds/interrupts.h>
+#include <nds/ipc.h>
 #include <nds/system.h>
 
 #include <string.h>
@@ -161,6 +162,8 @@ fifo_queue	fifo_value32_queue[FIFO_NUM_CHANNELS];
 fifo_queue fifo_buffer_free = {0,FIFO_BUFFER_ENTRIES-1};
 fifo_queue fifo_send_queue = { FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
 fifo_queue fifo_receive_queue = { FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
+
+static comutex_t fifo_mutex[FIFO_NUM_CHANNELS];
 
 vu32	fifo_freewords = FIFO_BUFFER_ENTRIES;
 
@@ -640,4 +643,16 @@ bool fifoInit() {
 	irqEnable(IRQ_FIFO_NOT_EMPTY|IRQ_FIFO_EMPTY);
 
 	return true;
+}
+
+static comutex_t fifo_mutex[FIFO_NUM_CHANNELS];
+
+void fifoMutexAcquire(int channel)
+{
+    comutex_acquire(&fifo_mutex[channel]);
+}
+
+void fifoMutexRelease(int channel)
+{
+    comutex_release(&fifo_mutex[channel]);
 }

@@ -47,12 +47,17 @@ int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan){
 	msg.SoundPsg.volume = volume;
 	msg.SoundPsg.pan = pan;
 
+	fifoMutexAcquire(FIFO_SOUND);
+
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
+	fifoWaitValueAsync32(FIFO_SOUND);
+	int result = fifoGetValue32(FIFO_SOUND);
 
-	while(!fifoCheckValue32(FIFO_SOUND));
+	fifoMutexRelease(FIFO_SOUND);
 
-	return (int)fifoGetValue32(FIFO_SOUND);
+	return result;
 }
+
 int soundPlayNoise(u16 freq, u8 volume, u8 pan){
 	FifoMessage msg;
 
@@ -61,11 +66,15 @@ int soundPlayNoise(u16 freq, u8 volume, u8 pan){
 	msg.SoundPsg.volume = volume;
 	msg.SoundPsg.pan = pan;
 
+	fifoMutexAcquire(FIFO_SOUND);
+
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
+	fifoWaitValueAsync32(FIFO_SOUND);
+	int result = fifoGetValue32(FIFO_SOUND);
 
-	while(!fifoCheckValue32(FIFO_SOUND));
+	fifoMutexRelease(FIFO_SOUND);
 
-	return (int)fifoGetValue32(FIFO_SOUND);
+	return result;
 }
 
 int soundPlaySample(const void* data, SoundFormat format, u32 dataSize, u16 freq, u8 volume, u8 pan, bool loop, u16 loopPoint){ 
@@ -82,11 +91,15 @@ int soundPlaySample(const void* data, SoundFormat format, u32 dataSize, u16 freq
 	msg.SoundPlay.loopPoint = loopPoint;
 	msg.SoundPlay.dataSize = dataSize >> 2;
 
+	fifoMutexAcquire(FIFO_SOUND);
+
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
+	fifoWaitValueAsync32(FIFO_SOUND);
+	int result = fifoGetValue32(FIFO_SOUND);
 
-	while(!fifoCheckValue32(FIFO_SOUND));
+	fifoMutexRelease(FIFO_SOUND);
 
-	return (int)fifoGetValue32(FIFO_SOUND);
+	return result;
 }
 
 void soundPause(int soundId){
@@ -144,12 +157,17 @@ int soundMicRecord(void *buffer, u32 bufferLength, MicFormat format, int freq, M
 
 	fifoSetDatamsgHandler(FIFO_SOUND, micBufferHandler, 0);
 
+	fifoMutexAcquire(FIFO_SOUND);
+
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
+	fifoWaitValueAsync32(FIFO_SOUND);
+	int result = fifoGetValue32(FIFO_SOUND);
 
-	while(!fifoCheckValue32(FIFO_SOUND));
+	fifoMutexRelease(FIFO_SOUND);
 
-	return (int)fifoGetValue32(FIFO_SOUND);
+	return result;
 }
+
 void soundMicOff(void){
 	fifoSendValue32(FIFO_SOUND, MIC_STOP);
 }

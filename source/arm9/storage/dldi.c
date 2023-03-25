@@ -60,21 +60,27 @@ bool dldi_arm7_startup(void)
 	msg.type = DLDI_STARTUP;
 	msg.sdParams.buffer = &_io_dldi_stub.ioInterface;
 
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
-
-	fifoWaitValue32(FIFO_STORAGE);
-
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
+
 	return result != 0;
 }
 
 bool dldi_arm7_is_inserted(void)
 {
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	fifoSendValue32(FIFO_STORAGE, DLDI_IS_INSERTED);
-
-	fifoWaitValue32(FIFO_STORAGE);
-
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
+
 	return result != 0;
 }
 
@@ -88,12 +94,16 @@ bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
 	msg.sdParams.numsectors = numSectors;
 	msg.sdParams.buffer = buffer;
 
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValue32(FIFO_STORAGE);
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
 
 	return result != 0;
 }
@@ -108,33 +118,43 @@ bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
 	msg.sdParams.numsectors = numSectors;
 	msg.sdParams.buffer = (void *)buffer;
 
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValue32(FIFO_STORAGE);
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
 
 	return result != 0;
 }
 
 bool dldi_arm7_clear_status(void)
 {
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	fifoSendValue32(FIFO_STORAGE, DLDI_CLEAR_STATUS);
-
-	fifoWaitValue32(FIFO_STORAGE);
-
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
+
 	return result != 0;
 }
 
 bool dldi_arm7_shutdown(void)
 {
+	fifoMutexAcquire(FIFO_STORAGE);
+
 	fifoSendValue32(FIFO_STORAGE, DLDI_SHUTDOWN);
-
-	fifoWaitValue32(FIFO_STORAGE);
-
+	fifoWaitValueAsync32(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
+
+	fifoMutexRelease(FIFO_STORAGE);
+
 	return result != 0;
 }
 
