@@ -112,6 +112,26 @@ void comutex_acquire(comutex_t *mutex);
 // Releases a mutex.
 void comutex_release(comutex_t *mutex);
 
+// Private thread information. It is private to the library, but exposed here
+// to make it possible to write tests for cothread. It extends __ndsabi_coro_t.
+typedef struct
+{
+    // Present in __ndsabi_coro_t
+    uint32_t arm_sp : 31;
+    uint32_t joined : 1;
+    uint32_t arg;
+
+    // Specific to cothread
+    void *stack_base; // If not NULL, it has to be freed by the scheduler
+    void *tls;
+    void *next;
+    uint32_t wait_irq_flags;
+#ifdef ARM7
+    uint32_t wait_irq_aux_flags;
+#endif
+    uint32_t flags;
+} cothread_info_t;
+
 #ifdef __cplusplus
 };
 #endif

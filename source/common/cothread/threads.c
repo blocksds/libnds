@@ -26,23 +26,6 @@
 // never freed, so this is only needed when a second thread is created.
 static void (*free_fn)(void *) = NULL;
 
-// This extends __ndsabi_coro_t
-typedef struct {
-    uint32_t arm_sp : 31;
-    uint32_t joined : 1;
-    uint32_t arg;
-
-    // Specific to libnds
-    void *stack_base; // If not NULL, it has to be freed by the scheduler
-    void *tls;
-    void *next;
-    uint32_t wait_irq_flags;
-#ifdef ARM7
-    uint32_t wait_irq_aux_flags;
-#endif
-    uint32_t flags;
-} cothread_info_t;
-
 // Thread that is currently running
 static cothread_info_t *cothread_active_thread = NULL;
 
