@@ -100,6 +100,13 @@ void cothread_yield_irq_aux(uint32_t flags);
 // Returns ID of the thread that is running currently.
 cothread_t cothread_get_current(void);
 
+// Initialize a mutex.
+static inline bool comutex_init(comutex_t *mutex)
+{
+    *mutex = 0;
+    return true;
+}
+
 // Try to acquire a mutex. If the mutex is available, it is acquired and the
 // function returns true. If the mutex can't be acquired, it returns false.
 bool comutex_try_acquire(comutex_t *mutex);
