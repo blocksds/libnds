@@ -102,15 +102,29 @@ cothread_t cothread_get_current(void);
 
 // Try to acquire a mutex. If the mutex is available, it is acquired and the
 // function returns true. If the mutex can't be acquired, it returns false.
-bool comutex_try_acquire(comutex_t *mutex);
+static inline bool comutex_try_acquire(comutex_t *mutex)
+{
+    if (*mutex != 0)
+        return false;
+
+    *mutex = 1;
+    return true;
+}
 
 // Waits in a loop until the mutex is available. The main body of the loop calls
 // cothread_yield() after each try, so that other threads can take control of
 // the CPU and eventually release the mutex.
-void comutex_acquire(comutex_t *mutex);
+static inline void comutex_acquire(comutex_t *mutex)
+{
+    while (comutex_try_acquire(mutex) == false)
+        cothread_yield();
+}
 
 // Releases a mutex.
-void comutex_release(comutex_t *mutex);
+static inline void comutex_release(comutex_t *mutex)
+{
+    *mutex = 0;
+}
 
 // Private thread information. It is private to the library, but exposed here
 // to make it possible to write tests for cothread. It extends __ndsabi_coro_t.
