@@ -57,7 +57,7 @@ void _init_tls(void *__tls)
     char *tls = __tls;
 
     char *tdata_start = tls;
-    char *tbss_start = tls + (uintptr_t)__tbss_start - (uintptr_t)__tls_start;
+    char *tbss_start = tls + (uintptr_t)__tdata_size;
 
     // Copy tdata
     memcpy(tdata_start, __tdata_start, (uintptr_t)__tdata_size);
