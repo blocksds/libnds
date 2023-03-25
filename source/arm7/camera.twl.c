@@ -278,6 +278,12 @@ void cameraCommandHandler(u32 fifoValue, void* userdata) {
 	case CAMERA_CMD_INIT: {
 		aptCameraInit(I2C_CAM0);
 		aptCameraInit(I2C_CAM1);
+		// TODO: The 3DS doesn't need to deactivate the camera for it to work.
+		// On DSi, the image appears flipped on the Y axis and with color
+		// components swapped. Why? Is there a smaller set of commands that make
+		// it work reliably?
+		aptCameraDeactivate(I2C_CAM0);
+		aptCameraDeactivate(I2C_CAM1);
 		fifoSendValue32(FIFO_CAMERA, aptI2cRead(I2C_CAM0, I2CREG_APT_CHIP_VERSION));
 	} break;
 	case CAMERA_CMD_DEINIT: {
