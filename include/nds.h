@@ -237,6 +237,7 @@ extern "C" {
 #include "nds/ndstypes.h"
 #include "nds/bios.h"
 #include "nds/card.h"
+#include "nds/cothread.h"
 #include "nds/debug.h"
 #include "nds/dma.h"
 #include "nds/interrupts.h"
