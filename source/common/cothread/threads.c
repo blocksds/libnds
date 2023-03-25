@@ -15,8 +15,6 @@
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 
-// The stack of main() goes into DTCM, which is 16 KiB in total.
-#define DEFAULT_STACK_SIZE_MAIN  (1 * 1024)
 #define DEFAULT_STACK_SIZE_CHILD (1 * 1024)
 
 // This is a trick so that the garbage collector of the linker can remove free()
@@ -474,16 +472,12 @@ int cothread_main(void *arg)
 #endif
 }
 
-int cothread_start(int argc, char **argv)
+int cothread_start(int argc, char **argv, void *main_stack_top)
 {
 #ifdef ARM9
     main_args.argc = argc;
     main_args.argv = argv;
 #endif
-
-    // For main(), allocate the stack in the regular stack (DTCM)
-    uint8_t *stack = alloca(DEFAULT_STACK_SIZE_MAIN);
-    uint8_t *stack_top = stack + DEFAULT_STACK_SIZE_MAIN;
 
     // Thread local storage for the main thread, defined by the linker
     extern char __tls_start[];
@@ -494,7 +488,7 @@ int cothread_start(int argc, char **argv)
     // main() thread.
     cothread_t id = cothread_create_internal(&cothread_list,
                                              cothread_main, NULL,
-                                             stack_top, __tls_start, 0);
+                                             main_stack_top, __tls_start, 0);
 
     cothread_scheduler_start();
 
