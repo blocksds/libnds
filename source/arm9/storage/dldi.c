@@ -310,13 +310,15 @@ DLDI_INTERFACE* dldiLoadFromFile (const char* path) {
 	if ((fd = open (path, O_RDONLY, 0)) < 0) {
 		return NULL;
 	}
-	
-	if ((device = malloc (sizeof(DLDI_INTERFACE))) == NULL) {
+
+	const ssize_t dldi_interface_size = sizeof(DLDI_INTERFACE);
+
+	if ((device = malloc (dldi_interface_size)) == NULL) {
 		close (fd);
 		return NULL;
 	}
-	
-	if (read (fd, device, sizeof(DLDI_INTERFACE)) < sizeof(DLDI_INTERFACE)) {
+
+	if (read (fd, device, dldi_interface_size) < dldi_interface_size) {
 		free (device);
 		close (fd);
 		return NULL;

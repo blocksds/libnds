@@ -134,7 +134,7 @@ void SetOrtho( void )
 
 	glMatrixMode( GL_PROJECTION );     // set matrixmode to projection
 	glLoadIdentity();				 // reset
-	glOrthof32( 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1 << 12, 1 << 12 );  // downscale projection matrix
+	glOrthof32( 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -(1 << 12), 1 << 12 );  // downscale projection matrix
 	
 }
 

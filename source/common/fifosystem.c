@@ -270,12 +270,12 @@ static void fifo_freeBlock(u32 index) {
 	fifo_freewords++;
 }
 
-static bool fifoInternalSend(u32 firstword, int extrawordcount, u32 * wordlist) {
+static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 * wordlist) {
 	if(extrawordcount>0 && !wordlist) return false;
 	if(fifo_freewords<extrawordcount+1) return false;
-	if(extrawordcount<0 || extrawordcount>(FIFO_MAX_DATA_BYTES/4)) return false;
+	if(extrawordcount>(FIFO_MAX_DATA_BYTES/4)) return false;
 
-	int count = 0;
+	u32 count = 0;
 	int oldIME = enterCriticalSection();
 
 	u32 head = fifo_waitBlock();
@@ -332,7 +332,7 @@ bool fifoSendValue32(int channel, u32 value32) {
 	}
 }
 
-bool fifoSendDatamsg(int channel, int num_bytes, u8 * data_array) {
+bool fifoSendDatamsg(int channel, u32 num_bytes, u8 * data_array) {
   if(num_bytes == 0) {
     u32 send_first = FIFO_PACK_DATAMSG_HEADER(channel, 0);
     return fifoInternalSend(send_first, 0, NULL);
@@ -340,10 +340,10 @@ bool fifoSendDatamsg(int channel, int num_bytes, u8 * data_array) {
 
 	if(data_array==NULL) return false;
 	if(channel<0 || channel>=FIFO_NUM_CHANNELS) return false;
-	if(num_bytes<0 || num_bytes>=FIFO_MAX_DATA_BYTES) return false;
+	if(num_bytes>=FIFO_MAX_DATA_BYTES) return false;
 
 
-	int num_words = (num_bytes+3)>>2;
+	u32 num_words = (num_bytes+3)>>2;
 
 	u32 buffer_array[num_words];
 

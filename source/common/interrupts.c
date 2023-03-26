@@ -94,7 +94,7 @@ static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 ma
 //---------------------------------------------------------------------------------
 	if (!mask) return;
 
-	int i;
+	u32 i;
 
 	for	(i=0;i<max;i++)
 		if	(!irqTable[i].mask || irqTable[i].mask == mask) break;
@@ -197,7 +197,7 @@ void irqDisable(uint32 irq) {
 //---------------------------------------------------------------------------------
 static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max) {
 //---------------------------------------------------------------------------------
-	int i = 0;
+	u32 i = 0;
 
 	for	(i=0;i<max;i++)
 		if	(irqTable[i].mask == mask) break;

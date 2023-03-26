@@ -204,7 +204,7 @@ bool fifoSendValue32(int channel, u32 value32);
 
 	\return true if the data message has been send, false if something went wrong.
 */
-bool fifoSendDatamsg(int channel, int num_bytes, u8 * data_array);
+bool fifoSendDatamsg(int channel, u32 num_bytes, u8 * data_array);
 
 
 /*!
