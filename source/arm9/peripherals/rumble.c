@@ -31,42 +31,36 @@ static RUMBLE_TYPE rumbleType;
 //---------------------------------------------------------------------------------
 bool isRumbleInserted(void) {
 //---------------------------------------------------------------------------------
-	uint16 four[4];
 	sysSetCartOwner(BUS_OWNER_ARM9);
 	// First, check for 0x96 to see if it's a GBA game
 	if (GBA_HEADER.is96h == 0x96) {
-
 		//if it is a game, we check the game code
 		//to see if it is warioware twisted
-		if (	(GBA_HEADER.gamecode[0] == 'R') &&
-				(GBA_HEADER.gamecode[1] == 'Z') &&
-				(GBA_HEADER.gamecode[2] == 'W') &&
-				(GBA_HEADER.gamecode[3] == 'E')
-			)
-		{
+		if (
+			(GBA_HEADER.gamecode[0] == 'R') &&
+			(GBA_HEADER.gamecode[1] == 'Z') &&
+			(GBA_HEADER.gamecode[2] == 'W') &&
+			(GBA_HEADER.gamecode[3] == 'E')
+		) {
 			rumbleType = WARIOWARE;
 			WARIOWARE_ENABLE = 8;
 			return true;
 		}
 		return false;
-				
 	} else {
-
 		rumbleType = RUMBLE;
-		// Now check to see if it's true open bus, or if D1 is pulled low
-		four[0] = GBA_BUS[0] & 0xFF;
-		four[1] = GBA_BUS[1] & 0xFF;
-		four[2] = GBA_BUS[2] & 0xFF;
-		four[3] = GBA_BUS[3] & 0xFF;
-		return (four[0] == 0x00) && (four[2] == 0x00) && (four[1] == 0x01) && (four[3] == 0x01);
+		for (int i = 0; i < 0x1000; i++) {
+			if (GBA_BUS[i] != (i & 0xFFFD)) return false;
+		}
+		return true;
 	}
 }
 //---------------------------------------------------------------------------------
 void setRumble(bool position) {
 //---------------------------------------------------------------------------------
 
-	if( rumbleType == WARIOWARE) {
-		WARIOWARE_PAK = (position ? 8 : 0); 
+	if (rumbleType == WARIOWARE) {
+		WARIOWARE_PAK = (position ? 8 : 0);
 	} else {
 		RUMBLE_PAK = (position ? 2 : 0);
 	}

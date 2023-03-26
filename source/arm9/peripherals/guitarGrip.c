@@ -10,7 +10,9 @@ static void guitarGripSetBus() {
 //------------------------------------------------------------------------------
 	//setting the bus owner is not sufficient, as we need to ensure that the bus speeds are adequately slowed.
 	//this magic number contains the appropriate timings.
-	REG_EXMEMCNT = 0x000C;
+	REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
+	REG_EXMEMCNT &= ~(EXMEMCNT_SRAM_TIME_MASK | EXMEMCNT_ROM_TIME1_MASK | EXMEMCNT_ROM_TIME2_MASK | EXMEMCNT_PHI_CLOCK_MASK);
+	REG_EXMEMCNT |= (EXMEMCNT_SRAM_TIME_10_CYCLES | EXMEMCNT_ROM_TIME1_18_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_PHI_CLOCK_OFF);
 }
 
 //------------------------------------------------------------------------------
