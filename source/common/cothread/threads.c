@@ -463,6 +463,8 @@ static main_args_t main_args;
 
 int cothread_main(void *arg)
 {
+    (void)arg;
+
     extern int main(int argc, char **argv);
 
 #ifdef ARM9
@@ -477,6 +479,10 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
 #ifdef ARM9
     main_args.argc = argc;
     main_args.argv = argv;
+#endif
+#ifdef ARM7
+    (void)argc;
+    (void)argv;
 #endif
 
     // Thread local storage for the main thread, defined by the linker

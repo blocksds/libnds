@@ -59,6 +59,8 @@ void disableSlot1() {
 //---------------------------------------------------------------------------------
 void powerValueHandler(u32 value, void* user_data) {
 //---------------------------------------------------------------------------------
+	(void)user_data;
+
 	u32 temp;
 	u32 ie_save;
 	int battery, backlight, power;

@@ -213,6 +213,7 @@ void aptCameraInit(u8 device) {
 }
 
 void aptCameraDeinit(u8 device) {
+	(void)device;
 	// TODO: Do we need to do anything here?
 }
 
@@ -235,6 +236,8 @@ void aptCameraDeactivate(u8 device) {
 }
 
 void cameraDataHandler(int bytes, void* userData) {
+	(void)userData;
+
 	FifoMessage msg;
 	fifoGetDatamsg(FIFO_CAMERA, bytes, (u8*) &msg);
 
@@ -272,6 +275,8 @@ static u8 getDeviceFromFifoValue(u32 fifoValue) {
 }
 
 void cameraCommandHandler(u32 fifoValue, void* userdata) {
+	(void)userdata;
+
 	u32 command = (fifoValue >> 22);
 
 	switch (command) {

@@ -131,6 +131,7 @@ int writeFirmware(u32 address, void * source, u32 size) {
 //---------------------------------------------------------------------------------
 void firmwareMsgHandler(int bytes, void *user_data) {
 //---------------------------------------------------------------------------------
+	(void)user_data;
 
 	FifoMessage msg;
 

@@ -814,6 +814,8 @@ int glUnlockVRAMBank( uint16 *addr ) {
 //---------------------------------------------------------------------------------
 void glBindTexture(int target, int name) {
 //---------------------------------------------------------------------------------
+	(void)target;
+
 	gl_texture_data *tex = NULL;
 	// no reason to process if name is the active texture
 	if( glGlob->activeTexture == name ) return;
@@ -842,6 +844,11 @@ void glBindTexture(int target, int name) {
 //---------------------------------------------------------------------------------
 void glColorTableEXT( int target, int empty1, uint16 width, int empty2, int empty3, const uint16* table ) {
 //---------------------------------------------------------------------------------
+	(void)target;
+	(void)empty1;
+	(void)empty2;
+	(void)empty3;
+
 	if( glGlob->activeTexture ) {
 		gl_texture_data *texture = (gl_texture_data*)DynamicArrayGet( &glGlob->texturePtrs, glGlob->activeTexture );
 		gl_palette_data *palette;
@@ -924,6 +931,10 @@ void glColorTableEXT( int target, int empty1, uint16 width, int empty2, int empt
 //  a currently bound texture's existing palette
 //---------------------------------------------------------------------------------
 void glColorSubTableEXT( int target, int start, int count, int empty1, int empty2, const uint16* data ) {
+	(void)target;
+	(void)empty1;
+	(void)empty2;
+
 	if( count > 0 && glGlob->activePalette ) {
 		gl_palette_data *palette = (gl_palette_data*)DynamicArrayGet( &glGlob->palettePtrs, glGlob->activePalette );
 		if( start >= 0 && ( start + count ) <= ( palette->palSize >> 1 ) ) {
@@ -940,6 +951,10 @@ void glColorSubTableEXT( int target, int start, int count, int empty1, int empty
 //  of the currently bound texture
 //---------------------------------------------------------------------------------
 void glGetColorTableEXT( int target, int empty1, int empty2, uint16* table ) {
+	(void)target;
+	(void)empty1;
+	(void)empty2;
+
 	if( glGlob->activePalette ) {
 		gl_palette_data *palette = (gl_palette_data*)DynamicArrayGet( &glGlob->palettePtrs, glGlob->activePalette );
 		uint32 tempVRAM = vramSetBanks_EFG( VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD );
@@ -955,6 +970,8 @@ void glGetColorTableEXT( int target, int empty1, int empty2, uint16* table ) {
 //---------------------------------------------------------------------------------
 void glAssignColorTable( int target, int name ) {
 //---------------------------------------------------------------------------------
+	(void)target;
+
 	// Allow assigning from a texture different from the active one
 	if( glGlob->activeTexture && glGlob->activeTexture != name ) {
 		gl_texture_data *texture = (gl_texture_data*)DynamicArrayGet( &glGlob->texturePtrs , glGlob->activeTexture );
@@ -983,6 +1000,8 @@ void glAssignColorTable( int target, int name ) {
 //---------------------------------------------------------------------------------
 void glTexParameter( int target, int param ) {
 //---------------------------------------------------------------------------------
+	(void)target;
+
 	if( glGlob->activeTexture ) {
 		gl_texture_data *tex = (gl_texture_data*)DynamicArrayGet( &glGlob->texturePtrs , glGlob->activeTexture );
 		GFX_TEX_FORMAT = tex->texFormat = ( tex->texFormat & 0x1FF0FFFF ) | param;
@@ -1021,6 +1040,8 @@ u32 glGetTexParameter() {
 //---------------------------------------------------------------------------------
 void glGetColorTableParameterEXT( int target, int pname, int * params ) {
 //---------------------------------------------------------------------------------
+	(void)target;
+
 	if( glGlob->activePalette ) {
 		gl_palette_data *pal = (gl_palette_data*)DynamicArrayGet( &glGlob->palettePtrs, glGlob->activePalette );
 		if( pname == GL_COLOR_TABLE_FORMAT_EXT )
@@ -1041,6 +1062,9 @@ void glGetColorTableParameterEXT( int target, int pname, int * params ) {
 //---------------------------------------------------------------------------------
 int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int empty2, int param, const void* texture) {
 //---------------------------------------------------------------------------------
+	(void)empty1;
+	(void)empty2;
+
 	uint32 size = 0;
 	uint32 typeSizes[ 9 ] = { 0, 8, 2, 4, 8, 3, 8, 16, 16 };	// Represents the number of bits per pixels for each format
 

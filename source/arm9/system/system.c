@@ -53,6 +53,8 @@ void setSDcallback(void(*callback)(int)) {
 //---------------------------------------------------------------------------------
 void systemValueHandler(u32 value, void* data){
 //---------------------------------------------------------------------------------
+	(void)data;
+
 	switch(value) {
 	case PM_REQ_SLEEP:
 		systemSleep();
@@ -69,6 +71,8 @@ void systemValueHandler(u32 value, void* data){
 //---------------------------------------------------------------------------------
 void systemMsgHandler(int bytes, void* user_data){
 //---------------------------------------------------------------------------------
+	(void)user_data;
+
 	FifoMessage msg;
 
 	fifoGetDatamsg(FIFO_SYSTEM, bytes, (u8*)&msg);

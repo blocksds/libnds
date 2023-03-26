@@ -468,6 +468,9 @@ void sdmmc_get_cid(int devicenumber, u32 *cid) {
 //---------------------------------------------------------------------------------
 int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg) {
 //---------------------------------------------------------------------------------
+    (void)bytes;
+    (void)user_data;
+
     int retval = 0;
 
     switch (msg->type) {
@@ -506,6 +509,8 @@ int sdmmc_sd_startup() {
 //---------------------------------------------------------------------------------
 int sdmmcValueHandler(u32 value, void *user_data) {
 //---------------------------------------------------------------------------------
+    (void)user_data;
+
     int result = 0;
     int sdflag = 0;
 

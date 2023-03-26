@@ -30,6 +30,9 @@ distribution.
 #include <nds/arm9/sassert.h>
 
 static int getHeader(uint8 *source, uint16 *dest, uint32 arg) {
+	(void)dest;
+	(void)arg;
+
 	return *(uint32*)source;
 }
 

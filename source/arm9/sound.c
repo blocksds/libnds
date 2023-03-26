@@ -133,6 +133,8 @@ void soundSetWaveDuty(int soundId, DutyCycle cycle){
 MicCallback micCallback = 0;
 
 void micBufferHandler(int bytes, void* user_data){
+	(void)user_data;
+
 	FifoMessage msg;
 
 	fifoGetDatamsg(FIFO_SOUND, bytes, (u8*)&msg);

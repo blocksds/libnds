@@ -4,7 +4,7 @@
 extern char *fake_heap_end;
 
 ARM_CODE void __attribute__((weak)) systemErrorExit(int rc) {
-	
+	(void)rc;
 }
 
 ARM_CODE void __libnds_exit(int rc) {

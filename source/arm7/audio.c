@@ -81,6 +81,8 @@ void micSwapHandler(u8* buffer, int length) {
 //---------------------------------------------------------------------------------
 void soundDataHandler(int bytes, void *user_data) {
 //---------------------------------------------------------------------------------
+	(void)user_data;
+
 	int channel = -1;
 
 	FifoMessage msg;
@@ -146,6 +148,7 @@ void disableSound() {
 //---------------------------------------------------------------------------------
 void soundCommandHandler(u32 command, void* userdata) {
 //---------------------------------------------------------------------------------
+	(void)userdata;
 
 	int cmd = (command ) & 0x00F00000;
 	int data = command & 0xFFFF;

@@ -84,7 +84,7 @@ void ff_mutex_delete (	/* Returns 1:Function succeeded or 0:Could not delete due
 	int vol				/* Mutex ID: Volume mutex (0 to FF_VOLUMES - 1) or system mutex (FF_VOLUMES) */
 )
 {
-
+    (void)vol;
 }
 
 
