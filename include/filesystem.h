@@ -5,6 +5,10 @@
 #ifndef FILESYSTEM_H__
 #define FILESYSTEM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 // This initializes NitroFAT. If argv[0] has been set to a non-NULL string, it
@@ -23,5 +27,9 @@ bool nitroFSInit(char **basepath);
 // function lets you switch to using the ARM9 as well. You may switch between
 // CPUs at runtime, but be careful to not switch while the card is being read.
 void nitroFATSetReaderCPU(bool use_arm9);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FILESYSTEM_H__

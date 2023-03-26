@@ -5,6 +5,10 @@
 #ifndef FAT_H__
 #define FAT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 // This function works whether it's running on a regular DS or a DSi:
@@ -24,5 +28,9 @@
 // effect. Any call after the first one returns the value returned the first
 // time.
 bool fatInitDefault(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FAT_H__
