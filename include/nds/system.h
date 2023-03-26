@@ -128,7 +128,7 @@ static inline bool isDSiMode() {
 
 	\param bits What to power on.
 */
-void powerOn(int bits);
+void powerOn(PM_Bits bits);
 
 //!	Turns off specified hardware.
 /*!	May be called from arm7 or arm9 (arm9 power bits will be ignored by arm7, arm7 power bits
@@ -136,7 +136,7 @@ void powerOn(int bits);
 
 	\param bits What to power on.
 */
-void powerOff(int bits);
+void powerOff(PM_Bits bits);
 
 //internal fifo handlers
 void systemMsgHandler(int bytes, void* user_data);
@@ -261,12 +261,12 @@ int readPowerManagement(int reg) {
 }
 
 static inline
-void powerOn(int bits) {
+void powerOn(ARM7_power bits) {
 	REG_POWERCNT |= bits;
 }
 
 static inline
-void powerOff(PM_Bits bits) {
+void powerOff(ARM7_power bits) {
 	REG_POWERCNT &= ~bits;
 }
 

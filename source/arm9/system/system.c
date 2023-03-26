@@ -95,7 +95,7 @@ void systemSleep(void) {
 
 
 //---------------------------------------------------------------------------------
-void powerOn(int bits) {
+void powerOn(PM_Bits bits) {
 //---------------------------------------------------------------------------------
 	if(bits & BIT(16))
 		REG_POWERCNT |= bits & 0xFFFF;
@@ -104,7 +104,7 @@ void powerOn(int bits) {
 }
 
 //---------------------------------------------------------------------------------
-void powerOff(int bits) {
+void powerOff(PM_Bits bits) {
 	if(bits & BIT(16))
 		REG_POWERCNT &= ~(bits & 0xFFFF);
 	else
