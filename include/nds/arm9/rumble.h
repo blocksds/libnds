@@ -32,14 +32,21 @@
 extern "C" {
 #endif
 
-#define RUMBLE_PAK			(*(vuint16 *)0x08000000)
+#define RUMBLE_PAK		(*(vuint16 *)0x08000000)
 #define WARIOWARE_PAK		(*(vuint16 *)0x080000C4)
 #define WARIOWARE_ENABLE	(*(vuint16 *)0x080000C6)
 
 typedef enum {
-   RUMBLE,
-   WARIOWARE
-}RUMBLE_TYPE;
+   RUMBLE_TYPE_UNKNOWN,
+   RUMBLE_TYPE_NONE,
+   RUMBLE_TYPE_PAK, /* DS Rumble Pak */
+   RUMBLE_TYPE_GBA, /* rumble included as part of GBA game cartridges */
+   RUMBLE_TYPE_MAGUKIDDO /* rumble/sensor cartridge bundled with Magukiddo */
+} RUMBLE_TYPE;
+
+void rumbleInit(void);
+RUMBLE_TYPE rumbleGetType(void);
+void rumbleSetType(RUMBLE_TYPE type);
 
 /*! \fn bool isRumbleInserted(void);
 	\brief Check for rumble option pak.

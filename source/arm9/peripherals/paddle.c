@@ -2,21 +2,13 @@
 #include <nds/system.h>
 #include <nds/arm9/paddle.h>
 
-#define EXMEMCNT_MASK_SLOT2_ARM7 (1<<7)
-#define EXMEMCNT_MASK_SLOT2_SRAM_TIME (3)
-#define EXMEMCNT_SLOT2_SRAM_TIME_3 (3)
-#define EXMEMCNT_MASK_SLOT2_CLOCKRATE (3<<5)
-#define EXMEMCNT_SLOT2_CLOCKRATE_1 (1<<5)
-
 //------------------------------------------------------------------------------
 static void paddleSetBus() {
 //------------------------------------------------------------------------------
 	//setting the bus owner is not sufficient, as we need to ensure that the bus speeds are adequately slowed
-	REG_EXMEMCNT &= ~EXMEMCNT_MASK_SLOT2_ARM7; //give ARM9 access
-	REG_EXMEMCNT &= ~EXMEMCNT_MASK_SLOT2_SRAM_TIME;
-	REG_EXMEMCNT |= EXMEMCNT_SLOT2_SRAM_TIME_3; //make sure SRAM is slow enough
-	REG_EXMEMCNT &= ~EXMEMCNT_MASK_SLOT2_CLOCKRATE;
-	REG_EXMEMCNT |= EXMEMCNT_SLOT2_CLOCKRATE_1; //a nonzero value for this is required for correct functioning. arkanoid uses 1. it is uncertain what other values will do.
+	REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
+	REG_EXMEMCNT &= ~(EXMEMCNT_SRAM_TIME_MASK | EXMEMCNT_PHI_CLOCK_MASK);
+	REG_EXMEMCNT |= (EXMEMCNT_SRAM_TIME_18_CYCLES | EXMEMCNT_PHI_CLOCK_4MHZ);
 }
 
 //------------------------------------------------------------------------------

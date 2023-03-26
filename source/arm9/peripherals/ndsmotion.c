@@ -167,7 +167,7 @@ int motion_enable(int card_type) {
 // Turns it on
 // Does not require knowing which type is present
 int motion_init(void) {
-	sysSetBusOwners(true, true);
+	sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
 	// first, check for the DS Motion Pak - type 1
 	if( motion_pak_is_inserted() == 1 )
     {
