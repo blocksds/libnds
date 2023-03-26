@@ -26,12 +26,20 @@
 #include <nds/memory.h>
 #include <nds/arm9/rumble.h>
 
-static RUMBLE_TYPE rumbleType;
+static RUMBLE_TYPE rumbleType = RUMBLE_TYPE_UNKNOWN;
 
-//---------------------------------------------------------------------------------
-bool isRumbleInserted(void) {
-//---------------------------------------------------------------------------------
+RUMBLE_TYPE rumbleGetType(void) {
+	return rumbleType;
+}
+
+void rumbleSetType(RUMBLE_TYPE type) {
+	rumbleType = type;
+}
+
+void rumbleInit(void) {
 	sysSetCartOwner(BUS_OWNER_ARM9);
+	rumbleType = RUMBLE_TYPE_NONE;
+
 	// First, check for 0x96 to see if it's a GBA game
 	if (GBA_HEADER.is96h == 0x96) {
 		//if it is a game, we check the game code
@@ -42,27 +50,32 @@ bool isRumbleInserted(void) {
 			(GBA_HEADER.gamecode[2] == 'W') &&
 			(GBA_HEADER.gamecode[3] == 'E')
 		) {
-			rumbleType = WARIOWARE;
+			rumbleType = RUMBLE_TYPE_GBA;
 			WARIOWARE_ENABLE = 8;
-			return true;
 		}
-		return false;
 	} else {
-		rumbleType = RUMBLE;
 		for (int i = 0; i < 0x1000; i++) {
-			if (GBA_BUS[i] != (i & 0xFFFD)) return false;
+			if (GBA_BUS[i] != (i & 0xFFFD)) return;
 		}
-		return true;
+		rumbleType = RUMBLE_TYPE_PAK;
 	}
 }
-//---------------------------------------------------------------------------------
-void setRumble(bool position) {
-//---------------------------------------------------------------------------------
 
-	if (rumbleType == WARIOWARE) {
+bool isRumbleInserted(void) {
+	if (rumbleType == RUMBLE_TYPE_UNKNOWN) {
+		rumbleInit();
+	}
+	return rumbleType > RUMBLE_TYPE_NONE;
+}
+
+void setRumble(bool position) {
+	if (rumbleType == RUMBLE_TYPE_GBA) {
 		WARIOWARE_PAK = (position ? 8 : 0);
-	} else {
+	} else if (rumbleType == RUMBLE_TYPE_PAK) {
 		RUMBLE_PAK = (position ? 2 : 0);
+	} else if (rumbleType == RUMBLE_TYPE_MAGUKIDDO) {
+		// TODO: Untested.
+		RUMBLE_PAK = (position ? 256 : 0);
 	}
 
 }
