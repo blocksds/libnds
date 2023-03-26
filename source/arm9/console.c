@@ -630,6 +630,7 @@ void consolePrintChar(char c) {
 			break;
 		case 10:
 			newRow();
+			// fallthrough
 		case 13:
 			currentConsole->cursorX  = 0;
 			break;
