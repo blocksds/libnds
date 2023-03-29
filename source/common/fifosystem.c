@@ -483,9 +483,15 @@ static void fifoInternalRecvInterrupt() {
 
 			u32 channel = FIFO_UNPACK_CHANNEL(data);
 
+			// Check if this is a CPU reset command sent by the other CPU
 			if ( (data & (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT)) == (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT) ) {
 
 				if ((data & FIFO_ADDRESSDATA_MASK) == 0x4000c ) {
+					// Make sure that the two CPUs reset at the same time. The
+					// other CPU reset function (located in the bootstub struct)
+					// is responsible for issuing the same commands to ensure
+					// that both CPUs are in sync and they reset at the same
+					// time.
 					REG_IPC_SYNC = 0x100;
 					while((REG_IPC_SYNC&0x0f) != 1);
 					REG_IPC_SYNC = 0;
