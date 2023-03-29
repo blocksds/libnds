@@ -20,7 +20,7 @@
 // All of the errors trapped represent serious problems, so it's not a bad idea to halt in fifoError()
 // #define FIFO_RIGOROUS_ERROR_CHECKING	1
 
-// FIFO_BUFFER_ENTRIES - number of words that can be stored temporarily while waiting to deque them - default=256 arm7, 512 arm9
+// FIFO_BUFFER_ENTRIES - number of words that can be stored temporarily while waiting to deque them
 #ifdef ARM9
 #define FIFO_BUFFER_ENTRIES				256
 #else // ARM7
