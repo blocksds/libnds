@@ -5,6 +5,7 @@
 #include <nds/ipc.h>
 #include <nds/system.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 // Some aspects of this configuration can be changed...
@@ -270,7 +271,7 @@ static void fifo_freeBlock(u32 index) {
 	fifo_freewords++;
 }
 
-static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 * wordlist) {
+bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 * wordlist) {
 	if(extrawordcount>0 && !wordlist) return false;
 	if(fifo_freewords<extrawordcount+1) return false;
 	if(extrawordcount>(FIFO_MAX_DATA_BYTES/4)) return false;
@@ -486,6 +487,15 @@ static void fifoInternalRecvInterrupt() {
 			// Check if this is a CPU reset command sent by the other CPU
 			if ( (data & (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT)) == (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT) ) {
 
+#ifdef ARM9
+				// Message sent from the ARM7 to the ARM9 to start a reset
+				if ((data & FIFO_ADDRESSDATA_MASK) == 0x4000b ) {
+					exit(0);
+				}
+#endif
+
+#ifdef ARM7
+				// Message sent from the ARM9 to the ARM7 to start a reset
 				if ((data & FIFO_ADDRESSDATA_MASK) == 0x4000c ) {
 					// Make sure that the two CPUs reset at the same time. The
 					// other CPU reset function (located in the bootstub struct)
@@ -497,6 +507,7 @@ static void fifoInternalRecvInterrupt() {
 					REG_IPC_SYNC = 0;
 					swiSoftReset();
 				}
+#endif
 
 			} else if (FIFO_IS_ADDRESS(data)) {
 
