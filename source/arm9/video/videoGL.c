@@ -31,6 +31,7 @@
 #include <nds/memory.h>
 #include <nds/bios.h>
 #include <nds/system.h>
+#include <nds/interrupts.h>
 #include <nds/arm9/math.h>
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
@@ -523,7 +524,7 @@ vramBlock_getSize( s_vramBlock *mb, uint32 index ) {
 
 
 //---------------------------------------------------------------------------------
-void glInit_C(void) {
+int glInit_C(void) {
 //---------------------------------------------------------------------------------
 	int i;
 
@@ -532,7 +533,7 @@ void glInit_C(void) {
 	glGlob = glGetGlobals();
 
 	if( glGlob->isActive )
-		return;
+		return 1;
 
 	// Allocate the designated layout for each memory block
 	glGlob->vramBlocks[ 0 ] = vramBlock_Construct( (uint8*)VRAM_A, (uint8*)VRAM_E );
@@ -565,7 +566,34 @@ void glInit_C(void) {
 		DynamicArraySet( &glGlob->deallocPal, i, (void*)0 );
 	}
 
-	while (GFX_STATUS & (1<<27)); // wait till gfx engine is not busy
+	if (GFX_BUSY) {
+		// The geometry engine is busy. Check if it's still busy after 2 VBlanks.
+		// TODO: How much time do we need to give it in the worst-case scenario?
+		for(i = 0; i < 2; i++) {
+			swiWaitForVBlank();
+			if (!GFX_BUSY) break;
+		}
+
+		if (GFX_BUSY) {
+			// The geometry engine is still busy.
+			// This can happen due to a partial vertex upload by the previous homebrew
+			// application (=> ARM7->ARM9 forced reset).
+			// So long as the buffer wasn't flushed, this is recoverable, so we attempt
+			// to do so.
+			for(i = 0; i < 8; i++) {
+				GFX_VERTEX16 = 0;
+				swiDelay(0x400); // TODO: Do we need such a high arbitrary delay value?
+				if (!GFX_BUSY) break;
+			}
+
+			if (GFX_BUSY) {
+				// The geometry engine is still busy. We've given it enough time
+				// to fix itself and exhausted all recovery strategies, so at
+				// this point all we can do is give up.
+				return 0;
+			}
+		}
+	}
 
 	// Clear the FIFO
 	GFX_STATUS |= (1<<29);
@@ -599,6 +627,7 @@ void glInit_C(void) {
 	glLoadIdentity();
 
 	glGlob->isActive = 1;
+	return 1;
 }
 
 //---------------------------------------------------------------------------------

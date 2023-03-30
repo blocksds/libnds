@@ -523,7 +523,7 @@ void glTexCoord2f32(int32 u, int32 v);
 void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 
 // This handles initialization of the GL state; this is called from glInit to keep globals synced between compilation units
-void glInit_C(void);
+int glInit_C(void);
 
 // This returns a pointer to the globals for videoGL
 gl_hidden_globals* glGetGlobals();
@@ -1189,8 +1189,8 @@ GL_STATIC_INL
 \brief Resets matrix stack to top level */
 void glResetMatrixStack(void) {
 	// make sure there are no push/pops that haven't executed yet
-	while(GFX_STATUS & BIT(14)){
-		GFX_STATUS |= 1 << 15; // clear push/pop errors or push/pop busy bit never clears
+	while(GFX_STATUS & GFX_STATUS_MATRIX_STACK_BUSY) {
+		GFX_STATUS |= GFX_STATUS_MATRIX_STACK_ERROR; // clear push/pop errors or push/pop busy bit never clears
 	}
 
 	// pop the projection stack to the top; poping 0 off an empty stack causes an error... weird?
@@ -1300,10 +1300,11 @@ void glCutoffDepth(fixed12d3 wVal) {
 }
 
 GL_STATIC_INL
-/*! \fn void glInit()
-\brief Initializes the gl state machine (must be called once before using gl calls) */
-void glInit() {
-	glInit_C(); // actually does the initialization
+/*! \fn int glInit()
+\brief Initializes the gl state machine (must be called once before using gl calls)
+\return 1 on success, 0 on failure */
+int glInit() {
+	return glInit_C(); // actually does the initialization
 }
 
 GL_STATIC_INL
