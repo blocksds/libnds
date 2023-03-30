@@ -103,7 +103,7 @@ char *getcwd(char *buf, size_t size)
         if (result != FR_OK)
         {
             free(buf);
-            errno = ENAMETOOLONG;
+            errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
             return NULL;
         }
         buf[size - 1] = '\0';
@@ -123,11 +123,16 @@ char *getcwd(char *buf, size_t size)
     }
     else
     {
+        if (size == 0)
+        {
+            errno = EINVAL;
+            return NULL;
+        }
+
         FRESULT result = f_getcwd(buf, size - 1);
         if (result != FR_OK)
         {
-            free(buf);
-            errno = ENAMETOOLONG;
+            errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
             return NULL;
         }
         buf[size - 1] = '\0';
