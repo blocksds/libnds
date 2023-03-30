@@ -95,17 +95,17 @@ void systemSleep(void) {
 
 
 //---------------------------------------------------------------------------------
-void powerOn(PM_Bits bits) {
+void powerOn(uint32_t bits) {
 //---------------------------------------------------------------------------------
-	if(bits & BIT(16))
+	if(bits & PM_ARM9_DIRECT)
 		REG_POWERCNT |= bits & 0xFFFF;
 	else
 		fifoSendValue32(FIFO_PM, PM_REQ_ON | (bits & 0xFFFF));
 }
 
 //---------------------------------------------------------------------------------
-void powerOff(PM_Bits bits) {
-	if(bits & BIT(16))
+void powerOff(uint32_t bits) {
+	if(bits & PM_ARM9_DIRECT)
 		REG_POWERCNT &= ~(bits & 0xFFFF);
 	else
 		fifoSendValue32(FIFO_PM, PM_REQ_OFF | (bits & 0xFFFF));

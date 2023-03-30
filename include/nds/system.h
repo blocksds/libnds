@@ -78,8 +78,7 @@ void SetYtrigger(int Yvalue) {
 	REG_DISPSTAT = (REG_DISPSTAT & 0x007F ) | (Yvalue << 8) | (( Yvalue & 0x100 ) >> 1) ;
 }
 
-#define PM_ARM9_DIRECT BIT(16)
-//! Power Management control bits
+//! Power Management control bits for powerOn() and powerOff().
 typedef enum
 {
 	PM_SOUND_AMP		= BIT(0),		//!< Power the sound hardware (needed to hear stuff in GBA mode too).
@@ -87,6 +86,8 @@ typedef enum
 	PM_BACKLIGHT_BOTTOM	= BIT(2),		//!< Enable the bottom backlight if set.
 	PM_BACKLIGHT_TOP	= BIT(3),		//!< Enable the top backlight if set.
 	PM_SYSTEM_PWR		= BIT(6),		//!< Turn the power *off* if set.
+
+	PM_ARM9_DIRECT		= BIT(16),		//!< Internal: Write to REG_POWERCNT directly instead of sending a FIFO message
 
 	POWER_LCD		= PM_ARM9_DIRECT | BIT(0),		//!<	Controls the power for both LCD screens.
 	POWER_2D_A		= PM_ARM9_DIRECT | BIT(1),		//!<	Controls the power for the main 2D core.
@@ -126,17 +127,17 @@ static inline bool isDSiMode() {
 /*!	May be called from arm7 or arm9 (arm9 power bits will be ignored by arm7, arm7 power bits
 	will be passed to the arm7 from the arm9).
 
-	\param bits What to power on.
+	\param bits What to power on (PM_Bits).
 */
-void powerOn(PM_Bits bits);
+void powerOn(uint32_t bits);
 
 //!	Turns off specified hardware.
 /*!	May be called from arm7 or arm9 (arm9 power bits will be ignored by arm7, arm7 power bits
 	will be passed to the arm7 from the arm9).
 
-	\param bits What to power on.
+	\param bits What to power on (PM_Bits).
 */
-void powerOff(PM_Bits bits);
+void powerOff(uint32_t bits);
 
 //internal fifo handlers
 void systemMsgHandler(int bytes, void* user_data);
@@ -261,12 +262,12 @@ int readPowerManagement(int reg) {
 }
 
 static inline
-void powerOn(ARM7_power bits) {
+void powerOn(uint32_t bits) {
 	REG_POWERCNT |= bits;
 }
 
 static inline
-void powerOff(ARM7_power bits) {
+void powerOff(uint32_t bits) {
 	REG_POWERCNT &= ~bits;
 }
 
