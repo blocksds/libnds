@@ -15,11 +15,6 @@
 // FIFO_MAX_DATA_WORDS - maximum number of bytes that can be sent in a fifo message
 #define FIFO_MAX_DATA_BYTES				128
 
-// FIFO_RIGOROUS_ERROR_CHECKING - Verify all internal buffer transactions, mostly for debugging this library. Unless there's memory corruption this shouldn't be enabled normally.
-// If there is an error, the lib will call int fifoError(char *, ...) - which isn't defined by the fifo lib. So it's best to handle it if you want to debug. :)
-// All of the errors trapped represent serious problems, so it's not a bad idea to halt in fifoError()
-// #define FIFO_RIGOROUS_ERROR_CHECKING	1
-
 // FIFO_BUFFER_ENTRIES - number of words that can be stored temporarily while waiting to deque them
 #ifdef ARM9
 #define FIFO_BUFFER_ENTRIES				256

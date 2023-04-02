@@ -114,11 +114,6 @@ typedef enum {
 extern "C" {
 #endif
 
-#if FIFO_RIGOROUS_ERROR_CHECKING
-	int fifoError(char *, ...); // expected to be defined externally.
-#endif
-
-
 /*!
 	\brief fifo callback function pointer with the sent address and the callback's user data.
 
