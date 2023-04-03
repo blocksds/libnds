@@ -29,7 +29,13 @@
 #include <nds/timers.h>
 #include <nds/interrupts.h>
 
+#ifdef ARM9
 #include <nds/arm9/sassert.h>
+#endif
+#ifdef ARM7
+#define sassert(v, s)
+#endif
+
 //---------------------------------------------------------------------------------
 void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback){
 //---------------------------------------------------------------------------------
