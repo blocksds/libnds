@@ -336,19 +336,14 @@ static void fifo_queueBlock(fifo_queue *queue, int head, int tail) {
 	}
 }
 
-int processing=0;
+static int processing = 0;
 
 static void fifoInternalRecvInterrupt() {
-	int old_dispstat = REG_DISPSTAT;
-	REG_DISPSTAT &= ~DISP_YTRIGGER_IRQ;
-	REG_IE &= ~IRQ_FIFO_NOT_EMPTY;
-	REG_IME=1;
 
 	u32 data, block=FIFO_BUFFER_TERMINATE;
 
 	while( !(REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY) ) {
 
-		REG_IME=0;
 		block=fifo_allocBlock();
 		if (block != FIFO_BUFFER_TERMINATE ) {
 			FIFO_BUFFER_DATA(block)=REG_IPC_FIFO_RX;
@@ -356,19 +351,17 @@ static void fifoInternalRecvInterrupt() {
 		} else {
 			break;
 		}
-
-		REG_IME=1;
-
 	}
 
-	REG_IME=0;
-	REG_IE |= IRQ_FIFO_NOT_EMPTY;
+	// This interrupt handler can be nested. This check makes sure that there is
+	// only one level of nesting, and that it can only read data from the IPC
+	// registers and save it to the FIFO receive queue.
+	if (processing)
+		return;
 
+	processing = 1;
 
-	if (!processing && fifo_receive_queue.head != FIFO_BUFFER_TERMINATE) {
-
-		processing = 1;
-		REG_IME=1;
+	if (fifo_receive_queue.head != FIFO_BUFFER_TERMINATE) {
 
 		do {
 
@@ -405,17 +398,16 @@ static void fifoInternalRecvInterrupt() {
 
 				volatile void * address = FIFO_UNPACK_ADDRESS(data);
 
-				REG_IME=0;
 				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
 				if (fifo_address_func[channel]) {
 					fifo_freeBlock(block);
-					REG_IME=1;
+					REG_IME = 1;
 					fifo_address_func[channel]( (void*)address, fifo_address_data[channel] );
+					REG_IME = 0;
 				} else {
 					FIFO_BUFFER_DATA(block)=(u32)address;
 					fifo_queueBlock(&fifo_address_queue[channel],block,block);
 				}
-				REG_IME=1;
 
 			} else if(FIFO_IS_VALUE32(data)) {
 
@@ -431,17 +423,17 @@ static void fifoInternalRecvInterrupt() {
 				} else {
 					value32 = FIFO_UNPACK_VALUE32_NOEXTRA(data);
 				}
-				REG_IME=0;
+
 				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
 				if (fifo_value32_func[channel]) {
 					fifo_freeBlock(block);
-					REG_IME=1;
+					REG_IME = 1;
 					fifo_value32_func[channel]( value32, fifo_value32_data[channel] );
+					REG_IME = 0;
 				} else {
 					FIFO_BUFFER_DATA(block)=value32;
 					fifo_queueBlock(&fifo_value32_queue[channel],block,block);
 				}
-				REG_IME=1;
 
 			} else if(FIFO_IS_DATA(data)) {
 
@@ -458,7 +450,6 @@ static void fifoInternalRecvInterrupt() {
 
 
 				if (count!=n_words) break;
-				REG_IME=0;
 
 				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(end);
 
@@ -471,11 +462,11 @@ static void fifoInternalRecvInterrupt() {
 				fifo_queueBlock(&fifo_data_queue[channel],tmp,end);
 				if(fifo_datamsg_func[channel]) {
 					block = fifo_data_queue[channel].head;
-					REG_IME=1;
+					REG_IME = 1;
 					fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
+					REG_IME = 0;
 					if (block == fifo_data_queue[channel].head) fifoGetDatamsg(channel,0,0);
 				}
-				REG_IME=1;
 
 			} else {
 
@@ -485,11 +476,9 @@ static void fifoInternalRecvInterrupt() {
 			}
 
 		} while( fifo_receive_queue.head != FIFO_BUFFER_TERMINATE);
-
-		REG_IME = 0;
-		processing = 0;
 	}
-	REG_DISPSTAT = old_dispstat;
+
+	processing = 0;
 }
 
 static void fifoInternalSendInterrupt() {
