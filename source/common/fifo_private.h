@@ -10,31 +10,6 @@
 
 #include <nds/ndstypes.h>
 
-// Maximum number of bytes that can be sent in a fifo message
-#define FIFO_MAX_DATA_BYTES     128
-
-// Number of words that can be stored temporarily while waiting to deque them
-#ifdef ARM9
-#define FIFO_BUFFER_ENTRIES     256
-#else // ARM7
-#define FIFO_BUFFER_ENTRIES     256
-#endif
-
-// In the fifo_buffer[] array, this value means that there are no more values
-// left to handle.
-#define FIFO_BUFFER_TERMINATE   0xFFFF
-
-// Mask used to extract the index in fifo_buffer[] of the next block
-#define FIFO_BUFFER_NEXTMASK    0xFFFF
-
-// The memory overhead of this library (per CPU) is:
-//
-//     16 + (NUM_CHANNELS * 32) + (FIFO_BUFFER_ENTRIES * 8)
-//
-// For 16 channels and 256 entries, this is 16 + 512 + 2048 = 2576 bytes of ram.
-//
-// Some padding may be added by the compiler, though.
-
 // Defines related to the header block of a FIFO message
 // -----------------------------------------------------
 
@@ -63,27 +38,36 @@
 // the immediate bit at the same time. This isn't normally allowed. Also, if
 // both bits are 0, this is a data message of an arbitrary length.
 
-// 31 ... 28 |  27  | 26    | 25    | 24 ... 0        || 31 ... 0
-// ----------+------+-------+-------+-----------------++-----------------
-//  Channel  | Addr | Immed | Extra | Data            ||
-// ----------+------+-------+-------+-----------------++-----------------
+// General message format:
 //
-//  Messages of immediate values
+// |31 ... 28 |  27  | 26    | 25    | 24 ... 0        || 31 ... 0
+// +----------+------+-------+-------+-----------------++-----------------
+// | Channel  | Addr | Immed | Extra | Data            || Additional data
 //
-//  Channel  |  0   |  1    |   0   | Small immediate ||
-//  Channel  |  0   |  1    |   1   | X               || 32-bit immediate
+// Messages of immediate values:
 //
-//  Messages of addresses
+// |31 ... 28 |  27  | 26    | 25    | 24 ... 0        || 31 ... 0
+// +----------+------+-------+-------+-----------------++-----------------
+// | Channel  |  0   |  1    |   0   | Small immediate ||
+// | Channel  |  0   |  1    |   1   | X               || 32-bit immediate
 //
-//  Channel  |  1   |  0    |   X   | Address         ||
+// Messages of addresses:
 //
-//  Messages of data of arbitrary size
+// |31 ... 28 |  27  | 26    | 25    | 24 ... 0        |
+// +----------+------+-------+-------+-----------------+
+// | Channel  |  1   |  0    |   X   | Address         |
 //
-//  Channel  |  0   |  0    |   X   | Length (bytes)  || Word 0 (first of many)
+// Messages of data of arbitrary size:
 //
-//  Messages of special commands (the channel is ignored)
+// |31 ... 28 |  27  | 26    | 25    | 24 ... 0        || 31 ... 0
+// +----------+------+-------+-------+-----------------++-----------------------
+// | Channel  |  0   |  0    |   X   | Length (bytes)  || Word 0 (first of many)
 //
-//    X      |  1   |  1    |   X   | Command         ||
+// Messages of special commands (the channel is ignored):
+//
+// |31 ... 28 |  27  | 26    | 25    | 24 ... 0        |
+// +----------+------+-------+-------+-----------------+
+// |   X      |  1   |  1    |   X   | Command         |
 
 static inline uint32_t FIFO_UNPACK_CHANNEL(uint32_t dataword)
 {

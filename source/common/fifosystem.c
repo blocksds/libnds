@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (c) 2008-2015 Dave Murphy (WinterMute)
+// Copyright (c) 2023 Antonio Niño Díaz
 
 #include <nds/bios.h>
 #include <nds/cothread.h>
@@ -14,41 +15,75 @@
 
 #include "fifo_private.h"
 
-// fifo buffer helpers
+// Maximum number of bytes that can be sent in a fifo message
+#define FIFO_MAX_DATA_BYTES     128
+
+// Number of words that can be stored temporarily while waiting to deque them
+#ifdef ARM9
+#define FIFO_BUFFER_ENTRIES     256
+#else // ARM7
+#define FIFO_BUFFER_ENTRIES     256
+#endif
+
+// The memory overhead of this library (per CPU) is:
+//
+//     16 + (NUM_CHANNELS * 32) + (FIFO_BUFFER_ENTRIES * 8)
+//
+// For 16 channels and 256 entries, this is 16 + 512 + 2048 = 2576 bytes of ram.
+//
+// Some padding may be added by the compiler, though.
+
+// In the fifo_buffer[] array, this value means that there are no more values
+// left to handle.
+#define FIFO_BUFFER_TERMINATE   0xFFFF
+
+// FIFO buffers format
+// -------------------
+//
+// All entries in fifo_buffer are formed of two 32-bit values:
+//
+// 31 ... 28 | 27 ... 16 | 15 ... 0 || 31 ... 0
+// ----------+-----------+----------++----------
+// Control   | Extra     | Next     || Data
+//
+// - Control: "UNUSED" or "DATASTART".
+// - Extra: Used for data messages, it specifies the size in bytes.
+// - Next: Index of next block in the list. If "Next == FIFO_BUFFER_TERMINATE"
+//   it means that is the end of the list.
+
+// FIFO_BUFFER_ENTRIES * 8 bytes of global buffer space
+vu32 fifo_buffer[FIFO_BUFFER_ENTRIES * 2];
 
 #define FIFO_BUFFERCONTROL_UNUSED       0
-#define FIFO_BUFFERCONTROL_SENDWORD     1
-#define FIFO_BUFFERCONTROL_RECVWORD     2
-#define FIFO_BUFFERCONTROL_ADDRESS      3
-#define FIFO_BUFFERCONTROL_VALUE32      4
 #define FIFO_BUFFERCONTROL_DATASTART    5
-#define FIFO_BUFFERCONTROL_DATA         6
 
 #define FIFO_BUFFER_DATA(index) \
     fifo_buffer[(index) * 2 + 1]
 
-#define FIFO_BUFFER_DATA_BYTE(index, byteindex) \
-    ((u8*)(&fifo_buffer[(index) * 2 + 1]))[byteindex]
+// Mask used to extract the index in fifo_buffer[] of the next block
+#define FIFO_BUFFER_NEXTMASK    0xFFFF
 
-#define FIFO_BUFFER_GETNEXT(index) \
-    (fifo_buffer[(index) * 2] & FIFO_BUFFER_NEXTMASK)
+static inline u32 FIFO_BUFFER_GETNEXT(u32 index)
+{
+    return fifo_buffer[index * 2] & FIFO_BUFFER_NEXTMASK;
+}
 
-#define FIFO_BUFFER_GETCONTROL(index) \
-    (fifo_buffer[(index) * 2] >> 28)
+static inline u32 FIFO_BUFFER_GETEXTRA(u32 index)
+{
+    return (fifo_buffer[index * 2] >> 16) & 0xFFF;
+}
 
-#define FIFO_BUFFER_GETEXTRA(index) \
-    ((fifo_buffer[(index) * 2] >> 16) & 0xFFF)
+static inline void FIFO_BUFFER_SETCONTROL(u32 index, u32 next, u32 control, u32 extra)
+{
+    fifo_buffer[index * 2] = (next & FIFO_BUFFER_NEXTMASK) |
+                             (control << 28) | ((extra & 0xFFF) << 16);
+}
 
-#define FIFO_BUFFER_SETCONTROL(index, next, control, extra) \
-    fifo_buffer[(index) * 2] = (((next) & FIFO_BUFFER_NEXTMASK) | \
-                                ((control) << 28) | (((extra) & 0xFFF) << 16))
-
-#define FIFO_BUFFER_SETNEXT(index, next) \
-    fifo_buffer[(index) * 2] = (((next) & FIFO_BUFFER_NEXTMASK) | \
-                                (fifo_buffer[(index) * 2] & ~FIFO_BUFFER_NEXTMASK))
-
-// FIFO_BUFFER_ENTRIES * 8 bytes of global buffer space
-vu32 fifo_buffer[FIFO_BUFFER_ENTRIES * 2];
+static inline void FIFO_BUFFER_SETNEXT(u32 index, u32 next)
+{
+    fifo_buffer[index * 2] = (next & FIFO_BUFFER_NEXTMASK) |
+                             (fifo_buffer[index * 2] & ~FIFO_BUFFER_NEXTMASK);
+}
 
 typedef struct fifo_queue {
     vu16 head;
