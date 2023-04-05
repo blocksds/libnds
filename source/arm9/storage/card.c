@@ -14,9 +14,9 @@ bool cardReadArm7(void *dest, size_t offset, size_t size)
 
 	FifoMessage msg;
 	msg.type = SLOT1_CARD_READ;
-	msg.sdParams.startsector = offset;
-	msg.sdParams.numsectors = size;
-	msg.sdParams.buffer = dest;
+	msg.cardParams.offset = offset;
+	msg.cardParams.size = size;
+	msg.cardParams.buffer = dest;
 
 	fifoMutexAcquire(FIFO_STORAGE);
 

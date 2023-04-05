@@ -35,7 +35,7 @@ void storageMsgHandler(int bytes, void *user_data)
         break;
 
     case DLDI_STARTUP:
-        dldi_io = (void *)msg.sdParams.buffer;
+        dldi_io = msg.dldiStartupParams.io_interface;
         if (dldi_io)
             retval = dldi_io->startup();
         break;
@@ -58,8 +58,9 @@ void storageMsgHandler(int bytes, void *user_data)
         }
         break;
     case SLOT1_CARD_READ:
-        cardRead(msg.sdParams.buffer, msg.sdParams.startsector,
-                 msg.sdParams.numsectors);
+        cardRead(msg.cardParams.buffer,
+                 msg.cardParams.offset,
+                 msg.cardParams.size);
         retval = 1;
         break;
     }

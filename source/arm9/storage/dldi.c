@@ -58,7 +58,7 @@ bool dldi_arm7_startup(void)
 {
 	FifoMessage msg;
 	msg.type = DLDI_STARTUP;
-	msg.sdParams.buffer = &_io_dldi_stub.ioInterface;
+	msg.dldiStartupParams.io_interface = &_io_dldi_stub.ioInterface;
 
 	fifoMutexAcquire(FIFO_STORAGE);
 

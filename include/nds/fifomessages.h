@@ -92,10 +92,20 @@ typedef struct FifoMessage {
 		} SystemInput;
 
 		struct {
+			void *io_interface;
+		} dldiStartupParams;
+
+		struct {
 			void *buffer;
 			u32 startsector;
 			u32 numsectors;
 		} sdParams;
+
+		struct {
+			void *buffer;
+			u32 offset;
+			u32 size;
+		} cardParams;
 
 		struct {
 			void *buffer;
