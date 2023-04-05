@@ -193,6 +193,15 @@ static inline uint32_t FIFO_UNPACK_DATALENGTH(uint32_t dataword)
 // Defines related to special commands
 // -----------------------------------
 
+// This returns true if the block is a special command
+static inline bool FIFO_IS_SPECIAL_COMMAND(uint32_t dataword)
+{
+    return ((dataword & FIFO_ADDRESSBIT) != 0) &&
+           ((dataword & FIFO_IMMEDIATEBIT) != 0);
+}
+
+#define FIFO_SPECIAL_COMMAND_MASK       0x00FFFFFF
+
 #define FIFO_ARM9_REQUESTS_ARM7_RESET   0x4000C
 #define FIFO_ARM7_REQUESTS_ARM9_RESET   0x4000B
 

@@ -373,11 +373,9 @@ static void fifoInternalRecvInterrupt(void)
 
 		u32 channel = FIFO_UNPACK_CHANNEL(data);
 
-		// Check if this is a special reset command sent by the other CPU
-		u32 reset_mask = FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT;
-		if ((data & reset_mask) == reset_mask)
+		if (FIFO_IS_SPECIAL_COMMAND(data))
 		{
-			uint32_t cmd = data & FIFO_ADDRESSDATA_MASK;
+			uint32_t cmd = data & FIFO_SPECIAL_COMMAND_MASK;
 #ifdef ARM9
 			// Message sent from the ARM7 to the ARM9 to start a reset
 			if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
