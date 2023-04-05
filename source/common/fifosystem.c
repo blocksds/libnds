@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (c) 2008-2015 Dave Murphy (WinterMute)
-//
+
 #include <nds/bios.h>
 #include <nds/cothread.h>
 #include <nds/fifocommon.h>
@@ -338,19 +338,24 @@ static void fifo_queueBlock(fifo_queue *queue, int head, int tail) {
 
 static int processing = 0;
 
-static void fifoInternalRecvInterrupt() {
+static void fifoInternalRecvInterrupt(void)
+{
+	u32 data;
+	u32 block = FIFO_BUFFER_TERMINATE;
 
-	u32 data, block=FIFO_BUFFER_TERMINATE;
+	// Get all available entries from the FIFO and save them in
+	// fifo_receive_queue for processing.
+	while (!(REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY))
+	{
+		block = fifo_allocBlock();
 
-	while( !(REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY) ) {
-
-		block=fifo_allocBlock();
-		if (block != FIFO_BUFFER_TERMINATE ) {
-			FIFO_BUFFER_DATA(block)=REG_IPC_FIFO_RX;
-			fifo_queueBlock(&fifo_receive_queue,block,block);
-		} else {
+		// If there is no more space in fifo_buffer, stop saving blocks and
+		// start processing them.
+		if (block == FIFO_BUFFER_TERMINATE)
 			break;
-		}
+
+		FIFO_BUFFER_DATA(block) = REG_IPC_FIFO_RX;
+		fifo_queueBlock(&fifo_receive_queue, block, block);
 	}
 
 	// This interrupt handler can be nested. This check makes sure that there is
@@ -361,121 +366,144 @@ static void fifoInternalRecvInterrupt() {
 
 	processing = 1;
 
-	if (fifo_receive_queue.head != FIFO_BUFFER_TERMINATE) {
+	while (fifo_receive_queue.head != FIFO_BUFFER_TERMINATE)
+	{
+		block = fifo_receive_queue.head;
+		data = FIFO_BUFFER_DATA(block);
 
-		do {
+		u32 channel = FIFO_UNPACK_CHANNEL(data);
 
-			block = fifo_receive_queue.head;
-			data = FIFO_BUFFER_DATA(block);
-
-			u32 channel = FIFO_UNPACK_CHANNEL(data);
-
-			// Check if this is a CPU reset command sent by the other CPU
-			if ( (data & (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT)) == (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT) ) {
-				uint32_t cmd = data & FIFO_ADDRESSDATA_MASK;
+		// Check if this is a special reset command sent by the other CPU
+		u32 reset_mask = FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT;
+		if ((data & reset_mask) == reset_mask)
+		{
+			uint32_t cmd = data & FIFO_ADDRESSDATA_MASK;
 #ifdef ARM9
-				// Message sent from the ARM7 to the ARM9 to start a reset
-				if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
-					exit(0);
+			// Message sent from the ARM7 to the ARM9 to start a reset
+			if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
+				exit(0);
 #endif
 
 #ifdef ARM7
-				// Message sent from the ARM9 to the ARM7 to start a reset
-				if (cmd == FIFO_ARM9_REQUESTS_ARM7_RESET) {
-					// Make sure that the two CPUs reset at the same time. The
-					// other CPU reset function (located in the bootstub struct)
-					// is responsible for issuing the same commands to ensure
-					// that both CPUs are in sync and they reset at the same
-					// time.
-					REG_IPC_SYNC = 0x100;
-					while((REG_IPC_SYNC&0x0f) != 1);
-					REG_IPC_SYNC = 0;
-					swiSoftReset();
-				}
+			// Message sent from the ARM9 to the ARM7 to start a reset
+			if (cmd == FIFO_ARM9_REQUESTS_ARM7_RESET)
+			{
+				// Make sure that the two CPUs reset at the same time. The other
+				// CPU reset function (located in the bootstub struct) is
+				// responsible for issuing the same commands to ensure that both
+				// CPUs are in sync and they reset at the same time.
+				REG_IPC_SYNC = 0x100;
+				while ((REG_IPC_SYNC & 0x0f) != 1);
+				REG_IPC_SYNC = 0;
+				swiSoftReset();
+			}
 #endif
+		}
+		else if (FIFO_IS_ADDRESS(data))
+		{
+			volatile void *address = FIFO_UNPACK_ADDRESS(data);
 
-			} else if (FIFO_IS_ADDRESS(data)) {
-
-				volatile void * address = FIFO_UNPACK_ADDRESS(data);
-
-				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
-				if (fifo_address_func[channel]) {
-					fifo_freeBlock(block);
-					REG_IME = 1;
-					fifo_address_func[channel]( (void*)address, fifo_address_data[channel] );
-					REG_IME = 0;
-				} else {
-					FIFO_BUFFER_DATA(block)=(u32)address;
-					fifo_queueBlock(&fifo_address_queue[channel],block,block);
-				}
-
-			} else if(FIFO_IS_VALUE32(data)) {
-
-				u32 value32;
-
-				if (FIFO_UNPACK_VALUE32_NEEDEXTRA(data)) {
-					int next = FIFO_BUFFER_GETNEXT(block);
-					if (next==FIFO_BUFFER_TERMINATE) break;
-					fifo_freeBlock(block);
-					block = next;
-					value32 = FIFO_BUFFER_DATA(block);
-
-				} else {
-					value32 = FIFO_UNPACK_VALUE32_NOEXTRA(data);
-				}
-
-				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
-				if (fifo_value32_func[channel]) {
-					fifo_freeBlock(block);
-					REG_IME = 1;
-					fifo_value32_func[channel]( value32, fifo_value32_data[channel] );
-					REG_IME = 0;
-				} else {
-					FIFO_BUFFER_DATA(block)=value32;
-					fifo_queueBlock(&fifo_value32_queue[channel],block,block);
-				}
-
-			} else if(FIFO_IS_DATA(data)) {
-
-				int n_bytes = FIFO_UNPACK_DATALENGTH(data);
-				int n_words = (n_bytes+3)>>2;
-				int count=0;
-
-				int end=block;
-
-				while(count<n_words && FIFO_BUFFER_GETNEXT(end)!=FIFO_BUFFER_TERMINATE){
-					end = FIFO_BUFFER_GETNEXT(end);
-					count++;
-				}
-
-
-				if (count!=n_words) break;
-
-				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(end);
-
-				int tmp=FIFO_BUFFER_GETNEXT(block);
+			fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
+			if (fifo_address_func[channel])
+			{
 				fifo_freeBlock(block);
+				REG_IME = 1;
+				fifo_address_func[channel]((void *)address, fifo_address_data[channel]);
+				REG_IME = 0;
+			}
+			else
+			{
+				FIFO_BUFFER_DATA(block) = (u32)address;
+				fifo_queueBlock(&fifo_address_queue[channel], block, block);
+			}
+		}
+		else if (FIFO_IS_VALUE32(data))
+		{
+			u32 value32;
 
+			if (FIFO_UNPACK_VALUE32_NEEDEXTRA(data))
+			{
+				int next = FIFO_BUFFER_GETNEXT(block);
 
-				FIFO_BUFFER_SETCONTROL(tmp, FIFO_BUFFER_GETNEXT(tmp), FIFO_BUFFERCONTROL_DATASTART, n_bytes);
+				// If the extra word hasn't been received, try later
+				if (next == FIFO_BUFFER_TERMINATE)
+					break;
 
-				fifo_queueBlock(&fifo_data_queue[channel],tmp,end);
-				if(fifo_datamsg_func[channel]) {
-					block = fifo_data_queue[channel].head;
-					REG_IME = 1;
-					fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
-					REG_IME = 0;
-					if (block == fifo_data_queue[channel].head) fifoGetDatamsg(channel,0,0);
-				}
-
-			} else {
-
-				fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
 				fifo_freeBlock(block);
-
+				block = next;
+				value32 = FIFO_BUFFER_DATA(block);
+			}
+			else
+			{
+				value32 = FIFO_UNPACK_VALUE32_NOEXTRA(data);
 			}
 
-		} while( fifo_receive_queue.head != FIFO_BUFFER_TERMINATE);
+			// Increase read pointer
+			fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
+
+			if (fifo_value32_func[channel])
+			{
+				fifo_freeBlock(block);
+				REG_IME = 1;
+				fifo_value32_func[channel](value32, fifo_value32_data[channel]);
+				REG_IME = 0;
+			}
+			else
+			{
+				FIFO_BUFFER_DATA(block)=value32;
+				fifo_queueBlock(&fifo_value32_queue[channel],block,block);
+			}
+		}
+		else if (FIFO_IS_DATA(data))
+		{
+			// Calculate the number of expected blocks
+			int n_bytes = FIFO_UNPACK_DATALENGTH(data);
+			int n_words = (n_bytes + 3) >> 2;
+
+			// Count the number of available blocks
+			int count = 0;
+			int end = block;
+			while (count < n_words && FIFO_BUFFER_GETNEXT(end) != FIFO_BUFFER_TERMINATE)
+			{
+				end = FIFO_BUFFER_GETNEXT(end);
+				count++;
+			}
+
+			// If we haven't received enough blocks, try later
+			if (count != n_words)
+				break;
+
+			// Advance pointer to the end of the blocks that form this message
+			// TODO: Fix this! It can cause a use-after-free situation. If we
+			// receive enough data messages while handling this one the data
+			// will be overwritten.
+			fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(end);
+
+			int tmp = FIFO_BUFFER_GETNEXT(block);
+			fifo_freeBlock(block);
+
+			FIFO_BUFFER_SETCONTROL(tmp, FIFO_BUFFER_GETNEXT(tmp),
+								   FIFO_BUFFERCONTROL_DATASTART, n_bytes);
+
+			fifo_queueBlock(&fifo_data_queue[channel], tmp, end);
+			if (fifo_datamsg_func[channel])
+			{
+				block = fifo_data_queue[channel].head;
+				REG_IME = 1;
+				// Call the handler and tell it the number of available bytes to
+				// use. They need to be fetched and turned into a proper message
+				// by calling fifoGetDatamsg().
+				fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
+				REG_IME = 0;
+				if (block == fifo_data_queue[channel].head)
+					fifoGetDatamsg(channel, 0, 0);
+			}
+		}
+		else
+		{
+			fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
+			fifo_freeBlock(block);
+		}
 	}
 
 	processing = 0;
