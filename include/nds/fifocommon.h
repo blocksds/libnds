@@ -156,7 +156,7 @@ typedef void (*FifoDatamsgHandlerFunc)(int num_bytes, void * userdata);
 
 	\return true if syncing worked, false if something went wrong.
 */
-bool fifoInit();
+bool fifoInit(void);
 
 
 /*!
@@ -169,7 +169,7 @@ bool fifoInit();
 
 	\return true if the address has been send, false if something went wrong.
 */
-bool fifoSendAddress(int channel, void *address);
+bool fifoSendAddress(u32 channel, void *address);
 
 
 /*!
@@ -185,7 +185,7 @@ bool fifoSendAddress(int channel, void *address);
 	\note Transfer is more efficient if the top 8 bits are zero. So sending smaller values or bitmasks that don't include the top bits is preferred.
 
 */
-bool fifoSendValue32(int channel, u32 value32);
+bool fifoSendValue32(u32 channel, u32 value32);
 
 
 /*!
@@ -199,7 +199,7 @@ bool fifoSendValue32(int channel, u32 value32);
 
 	\return true if the data message has been send, false if something went wrong.
 */
-bool fifoSendDatamsg(int channel, u32 num_bytes, u8 * data_array);
+bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 * data_array);
 
 
 /*!
@@ -215,7 +215,7 @@ bool fifoSendDatamsg(int channel, u32 num_bytes, u8 * data_array);
 
 	\note Setting the handler for a channel feeds the queue of buffered messages to the new handler, if there are any unread messages.
 */
-bool fifoSetAddressHandler(int channel, FifoAddressHandlerFunc newhandler, void * userdata);
+bool fifoSetAddressHandler(u32 channel, FifoAddressHandlerFunc newhandler, void * userdata);
 
 
 /*!
@@ -231,7 +231,7 @@ bool fifoSetAddressHandler(int channel, FifoAddressHandlerFunc newhandler, void 
 
 	\note Setting the handler for a channel feeds the queue of buffered messages to the new handler, if there are any unread messages.
 */
-bool fifoSetValue32Handler(int channel, FifoValue32HandlerFunc newhandler, void * userdata);
+bool fifoSetValue32Handler(u32 channel, FifoValue32HandlerFunc newhandler, void * userdata);
 
 
 /*!
@@ -247,7 +247,7 @@ bool fifoSetValue32Handler(int channel, FifoValue32HandlerFunc newhandler, void 
 
 	\note Setting the handler for a channel feeds the queue of buffered messages to the new handler, if there are any unread messages.
 */
-bool fifoSetDatamsgHandler(int channel, FifoDatamsgHandlerFunc newhandler, void * userdata);
+bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void * userdata);
 
 
 
@@ -258,7 +258,7 @@ bool fifoSetDatamsgHandler(int channel, FifoDatamsgHandlerFunc newhandler, void 
 
 	\return true if there is any addresses in the queue and if there isn't an address handler in place for the channel.
 */
-bool fifoCheckAddress(int channel);
+bool fifoCheckAddress(u32 channel);
 
 
 /*!
@@ -268,7 +268,7 @@ bool fifoCheckAddress(int channel);
 
 	\return true if there is any values in the queue and if there isn't a value handler in place for the channel.
 */
-bool fifoCheckValue32(int channel);
+bool fifoCheckValue32(u32 channel);
 
 
 /*!
@@ -278,7 +278,7 @@ bool fifoCheckValue32(int channel);
 
 	\return true if there is any data messages in the queue and if there isn't a data message handler in place for the channel.
 */
-bool fifoCheckDatamsg(int channel);
+bool fifoCheckDatamsg(u32 channel);
 
 
 /*!
@@ -288,7 +288,7 @@ bool fifoCheckDatamsg(int channel);
 
 	\return the number of bytes in the queue for the first data entry, or -1 if there are no entries.
 */
-int fifoCheckDatamsgLength(int channel);
+int fifoCheckDatamsgLength(u32 channel);
 
 
 /*!
@@ -298,7 +298,7 @@ int fifoCheckDatamsgLength(int channel);
 
 	\return the first address in queue, or NULL if there is none.
 */
-void * fifoGetAddress(int channel);
+void * fifoGetAddress(u32 channel);
 
 
 /*!
@@ -308,7 +308,7 @@ void * fifoGetAddress(int channel);
 
 	\return the first value32 in queue, or 0 if there is no message.
 */
-u32 fifoGetValue32(int channel);
+u32 fifoGetValue32(u32 channel);
 
 
 /*!
@@ -322,7 +322,7 @@ u32 fifoGetValue32(int channel);
 
 	\warning If your buffer is not big enough, you may lose data! Check the data length first if you're not sure what the size is.
 */
-int fifoGetDatamsg(int channel, int buffersize, u8 * destbuffer);
+int fifoGetDatamsg(u32 channel, int buffersize, u8 * destbuffer);
 
 /*!
 	\brief waits for any data messages in the fifo queue.
@@ -331,20 +331,20 @@ int fifoGetDatamsg(int channel, int buffersize, u8 * destbuffer);
 
 */
 
-static inline void fifoWaitValue32(int channel)
+static inline void fifoWaitValue32(u32 channel)
 {
 	while (!fifoCheckValue32(channel))
 		swiIntrWait(1, IRQ_FIFO_NOT_EMPTY);
 }
 
-static inline void fifoWaitValueAsync32(int channel)
+static inline void fifoWaitValueAsync32(u32 channel)
 {
 	while (!fifoCheckValue32(channel))
 		cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
 }
 
-void fifoMutexAcquire(int channel);
-void fifoMutexRelease(int channel);
+void fifoMutexAcquire(u32 channel);
+void fifoMutexRelease(u32 channel);
 
 #ifdef __cplusplus
 };
