@@ -1,7 +1,7 @@
 #include <nds/fifocommon.h>
 #include <nds/system.h>
 
-#include "fifo_private.h"
+#include "fifo_ipc_messages.h"
 #include "libnds_internal.h"
 
 extern char *fake_heap_end;

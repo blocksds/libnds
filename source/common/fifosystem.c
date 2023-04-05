@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fifo_private.h"
+#include "fifo_ipc_messages.h"
 
 // Maximum number of bytes that can be sent in a fifo message
 #define FIFO_MAX_DATA_BYTES     128
@@ -173,7 +173,7 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
         while (fifoCheckDatamsg(channel))
         {
             int block = fifo_data_queue[channel].head;
-            int n_bytes = FIFO_UNPACK_DATALENGTH(FIFO_BUFFER_DATA(block));
+            int n_bytes = fifo_ipc_unpack_datalength(FIFO_BUFFER_DATA(block));
             newhandler(n_bytes, userdata);
             if (block == fifo_data_queue[channel].head)
                 fifoGetDatamsg(channel, 0, 0);
@@ -278,10 +278,10 @@ bool fifoSendAddress(u32 channel, void *address)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
-    if (!FIFO_IS_ADDRESS_COMPATIBLE(address))
+    if (!fifo_ipc_is_address_compatible(address))
         return false;
 
-    return fifoInternalSend(FIFO_PACK_ADDRESS(channel, address), 0, 0);
+    return fifoInternalSend(fifo_ipc_pack_address(channel, address), 0, 0);
 }
 
 bool fifoSendValue32(u32 channel, u32 value32)
@@ -291,17 +291,17 @@ bool fifoSendValue32(u32 channel, u32 value32)
 
     u32 send_first, send_extra[1];
 
-    if (FIFO_VALUE32_NEEDEXTRA(value32))
+    if (fifo_ipc_value32_needextra(value32))
     {
         // The value doesn't fit in just one 32-bit message
-        send_first = FIFO_PACK_VALUE32_EXTRA(channel);
+        send_first = fifo_ipc_pack_value32_extra(channel);
         send_extra[0] = value32;
         return fifoInternalSend(send_first, 1, send_extra);
     }
     else
     {
         // The value fits in a 32-bit message
-        send_first = FIFO_PACK_VALUE32(channel, value32);
+        send_first = fifo_ipc_pack_value32(channel, value32);
         return fifoInternalSend(send_first, 0, 0);
     }
 }
@@ -313,7 +313,7 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
 
     if (num_bytes == 0)
     {
-        u32 send_first = FIFO_PACK_DATAMSG_HEADER(channel, 0);
+        u32 send_first = fifo_ipc_pack_datamsg_header(channel, 0);
         return fifoInternalSend(send_first, 0, NULL);
     }
 
@@ -332,7 +332,7 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
 
     buffer_array[num_words - 1] = 0; // zero out last few bytes before the copy
     memcpy(buffer_array, data_array, num_bytes);
-    u32 send_first = FIFO_PACK_DATAMSG_HEADER(channel, num_bytes);
+    u32 send_first = fifo_ipc_pack_datamsg_header(channel, num_bytes);
     return fifoInternalSend(send_first, num_words, buffer_array);
 }
 
@@ -491,9 +491,9 @@ static void fifoInternalRecvInterrupt(void)
         block = fifo_receive_queue.head;
         data = FIFO_BUFFER_DATA(block);
 
-        u32 channel = FIFO_UNPACK_CHANNEL(data);
+        u32 channel = fifo_ipc_unpack_channel(data);
 
-        if (FIFO_IS_SPECIAL_COMMAND(data))
+        if (fifo_ipc_is_special_command(data))
         {
             uint32_t cmd = data & FIFO_SPECIAL_COMMAND_MASK;
 #ifdef ARM9
@@ -517,9 +517,9 @@ static void fifoInternalRecvInterrupt(void)
             }
 #endif
         }
-        else if (FIFO_IS_ADDRESS(data))
+        else if (fifo_ipc_is_address(data))
         {
-            volatile void *address = FIFO_UNPACK_ADDRESS(data);
+            volatile void *address = fifo_ipc_unpack_address(data);
 
             fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(block);
             if (fifo_address_func[channel])
@@ -535,11 +535,11 @@ static void fifoInternalRecvInterrupt(void)
                 fifo_queueBlock(&fifo_address_queue[channel], block, block);
             }
         }
-        else if (FIFO_IS_VALUE32(data))
+        else if (fifo_ipc_is_value32(data))
         {
             u32 value32;
 
-            if (FIFO_UNPACK_VALUE32_NEEDEXTRA(data))
+            if (fifo_ipc_unpack_value32_needextra(data))
             {
                 int next = FIFO_BUFFER_GETNEXT(block);
 
@@ -553,7 +553,7 @@ static void fifoInternalRecvInterrupt(void)
             }
             else
             {
-                value32 = FIFO_UNPACK_VALUE32_NOEXTRA(data);
+                value32 = fifo_ipc_unpack_value32_noextra(data);
             }
 
             // Increase read pointer
@@ -572,10 +572,10 @@ static void fifoInternalRecvInterrupt(void)
                 fifo_queueBlock(&fifo_value32_queue[channel], block, block);
             }
         }
-        else if (FIFO_IS_DATA(data))
+        else if (fifo_ipc_is_data(data))
         {
             // Calculate the number of expected blocks
-            int n_bytes = FIFO_UNPACK_DATALENGTH(data);
+            int n_bytes = fifo_ipc_unpack_datalength(data);
             int n_words = (n_bytes + 3) >> 2;
 
             // Count the number of available blocks

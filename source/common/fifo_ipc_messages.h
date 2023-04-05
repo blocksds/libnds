@@ -3,8 +3,8 @@
 // Copyright (c) 2008-2015 Dave Murphy (WinterMute)
 // Copyright (c) 2023 Antonio Niño Díaz
 
-#ifndef FIFO_PRIVATE_H__
-#define FIFO_PRIVATE_H__
+#ifndef FIFO_IPC_MESSAGES_H__
+#define FIFO_IPC_MESSAGES_H__
 
 #include <stdbool.h>
 
@@ -69,7 +69,7 @@
 // +----------+------+-------+-------+-----------------+
 // |   X      |  1   |  1    |   X   | Command         |
 
-static inline uint32_t FIFO_UNPACK_CHANNEL(uint32_t dataword)
+static inline uint32_t fifo_ipc_unpack_channel(uint32_t dataword)
 {
     return (dataword >> FIFO_CHANNEL_SHIFT) & FIFO_CHANNEL_MASK;
 }
@@ -80,7 +80,7 @@ static inline uint32_t FIFO_UNPACK_CHANNEL(uint32_t dataword)
 #define FIFO_VALUE32_MASK   (FIFO_EXTRABIT - 1)
 
 // This returns true if the block is an immediate value (with extra word or not)
-static inline bool FIFO_IS_VALUE32(uint32_t dataword)
+static inline bool fifo_ipc_is_value32(uint32_t dataword)
 {
     return ((dataword & FIFO_ADDRESSBIT) == 0) &&
            ((dataword & FIFO_IMMEDIATEBIT) != 0);
@@ -88,33 +88,33 @@ static inline bool FIFO_IS_VALUE32(uint32_t dataword)
 
 // This returns true if the 32-bit value doesn't fit in one FIFO block. In that
 // case, it needs an extra FIFO block.
-static inline bool FIFO_VALUE32_NEEDEXTRA(uint32_t value32)
+static inline bool fifo_ipc_value32_needextra(uint32_t value32)
 {
     return (value32 & ~FIFO_VALUE32_MASK) != 0;
 }
 
 // Returns true if the specified fifo block says it needs an extra word.
-static inline bool FIFO_UNPACK_VALUE32_NEEDEXTRA(uint32_t dataword)
+static inline bool fifo_ipc_unpack_value32_needextra(uint32_t dataword)
 {
     return (dataword & FIFO_EXTRABIT) != 0;
 }
 
 // This creates a FIFO message that sends a 32-bit value that fits in one block.
-static inline uint32_t FIFO_PACK_VALUE32(uint32_t channel, uint32_t value32)
+static inline uint32_t fifo_ipc_pack_value32(uint32_t channel, uint32_t value32)
 {
     return (channel << FIFO_CHANNEL_SHIFT) | FIFO_IMMEDIATEBIT |
             (value32 & FIFO_VALUE32_MASK);
 }
 
 // Extract the small immediate value in messages that don't need an extra word.
-static inline uint32_t FIFO_UNPACK_VALUE32_NOEXTRA(uint32_t dataword)
+static inline uint32_t fifo_ipc_unpack_value32_noextra(uint32_t dataword)
 {
     return dataword & FIFO_VALUE32_MASK;
 }
 
 // This creates the header of a FIFO message that sends a 32-bit value that
 // doesn't fits in one block.
-static inline uint32_t FIFO_PACK_VALUE32_EXTRA(uint32_t channel)
+static inline uint32_t fifo_ipc_pack_value32_extra(uint32_t channel)
 {
     return (channel << FIFO_CHANNEL_SHIFT) | FIFO_IMMEDIATEBIT | FIFO_EXTRABIT;
 }
@@ -129,7 +129,7 @@ static inline uint32_t FIFO_PACK_VALUE32_EXTRA(uint32_t channel)
 #define FIFO_ADDRESSCOMPATIBLE          0xFF000000
 
 // This creates a FIFO message that sends an address in one FIFO block.
-static inline uint32_t FIFO_PACK_ADDRESS(uint32_t channel, void *address)
+static inline uint32_t fifo_ipc_pack_address(uint32_t channel, void *address)
 {
     return (channel << FIFO_CHANNEL_SHIFT) | FIFO_ADDRESSBIT |
            (((uint32_t)address >> FIFO_ADDRESSDATA_SHIFT) & FIFO_ADDRESSDATA_MASK);
@@ -137,17 +137,17 @@ static inline uint32_t FIFO_PACK_ADDRESS(uint32_t channel, void *address)
 
 // This returns true if the address can be sent as a FIFO address message. It
 // needs to be placed in main RAM for it to be compatible.
-static inline bool FIFO_IS_ADDRESS_COMPATIBLE(void *address)
+static inline bool fifo_ipc_is_address_compatible(void *address)
 {
     return ((uint32_t)address & FIFO_ADDRESSCOMPATIBLE) == FIFO_ADDRESSBASE;
 }
 
-static inline bool FIFO_IS_ADDRESS(uint32_t dataword)
+static inline bool fifo_ipc_is_address(uint32_t dataword)
 {
     return (dataword & FIFO_ADDRESSBIT) != 0;
 }
 
-static inline void *FIFO_UNPACK_ADDRESS(uint32_t dataword)
+static inline void *fifo_ipc_unpack_address(uint32_t dataword)
 {
     uint32_t address = ((dataword & FIFO_ADDRESSDATA_MASK) << FIFO_ADDRESSDATA_SHIFT)
                      | FIFO_ADDRESSBASE;
@@ -159,17 +159,17 @@ static inline void *FIFO_UNPACK_ADDRESS(uint32_t dataword)
 
 // This creates the header of a FIFO message that sends an arbitrary number of
 // bytes. The actual bytes must be sent right after the header.
-static inline uint32_t FIFO_PACK_DATAMSG_HEADER(uint32_t channel, uint32_t numbytes)
+static inline uint32_t fifo_ipc_pack_datamsg_header(uint32_t channel, uint32_t numbytes)
 {
     return (channel << FIFO_CHANNEL_SHIFT) | (numbytes & FIFO_VALUE32_MASK);
 }
 
-static inline bool FIFO_IS_DATA(uint32_t dataword)
+static inline bool fifo_ipc_is_data(uint32_t dataword)
 {
     return (dataword & (FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT)) == 0;
 }
 
-static inline uint32_t FIFO_UNPACK_DATALENGTH(uint32_t dataword)
+static inline uint32_t fifo_ipc_unpack_datalength(uint32_t dataword)
 {
 	return dataword & FIFO_VALUE32_MASK;
 }
@@ -178,7 +178,7 @@ static inline uint32_t FIFO_UNPACK_DATALENGTH(uint32_t dataword)
 // -----------------------------------
 
 // This returns true if the block is a special command
-static inline bool FIFO_IS_SPECIAL_COMMAND(uint32_t dataword)
+static inline bool fifo_ipc_is_special_command(uint32_t dataword)
 {
     return ((dataword & FIFO_ADDRESSBIT) != 0) &&
            ((dataword & FIFO_IMMEDIATEBIT) != 0);
@@ -193,4 +193,4 @@ static inline bool FIFO_IS_SPECIAL_COMMAND(uint32_t dataword)
 
 bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist);
 
-#endif // FIFO_PRIVATE_H__
+#endif // FIFO_IPC_MESSAGES_H__
