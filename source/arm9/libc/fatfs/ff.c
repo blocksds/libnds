@@ -4796,10 +4796,15 @@ FRESULT f_stat (
 		INIT_NAMBUF(dj.obj.fs);
 		res = follow_path(&dj, path);	/* Follow the file path */
 		if (res == FR_OK) {				/* Follow completed */
-			if (dj.fn[NSFLAG] & NS_NONAME) {	/* It is origin directory */
-				res = FR_INVALID_NAME;
-			} else {							/* Found an object */
-				if (fno) get_fileinfo(&dj, fno);
+			/* BlocksDS - support origin directory stat() */
+			if (fno) {
+				get_fileinfo(&dj, fno);
+				if (dj.fn[NSFLAG] & NS_NONAME) {	/* It is origin directory */
+					fno->fname[0] = 0;
+#ifdef FF_USE_LFN
+					fno->altname[0] = 0;
+#endif
+				}
 			}
 		}
 		FREE_NAMBUF();
