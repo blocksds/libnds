@@ -309,6 +309,13 @@ static inline void fifoWaitValueAsync32(u32 channel)
 /// @param channel Channel number.
 void fifoMutexAcquire(u32 channel);
 
+/// Tries to acquire the mutex of the specified FIFO channel.
+///
+/// @return Returns true if the lock was acquired, false if not.
+///
+/// @param channel Channel number.
+bool fifoMutexTryAcquire(u32 channel);
+
 /// Releases the mutex of the specified FIFO channel.
 ///
 /// @param channel Channel number.

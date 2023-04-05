@@ -721,6 +721,14 @@ void fifoMutexAcquire(u32 channel)
     comutex_acquire(&fifo_mutex[channel]);
 }
 
+bool fifoMutexTryAcquire(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    return comutex_try_acquire(&fifo_mutex[channel]);
+}
+
 void fifoMutexRelease(u32 channel)
 {
     if (channel >= FIFO_NUM_CHANNELS)
