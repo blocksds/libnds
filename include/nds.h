@@ -68,7 +68,7 @@
  - \ref bios.h "Bios"
  - \ref cache.h "ARM 9 Cache"
  - \ref interrupts.h "Interrupts"
- - \ref fifocommon.h "Fifo"
+ - \ref fifocommon.h "FIFO"
  - \ref timers.h "Timers"
 
  \section user_io_api User Input/ouput
