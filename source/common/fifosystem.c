@@ -608,10 +608,7 @@ static void fifoInternalRecvInterrupt(void)
             if (count != n_words)
                 break;
 
-            // Advance pointer to the end of the blocks that form this message
-            // TODO: Fix this! It can cause a use-after-free situation. If we
-            // receive enough data messages while handling this one the data
-            // will be overwritten.
+            // Add messages from the FIFO buffer to the receive queue.
             fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(end);
 
             int tmp = FIFO_BUFFER_GETNEXT(block);
@@ -624,12 +621,17 @@ static void fifoInternalRecvInterrupt(void)
             if (fifo_datamsg_func[channel])
             {
                 block = fifo_data_queue[channel].head;
-                REG_IME = 1;
+
                 // Call the handler and tell it the number of available bytes to
                 // use. They need to be fetched and turned into a proper message
                 // by calling fifoGetDatamsg().
+                REG_IME = 1;
                 fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
                 REG_IME = 0;
+
+                // If the user hasn't fetched the message from the queue by
+                // calling fifoGetDatamsg(), it is still in the queue. Delete it
+                // now.
                 if (block == fifo_data_queue[channel].head)
                     fifoGetDatamsg(channel, 0, 0);
             }
