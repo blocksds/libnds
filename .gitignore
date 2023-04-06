@@ -1,10 +1,5 @@
-arm7/debug
-arm7/release
-arm9/debug
-arm9/release
 build
 include/nds/libversion.h
 lib
 docs
 warn.log
-*.bz2
