@@ -63,7 +63,7 @@ bool dldi_arm7_startup(void)
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);
@@ -76,7 +76,7 @@ bool dldi_arm7_is_inserted(void)
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, DLDI_IS_INSERTED);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);
@@ -98,7 +98,7 @@ bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
 
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
@@ -122,7 +122,7 @@ bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
 
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
@@ -137,7 +137,7 @@ bool dldi_arm7_clear_status(void)
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, DLDI_CLEAR_STATUS);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);
@@ -150,7 +150,7 @@ bool dldi_arm7_shutdown(void)
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, DLDI_SHUTDOWN);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);

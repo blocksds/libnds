@@ -58,7 +58,7 @@ bool cameraInit(void) {
 
 	fifoMutexAcquire(FIFO_CAMERA);
 	fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_INIT, 0));
-	fifoWaitValueAsync32(FIFO_CAMERA);
+	fifoWaitValue32Async(FIFO_CAMERA);
 	u32 result = fifoGetValue32(FIFO_CAMERA);
 	fifoMutexRelease(FIFO_CAMERA);
 

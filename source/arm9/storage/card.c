@@ -25,7 +25,7 @@ bool cardReadArm7(void *dest, size_t offset, size_t size)
 
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	DC_InvalidateRange(dest, size);
 
 	int result = fifoGetValue32(FIFO_STORAGE);

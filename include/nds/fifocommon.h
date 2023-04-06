@@ -298,7 +298,7 @@ static inline void fifoWaitValue32(u32 channel)
 /// one available.
 ///
 /// @param channel Channel number.
-static inline void fifoWaitValueAsync32(u32 channel)
+static inline void fifoWaitValue32Async(u32 channel)
 {
     while (!fifoCheckValue32(channel))
         cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);

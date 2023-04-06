@@ -50,7 +50,7 @@ int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan){
 	fifoMutexAcquire(FIFO_SOUND);
 
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
-	fifoWaitValueAsync32(FIFO_SOUND);
+	fifoWaitValue32Async(FIFO_SOUND);
 	int result = fifoGetValue32(FIFO_SOUND);
 
 	fifoMutexRelease(FIFO_SOUND);
@@ -69,7 +69,7 @@ int soundPlayNoise(u16 freq, u8 volume, u8 pan){
 	fifoMutexAcquire(FIFO_SOUND);
 
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
-	fifoWaitValueAsync32(FIFO_SOUND);
+	fifoWaitValue32Async(FIFO_SOUND);
 	int result = fifoGetValue32(FIFO_SOUND);
 
 	fifoMutexRelease(FIFO_SOUND);
@@ -94,7 +94,7 @@ int soundPlaySample(const void* data, SoundFormat format, u32 dataSize, u16 freq
 	fifoMutexAcquire(FIFO_SOUND);
 
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
-	fifoWaitValueAsync32(FIFO_SOUND);
+	fifoWaitValue32Async(FIFO_SOUND);
 	int result = fifoGetValue32(FIFO_SOUND);
 
 	fifoMutexRelease(FIFO_SOUND);
@@ -162,7 +162,7 @@ int soundMicRecord(void *buffer, u32 bufferLength, MicFormat format, int freq, M
 	fifoMutexAcquire(FIFO_SOUND);
 
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8*)&msg);
-	fifoWaitValueAsync32(FIFO_SOUND);
+	fifoWaitValue32Async(FIFO_SOUND);
 	int result = fifoGetValue32(FIFO_SOUND);
 
 	fifoMutexRelease(FIFO_SOUND);

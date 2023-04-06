@@ -11,7 +11,7 @@ bool sdio_Startup(void) {
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, SDMMC_HAVE_SD);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);
@@ -22,7 +22,7 @@ bool sdio_Startup(void) {
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE,SDMMC_SD_START);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);
@@ -36,7 +36,7 @@ bool sdio_IsInserted(void) {
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, SDMMC_SD_IS_INSERTED);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	int result = fifoGetValue32(FIFO_STORAGE);
 
 	fifoMutexRelease(FIFO_STORAGE);
@@ -60,7 +60,7 @@ bool sdio_ReadSectors(sec_t sector, sec_t numSectors,void* buffer) {
 
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8*)&msg);
 
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 	DC_InvalidateRange(buffer, numSectors * 512);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
@@ -87,7 +87,7 @@ bool sdio_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer) {
 	fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8*)&msg);
 
 	DC_InvalidateRange(buffer, numSectors * 512);
-	fifoWaitValueAsync32(FIFO_STORAGE);
+	fifoWaitValue32Async(FIFO_STORAGE);
 
 	int result = fifoGetValue32(FIFO_STORAGE);
 
