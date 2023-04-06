@@ -137,8 +137,8 @@ typedef void (*FifoValue32HandlerFunc)(u32 value32, void *userdata);
 /// the callback's user data.
 ///
 /// The handler is called when new data arrives. This callback must call
-/// fifoGetData() to actually retrieve the data. If it doesn't, the data will be
-/// destroyed on return.
+/// fifoGetDatamsg() to actually retrieve the data. If it doesn't, the data will
+/// be destroyed on return.
 ///
 /// @note Callback functions are called from an interrupt handler. Try to not
 /// use too much stack from the callback.
