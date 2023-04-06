@@ -520,13 +520,17 @@ static void fifoInternalRecvInterrupt(void)
 #ifdef ARM9
             // Message sent from the ARM7 to the ARM9 to start a reset
             if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
+            {
+                REG_IME = 1;
                 exit(0);
+            }
 #endif
 
 #ifdef ARM7
             // Message sent from the ARM9 to the ARM7 to start a reset
             if (cmd == FIFO_ARM9_REQUESTS_ARM7_RESET)
             {
+                REG_IME = 1;
                 // Make sure that the two CPUs reset at the same time. The other
                 // CPU reset function (located in the bootstub struct) is
                 // responsible for issuing the same commands to ensure that both
