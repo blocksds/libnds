@@ -304,6 +304,46 @@ static inline void fifoWaitValue32Async(u32 channel)
         cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
 }
 
+/// Waits for any address message in a FIFO channel and blocks until there is
+/// one available.
+///
+/// @param channel Channel number.
+static inline void fifoWaitAddress(u32 channel)
+{
+    while (!fifoCheckAddress(channel))
+        swiIntrWait(1, IRQ_FIFO_NOT_EMPTY);
+}
+
+/// Waits for any address message in a FIFO channel and yields until there isn't
+/// one available.
+///
+/// @param channel Channel number.
+static inline void fifoWaitAddressAsync(u32 channel)
+{
+    while (!fifoCheckAddress(channel))
+        cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
+}
+
+/// Waits for any data message in a FIFO channel and blocks until there is
+/// one available.
+///
+/// @param channel Channel number.
+static inline void fifoWaitDatamsg(u32 channel)
+{
+    while (!fifoCheckDatamsg(channel))
+        swiIntrWait(1, IRQ_FIFO_NOT_EMPTY);
+}
+
+/// Waits for any data message in a FIFO channel and yields until there isn't
+/// one available.
+///
+/// @param channel Channel number.
+static inline void fifoWaitDatamsgAsync(u32 channel)
+{
+    while (!fifoCheckDatamsg(channel))
+        cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
+}
+
 /// Acquires the mutex of the specified FIFO channel.
 ///
 /// @param channel Channel number.
