@@ -117,17 +117,21 @@ static u32 fifo_buffer_alloc_block(void)
 // Allocate a new block, blocking until there is an available slot.
 static u32 fifo_buffer_wait_block(void)
 {
-    while (1)
-    {
-        u32 block = fifo_buffer_alloc_block();
-        if (block != FIFO_BUFFER_TERMINATE)
-            return block;
+    u32 block;
 
-        REG_IPC_FIFO_CR |= IPC_FIFO_SEND_IRQ;
-        REG_IME = 1;
-        swiIntrWait(0, IRQ_FIFO_EMPTY);
-        REG_IME = 0;
-    }
+    do {
+        block = fifo_buffer_alloc_block();
+
+        if (block == FIFO_BUFFER_TERMINATE)
+        {
+            REG_IPC_FIFO_CR |= IPC_FIFO_SEND_IRQ;
+            REG_IME = 1;
+            swiIntrWait(0, IRQ_FIFO_EMPTY);
+            REG_IME = 0;
+        }
+    } while(block == FIFO_BUFFER_TERMINATE);
+
+    return block;
 }
 
 // Frees the specified block.
@@ -608,9 +612,9 @@ static void fifoInternalRecvInterrupt(void)
             if (count != n_words)
                 break;
 
-            // Add messages from the FIFO buffer to the receive queue.
             fifo_receive_queue.head = FIFO_BUFFER_GETNEXT(end);
 
+            // Add messages from the FIFO buffer to the receive queue.
             int tmp = FIFO_BUFFER_GETNEXT(block);
             fifo_buffer_free_block(block);
 
