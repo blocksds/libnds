@@ -121,7 +121,7 @@ int open(const char *path, int flags, ...)
 ssize_t read(int fd, void *ptr, size_t len)
 {
     // This isn't handled here
-    if (fd == STDIN_FILENO)
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
 
     FIL *fp = (FIL *)fd;
@@ -156,6 +156,10 @@ ssize_t write(int fd, const void *ptr, size_t len)
 
 int close(int fd)
 {
+    // This isn't handled here
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+        return -1;
+
     FIL *fp = (FIL *)fd;
 
     FRESULT result = f_close(fp);
@@ -171,6 +175,10 @@ int close(int fd)
 
 off_t lseek(int fd, off_t offset, int whence)
 {
+    // This isn't handled here
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+        return -1;
+
     FIL *fp = (FIL *)fd;
 
     if (whence == SEEK_END)
@@ -278,6 +286,10 @@ int stat(const char *path, struct stat *st)
 
 int fstat(int fd, struct stat *st)
 {
+    // This isn't handled here
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+        return -1;
+
     FIL *fp = (FIL *)fd;
 
     st->st_size = fp->obj.objsize;
@@ -404,6 +416,10 @@ static int ftruncate_internal(int fd, off_t length)
 
 int ftruncate(int fd, off_t length)
 {
+    // This isn't handled here
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+        return -1;
+
     FIL *fp = (FIL *)fd;
 
     if ((size_t)length == (size_t)f_size(fp))

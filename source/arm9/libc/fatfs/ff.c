@@ -4835,8 +4835,9 @@ FRESULT f_getfree (
 
 
 	/* Get logical drive */
-	res = mount_volume(&path, &fs, 0);
-	if (res == FR_OK) {
+	/* BlocksDS: Allow specifying FATFS instance directly */
+	if (path == NULL) fs = *fatfs;
+	if (path == NULL || (res = mount_volume(&path, &fs, 0)) == FR_OK) {
 		*fatfs = fs;				/* Return ptr to the fs object */
 		/* If free_clst is valid, return it without full FAT scan */
 		if (fs->free_clst <= fs->n_fatent - 2) {
