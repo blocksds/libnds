@@ -27,7 +27,7 @@ struct statvfs {
 #define ST_RDONLY 0x1
 #define ST_NOSUID 0x2
 
-int statvfs(const char *restrict path, struct statvfs *restrict buf);
+int statvfs(const char * __restrict__ path, struct statvfs * __restrict__ buf);
 int fstatvfs(int fd, struct statvfs *buf);
 
 #if defined( __cplusplus )
