@@ -721,6 +721,8 @@ bool fifoInit(void)
     return true;
 }
 
+#ifdef ARM9
+
 static comutex_t fifo_mutex[FIFO_NUM_CHANNELS];
 
 void fifoMutexAcquire(u32 channel)
@@ -746,3 +748,5 @@ void fifoMutexRelease(u32 channel)
 
     comutex_release(&fifo_mutex[channel]);
 }
+
+#endif // ARM9
