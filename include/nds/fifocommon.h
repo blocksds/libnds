@@ -181,6 +181,13 @@ bool fifoSendValue32(u32 channel, u32 value32);
 /// @return Returns true if the data message has been sent, false on error.
 bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 * data_array);
 
+/// Sends a special command to the other CPU.
+///
+/// @param cmd Command identifier.
+///
+/// @return Returns true if the message has been sent, false on error.
+bool fifoSendSpecialCommand(u32 cmd);
+
 /// Sets user address message callback.
 ///
 /// Sets a callback to receive incoming address messages of a specific channel.

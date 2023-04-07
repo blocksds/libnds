@@ -48,14 +48,7 @@ ARM_CODE void __libnds_exit(int rc) {
 		//bootcode->arm7reboot();
 
 		// Send a special command to the ARM9 to initiate a reset.
-		//
-		// It isn't possible to use fifoSendValue32() to send this value because
-		// it masks the FIFO_ADDRESSBIT and FIFO_IMMEDIATEBIT (they are reserved
-		// bits for the FIFO system, and both of them are only set at the same
-		// time for reset messages).
-
-		uint32_t cmd = FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT | FIFO_ARM7_REQUESTS_ARM9_RESET;
-		fifoInternalSend(cmd, 0, NULL);
+		fifoSendSpecialCommand(FIFO_ARM7_REQUESTS_ARM9_RESET);
 #endif
 	} else {
 		systemShutDown();

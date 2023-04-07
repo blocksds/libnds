@@ -177,6 +177,8 @@ static inline uint32_t fifo_ipc_unpack_datalength(uint32_t dataword)
 // Defines related to special commands
 // -----------------------------------
 
+#define FIFO_SPECIAL_COMMAND_MASK       0x00FFFFFF
+
 // This returns true if the block is a special command
 static inline bool fifo_ipc_is_special_command(uint32_t dataword)
 {
@@ -184,13 +186,15 @@ static inline bool fifo_ipc_is_special_command(uint32_t dataword)
            ((dataword & FIFO_IMMEDIATEBIT) != 0);
 }
 
-#define FIFO_SPECIAL_COMMAND_MASK       0x00FFFFFF
+// This creates the header of a FIFO message that sends a special command.
+static inline uint32_t fifo_ipc_pack_special_command_header(uint32_t cmd)
+{
+    // The channel number is ignored
+    return FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT |
+           (FIFO_SPECIAL_COMMAND_MASK & cmd);
+}
 
 #define FIFO_ARM9_REQUESTS_ARM7_RESET   0x4000C
 #define FIFO_ARM7_REQUESTS_ARM9_RESET   0x4000B
-
-// ----------------------------------------------------------------------
-
-bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist);
 
 #endif // FIFO_IPC_MESSAGES_H__

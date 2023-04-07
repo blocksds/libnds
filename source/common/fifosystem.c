@@ -254,7 +254,7 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
     return true;
 }
 
-bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
+static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
 {
     if (extrawordcount > 0 && wordlist == NULL)
         return false;
@@ -301,6 +301,12 @@ bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     leaveCriticalSection(oldIME);
 
     return true;
+}
+
+// Send a special command to the other CPU
+bool fifoSendSpecialCommand(u32 cmd)
+{
+    return fifoInternalSend(fifo_ipc_pack_special_command_header(cmd), 0, 0);
 }
 
 // Send an address (from mainram only) to the other cpu (on a specific channel)
