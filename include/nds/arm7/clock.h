@@ -18,7 +18,6 @@
 extern "C" {
 #endif
 
-
 #include <nds/arm7/serial.h>
 
 // RTC registers

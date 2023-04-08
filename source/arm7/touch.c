@@ -41,7 +41,7 @@ static u8 CheckStylus(void)
 	SerialWaitBusy();
 
 	if(last_time_touched == 1){
-		if( !(REG_KEYXY & 0x40) )
+		if( !(REG_KEYXY & KEYXY_TOUCH) )
 			return 1;
 		else{
 			REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
@@ -58,10 +58,10 @@ static u8 CheckStylus(void)
 
 			SerialWaitBusy();
 
-			return !(REG_KEYXY & 0x40) ? 2 : 0;
+			return !(REG_KEYXY & KEYXY_TOUCH) ? 2 : 0;
 		}
 	}else{
-		return !(REG_KEYXY & 0x40) ? 1 : 0;
+		return !(REG_KEYXY & KEYXY_TOUCH) ? 1 : 0;
 	}
 }
 
@@ -327,7 +327,7 @@ bool touchPenDown(void)
 	if (cdcIsAvailable()) {
 		down = cdcTouchPenDown();
 	} else {
-		down = !(REG_KEYXY & (1<<6));
+		down = !(REG_KEYXY & KEYXY_TOUCH);
 	}
 	leaveCriticalSection(oldIME);
 	return down;

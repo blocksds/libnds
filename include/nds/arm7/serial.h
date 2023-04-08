@@ -13,15 +13,22 @@
 #error Serial header is for ARM7 only
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <nds/bios.h>
-
 
 // 'Networking'
 #define REG_RCNT	(*(vu16*)0x04000134)
 #define REG_KEYXY	(*(vu16*)0x04000136)
 #define RTC_CR		(*(vu16*)0x04000138)
 #define RTC_CR8		(*( vu8*)0x04000138)
+
+#define KEYXY_X		BIT(0)
+#define KEYXY_Y		BIT(1)
+#define KEYXY_TOUCH	BIT(6)
+#define KEYXY_LID	BIT(7)
 
 #define REG_SIOCNT	(*(vu16*)0x04000128)
 
@@ -69,9 +76,6 @@
 
 // Fixme: does this stuff really belong in serial.h?
 
-
-// Fixme: does this stuff really belong in serial.h?
-
 // Firmware commands
 #define FIRMWARE_WREN 0x06
 #define FIRMWARE_WRDI 0x04
@@ -95,6 +99,9 @@ void SerialWaitBusy(void) {
 // Read the firmware
 void readFirmware(u32 address, void * destination, u32 size);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

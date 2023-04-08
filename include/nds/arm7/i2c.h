@@ -11,6 +11,10 @@
 #error i2c header is for ARM7 only
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 #define REG_I2CDATA	(*(vu8 *)0x4004500)
@@ -46,5 +50,9 @@ u8 i2cWriteRegister(u8 device, u8 reg, u8 data);
 u8 i2cReadRegister(u8 device, u8 reg);
 u8 i2cWriteRegister16(u8 device, u16 reg, u16 data);
 u16 i2cReadRegister16(u8 device, u16 reg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // I2C_ARM7_INCLUDE
