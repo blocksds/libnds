@@ -6,7 +6,7 @@ static u8 guitar_keys = 0;
 static u8 guitar_keys_old = 0;
 
 //------------------------------------------------------------------------------
-static void guitarGripSetBus() {
+static void guitarGripSetBus(void) {
 //------------------------------------------------------------------------------
 	//setting the bus owner is not sufficient, as we need to ensure that the bus speeds are adequately slowed.
 	//this magic number contains the appropriate timings.
@@ -16,7 +16,7 @@ static void guitarGripSetBus() {
 }
 
 //------------------------------------------------------------------------------
-bool guitarGripIsInserted() {
+bool guitarGripIsInserted(void) {
 //------------------------------------------------------------------------------
 	if(isDSiMode()) return false;
 
@@ -32,7 +32,7 @@ bool guitarGripIsInserted() {
 }
 
 //------------------------------------------------------------------------------
-void guitarGripScanKeys() {
+void guitarGripScanKeys(void) {
 //------------------------------------------------------------------------------
 	guitarGripSetBus();
 	guitar_keys_old = guitar_keys;
@@ -40,19 +40,19 @@ void guitarGripScanKeys() {
 }
 
 //------------------------------------------------------------------------------
-u8 guitarGripKeysHeld() {
+u8 guitarGripKeysHeld(void) {
 //------------------------------------------------------------------------------
 	return guitar_keys;
 }
 
 //------------------------------------------------------------------------------
-u16 guitarGripKeysDown() {
+u16 guitarGripKeysDown(void) {
 //------------------------------------------------------------------------------
 	return guitar_keys & ~guitar_keys_old;
 }
 
 //------------------------------------------------------------------------------
-u16 guitarGripKeysUp() {
+u16 guitarGripKeysUp(void) {
 //------------------------------------------------------------------------------
 	return (guitar_keys ^ guitar_keys_old) & ~guitar_keys;
 }

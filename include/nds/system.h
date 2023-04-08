@@ -113,7 +113,7 @@ void systemSleep(void);
 void ledBlink(int bm);
 
 //!	Checks whether the application is running in DSi mode.
-static inline bool isDSiMode() {
+static inline bool isDSiMode(void) {
 	extern bool __dsimode;
 	return __dsimode;
 }
@@ -163,7 +163,7 @@ int writeFirmware(u32 address, void *buffer, u32 length);
 
 
 //! gets the DS Battery level
-u32 getBatteryLevel();
+u32 getBatteryLevel(void);
 
 //!	Set the arm9 vector base
 /*!	Arm9 only
@@ -199,11 +199,11 @@ bool setCpuClock(bool speed);
 
 // Helper functions for heap size
 //! returns current start of heap space
-u8* getHeapStart();
+u8* getHeapStart(void);
 //! returns current end of heap space
-u8* getHeapEnd();
+u8* getHeapEnd(void);
 //! returns current heap limit
-u8* getHeapLimit();
+u8* getHeapLimit(void);
 
 #endif //ARM9
 
@@ -271,8 +271,8 @@ void powerOff(uint32_t bits) {
 	REG_POWERCNT &= ~bits;
 }
 
-void readUserSettings();
-void systemShutDown();
+void readUserSettings(void);
+void systemShutDown(void);
 
 #endif /* ARM7 */
 

@@ -37,7 +37,7 @@ extern "C" {
 
 bool nand_ReadSectors(sec_t sector, sec_t numSectors,void* buffer);
 bool nand_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer);
-ssize_t nand_GetSize();
+ssize_t nand_GetSize(void);
 
 #ifdef __cplusplus
 }

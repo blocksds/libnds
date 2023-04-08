@@ -126,11 +126,11 @@ enum {
 };
 
 void sdmmc_controller_init(bool force_init);
-void sdmmc_initirq();
-int sdmmc_cardinserted();
+void sdmmc_initirq(void);
+int sdmmc_cardinserted(void);
 
-int sdmmc_sdcard_init();
-int sdmmc_nand_init();
+int sdmmc_sdcard_init(void);
+int sdmmc_nand_init(void);
 void sdmmc_get_cid(int devicenumber, u32 *cid);
 
 static inline void sdmmc_nand_cid( u32 *cid) {

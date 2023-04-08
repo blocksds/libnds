@@ -107,8 +107,8 @@ extern "C" {
 #endif
 
 
-void enableSlot1();
-void disableSlot1();
+void enableSlot1(void);
+void disableSlot1(void);
 
 void cardWriteCommand(const u8 *command);
 void cardPolledTransfer(u32 flags, u32 *destination, u32 length, const u8 *command);
@@ -120,13 +120,13 @@ void cardParamCommand (u8 command, u32 parameter, u32 flags, u32 *destination, u
 // needs to eject and reinsert the cart or they will return random data.
 void cardReadHeader(u8 *header);
 u32 cardReadID(u32 flags);
-void cardReset();
+void cardReset(void);
 
 // The destination and size must be word-aligned
 void cardRead(void *dest, size_t offset, size_t size);
 
 //---------------------------------------------------------------------------------
-static inline void eepromWaitBusy() {
+static inline void eepromWaitBusy(void) {
 //---------------------------------------------------------------------------------
 	while (REG_AUXSPICNT & CARD_SPI_BUSY);
 }
@@ -139,7 +139,7 @@ void cardWriteEeprom(u32 address, u8 *data, u32 length, u32 addrtype);
 
 // Returns the ID of the EEPROM chip? Doesn't work well, most chips give ff,ff
 // i = 0 or 1
-u32 cardEepromReadID(); 
+u32 cardEepromReadID(void);
 
 // Sends a command to the EEPROM
 u8 cardEepromCommand(u8 command); 
@@ -154,7 +154,7 @@ u8 cardEepromCommand(u8 command);
 int cardEepromGetType(void);
 
 // Returns the size in bytes of EEPROM
-u32 cardEepromGetSize();
+u32 cardEepromGetSize(void);
 
 // Erases the entire chip. TYPE 3 chips MUST be erased before writing to them. (I think?)
 void cardEepromChipErase(void);

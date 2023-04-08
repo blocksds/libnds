@@ -61,7 +61,7 @@ DEFINES		+= -D__NDS__ -DARM7
 
 ARCH		:= -mcpu=arm7tdmi -mtune=arm7tdmi
 
-WARNFLAGS	:= -Wall -Wextra
+WARNFLAGS	:= -Wall -Wextra -Wpedantic -Wstrict-prototypes
 
 INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 		   $(foreach path,$(LIBDIRS),-I$(path)/include)

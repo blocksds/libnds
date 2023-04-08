@@ -40,7 +40,7 @@ void __ndsabi_coro_make(__ndsabi_coro_t* __restrict__ coro,
 {
     void __ndsabi_coro_pop(void);
 
-    __ndsabi_coro_make_internal(coro, sp_top, (void *)coproc,
+    __ndsabi_coro_make_internal(coro, sp_top, coproc,
                                 (unsigned int)__ndsabi_coro_pop, arg);
 }
 
@@ -50,7 +50,8 @@ void __ndsabi_coro_make_noctx(__ndsabi_coro_t* __restrict__ coro,
                               void *arg)
 {
     void __ndsabi_coro_pop_noctx(void);
+    typedef int (*coproc_ctx_fn)(__ndsabi_coro_t*, void*);
 
-    __ndsabi_coro_make_internal(coro, sp_top, (void *)coproc,
+    __ndsabi_coro_make_internal(coro, sp_top, (coproc_ctx_fn)(uintptr_t)coproc,
                                 (unsigned int)__ndsabi_coro_pop_noctx, arg);
 }

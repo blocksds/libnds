@@ -173,7 +173,7 @@ void sdmmc_send_command(struct mmcdevice *ctx, uint32_t cmd, uint32_t args) {
 
 
 //---------------------------------------------------------------------------------
-int sdmmc_cardinserted() {
+int sdmmc_cardinserted(void) {
 //---------------------------------------------------------------------------------
 	return 1; //sdmmc_cardready;
 }
@@ -271,7 +271,7 @@ static u32 calcSDSize(u8* csd, int type) {
 }
 
 //---------------------------------------------------------------------------------
-int sdmmc_sdcard_init() {
+int sdmmc_sdcard_init(void) {
 //---------------------------------------------------------------------------------
     setTarget(&deviceSD);
     swiDelay(0xF000);
@@ -345,7 +345,7 @@ int sdmmc_sdcard_init() {
 }
 
 //---------------------------------------------------------------------------------
-int sdmmc_nand_init() {
+int sdmmc_nand_init(void) {
 //---------------------------------------------------------------------------------
     setTarget(&deviceNAND);
     swiDelay(0xF000);
@@ -493,14 +493,14 @@ int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg) {
 }
 
 //---------------------------------------------------------------------------------
-int sdmmc_nand_startup() {
+int sdmmc_nand_startup(void) {
 //---------------------------------------------------------------------------------
     sdmmc_controller_init(false);
     return sdmmc_nand_init();
 }
 
 //---------------------------------------------------------------------------------
-int sdmmc_sd_startup() {
+int sdmmc_sd_startup(void) {
 //---------------------------------------------------------------------------------
     sdmmc_controller_init(false);
     return sdmmc_sdcard_init();

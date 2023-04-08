@@ -356,7 +356,7 @@ u32 vramSetBanks_EFG(VRAM_E_TYPE e, VRAM_F_TYPE f, VRAM_G_TYPE g);
 /** \brief  Set VRAM banks to basic default.
 	\return the previous settings
 */
-u32 vramDefault();
+u32 vramDefault(void);
 
 /** \brief  Restore the main 4 bank modes.
 	\param vramTemp restores the main 4 banks to the value encoded in vramTemp (returned from vramSetMainBanks)
@@ -549,19 +549,19 @@ static inline
 /** \brief  return the main 2D engine video mode
 *    \return the video mode
 */
-int videoGetMode() {return (REG_DISPCNT & 0x30007);}
+int videoGetMode(void) {return (REG_DISPCNT & 0x30007);}
 
 static inline
 /** \brief  return the main 2D engine video mode
 *    \return the video mode
 */
-int videoGetModeSub() {return (REG_DISPCNT_SUB & 0x30007);}
+int videoGetModeSub(void) {return (REG_DISPCNT_SUB & 0x30007);}
 
 static inline
 /** \brief  determine if 3D is enabled
 *    \return true if 3D is enabled
 */
-bool video3DEnabled() {return (REG_DISPCNT & ENABLE_3D) ? true : false;}
+bool video3DEnabled(void) {return (REG_DISPCNT & ENABLE_3D) ? true : false;}
 
 static inline
 /** \brief  enables the specified background on the main engine

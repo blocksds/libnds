@@ -48,7 +48,7 @@ static inline void IPC_SendSync(unsigned int sync) {
 }
 
 //---------------------------------------------------------------------------------
-static inline int IPC_GetSync() {
+static inline int IPC_GetSync(void) {
 //---------------------------------------------------------------------------------
 	return REG_IPC_SYNC & 0x0f;
 }

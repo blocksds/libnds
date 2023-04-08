@@ -3,7 +3,7 @@
 #include <nds/arm9/paddle.h>
 
 //------------------------------------------------------------------------------
-static void paddleSetBus() {
+static void paddleSetBus(void) {
 //------------------------------------------------------------------------------
 	//setting the bus owner is not sufficient, as we need to ensure that the bus speeds are adequately slowed
 	REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
@@ -12,7 +12,7 @@ static void paddleSetBus() {
 }
 
 //------------------------------------------------------------------------------
-bool paddleIsInserted() {
+bool paddleIsInserted(void) {
 //------------------------------------------------------------------------------
 	if(isDSiMode()) return false;
 
@@ -31,7 +31,7 @@ bool paddleIsInserted() {
 }
 
 //------------------------------------------------------------------------------
-u16 paddleRead() {
+u16 paddleRead(void) {
 //------------------------------------------------------------------------------
  	paddleSetBus();
 	return (*(vu8*)0x0A000000) | ((*(vu8*)0x0A000001)<<8);
@@ -39,7 +39,7 @@ u16 paddleRead() {
 
 
 //------------------------------------------------------------------------------
-void paddleReset() {
+void paddleReset(void) {
 //------------------------------------------------------------------------------
 	(*(vu8*)0x0A000000) = 0;
 }

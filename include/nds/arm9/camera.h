@@ -49,11 +49,11 @@ bool cameraDeinit(void);
 bool cameraSelect(CameraDevice device);
 bool cameraStartTransfer(u16 *buffer, u8 captureMode, u8 ndmaId);
 
-static inline void cameraStopTransfer() {
+static inline void cameraStopTransfer(void) {
 	REG_CAM_CNT &= ~CAM_CNT_TRANSFER_ENABLE;
 }
 
-static inline bool cameraTransferActive() {
+static inline bool cameraTransferActive(void) {
 	return REG_CAM_CNT >> 15;
 }
 

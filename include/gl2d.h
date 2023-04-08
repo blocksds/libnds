@@ -129,7 +129,7 @@ void glEnd2D( void );
 /*! \brief Returns the active texture. Use with care. <Br> 
 	Needed to achieve some effects since libnds 1.5.0.
  */
-static inline int glGetActiveTexture()
+static inline int glGetActiveTexture(void)
 {
 	return gCurrentTexture;
 }

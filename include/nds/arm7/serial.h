@@ -108,7 +108,7 @@
 
 
 static inline
-void SerialWaitBusy() {
+void SerialWaitBusy(void) {
 	while (REG_SPICNT & SPI_BUSY);
 }
 

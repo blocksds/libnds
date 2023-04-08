@@ -50,10 +50,10 @@ void enterException(void);
 void setExceptionHandler(VoidFn handler);
 
 //! sets the default hardware exception handler.
-void defaultExceptionHandler();
+void defaultExceptionHandler(void);
 
 //! returns the cpu status register.
-u32 getCPSR();
+u32 getCPSR(void);
 
 #ifdef __cplusplus
 }

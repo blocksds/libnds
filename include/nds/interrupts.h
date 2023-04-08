@@ -37,63 +37,62 @@
 
 #include <nds/ndstypes.h>
 
-
-//! values allowed for REG_IE and REG_IF
-enum IRQ_MASKS {
-	IRQ_VBLANK			=	BIT(0),		/*!< vertical blank interrupt mask */
-	IRQ_HBLANK			=	BIT(1),		/*!< horizontal blank interrupt mask */
-	IRQ_VCOUNT			=	BIT(2),		/*!< vcount match interrupt mask */
-	IRQ_TIMER0			=	BIT(3),		/*!< timer 0 interrupt mask */
-	IRQ_TIMER1			=	BIT(4),		/*!< timer 1 interrupt mask */
-	IRQ_TIMER2			=	BIT(5),		/*!< timer 2 interrupt mask */
-	IRQ_TIMER3			=	BIT(6),		/*!< timer 3 interrupt mask */
+// Values allowed for REG_IE and REG_IF
+#define IRQ_VBLANK          BIT(0)  //!< Vertical blank interrupt mask
+#define IRQ_HBLANK          BIT(1)  //!< Horizontal blank interrupt mask
+#define IRQ_VCOUNT          BIT(2)  //!< Vcount match interrupt mask
+#define IRQ_TIMER0          BIT(3)  //!< Timer 0 interrupt mask
+#define IRQ_TIMER1          BIT(4)  //!< Timer 1 interrupt mask
+#define IRQ_TIMER2          BIT(5)  //!< Timer 2 interrupt mask
+#define IRQ_TIMER3          BIT(6)  //!< Timer 3 interrupt mask
 #ifdef ARM7
-	IRQ_NETWORK			=	BIT(7),		/*!< serial/RTC interrupt mask (ARM7) (deprecated name) */
-	IRQ_RTC				=	BIT(7),		/*!< serial/RTC interrupt mask (ARM7) */
+#define IRQ_NETWORK         BIT(7)  //!< Serial/RTC interrupt mask (ARM7) (deprecated name)
+#define IRQ_RTC             BIT(7)  //!< Serial/RTC interrupt mask (ARM7)
 #endif
-	IRQ_DMA0			=	BIT(8),		/*!< DMA 0 interrupt mask */
-	IRQ_DMA1			=	BIT(9),		/*!< DMA 1 interrupt mask */
-	IRQ_DMA2			=	BIT(10),	/*!< DMA 2 interrupt mask */
-	IRQ_DMA3			=	BIT(11),	/*!< DMA 3 interrupt mask */
-	IRQ_KEYS			=	BIT(12),	/*!< Keypad interrupt mask */
-	IRQ_CART			=	BIT(13),	/*!< GBA cartridge interrupt mask */
-	IRQ_IPC_SYNC		=	BIT(16),	/*!< IPC sync interrupt mask */
-	IRQ_FIFO_EMPTY		=	BIT(17),	/*!< Send FIFO empty interrupt mask */
-	IRQ_FIFO_NOT_EMPTY	=	BIT(18),	/*!< Receive FIFO not empty interrupt mask */
-	IRQ_CARD			=	BIT(19),	/*!< interrupt mask DS Card Slot*/
-	IRQ_CARD_LINE		=	BIT(20),	/*!< interrupt mask */
+#define IRQ_DMA0            BIT(8)  //!< DMA 0 interrupt mask
+#define IRQ_DMA1            BIT(9)  //!< DMA 1 interrupt mask
+#define IRQ_DMA2            BIT(10) //!< DMA 2 interrupt mask
+#define IRQ_DMA3            BIT(11) //!< DMA 3 interrupt mask
+#define IRQ_KEYS            BIT(12) //!< Keypad interrupt mask
+#define IRQ_CART            BIT(13) //!< GBA cartridge interrupt mask
+#define IRQ_IPC_SYNC        BIT(16) //!< IPC sync interrupt mask
+#define IRQ_FIFO_EMPTY      BIT(17) //!< Send FIFO empty interrupt mask
+#define IRQ_FIFO_NOT_EMPTY  BIT(18) //!< Receive FIFO not empty interrupt mask
+#define IRQ_CARD            BIT(19) //!< interrupt mask DS Card Slot
+#define IRQ_CARD_LINE       BIT(20) //!< interrupt mask
 #ifdef ARM9
-	IRQ_GEOMETRY_FIFO	=	BIT(21),	/*!< Geometry FIFO interrupt mask (ARM9) */
-	IRQ_DSP			=	BIT(24),	/*!< DSP interrupt mask (DSi ARM9) */
-	IRQ_CAMERA		=	BIT(25),	/*!< camera interrupt mask (DSi ARM9) */
+#define IRQ_GEOMETRY_FIFO   BIT(21) //!< Geometry FIFO interrupt mask (ARM9)
+#define IRQ_DSP             BIT(24) //!< DSP interrupt mask (DSi ARM9)
+#define IRQ_CAMERA          BIT(25) //!< Camera interrupt mask (DSi ARM9)
 #endif
 #ifdef ARM7
-	IRQ_LID				=	BIT(22),	/*!< hinge open interrupt mask */
-	IRQ_SPI				=	BIT(23),	/*!< SPI interrupt mask */
-	IRQ_WIFI			=	BIT(24),	/*!< WIFI interrupt mask (ARM7) */
+#define IRQ_LID             BIT(22) //!< Hinge open interrupt mask
+#define IRQ_SPI             BIT(23) //!< SPI interrupt mask
+#define IRQ_WIFI            BIT(24) //!< WIFI interrupt mask (ARM7)
 #endif
-	IRQ_NDMA0		=	BIT(28),	/*!< NDMA 0 interrupt mask (DSi) */
-	IRQ_NDMA1		=	BIT(29),	/*!< NDMA 1 interrupt mask (DSi) */
-	IRQ_NDMA2		=	BIT(30),	/*!< NDMA 2 interrupt mask (DSi) */
-	IRQ_NDMA3		=	BIT(31),	/*!< NDMA 3 interrupt mask (DSi) */
-	IRQ_ALL				=	(~0)		/*!< 'mask' for all interrupt */
-};
+#define IRQ_NDMA0           BIT(28) //!< NDMA 0 interrupt mask (DSi)
+#define IRQ_NDMA1           BIT(29) //!< NDMA 1 interrupt mask (DSi)
+#define IRQ_NDMA2           BIT(30) //!< NDMA 2 interrupt mask (DSi)
+#define IRQ_NDMA3           BIT(31) //!< NDMA 3 interrupt mask (DSi)
+#define IRQ_ALL             (~0)    //!< Mask for all interrupts
 
-typedef enum IRQ_MASKS IRQ_MASK;
+typedef uint32_t IRQ_MASKS;
+typedef uint32_t IRQ_MASK;
 
 #ifdef ARM7
-//! values allowed for REG_AUXIE and REG_AUXIF
-enum IRQ_MASKSAUX {
-	IRQ_HEADPHONE = 	BIT(5), /*!< Headphone interrupt mask (DSi ARM7) */
-	IRQ_I2C	=		BIT(6),	/*!< I2C interrupt mask (DSi ARM7) */
-	IRQ_SDMMC = 		BIT(8), /*!< SD/MMC controller interrupt mask (DSi ARM7) */
-	IRQ_SD_DATA = 		BIT(9), /*!< SD/MMC data interrupt mask (DSi ARM7) */
-	IRQ_SDIO = 		BIT(10), /*!< SDIO controller interrupt mask (DSi ARM7) */
-	IRQ_SDIO_DATA = 	BIT(11), /*!< SDIO data interrupt mask (DSi ARM7) */
-	IRQ_AES =		BIT(12), /*!< AES interrupt mask (DSi ARM7) */
+// Values allowed for REG_AUXIE and REG_AUXIF
+
+#define IRQ_HEADPHONE       BIT(5)  //!< Headphone interrupt mask (DSi ARM7)
+#define IRQ_I2C             BIT(6)  //!< I2C interrupt mask (DSi ARM7)
+#define IRQ_SDMMC           BIT(8)  //!< SD/MMC controller interrupt mask (DSi ARM7)
+#define IRQ_SD_DATA         BIT(9)  //!< SD/MMC data interrupt mask (DSi ARM7)
+#define IRQ_SDIO            BIT(10) //!< SDIO controller interrupt mask (DSi ARM7)
+#define IRQ_SDIO_DATA       BIT(11) //!< SDIO data interrupt mask (DSi ARM7)
+#define IRQ_AES             BIT(12) //!< AES interrupt mask (DSi ARM7)
 // TODO: bit 13 (second DSi ARM7 I2C interrupt)
-	IRQ_MICEXT =		BIT(14) /*!< microphone interrupt mask (DSi ARM7) */
-};
+#define IRQ_MICEXT          BIT(14) //!< microphone interrupt mask (DSi ARM7)
+
+typedef uint32_t IRQ_MASKSAUX;
 #endif
 
 /*!
@@ -182,7 +181,7 @@ struct IntTable{IntFn handler; u32 mask;};
     handlers.
 
 */
-void irqInit();
+void irqInit(void);
 
 /*! \fn irqSet(u32 irq, VoidFn handler)
 	\brief Add a handler for the given interrupt mask.
@@ -256,7 +255,7 @@ void irqDisableAUX(u32 irq);
 */
 void swiIntrWait(u32 waitForSet, uint32 flags);
 
-/*! \fn  swiWaitForVBlank()
+/*! \fn  swiWaitForVBlank(void)
 	\brief Wait for vblank interrupt
 
 	Waits for a vertical blank interrupt
@@ -275,7 +274,7 @@ void swiWaitForVBlank(void);
 */
 VoidFn setPowerButtonCB(VoidFn CB);
 
-static inline int enterCriticalSection() {
+static inline int enterCriticalSection(void) {
 	int oldIME = REG_IME;
 	REG_IME = 0;
 	return oldIME;

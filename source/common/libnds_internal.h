@@ -56,7 +56,7 @@ static inline void setTransferInputData(touchPosition *touch, u16 buttons)
 	transfer.touchZ2 = touch->z2;
 }
 static inline
-__TransferRegion volatile * __transferRegion() {
+__TransferRegion volatile * __transferRegion(void) {
 	return &transfer;
 }
 

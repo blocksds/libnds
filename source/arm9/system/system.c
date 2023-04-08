@@ -118,7 +118,7 @@ void ledBlink(int bm) {
 }
 
 //---------------------------------------------------------------------------------
-u32 getBatteryLevel() {
+u32 getBatteryLevel(void) {
 //---------------------------------------------------------------------------------
 	fifoSendValue32(FIFO_PM, PM_REQ_BATTERY);
 	fifoWaitValue32(FIFO_PM);
@@ -126,7 +126,7 @@ u32 getBatteryLevel() {
 }
 
 //---------------------------------------------------------------------------------
-void enableSlot1() {
+void enableSlot1(void) {
 //---------------------------------------------------------------------------------
 
 	if(isDSiMode()) fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_ENABLE);
@@ -134,7 +134,7 @@ void enableSlot1() {
 }
 
 //---------------------------------------------------------------------------------
-void disableSlot1() {
+void disableSlot1(void) {
 //---------------------------------------------------------------------------------
 
 	if(isDSiMode()) fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_DISABLE);

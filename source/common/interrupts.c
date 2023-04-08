@@ -29,7 +29,7 @@
 #include <nds/arm7/i2c.h>
 #endif
 
-void IntrMain();	// Prototype for assembly interrupt dispatcher
+void IntrMain(void); // Prototype for assembly interrupt dispatcher
 
 //---------------------------------------------------------------------------------
 void irqDummy(void) {}
@@ -49,7 +49,7 @@ struct IntTable irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
 static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
 //---------------------------------------------------------------------------------
-TWL_CODE void i2cIRQHandler() {
+TWL_CODE void i2cIRQHandler(void) {
 //---------------------------------------------------------------------------------
 	int cause = (i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & 0x3) | (i2cReadRegister(I2C_GPIO, 0x02)<<2);
 

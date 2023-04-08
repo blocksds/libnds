@@ -126,8 +126,8 @@ typedef void (*MIC_BUF_SWAP_CB)(u8* completedBuffer, int length);
 /*---------------------------------------------------------------------------------
 	Read a byte from the microphone
 ---------------------------------------------------------------------------------*/
-u8 micReadData8();
-u16 micReadData12();
+u8 micReadData8(void);
+u16 micReadData12(void);
 
 /*---------------------------------------------------------------------------------
 	Fill the buffer with data from the microphone. The buffer will be

@@ -206,7 +206,7 @@ static const char *registerNames[] =
 extern const char __itcm_start[];
 
 //---------------------------------------------------------------------------------
-void guruMeditationDump() {
+void guruMeditationDump(void) {
 //---------------------------------------------------------------------------------
 	consoleDemoInit();
 
@@ -256,14 +256,14 @@ void guruMeditationDump() {
 }
 
 //---------------------------------------------------------------------------------
-static void defaultHandler() {
+static void defaultHandler(void) {
 //---------------------------------------------------------------------------------
 	guruMeditationDump();
 	while(1);
 }
 
 //---------------------------------------------------------------------------------
-void defaultExceptionHandler() {
+void defaultExceptionHandler(void) {
 //---------------------------------------------------------------------------------
 	setExceptionHandler(defaultHandler) ;
 }

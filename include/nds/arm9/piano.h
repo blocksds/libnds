@@ -52,22 +52,22 @@ extern "C" {
     \brief Check for piano option pack.
     \return true if the cart in the GBA slot is the piano option pack.
 */
-bool pianoIsInserted();
+bool pianoIsInserted(void);
 
 /*! \fn void pianoScanKeys()
     \brief Obtain the current piano state.
     Call this function once per main loop to use the piano functions.
 */
-void pianoScanKeys();
+void pianoScanKeys(void);
 
 //! Obtains the current piano keys held state
-u16 pianoKeysHeld();
+u16 pianoKeysHeld(void);
 
 //! Obtains the current piano keys pressed state
-u16 pianoKeysDown();
+u16 pianoKeysDown(void);
 
 //! Obtains the current piano keys released state
-u16 pianoKeysUp();
+u16 pianoKeysUp(void);
 
 #ifdef __cplusplus
 }

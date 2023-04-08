@@ -259,12 +259,12 @@ void cpuStartTiming(int timer);
 /*!	\brief returns the number of ticks which have elapsed since cpuStartTiming.
 	\return The number of ticks which have elapsed since cpuStartTiming.
 */
-u32 cpuGetTiming();
+u32 cpuGetTiming(void);
 
 /*!	\brief ends cpu Timing.
 	\return The number of ticks which have elapsed since cpuStartTiming.
 */
-u32 cpuEndTiming();
+u32 cpuEndTiming(void);
 
 static inline
 u32 timerTicks2usec(u32 ticks) {

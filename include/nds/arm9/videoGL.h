@@ -526,7 +526,7 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 int glInit_C(void);
 
 // This returns a pointer to the globals for videoGL
-gl_hidden_globals* glGetGlobals();
+gl_hidden_globals* glGetGlobals(void);
 
 
 #ifdef __cplusplus
@@ -1303,7 +1303,7 @@ GL_STATIC_INL
 /*! \fn int glInit()
 \brief Initializes the gl state machine (must be called once before using gl calls)
 \return 1 on success, 0 on failure */
-int glInit() {
+int glInit(void) {
 	return glInit_C(); // actually does the initialization
 }
 

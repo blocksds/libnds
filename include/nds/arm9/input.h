@@ -83,7 +83,7 @@ uint32 keysUp(void);
 
 
 
-__attribute__ ((deprecated)) touchPosition touchReadXY() ;
+__attribute__ ((deprecated)) touchPosition touchReadXY(void);
 
 
 /*!

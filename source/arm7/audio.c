@@ -129,7 +129,7 @@ void soundDataHandler(int bytes, void *user_data) {
 }
 
 //---------------------------------------------------------------------------------
-void enableSound() {
+void enableSound(void) {
 //---------------------------------------------------------------------------------
 	powerOn(POWER_SOUND);
 	writePowerManagement(PM_CONTROL_REG, ( readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_MUTE ) | PM_SOUND_AMP );
@@ -138,7 +138,7 @@ void enableSound() {
 }
 
 //---------------------------------------------------------------------------------
-void disableSound() {
+void disableSound(void) {
 //---------------------------------------------------------------------------------
 	REG_SOUNDCNT &= ~SOUND_ENABLE;
 	writePowerManagement(PM_CONTROL_REG, ( readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_AMP ) | PM_SOUND_MUTE );

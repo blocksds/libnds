@@ -34,16 +34,16 @@ extern "C" {
     \brief Check for the paddle
     \return true if that's what is in the slot-2
 */
-bool paddleIsInserted();
+bool paddleIsInserted(void);
 
 /*! \fn void paddleRead()
     \brief Obtain the current paddle state
     \return a u16 containing a 12bit number (fixed point fraction), incrementing for clockwise rotations and decrementing for counterclockwise
 */
-u16 paddleRead();
+u16 paddleRead(void);
 
 //! Resets the paddle device. May change the current value to 0xFFF, 0x000, or 0x001. May perform other unknown internal reset operations. Normally not needed.
-void paddleReset();
+void paddleReset(void);
 
 
 #ifdef __cplusplus

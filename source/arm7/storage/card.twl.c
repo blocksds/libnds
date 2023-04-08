@@ -28,7 +28,7 @@
 
 #define BASE_DELAY (100)
 
-void twlEnableSlot1() {
+void twlEnableSlot1(void) {
 	int oldIME = enterCriticalSection();
 
 	while((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF) swiDelay(1 * BASE_DELAY);
@@ -43,7 +43,7 @@ void twlEnableSlot1() {
 	leaveCriticalSection(oldIME);
 }
 
-void twlDisableSlot1() {
+void twlDisableSlot1(void) {
 	int oldIME = enterCriticalSection();
 
 	while((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF) swiDelay(1 * BASE_DELAY);

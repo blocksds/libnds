@@ -39,22 +39,22 @@ extern "C" {
     \brief Check for the guitar grip
     \return true if that's what is in the slot-2
 */
-bool guitarGripIsInserted();
+bool guitarGripIsInserted(void);
 
 /*! \fn void guitarGripScanKeys()
     \brief Obtain the current guitar grip state.
     Call this function once per main loop to use the guitarGrip functions.
 */
-void guitarGripScanKeys();
+void guitarGripScanKeys(void);
 
 //! Obtains the current guitar grip keys held state
-u8 guitarGripKeysHeld();
+u8 guitarGripKeysHeld(void);
 
 //! Obtains the current guitar grip keys pressed state
-u16 guitarGripKeysDown();
+u16 guitarGripKeysDown(void);
 
 //! Obtains the current guitar grip keys released state
-u16 guitarGripKeysUp();
+u16 guitarGripKeysUp(void);
 
 
 #ifdef __cplusplus

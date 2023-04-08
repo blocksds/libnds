@@ -34,9 +34,9 @@
 #include <nds/arm7/camera.h>
 #include <nds/arm7/i2c.h>
 
-void i2cDelay();
+void i2cDelay(void);
 void i2cStop(u8 arg0);
-u8 i2cGetResult();
+u8 i2cGetResult(void);
 void i2cSetDelay(u8 device);
 
 enum i2cFlags { I2C_NONE = 0x00, I2C_STOP = 0x01, I2C_START = 0x02, I2C_ACK = 0x10, I2C_READ = 0x20 };

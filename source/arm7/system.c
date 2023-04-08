@@ -36,11 +36,11 @@
 bool sleepIsEnabled = true;
 bool __dsimode = false; // set in crt0
 
-void twlEnableSlot1();
-void twlDisableSlot1();
+void twlEnableSlot1(void);
+void twlDisableSlot1(void);
 
 //---------------------------------------------------------------------------------
-void enableSlot1() {
+void enableSlot1(void) {
 //---------------------------------------------------------------------------------
 
 	if(isDSiMode()) twlEnableSlot1();
@@ -48,7 +48,7 @@ void enableSlot1() {
 }
 
 //---------------------------------------------------------------------------------
-void disableSlot1() {
+void disableSlot1(void) {
 //---------------------------------------------------------------------------------
 
 	if(isDSiMode()) twlDisableSlot1();
