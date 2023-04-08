@@ -66,6 +66,7 @@ INSTALLDIR_ABS	:= $(abspath $(INSTALLDIR))
 
 install: all
 	@echo "  INSTALL $(INSTALLDIR_ABS)"
+	@test $(INSTALLDIR_ABS)
 	$(V)$(RM) $(INSTALLDIR_ABS)
 	$(V)$(INSTALL) -d $(INSTALLDIR_ABS)
 	$(V)$(CP) -r include lib licenses $(INSTALLDIR_ABS)
