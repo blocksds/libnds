@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2009-2012 Dave Murphy (WinterMute)
+// Copyright (C) 2023 Antonio Niño Díaz
+
 #include <nds/fifocommon.h>
 #include <nds/system.h>
 

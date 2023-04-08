@@ -1,9 +1,6 @@
-/*
-	include licence stuff?
-
-	see dynamicArray for licence...
-*/
-
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2005 Jason Rogers (dovoto)
 
 #include <nds/arm9/dynamicArray.h>
 

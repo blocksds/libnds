@@ -1,12 +1,9 @@
-@===============================================================================
-@
-@ Support:
-@    __ndsabi_coro_resume, __ndsabi_coro_yield, __ndsabi_coro_pop
-@
-@ Copyright (C) 2021-2023 agbabi contributors
-@ For conditions of distribution and use, see copyright notice in LICENSE.md
-@
-@===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
+//
+// Support:
+//    __ndsabi_coro_resume, __ndsabi_coro_yield, __ndsabi_coro_pop
 
     .arm
     .align 2

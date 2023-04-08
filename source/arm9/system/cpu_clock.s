@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2017 fincs
+
 #include <nds/asminc.h>
 
 	.arch    armv5te

@@ -1,0 +1,8 @@
+
+	This sofware is provided with the "use or abuse" license. Anyone is permitted to
+copy it, distribute it, reverse engineer it, or make money out of it.
+  
+	The author can never be held liable for any damages arising from the use of this sofware.
+
+Richard Eric M. Lope
+http://rel.phatcode.net

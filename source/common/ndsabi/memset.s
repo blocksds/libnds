@@ -1,17 +1,14 @@
-@===============================================================================
-@
-@ ABI:
-@    __aeabi_memclr, __aeabi_memclr4, __aeabi_memclr8,
-@    __aeabi_memset, __aeabi_memset4, __aeabi_memset8
-@ Standard:
-@    memset
-@ Support:
-@    __ndsabi_wordset4, __ndsabi_lwordset4, __ndsabi_memset1
-@
-@ Copyright (C) 2021-2023 agbabi contributors
-@ For conditions of distribution and use, see copyright notice in LICENSE.md
-@
-@===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
+//
+// ABI:
+//    __aeabi_memclr, __aeabi_memclr4, __aeabi_memclr8,
+//    __aeabi_memset, __aeabi_memset4, __aeabi_memset8
+// Standard:
+//    memset
+// Support:
+//    __ndsabi_wordset4, __ndsabi_lwordset4, __ndsabi_memset1
 
 #include "macros.inc"
 

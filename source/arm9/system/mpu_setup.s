@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2009-2017 Dave Murphy (WinterMute)
+// Copyright (C) 2017 fincs
+
 #include <nds/asminc.h>
 #include <nds/arm9/cache_asm.h>
 

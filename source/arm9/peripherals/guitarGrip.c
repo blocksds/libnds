@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2011 zeromus
+// Copyright (C) 2011 Dave Murphy (WinterMute)
+
 #include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/arm9/guitarGrip.h>

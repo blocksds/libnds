@@ -1,4 +1,6 @@
-
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2008 Jason Rogers (dovoto)
 
 #include <nds/arm9/linkedlist.h>
 #include <stdlib.h>

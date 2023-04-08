@@ -1,12 +1,9 @@
-@===============================================================================
-@
-@ Support:
-@    __ndsabi_fiq_memcpy4, __ndsabi_fiq_memcpy4x4
-@
-@ Copyright (C) 2021-2023 agbabi contributors
-@ For conditions of distribution and use, see copyright notice in LICENSE.md
-@
-@===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
+//
+// Support:
+//    __ndsabi_fiq_memcpy4, __ndsabi_fiq_memcpy4x4
 
 #include "macros.inc"
 

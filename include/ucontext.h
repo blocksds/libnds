@@ -1,13 +1,8 @@
-/*
-===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
 
- Context switching definitions
-
- Copyright (C) 2021-2023 agbabi contributors
- For conditions of distribution and use, see copyright notice in LICENSE.md
-
-===============================================================================
-*/
+// Context switching definitions
 
 #ifndef _UCONTEXT_H
 #define _UCONTEXT_H

@@ -1,12 +1,9 @@
-@===============================================================================
-@
-@ POSIX:
-@    getcontext, setcontext, swapcontext
-@
-@ Copyright (C) 2021-2023 agbabi contributors
-@ For conditions of distribution and use, see copyright notice in LICENSE.md
-@
-@===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
+//
+// POSIX:
+//    getcontext, setcontext, swapcontext
 
 .set OFF_MCONTEXT,  16
 .set OFF_REG_R0,    OFF_MCONTEXT + 0

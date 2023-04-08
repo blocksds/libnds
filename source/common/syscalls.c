@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2011 Dave Murphy (WinterMute)
+// Copyright (C) 2017 fincs
+
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 #include <nds/bios.h>

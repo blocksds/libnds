@@ -1,13 +1,6 @@
-/*
-===============================================================================
-
- C header file for aeabi
-
- Copyright (C) 2021-2023 agbabi contributors
- For conditions of distribution and use, see copyright notice in LICENSE.md
-
-===============================================================================
-*/
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
 
 #ifndef AEABI_H
 #define AEABI_H

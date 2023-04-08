@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2008-2010 Dave Murphy (WinterMute)
+// Copyright (C) 2008-2010 Jason Rogers (Dovoto)
+
 #include <nds/arm7/input.h>
 #include <nds/arm7/touch.h>
 #include <nds/system.h>

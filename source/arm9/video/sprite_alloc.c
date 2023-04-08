@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2008-2010 Jason Rogers (dovoto)
+// Copyright (C) 2008-2010 Dave Murphy (WinterMute)
+
 #include <nds/arm9/sprite.h>
 
 #include <nds/arm9/input.h>

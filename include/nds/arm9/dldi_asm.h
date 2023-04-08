@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2017 Dave Murphy (WinterMute)
+
 #define FEATURE_MEDIUM_CANREAD	0x00000001
 #define FEATURE_MEDIUM_CANWRITE	0x00000002
 #define FEATURE_SLOT_GBA		0x00000010 // This is a slot-2 flashcard

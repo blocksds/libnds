@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2011-2017 Dave Murphy (WinterMute)
+
 #ifndef __SDMMC_H__
 #define __SDMMC_H__
 

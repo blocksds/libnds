@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2017-2018 Dave Murphy (WinterMute)
+
 #ifndef _ASMINC_H_
 #define _ASMINC_H_
 

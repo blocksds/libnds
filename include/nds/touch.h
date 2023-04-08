@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2005 Michael Noland (joat)
+// Copyright (C) 2005 Jason Rogers (dovoto)
+// Copyright (C) 2005 Dave Murphy (WinterMute)
+
 #ifndef __TOUCH_H__
 #define __TOUCH_H__
 

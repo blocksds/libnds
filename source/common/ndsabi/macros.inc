@@ -1,11 +1,8 @@
-@===============================================================================
-@
-@ ARM assembly support macros
-@
-@ Copyright (C) 2021-2023 agbabi contributors
-@ For conditions of distribution and use, see copyright notice in LICENSE.md
-@
-@===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
+//
+// ARM assembly support macros
 
 @ Shift and test upper two bits, clobbering \reg
 @ Use mi for first bit, cs for second bit

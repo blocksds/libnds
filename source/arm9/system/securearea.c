@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2017 Dave Murphy (WinterMute)
+
 /*
 	Array used to fill secure area, marked weak to allow nds files to be
 	built with no secure area.

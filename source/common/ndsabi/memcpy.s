@@ -1,16 +1,13 @@
-@===============================================================================
-@
-@ ABI:
-@    __aeabi_memcpy, __aeabi_memcpy4, __aeabi_memcpy8
-@ Standard:
-@    memcpy
-@ Support:
-@    __ndsabi_memcpy2, __ndsabi_memcpy1
-@
-@ Copyright (C) 2021-2023 agbabi contributors
-@ For conditions of distribution and use, see copyright notice in LICENSE.md
-@
-@===============================================================================
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2021-2023 agbabi contributors
+//
+// ABI:
+//    __aeabi_memcpy, __aeabi_memcpy4, __aeabi_memcpy8
+// Standard:
+//    memcpy
+// Support:
+//    __ndsabi_memcpy2, __ndsabi_memcpy1
 
 #include "macros.inc"
 
