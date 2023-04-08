@@ -59,4 +59,4 @@ install: all
 	@echo "  INSTALL $(INSTALLDIR_ABS)"
 	@test $(INSTALLDIR_ABS)
 	$(V)$(INSTALL) -d $(INSTALLDIR_ABS)
-	$(V)$(CP) -r include lib $(INSTALLDIR_ABS)
+	$(V)$(CP) -r include lib licenses $(INSTALLDIR_ABS)
