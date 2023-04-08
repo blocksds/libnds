@@ -124,9 +124,11 @@ Keyboard defaultKeyboard = {
 	0, //key release callback
 };
 
-Keyboard *curKeyboard = &defaultKeyboard;
+Keyboard *curKeyboard = NULL;
 
 s16 keyboardGetKey(int x, int y) {
+	if (curKeyboard == NULL) return NOKEY;
+
 	KeyMap * keymap = curKeyboard->mappings[curKeyboard->state];
 	x = (x - curKeyboard->offset_x) / curKeyboard->grid_width;
 	y = (y + curKeyboard->offset_y) / curKeyboard->grid_height;
@@ -140,6 +142,8 @@ s16 keyboardGetKey(int x, int y) {
 }
 
 void keyboardShiftState(void) {
+	if (curKeyboard == NULL) return;
+
 	curKeyboard->state = curKeyboard->state == Upper ? Lower : Upper;
 
 	KeyMap * map = curKeyboard->mappings[curKeyboard->state];
@@ -149,7 +153,7 @@ void keyboardShiftState(void) {
 }
 
 void swapKeyGfx(int key, bool pressed) {
-	if(key == NOKEY) return;
+	if(curKeyboard == NULL || key == NOKEY) return;
 
 	KeyMap * keymap = curKeyboard->mappings[curKeyboard->state];
 
@@ -179,6 +183,8 @@ void swapKeyGfx(int key, bool pressed) {
 }
 
 s16 keyboardUpdate(void) {
+	if (curKeyboard == NULL) return -1;
+
 	static int pressed = 0;
 	touchPosition touch;
 
@@ -242,6 +248,9 @@ Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, 
 	if(keyboard) {
 		curKeyboard = keyboard;
 	} else {
+		if(curKeyboard == NULL) {
+			curKeyboard = &defaultKeyboard;
+		}
 		keyboard = curKeyboard;
 	}
 
@@ -285,10 +294,12 @@ Keyboard* keyboardInit(Keyboard* keyboard, int layer, BgType type, BgSize size, 
 }
 
 Keyboard* keyboardDemoInit(void) {
-	return keyboardInit(NULL, 3, BgType_Text4bpp, BgSize_T_256x512, defaultKeyboard.mapBase, defaultKeyboard.tileBase, false, true);
+	return keyboardInit(keyboardGetDefault(), 3, BgType_Text4bpp, BgSize_T_256x512, defaultKeyboard.mapBase, defaultKeyboard.tileBase, false, true);
 }
 
 void keyboardShow(void) {
+	if (curKeyboard == NULL) return;
+
 	int i;
 
 	swiWaitForVBlank();
@@ -314,6 +325,8 @@ void keyboardShow(void) {
 }
 
 void keyboardHide(void) {
+	if (curKeyboard == NULL) return;
+
 	int i;
 
 	curKeyboard->visible = 0;
@@ -332,6 +345,8 @@ void keyboardHide(void) {
 }
 
 s16 keyboardGetChar(void) {
+	if (curKeyboard == NULL) return 0;
+
 	int pressed;
 
 	while(1) {
@@ -360,7 +375,7 @@ void keyboardGetString(char * buffer, int maxLen) {
 	while(buffer < end) {
 		c = (char)keyboardGetChar();
 
-		if(c == DVK_ENTER) break;
+		if(c == 0 || c == DVK_ENTER) break;
 
 		*buffer++ = c;
 	}
