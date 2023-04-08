@@ -5,9 +5,8 @@
 static u8 guitar_keys = 0;
 static u8 guitar_keys_old = 0;
 
-//------------------------------------------------------------------------------
-static void guitarGripSetBus(void) {
-//------------------------------------------------------------------------------
+static void guitarGripSetBus(void)
+{
 	//setting the bus owner is not sufficient, as we need to ensure that the bus speeds are adequately slowed.
 	//this magic number contains the appropriate timings.
 	REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
@@ -15,9 +14,8 @@ static void guitarGripSetBus(void) {
 	REG_EXMEMCNT |= (EXMEMCNT_SRAM_TIME_10_CYCLES | EXMEMCNT_ROM_TIME1_18_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_PHI_CLOCK_OFF);
 }
 
-//------------------------------------------------------------------------------
-bool guitarGripIsInserted(void) {
-//------------------------------------------------------------------------------
+bool guitarGripIsInserted(void)
+{
 	if(isDSiMode()) return false;
 
 	guitarGripSetBus();
@@ -31,29 +29,24 @@ bool guitarGripIsInserted(void) {
 	return true;
 }
 
-//------------------------------------------------------------------------------
-void guitarGripScanKeys(void) {
-//------------------------------------------------------------------------------
+void guitarGripScanKeys(void)
+{
 	guitarGripSetBus();
 	guitar_keys_old = guitar_keys;
 	guitar_keys = ~(*(vu8*)0x0A000000);
 }
 
-//------------------------------------------------------------------------------
-u8 guitarGripKeysHeld(void) {
-//------------------------------------------------------------------------------
+u8 guitarGripKeysHeld(void)
+{
 	return guitar_keys;
 }
 
-//------------------------------------------------------------------------------
-u16 guitarGripKeysDown(void) {
-//------------------------------------------------------------------------------
+u16 guitarGripKeysDown(void)
+{
 	return guitar_keys & ~guitar_keys_old;
 }
 
-//------------------------------------------------------------------------------
-u16 guitarGripKeysUp(void) {
-//------------------------------------------------------------------------------
+u16 guitarGripKeysUp(void)
+{
 	return (guitar_keys ^ guitar_keys_old) & ~guitar_keys;
 }
-

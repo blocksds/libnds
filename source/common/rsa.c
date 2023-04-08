@@ -30,31 +30,30 @@ int swiRSADecryptRAWTWL(swiRSAHeapContext_t *ctx, swiRSAbuffers_t *rsabuffers, s
 int swiRSADecryptTWL(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key);
 int swiRSADecryptPGPTWL(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key);
 
-//---------------------------------------------------------------------------------
-int swiRSAInitHeap(swiRSAHeapContext_t *ctx, void *heapStart, size_t heapSize) {
-//---------------------------------------------------------------------------------
-	if (isDSiMode()) return swiRSAInitHeapTWL(ctx, heapStart, heapSize);
-	return 0;
+int swiRSAInitHeap(swiRSAHeapContext_t *ctx, void *heapStart, size_t heapSize)
+{
+    if (isDSiMode())
+        return swiRSAInitHeapTWL(ctx, heapStart, heapSize);
+    return 0;
 }
 
-//---------------------------------------------------------------------------------
-int swiRSADecryptRAW(swiRSAHeapContext_t *ctx, swiRSAbuffers_t *rsabuffers, size_t len) {
-//---------------------------------------------------------------------------------
-	if (isDSiMode()) return swiRSADecryptRAWTWL(ctx, rsabuffers, len);
-	return 0;
+int swiRSADecryptRAW(swiRSAHeapContext_t *ctx, swiRSAbuffers_t *rsabuffers, size_t len)
+{
+    if (isDSiMode())
+        return swiRSADecryptRAWTWL(ctx, rsabuffers, len);
+    return 0;
 }
 
-//---------------------------------------------------------------------------------
-int swiRSADecrypt(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key) {
-//---------------------------------------------------------------------------------
-	if (isDSiMode()) return swiRSADecryptTWL(ctx, dst, sig, key);
-	return 0;
+int swiRSADecrypt(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key)
+{
+    if (isDSiMode())
+        return swiRSADecryptTWL(ctx, dst, sig, key);
+    return 0;
 }
 
-//---------------------------------------------------------------------------------
-int swiRSADecryptPGP(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key) {
-//---------------------------------------------------------------------------------
-	if (isDSiMode()) return swiRSADecryptPGPTWL(ctx, dst, sig, key);
-	return 0;
+int swiRSADecryptPGP(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key)
+{
+    if (isDSiMode())
+        return swiRSADecryptPGPTWL(ctx, dst, sig, key);
+    return 0;
 }
-

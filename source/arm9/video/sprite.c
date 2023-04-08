@@ -28,9 +28,8 @@ OamState oamSub = {
 	SpriteMapping_1D_128
 };
 
-//---------------------------------------------------------------------------------
-void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette) {
-//---------------------------------------------------------------------------------
+void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette)
+{
 	int i;
 	int extPaletteFlag = extPalette ? DISPLAY_SPR_EXT_PALETTE : 0;
 
@@ -68,9 +67,8 @@ void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette) {
 	oamAllocReset(oam);
 }
 
-//---------------------------------------------------------------------------------
-void oamDisable(OamState *oam) {
-//---------------------------------------------------------------------------------
+void oamDisable(OamState *oam)
+{
 	if(oam == &oamMain) {
 		REG_DISPCNT &= ~DISPLAY_SPR_ACTIVE;
 	} else {
@@ -78,9 +76,8 @@ void oamDisable(OamState *oam) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-void oamEnable(OamState *oam) {
-//---------------------------------------------------------------------------------
+void oamEnable(OamState *oam)
+{
 	if(oam == &oamMain) {
 		REG_DISPCNT |= DISPLAY_SPR_ACTIVE;
 	} else {
@@ -88,9 +85,8 @@ void oamEnable(OamState *oam) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-u16* oamGetGfxPtr(OamState *oam, int gfxOffsetIndex) {
-//---------------------------------------------------------------------------------
+u16* oamGetGfxPtr(OamState *oam, int gfxOffsetIndex)
+{
 	if(gfxOffsetIndex < 0) return NULL;
 
 	if(oam == &oamMain) {
@@ -100,10 +96,8 @@ u16* oamGetGfxPtr(OamState *oam, int gfxOffsetIndex) {
 	}
 }
 
-
-//---------------------------------------------------------------------------------
-void oamClear(OamState *oam, int start, int count) {
-//---------------------------------------------------------------------------------
+void oamClear(OamState *oam, int start, int count)
+{
 	int i = 0;
 
 	if(count == 0) {
@@ -117,9 +111,8 @@ void oamClear(OamState *oam, int start, int count) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-unsigned int oamGfxPtrToOffset(OamState *oam, const void* offset) {
-//---------------------------------------------------------------------------------
+unsigned int oamGfxPtrToOffset(OamState *oam, const void* offset)
+{
 	if(oam->spriteMapping & DISPLAY_SPR_1D)
 	{
 		return ((u32)offset & 0xFFFFF) >> oam->gfxOffsetStep;;
@@ -147,16 +140,11 @@ unsigned int oamGfxPtrToOffset(OamState *oam, const void* offset) {
 	}
 }
 
-
-
-//---------------------------------------------------------------------------------
-void oamSet(OamState* oam,	int id,  int x, int y, int priority,
- 							int palette_alpha, SpriteSize size,SpriteColorFormat format,
- 							const void* gfxOffset,
- 							int affineIndex,
- 							bool sizeDouble, bool hide, bool hflip, bool vflip, bool mosaic) {
-//---------------------------------------------------------------------------------
-
+void oamSet(OamState* oam, int id,  int x, int y, int priority,
+            int palette_alpha, SpriteSize size,SpriteColorFormat format,
+            const void* gfxOffset, int affineIndex,
+            bool sizeDouble, bool hide, bool hflip, bool vflip, bool mosaic)
+{
 	if(hide) {
 		oam->oamMemory[id].attribute[0] = ATTR0_DISABLED;
 		return;
@@ -191,9 +179,8 @@ void oamSet(OamState* oam,	int id,  int x, int y, int priority,
 	}
 }
 
-//---------------------------------------------------------------------------------
-void oamUpdate(OamState* oam) {
-//---------------------------------------------------------------------------------
+void oamUpdate(OamState* oam)
+{
 	DC_FlushRange(oam->oamMemory, sizeof(OamMemory));
 
 	if(oam == &oamMain) {
@@ -203,9 +190,8 @@ void oamUpdate(OamState* oam) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-void oamRotateScale(OamState* oam, int rotId, int angle, int sx, int sy){
-//---------------------------------------------------------------------------------
+void oamRotateScale(OamState* oam, int rotId, int angle, int sx, int sy)
+{
 	sassert(rotId >= 0 && rotId < 32, "oamRotateScale() rotId is out of bounds, must be 0-31");
 
 	int ss = sinLerp(angle);
@@ -216,4 +202,3 @@ void oamRotateScale(OamState* oam, int rotId, int angle, int sx, int sy){
 	oam->oamRotationMemory[rotId].hdy = ( ss*sy)>>12;
 	oam->oamRotationMemory[rotId].vdy = ( cc*sy)>>12;
 }
-

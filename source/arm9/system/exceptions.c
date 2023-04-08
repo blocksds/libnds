@@ -25,10 +25,9 @@
 #include <nds/ndstypes.h>
 #include <nds/arm9/exceptions.h>
 
-//---------------------------------------------------------------------------------
-void setExceptionHandler(VoidFn handler) {
-//---------------------------------------------------------------------------------
-	EXCEPTION_VECTOR = enterException ;
-	*exceptionC = handler ;
+void setExceptionHandler(VoidFn handler)
+{
+    EXCEPTION_VECTOR = enterException;
+    *exceptionC = handler;
 }
 

@@ -31,10 +31,9 @@
 
 void IntrMain(void); // Prototype for assembly interrupt dispatcher
 
-//---------------------------------------------------------------------------------
-void irqDummy(void) {}
-//---------------------------------------------------------------------------------
-
+void irqDummy(void)
+{
+}
 
 #ifdef ARM9
 #define INT_TABLE_SECTION __attribute__((section(".itcm")))
@@ -48,9 +47,8 @@ struct IntTable irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
 
 static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
-//---------------------------------------------------------------------------------
-TWL_CODE void i2cIRQHandler(void) {
-//---------------------------------------------------------------------------------
+TWL_CODE void i2cIRQHandler(void)
+{
 	int cause = (i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & 0x3) | (i2cReadRegister(I2C_GPIO, 0x02)<<2);
 
 	switch (cause & 3) {
@@ -68,9 +66,8 @@ TWL_CODE void i2cIRQHandler(void) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-TWL_CODE void irqInitAUX(void) {
-//---------------------------------------------------------------------------------
+TWL_CODE void irqInitAUX(void)
+{
 	// Set all interrupts to dummy functions.
 	for(int i = 0; i < MAX_INTERRUPTS_AUX; i++)
 	{
@@ -79,9 +76,8 @@ TWL_CODE void irqInitAUX(void) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-VoidFn setPowerButtonCB(VoidFn CB) {
-//---------------------------------------------------------------------------------
+VoidFn setPowerButtonCB(VoidFn CB)
+{
 	if (!isDSiMode()) return CB;
 	VoidFn tmp = __powerbuttonCB;
 	__powerbuttonCB = CB;
@@ -89,9 +85,8 @@ VoidFn setPowerButtonCB(VoidFn CB) {
 }
 #endif
 
-//---------------------------------------------------------------------------------
-static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 max ) {
-//---------------------------------------------------------------------------------
+static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 max)
+{
 	if (!mask) return;
 
 	u32 i;
@@ -105,9 +100,8 @@ static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 ma
 	irqTable[i].mask	= mask;
 }
 
-//---------------------------------------------------------------------------------
-void irqSet(u32 mask, IntFn handler) {
-//---------------------------------------------------------------------------------
+void irqSet(u32 mask, IntFn handler)
+{
 	int oldIME = enterCriticalSection();
 	__irqSet(mask,handler,irqTable,MAX_INTERRUPTS);
 	if(mask & IRQ_VBLANK)
@@ -119,9 +113,8 @@ void irqSet(u32 mask, IntFn handler) {
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-void irqInitHandler(IntFn handler) {
-//---------------------------------------------------------------------------------
+void irqInitHandler(IntFn handler)
+{
 	REG_IME = 0;
 	REG_IE = 0;
 	REG_IF = ~0;
@@ -135,9 +128,8 @@ void irqInitHandler(IntFn handler) {
 	IRQ_HANDLER = handler;
 }
 
-//---------------------------------------------------------------------------------
-void irqInit() {
-//---------------------------------------------------------------------------------
+void irqInit(void)
+{
 	int i;
 
 	irqInitHandler(IntrMain);
@@ -159,10 +151,8 @@ void irqInit() {
 	REG_IME = 1;			// enable global interrupt
 }
 
-
-//---------------------------------------------------------------------------------
-void irqEnable(uint32 irq) {
-//---------------------------------------------------------------------------------
+void irqEnable(uint32 irq)
+{
 	int oldIME = enterCriticalSection();
 	if (irq & IRQ_VBLANK)
 		REG_DISPSTAT |= DISP_VBLANK_IRQ ;
@@ -177,9 +167,8 @@ void irqEnable(uint32 irq) {
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-void irqDisable(uint32 irq) {
-//---------------------------------------------------------------------------------
+void irqDisable(uint32 irq)
+{
 	int oldIME = enterCriticalSection();
 	if (irq & IRQ_VBLANK)
 		REG_DISPSTAT &= ~DISP_VBLANK_IRQ ;
@@ -194,9 +183,8 @@ void irqDisable(uint32 irq) {
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max) {
-//---------------------------------------------------------------------------------
+static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max)
+{
 	u32 i = 0;
 
 	for	(i=0;i<max;i++)
@@ -207,9 +195,8 @@ static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max) {
 	irqTable[i].handler	= irqDummy;
 }
 
-//---------------------------------------------------------------------------------
-void irqClear(u32 mask) {
-//---------------------------------------------------------------------------------
+void irqClear(u32 mask)
+{
 	int oldIME = enterCriticalSection();
 	__irqClear(mask,irqTable,MAX_INTERRUPTS);
 	irqDisable( mask);
@@ -217,36 +204,34 @@ void irqClear(u32 mask) {
 }
 
 #ifdef ARM7
-//---------------------------------------------------------------------------------
-TWL_CODE void irqSetAUX(u32 mask, IntFn handler) {
-//---------------------------------------------------------------------------------
+
+TWL_CODE void irqSetAUX(u32 mask, IntFn handler)
+{
 	int oldIME = enterCriticalSection();
 	__irqSet(mask,handler,irqTableAUX,MAX_INTERRUPTS_AUX);
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-TWL_CODE void irqClearAUX(u32 mask) {
-//---------------------------------------------------------------------------------
+TWL_CODE void irqClearAUX(u32 mask)
+{
 	int oldIME = enterCriticalSection();
 	__irqClear(mask,irqTableAUX,MAX_INTERRUPTS_AUX);
 	irqDisable( mask);
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-TWL_CODE void irqDisableAUX(uint32 irq) {
-//---------------------------------------------------------------------------------
+TWL_CODE void irqDisableAUX(uint32 irq)
+{
 	int oldIME = enterCriticalSection();
 	REG_AUXIE &= ~irq;
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-TWL_CODE void irqEnableAUX(uint32 irq) {
-//---------------------------------------------------------------------------------
+TWL_CODE void irqEnableAUX(uint32 irq)
+{
 	int oldIME = enterCriticalSection();
 	REG_AUXIE |= irq;
 	leaveCriticalSection(oldIME);
 }
+
 #endif

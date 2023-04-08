@@ -27,9 +27,8 @@
 #include <nds/arm9/image.h>
 #include <malloc.h>
 
-//---------------------------------------------------------------------------------
-int loadPCX(const unsigned char* pcx, sImage* image) {
-//---------------------------------------------------------------------------------
+int loadPCX(const unsigned char* pcx, sImage* image)
+{
 	//struct rgb {unsigned char b,g,r;};
 	RGB_24* pal;
 	

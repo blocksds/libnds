@@ -42,16 +42,14 @@
 //   Please use the glGlob pointer to access this data since that makes it easier to move stuff in/out of the header.
 gl_hidden_globals glGlobalData;
 
-
-
 // This returns the pointer to the globals for videoGL
-gl_hidden_globals* glGetGlobals() {
+gl_hidden_globals* glGetGlobals(void)
+{
 	return &glGlobalData;
 }
 
-//---------------------------------------------------------------------------------
-void glRotatef32i(int angle, int32 x, int32 y, int32 z) {
-//---------------------------------------------------------------------------------
+void glRotatef32i(int angle, int32 x, int32 y, int32 z)
+{
 	int32 axis[3];
 	int32 sine = sinLerp(angle);//SIN[angle &  LUT_MASK];
 	int32 cosine = cosLerp(angle);//COS[angle & LUT_MASK];
@@ -76,12 +74,8 @@ void glRotatef32i(int angle, int32 x, int32 y, int32 z) {
 	MATRIX_MULT3x3 = cosine + mulf32(mulf32(one_minus_cosine, axis[2]), axis[2]);
 }
 
-
-
-
-//---------------------------------------------------------------------------------
-void glMaterialf(GL_MATERIALS_ENUM mode, rgb color) {
-//---------------------------------------------------------------------------------
+void glMaterialf(GL_MATERIALS_ENUM mode, rgb color)
+{
 	static uint32 diffuse_ambient = 0;
 	static uint32 specular_emission = 0;
 
@@ -109,9 +103,8 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color) {
 	GFX_SPECULAR_EMISSION = specular_emission;
 }
 
-//---------------------------------------------------------------------------------
-void glTexCoord2f32(int32 u, int32 v) {
-//---------------------------------------------------------------------------------
+void glTexCoord2f32(int32 u, int32 v)
+{
 	int x, y;
 	gl_texture_data *tex = (gl_texture_data*)DynamicArrayGet( &glGlob->texturePtrs, glGlob->activeTexture );
 	if( tex ) {
@@ -121,7 +114,6 @@ void glTexCoord2f32(int32 u, int32 v) {
 	}
 }
 
-//---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 // internal VRAM allocation/deallocation functions
 //  ( calling these functions outside of videoGL may interfere with normal operations )
@@ -500,7 +492,6 @@ vramBlock_deallocateAll( s_vramBlock *mb ) {
 	vramBlock_init( mb );
 }
 
-
 uint8*
 vramBlock_getAddr( s_vramBlock *mb, uint32 index ) {
 	struct s_SingleBlock *getBlock;
@@ -508,7 +499,6 @@ vramBlock_getAddr( s_vramBlock *mb, uint32 index ) {
 		return getBlock->AddrSet;
 	return NULL;
 }
-
 
 uint32
 vramBlock_getSize( s_vramBlock *mb, uint32 index ) {
@@ -519,13 +509,9 @@ vramBlock_getSize( s_vramBlock *mb, uint32 index ) {
 }
 
 //---------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------
 
-
-
-//---------------------------------------------------------------------------------
-int glInit_C(void) {
-//---------------------------------------------------------------------------------
+int glInit_C(void)
+{
 	int i;
 
 	powerOn(POWER_3D_CORE | POWER_MATRIX);	// enable 3D core & geometry engine
@@ -630,9 +616,8 @@ int glInit_C(void) {
 	return 1;
 }
 
-//---------------------------------------------------------------------------------
-void glResetTextures(void) {
-//---------------------------------------------------------------------------------
+void glResetTextures(void)
+{
 	int i;
 
 	glGlob->activeTexture = 0;
@@ -665,7 +650,6 @@ void glResetTextures(void) {
 		vramBlock_deallocateAll( glGlob->vramBlocks[ i ] );
 }
 
-
 void removePaletteFromTexture( gl_texture_data *tex ) {
 	if( tex ) {
 		gl_palette_data *palette = (gl_palette_data*)DynamicArrayGet( &glGlob->palettePtrs, tex->palIndex );
@@ -683,15 +667,11 @@ void removePaletteFromTexture( gl_texture_data *tex ) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-//	glGenTextures creates integer names for your table
-//	takes n as the number of textures to generate and
-//	a pointer to the names array that it needs to fill.
-//  Returns 1 if succesful and 0 if out of texture names
-//---------------------------------------------------------------------------------
-
-int glGenTextures(int n, int *names) {
-//---------------------------------------------------------------------------------
+// Create integer names for your table. Takes n as the number of textures to
+// generate and a pointer to the names array that it needs to fill. Returns 1 if
+// succesful and 0 if out of texture names.
+int glGenTextures(int n, int *names)
+{
 	int index = 0;
 
 	// Don't do anything if can't add all generated textures
@@ -712,16 +692,11 @@ int glGenTextures(int n, int *names) {
 	return 1;
 }
 
-
-//---------------------------------------------------------------------------------
-//	glDeleteTextures deletes integer names from your table
-//	takes n as the number of textures to delete and
-//	a pointer to the names array that it needs to remove.
-//  Returns 1 if successful and 0 if out of texture names
-//---------------------------------------------------------------------------------
-
-int glDeleteTextures( int n, int *names ) {
-//---------------------------------------------------------------------------------
+// Delete integer names from your table. Takes n as the number of textures to
+// delete and a pointer to the names array that it needs to remove. Returns 1 if
+// successful and 0 if out of texture names.
+int glDeleteTextures(int n, int *names)
+{
 	int index = 0;
 	for(index = 0; index < n; index++) {
 		if( names[ index ] != 0 ) {
@@ -754,9 +729,8 @@ int glDeleteTextures( int n, int *names ) {
 	return 1;
 }
 
-//---------------------------------------------------------------------------------
-uint16* vramGetBank(uint16 *addr) {
-//---------------------------------------------------------------------------------
+uint16* vramGetBank(uint16 *addr)
+{
 	if(addr >= VRAM_A && addr < VRAM_B)
 		return VRAM_A;
 	else if(addr >= VRAM_B && addr < VRAM_C)
@@ -776,14 +750,10 @@ uint16* vramGetBank(uint16 *addr) {
 	else return VRAM_I;
 }
 
-
-//---------------------------------------------------------------------------------
-// glLockVRAMBank locks a designated vram bank
-//  to prevent consideration of the bank when allocating
-//  This is not an actual openGL function
-//---------------------------------------------------------------------------------
-int glLockVRAMBank( uint16 *addr ) {
-//---------------------------------------------------------------------------------
+// Lock a designated vram bank to prevent consideration of the bank when
+// allocating. This is not an actual OpenGL function.
+int glLockVRAMBank(uint16 *addr)
+{
 	uint16 *actualVRAMBank = vramGetBank( addr );
 	if( actualVRAMBank < VRAM_A || actualVRAMBank > VRAM_G )
 		return 0;
@@ -806,14 +776,10 @@ int glLockVRAMBank( uint16 *addr ) {
 	return 1;
 }
 
-
-//---------------------------------------------------------------------------------
-// glUnlockVRAMBank unlocks a designated vram bank
-//  to allow consideration of the bank when allocating
-//  This is not an actual openGL function
-//---------------------------------------------------------------------------------
-int glUnlockVRAMBank( uint16 *addr ) {
-//---------------------------------------------------------------------------------
+// Unlock a designated vram bank to allow consideration of the bank when
+// allocating. This is not an actual OpenGL function
+int glUnlockVRAMBank(uint16 *addr)
+{
 	uint16 *actualVRAMBank = vramGetBank( addr );
 	if( actualVRAMBank < VRAM_A || actualVRAMBank > VRAM_G )
 		return 0;
@@ -836,13 +802,10 @@ int glUnlockVRAMBank( uint16 *addr ) {
 	return 1;
 }
 
-//---------------------------------------------------------------------------------
-// glBindTexure sets the current named
-//	texture to the active texture.  Target
-//	is ignored as all DS textures are 2D
-//---------------------------------------------------------------------------------
-void glBindTexture(int target, int name) {
-//---------------------------------------------------------------------------------
+// Set the current named texture to the active texture. The target is ignored as
+// all DS textures are 2D.
+void glBindTexture(int target, int name)
+{
 	(void)target;
 
 	gl_texture_data *tex = NULL;
@@ -865,14 +828,11 @@ void glBindTexture(int target, int name) {
 	}
 }
 
-
-//---------------------------------------------------------------------------------
-// glColorTableEXT loads a 15-bit color
-//  format palette into palette memory,
-//  and sets it to the currently bound texture
-//---------------------------------------------------------------------------------
-void glColorTableEXT( int target, int empty1, uint16 width, int empty2, int empty3, const uint16* table ) {
-//---------------------------------------------------------------------------------
+// Load a 15-bit color format palette into palette memory, and set it to the
+// currently bound texture.
+void glColorTableEXT(int target, int empty1, uint16 width, int empty2,
+                     int empty3, const uint16 *table)
+{
 	(void)target;
 	(void)empty1;
 	(void)empty2;
@@ -954,12 +914,11 @@ void glColorTableEXT( int target, int empty1, uint16 width, int empty2, int empt
 	}
 }
 
-//---------------------------------------------------------------------------------
-// glColorSubTableEXT loads a 15-bit color
-//  format palette into a specific spot in
-//  a currently bound texture's existing palette
-//---------------------------------------------------------------------------------
-void glColorSubTableEXT( int target, int start, int count, int empty1, int empty2, const uint16* data ) {
+// Load a 15-bit color format palette into a specific spot in a currently bound
+// texture's existing palette.
+void glColorSubTableEXT(int target, int start, int count, int empty1,
+                        int empty2, const uint16* data)
+{
 	(void)target;
 	(void)empty1;
 	(void)empty2;
@@ -974,12 +933,10 @@ void glColorSubTableEXT( int target, int start, int count, int empty1, int empty
 	}
 }
 
-//---------------------------------------------------------------------------------
-// glGetColorTableEXT retrieves a 15-bit color
-//  format palette from the palette memory
-//  of the currently bound texture
-//---------------------------------------------------------------------------------
-void glGetColorTableEXT( int target, int empty1, int empty2, uint16* table ) {
+// Retrieve a 15-bit color format palette from the palette memory of the
+// currently bound texture.
+void glGetColorTableEXT(int target, int empty1, int empty2, uint16 *table)
+{
 	(void)target;
 	(void)empty1;
 	(void)empty2;
@@ -992,13 +949,10 @@ void glGetColorTableEXT( int target, int empty1, int empty2, uint16* table ) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-// nglAssignColorTable sets the active texture
-//  with a palette set with another texture.
-//  This is not an actual openGL function
-//---------------------------------------------------------------------------------
-void glAssignColorTable( int target, int name ) {
-//---------------------------------------------------------------------------------
+// Set the active texture with a palette set with another texture. This is not
+// an actual OpenGL function.
+void glAssignColorTable(int target, int name)
+{
 	(void)target;
 
 	// Allow assigning from a texture different from the active one
@@ -1022,13 +976,10 @@ void glAssignColorTable( int target, int name ) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-// glTexParameter although named the same
-//	as its gl counterpart it is not compatible
-//	Effort may be made in the future to make it so.
-//---------------------------------------------------------------------------------
-void glTexParameter( int target, int param ) {
-//---------------------------------------------------------------------------------
+// Although named the same as its OpenGL counterpart it is not compatible.
+// Effort may be made in the future to make it so.
+void glTexParameter(int target, int param)
+{
 	(void)target;
 
 	if( glGlob->activeTexture ) {
@@ -1038,12 +989,10 @@ void glTexParameter( int target, int param ) {
 	else
 		GFX_TEX_FORMAT = 0;
 }
-//---------------------------------------------------------------------------------
-//glGetTexturePointer gets a pointer to vram which contains the texture
-//
-//---------------------------------------------------------------------------------
-void* glGetTexturePointer(	int name ) {
-//---------------------------------------------------------------------------------
+
+// Gets a pointer to the VRAM address that contains the texture.
+void *glGetTexturePointer(int name)
+{
 	gl_texture_data *tex = (gl_texture_data*)DynamicArrayGet( &glGlob->texturePtrs, name );
 	if( tex )
 		return tex->vramAddr;
@@ -1051,11 +1000,9 @@ void* glGetTexturePointer(	int name ) {
 		return NULL;
 }
 
-//---------------------------------------------------------------------------------
-//glGetTexParameter retrieves the currently bound texture's format
-//---------------------------------------------------------------------------------
-u32 glGetTexParameter() {
-//---------------------------------------------------------------------------------
+// Retrieves the currently bound texture's format.
+u32 glGetTexParameter(void)
+{
 	if( glGlob->activeTexture ) {
 		gl_texture_data *tex = (gl_texture_data*)DynamicArrayGet( &glGlob->texturePtrs, glGlob->activeTexture );
 		return ( tex->texFormat );
@@ -1063,12 +1010,9 @@ u32 glGetTexParameter() {
 	return 0;
 }
 
-//---------------------------------------------------------------------------------
-//glGetColorTableParameterEXT retrieves information
-//  pertaining to the currently bound texture's palette
-//---------------------------------------------------------------------------------
-void glGetColorTableParameterEXT( int target, int pname, int * params ) {
-//---------------------------------------------------------------------------------
+// Retrieves information pertaining to the currently bound texture's palette.
+void glGetColorTableParameterEXT(int target, int pname, int *params)
+{
 	(void)target;
 
 	if( glGlob->activePalette ) {
@@ -1084,13 +1028,12 @@ void glGetColorTableParameterEXT( int target, int pname, int * params ) {
 
 }
 
-//---------------------------------------------------------------------------------
-// Similer to glTextImage2D from gl it takes a pointer to data
-//  Empty fields and target are unused but provided for code compatibility.
-//  type is simply the texture type (GL_RGB, GL_RGB8 ect...)
-//---------------------------------------------------------------------------------
-int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int empty2, int param, const void* texture) {
-//---------------------------------------------------------------------------------
+// Similer to glTextImage2D from gl it takes a pointer to data. Empty fields and
+// target are unused but provided for code compatibility. Type is simply the
+// texture type (GL_RGB, GL_RGB8 ect...)
+int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
+                 int sizeY, int empty2, int param, const void *texture)
+{
 	(void)empty1;
 	(void)empty2;
 
@@ -1241,5 +1184,3 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
 	return 1;
 }
-
-

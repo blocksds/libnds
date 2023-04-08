@@ -29,10 +29,8 @@
 #include <nds/system.h>
 #include <nds/arm9/cache.h>
 
-//---------------------------------------------------------------------------------
-void readFirmware(u32 address, void *buffer, u32 length) {
-//---------------------------------------------------------------------------------
-
+void readFirmware(u32 address, void *buffer, u32 length)
+{
 	FifoMessage msg;
 
 	msg.type = FW_READ;
@@ -46,12 +44,10 @@ void readFirmware(u32 address, void *buffer, u32 length) {
 	fifoGetValue32(FIFO_FIRMWARE);
 	DC_InvalidateRange(buffer,length);
 
-}	
+}
 
-//---------------------------------------------------------------------------------
-int writeFirmware(u32 address, void *buffer, u32 length) {
-//---------------------------------------------------------------------------------
-
+int writeFirmware(u32 address, void *buffer, u32 length)
+{
 	if ( ((address & 0xff) != 0) || ((length  & 0xff) != 0)) return -1;
 	DC_FlushRange(buffer,length);
 
@@ -61,11 +57,10 @@ int writeFirmware(u32 address, void *buffer, u32 length) {
 	msg.blockParams.address = address;
 	msg.blockParams.buffer = buffer;
 	msg.blockParams.length = length;
-	
+
 	fifoSendDatamsg(FIFO_FIRMWARE, sizeof(msg), (u8*)&msg);
 
 	while(!fifoCheckValue32(FIFO_FIRMWARE));
 
 	return (int)fifoGetValue32(FIFO_FIRMWARE);
-
-}	
+}

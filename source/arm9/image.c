@@ -36,10 +36,8 @@
 #include <string.h>
 #include <malloc.h>
 
-//---------------------------------------------------------------------------------
-void image24to16(sImage* img) {
-//---------------------------------------------------------------------------------
-
+void image24to16(sImage* img)
+{
 	int x;
 	int y;
 
@@ -58,9 +56,8 @@ void image24to16(sImage* img) {
 	img->image.data16 = temp;
 }
 
-//---------------------------------------------------------------------------------
-void image8to16(sImage* img) {
-//---------------------------------------------------------------------------------
+void image8to16(sImage* img)
+{
 	int i;
 
 	sassert(img->bpp == 8, "image must be 8 bpp");
@@ -80,9 +77,8 @@ void image8to16(sImage* img) {
 	img->image.data16 = temp;
 }
 
-//---------------------------------------------------------------------------------
-void image8to16trans(sImage* img, u8 transparentColor) {
-//---------------------------------------------------------------------------------
+void image8to16trans(sImage* img, u8 transparentColor)
+{
 	int i;
 	u8 c;
 
@@ -109,9 +105,9 @@ void image8to16trans(sImage* img, u8 transparentColor) {
 	img->bpp = 16;
 	img->image.data16 = temp;
 }
-//---------------------------------------------------------------------------------
-void imageTileData(sImage* img) {
-//---------------------------------------------------------------------------------
+
+void imageTileData(sImage* img)
+{
 	u32* temp;
 	
 	int ix, iy, tx, ty;
@@ -140,9 +136,8 @@ void imageTileData(sImage* img) {
 	img->image.data32 = (u32*)temp;
 }
 
-//---------------------------------------------------------------------------------
-void imageDestroy(sImage* img) {
-//---------------------------------------------------------------------------------
+void imageDestroy(sImage* img)
+{
 	if(img->image.data8) free (img->image.data8);
 	if(img->palette && img->bpp == 8) free (img->palette);
 }

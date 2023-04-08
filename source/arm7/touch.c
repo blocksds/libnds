@@ -42,10 +42,8 @@ static u8 range_counter_2 = 0;
 static u8 range = 20;
 static u8 min_range = 20;
 
-//---------------------------------------------------------------------------------
-static u8 CheckStylus(void){
-//---------------------------------------------------------------------------------
-
+static u8 CheckStylus(void)
+{
 	SerialWaitBusy();
 
 	REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS; //0x8A01;
@@ -87,15 +85,14 @@ static u8 CheckStylus(void){
 	}
 }
 
-//---------------------------------------------------------------------------------
-uint16 touchRead(uint32 command) {
-//---------------------------------------------------------------------------------
+uint16 touchRead(uint32 command)
+{
 	uint16 result, result2;
 
 	uint32 oldIME = REG_IME;
 
 	REG_IME = 0;
-	
+
 	SerialWaitBusy();
 
 	// Write the command and wait for it to complete
@@ -121,18 +118,15 @@ uint16 touchRead(uint32 command) {
 	return ((result & 0x7F) << 5) | result2;
 }
 
-
-//---------------------------------------------------------------------------------
-uint32 touchReadTemperature(int * t1, int * t2) {
-//---------------------------------------------------------------------------------
+uint32 touchReadTemperature(int *t1, int *t2)
+{
 	*t1 = touchRead(TSC_MEASURE_TEMP1);
 	*t2 = touchRead(TSC_MEASURE_TEMP2);
 	return 8490 * (*t2 - *t1) - 273*4096;
 }
 
-//---------------------------------------------------------------------------------
-int16 readTouchValue(uint32 command, int16 *dist_max, u8 *err){
-//---------------------------------------------------------------------------------
+int16 readTouchValue(uint32 command, int16 *dist_max, u8 *err)
+{
 	int16 values[5];
 	int32 aux1, aux2, aux3, dist, dist2, result = 0;
 	u8 i, j, k;
@@ -221,9 +215,8 @@ int16 readTouchValue(uint32 command, int16 *dist_max, u8 *err){
 	return (result & 0xFFF);
 }
 
-//---------------------------------------------------------------------------------
-void UpdateRange(uint8 *this_range, int16 last_dist_max, u8 data_error, u8 tsc_touched){
-//---------------------------------------------------------------------------------
+void UpdateRange(uint8 *this_range, int16 last_dist_max, u8 data_error, u8 tsc_touched)
+{
 	//range_counter_1 = counter_0x380A98C
 	//range_counter_2 = counter_0x380A990
 	//Initial values:
@@ -267,10 +260,8 @@ void UpdateRange(uint8 *this_range, int16 last_dist_max, u8 data_error, u8 tsc_t
 	}
 }
 
-//---------------------------------------------------------------------------------
-static void touchReadDSMode(touchPosition *touchPos) {
-//---------------------------------------------------------------------------------
-
+static void touchReadDSMode(touchPosition *touchPos)
+{
 	int16 dist_max_y, dist_max_x, dist_max;
 	u8 error, error_where, first_check, i;
 
@@ -334,10 +325,8 @@ static void touchReadDSMode(touchPosition *touchPos) {
 static s32 xscale, yscale;
 static s32 xoffset, yoffset;
 
-//---------------------------------------------------------------------------------
-void touchInit() {
-//---------------------------------------------------------------------------------
-
+void touchInit(void)
+{
 	xscale = ((PersonalData->calX2px - PersonalData->calX1px) << 19) / ((PersonalData->calX2) - (PersonalData->calX1));
 	yscale = ((PersonalData->calY2px - PersonalData->calY1px) << 19) / ((PersonalData->calY2) - (PersonalData->calY1));
 
@@ -351,10 +340,8 @@ void touchInit() {
 	}
 }
 
-//---------------------------------------------------------------------------------
-bool touchPenDown() {
-//---------------------------------------------------------------------------------
-
+bool touchPenDown(void)
+{
 	bool down;
 	int oldIME = enterCriticalSection();
 	if (cdcIsAvailable()) {
@@ -366,12 +353,8 @@ bool touchPenDown() {
 	return down;
 }
 
-//---------------------------------------------------------------------------------
-// reading pixel position:
-//---------------------------------------------------------------------------------
-void touchReadXY(touchPosition *touchPos) {
-//---------------------------------------------------------------------------------
-
+void touchReadXY(touchPosition *touchPos)
+{
 	int oldIME = enterCriticalSection();
 	if (cdcIsAvailable()) {
 		cdcTouchRead(touchPos);

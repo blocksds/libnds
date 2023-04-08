@@ -28,14 +28,17 @@
 extern u8 *fake_heap_end;   // current heap start
 extern u8 *fake_heap_start;   // current heap end
 
-u8* getHeapStart() {
-   return fake_heap_start;
+u8 *getHeapStart(void)
+{
+    return fake_heap_start;
 }
 
-u8* getHeapEnd() {
-   return (u8*)sbrk(0);
+u8 *getHeapEnd(void)
+{
+    return (u8*)sbrk(0);
 }
 
-u8* getHeapLimit() {
+u8 *getHeapLimit(void)
+{
    return fake_heap_end;
 }

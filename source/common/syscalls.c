@@ -9,5 +9,4 @@ int swiDecompressLZSSVram(void * source, void * destination, uint32 toGetSize, T
 	} else {
 		return swiDecompressLZSSVramNTR(source,destination,toGetSize,stream);
 	}
-	
 }

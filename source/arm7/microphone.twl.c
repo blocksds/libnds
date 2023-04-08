@@ -29,10 +29,8 @@
 #include <nds/arm7/audio.h>
 #include <nds/arm7/codec.h>
 
-//---------------------------------------------------------------------------------
-void micSetAmp_TWL(u8 control, u8 gain) {
-//---------------------------------------------------------------------------------
-
+void micSetAmp_TWL(u8 control, u8 gain)
+{
 	static const u8 gaintbl[] = { 0x1F, 0x2B, 0x37, 0x43 };
 
 	if (control == PM_AMP_ON) {
@@ -52,10 +50,8 @@ void micSetAmp_TWL(u8 control, u8 gain) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-u16 micReadData16_TWL(void) {
-//---------------------------------------------------------------------------------
-
+u16 micReadData16_TWL(void)
+{
 	u16 data = 0x8000;
 	int timeout = 0;
 

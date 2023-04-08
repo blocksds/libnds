@@ -39,26 +39,20 @@ bool __dsimode = false; // set in crt0
 void twlEnableSlot1(void);
 void twlDisableSlot1(void);
 
-//---------------------------------------------------------------------------------
-void enableSlot1(void) {
-//---------------------------------------------------------------------------------
-
-	if(isDSiMode()) twlEnableSlot1();
-
+void enableSlot1(void)
+{
+    if (isDSiMode())
+        twlEnableSlot1();
 }
 
-//---------------------------------------------------------------------------------
-void disableSlot1(void) {
-//---------------------------------------------------------------------------------
-
-	if(isDSiMode()) twlDisableSlot1();
-
+void disableSlot1(void)
+{
+    if (isDSiMode())
+        twlDisableSlot1();
 }
 
-
-//---------------------------------------------------------------------------------
-void powerValueHandler(u32 value, void* user_data) {
-//---------------------------------------------------------------------------------
+void powerValueHandler(u32 value, void *user_data)
+{
 	(void)user_data;
 
 	u32 temp;
@@ -136,33 +130,31 @@ void powerValueHandler(u32 value, void* user_data) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-void systemSleep(void) {
-//---------------------------------------------------------------------------------
-	if(!sleepIsEnabled) return;
-	//puts arm9 to sleep which then notifies arm7 above (which causes arm7 to sleep)
-	fifoSendValue32(FIFO_SYSTEM, PM_REQ_SLEEP);
+void systemSleep(void)
+{
+    if (!sleepIsEnabled)
+         return;
+
+    // Puts arm9 to sleep, which then notifies arm7 above, which causes arm7 to
+    // sleep.
+    fifoSendValue32(FIFO_SYSTEM, PM_REQ_SLEEP);
 }
 
-//---------------------------------------------------------------------------------
-int sleepEnabled(void) {
-//---------------------------------------------------------------------------------
-	return sleepIsEnabled;
+int sleepEnabled(void)
+{
+    return sleepIsEnabled;
 }
 
 void storageMsgHandler(int bytes, void *user_data);
 void storageValueHandler(u32 value, void *user_data);
-
 void firmwareMsgHandler(int bytes, void *user_data);
 
-//---------------------------------------------------------------------------------
-void installSystemFIFO(void) {
-//---------------------------------------------------------------------------------
-
-	fifoSetValue32Handler(FIFO_PM, powerValueHandler, 0);
-	fifoSetValue32Handler(FIFO_STORAGE, storageValueHandler, 0);
-	fifoSetDatamsgHandler(FIFO_STORAGE, storageMsgHandler, 0);
-	fifoSetDatamsgHandler(FIFO_FIRMWARE, firmwareMsgHandler, 0);
+void installSystemFIFO(void)
+{
+    fifoSetValue32Handler(FIFO_PM, powerValueHandler, 0);
+    fifoSetValue32Handler(FIFO_STORAGE, storageValueHandler, 0);
+    fifoSetDatamsgHandler(FIFO_STORAGE, storageMsgHandler, 0);
+    fifoSetDatamsgHandler(FIFO_FIRMWARE, firmwareMsgHandler, 0);
 }
 
 

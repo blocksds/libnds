@@ -6,9 +6,8 @@
 
 #include <nds/arm9/nand.h>
 
-//---------------------------------------------------------------------------------
-bool nand_Startup(void) {
-//---------------------------------------------------------------------------------
+bool nand_Startup(void)
+{
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, SDMMC_HAVE_SD);
@@ -31,15 +30,13 @@ bool nand_Startup(void) {
 	return result == 0;
 }
 
-//---------------------------------------------------------------------------------
-bool nand_IsInserted(void) {
-//---------------------------------------------------------------------------------
+bool nand_IsInserted(void)
+{
 	return true;
 }
 
-//---------------------------------------------------------------------------------
-bool nand_ReadSectors(sec_t sector, sec_t numSectors,void* buffer) {
-//---------------------------------------------------------------------------------
+bool nand_ReadSectors(sec_t sector, sec_t numSectors,void* buffer)
+{
 	FifoMessage msg;
 
 	DC_FlushRange(buffer, numSectors * 512);
@@ -63,9 +60,8 @@ bool nand_ReadSectors(sec_t sector, sec_t numSectors,void* buffer) {
 	return result == 0;
 }
 
-//---------------------------------------------------------------------------------
-bool nand_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer) {
-//---------------------------------------------------------------------------------
+bool nand_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer)
+{
 	FifoMessage msg;
 
 	DC_FlushRange(buffer, numSectors * 512);
@@ -89,22 +85,18 @@ bool nand_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer) {
 	return result == 0;
 }
 
-
-//---------------------------------------------------------------------------------
-bool nand_ClearStatus(void) {
-//---------------------------------------------------------------------------------
+bool nand_ClearStatus(void)
+{
 	return true;
 }
 
-//---------------------------------------------------------------------------------
-bool nand_Shutdown(void) {
-//---------------------------------------------------------------------------------
+bool nand_Shutdown(void)
+{
 	return true;
 }
 
-//---------------------------------------------------------------------------------
-ssize_t nand_GetSize(void) {
-//---------------------------------------------------------------------------------
+ssize_t nand_GetSize(void)
+{
 	fifoMutexAcquire(FIFO_STORAGE);
 
 	fifoSendValue32(FIFO_STORAGE, SDMMC_NAND_SIZE);

@@ -29,9 +29,8 @@
 #include <nds/fifomessages.h>
 #include <nds/system.h>
 
-//---------------------------------------------------------------------------------
-int getFreeChannel(void) {
-//---------------------------------------------------------------------------------
+int getFreeChannel(void)
+{
 	int i;
 
 	for(i = 0; i < 16; i++)
@@ -41,9 +40,8 @@ int getFreeChannel(void) {
 	return -1;
 }
 
-//---------------------------------------------------------------------------------
-int getFreePSGChannel(void) {
-//---------------------------------------------------------------------------------
+int getFreePSGChannel(void)
+{
 	int i;
 
 	for(i = 8; i < 14; i++)
@@ -53,9 +51,8 @@ int getFreePSGChannel(void) {
 	return -1;
 }
 
-//---------------------------------------------------------------------------------
-int getFreeNoiseChannel(void) {
-//---------------------------------------------------------------------------------
+int getFreeNoiseChannel(void)
+{
 	int i;
 
 	for(i = 14; i < 16; i++)
@@ -65,11 +62,8 @@ int getFreeNoiseChannel(void) {
 	return -1;
 }
 
-
-//---------------------------------------------------------------------------------
-void micSwapHandler(u8* buffer, int length) {
-//---------------------------------------------------------------------------------
-	
+void micSwapHandler(u8 *buffer, int length)
+{
 	FifoMessage msg;
 	msg.type = MIC_BUFFER_FULL_MESSAGE;
 	msg.MicBufferFull.buffer = (void*)buffer;
@@ -78,9 +72,8 @@ void micSwapHandler(u8* buffer, int length) {
 	fifoSendDatamsg(FIFO_SOUND, sizeof(msg) , (u8*)&msg);
 }
 
-//---------------------------------------------------------------------------------
-void soundDataHandler(int bytes, void *user_data) {
-//---------------------------------------------------------------------------------
+void soundDataHandler(int bytes, void *user_data)
+{
 	(void)user_data;
 
 	int channel = -1;
@@ -128,26 +121,23 @@ void soundDataHandler(int bytes, void *user_data) {
 	fifoSendValue32(FIFO_SOUND, (u32)channel);
 }
 
-//---------------------------------------------------------------------------------
-void enableSound(void) {
-//---------------------------------------------------------------------------------
+void enableSound(void)
+{
 	powerOn(POWER_SOUND);
 	writePowerManagement(PM_CONTROL_REG, ( readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_MUTE ) | PM_SOUND_AMP );
 	REG_SOUNDCNT = SOUND_ENABLE;
 	REG_MASTER_VOLUME = 127;
 }
 
-//---------------------------------------------------------------------------------
-void disableSound(void) {
-//---------------------------------------------------------------------------------
+void disableSound(void)
+{
 	REG_SOUNDCNT &= ~SOUND_ENABLE;
 	writePowerManagement(PM_CONTROL_REG, ( readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_AMP ) | PM_SOUND_MUTE );
 	powerOff(POWER_SOUND);
 }
 
-//---------------------------------------------------------------------------------
-void soundCommandHandler(u32 command, void* userdata) {
-//---------------------------------------------------------------------------------
+void soundCommandHandler(u32 command, void *userdata)
+{
 	(void)userdata;
 
 	int cmd = (command ) & 0x00F00000;
@@ -203,10 +193,8 @@ void soundCommandHandler(u32 command, void* userdata) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-void installSoundFIFO(void) {
-//---------------------------------------------------------------------------------
-
+void installSoundFIFO(void)
+{
 	fifoSetDatamsgHandler(FIFO_SOUND, soundDataHandler, 0);
 	fifoSetValue32Handler(FIFO_SOUND, soundCommandHandler, 0);
 }

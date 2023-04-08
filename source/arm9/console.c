@@ -78,10 +78,8 @@ PrintConsole* consoleGetDefault(void){return &defaultConsole;}
 void consolePrintChar(char c);
 
 
-//---------------------------------------------------------------------------------
-static void consoleCls(char mode) {
-//---------------------------------------------------------------------------------
-
+static void consoleCls(char mode)
+{
 	int i = 0;
 	int colTemp,rowTemp;
 
@@ -129,10 +127,9 @@ static void consoleCls(char mode) {
 		}
 	}
 }
-//---------------------------------------------------------------------------------
-static void consoleClearLine(char mode) {
-//---------------------------------------------------------------------------------
 
+static void consoleClearLine(char mode)
+{
 	int i = 0;
 	int colTemp;
 
@@ -194,18 +191,14 @@ static void consoleClearLine(char mode) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-ssize_t nocash_write(const char *ptr, size_t len) {
-//---------------------------------------------------------------------------------
+ssize_t nocash_write(const char *ptr, size_t len)
+{
 	nocashWrite(ptr,len);
 	return len;
 }
 
-
-//---------------------------------------------------------------------------------
-ssize_t con_write(const char *ptr, size_t len) {
-//---------------------------------------------------------------------------------
-
+ssize_t con_write(const char *ptr, size_t len)
+{
 	char chr;
 
 	size_t i, count = 0;
@@ -334,9 +327,8 @@ typedef ssize_t (* fn_write_ptr)(const char *, size_t);
 fn_write_ptr libnds_stdout_write = NULL;
 fn_write_ptr libnds_stderr_write = NULL;
 
-//---------------------------------------------------------------------------------
-void consoleLoadFont(PrintConsole* console) {
-//---------------------------------------------------------------------------------
+void consoleLoadFont(PrintConsole* console)
+{
 	int i;
 
 	u16* palette = BG_PALETTE_SUB;
@@ -452,13 +444,11 @@ void consoleLoadFont(PrintConsole* console) {
 
 }
 
-//---------------------------------------------------------------------------------
 PrintConsole* consoleInit(PrintConsole* console, int layer,
 				BgType type, BgSize size,
 				int mapBase, int tileBase,
-				bool mainDisplay, bool loadGraphics){
-//---------------------------------------------------------------------------------
-
+				bool mainDisplay, bool loadGraphics)
+{
 	static bool firstConsoleInit = true;
 
 	if(firstConsoleInit) {
@@ -498,9 +488,9 @@ PrintConsole* consoleInit(PrintConsole* console, int layer,
 	return currentConsole;
 
 }
-//---------------------------------------------------------------------------------
-PrintConsole *consoleSelect(PrintConsole* console){
-//---------------------------------------------------------------------------------
+
+PrintConsole *consoleSelect(PrintConsole* console)
+{
 	// Make sure that the buffers for the current console are flushed before
 	// switching consoles.
 	fflush(stdout);
@@ -511,10 +501,8 @@ PrintConsole *consoleSelect(PrintConsole* console){
 	return tmp;
 }
 
-//---------------------------------------------------------------------------------
-void consoleSetFont(PrintConsole* console, ConsoleFont* font){
-//---------------------------------------------------------------------------------
-
+void consoleSetFont(PrintConsole* console, ConsoleFont* font)
+{
 	if(!console) console = currentConsole;
 
 	console->font = *font;
@@ -523,10 +511,8 @@ void consoleSetFont(PrintConsole* console, ConsoleFont* font){
 
 }
 
-//---------------------------------------------------------------------------------
-void consoleDebugInit(DebugDevice device){
-//---------------------------------------------------------------------------------
-
+void consoleDebugInit(DebugDevice device)
+{
 	int buffertype = _IONBF;
 
 	switch(device) {
@@ -545,11 +531,10 @@ void consoleDebugInit(DebugDevice device){
 
 }
 
-//---------------------------------------------------------------------------------
 // Places the console in a default mode using bg0 of the sub display, and vram c for
 // font and map..this is provided for rapid prototyping and nothing more
-PrintConsole* consoleDemoInit(void) {
-//---------------------------------------------------------------------------------
+PrintConsole* consoleDemoInit(void)
+{
 	videoSetModeSub(MODE_0_2D);
 	vramSetBankC(VRAM_C_SUB_BG);
 	setBrightness(2, 0);
@@ -557,11 +542,8 @@ PrintConsole* consoleDemoInit(void) {
 	return consoleInit(NULL, defaultConsole.bgLayer, BgType_Text4bpp, BgSize_T_256x256, defaultConsole.mapBase, defaultConsole.gfxBase, false, true);
 }
 
-//---------------------------------------------------------------------------------
-static void newRow(void) {
-//---------------------------------------------------------------------------------
-
-
+static void newRow(void)
+{
 	currentConsole->cursorY ++;
 
 	if(currentConsole->cursorY  >= currentConsole->windowHeight)  {
@@ -582,10 +564,8 @@ static void newRow(void) {
 	}
 }
 
-
-//---------------------------------------------------------------------------------
-void consolePrintChar(char c) {
-//---------------------------------------------------------------------------------
+void consolePrintChar(char c)
+{
 	if (c==0) return;
 	if(currentConsole->fontBgMap == 0) return;
 
@@ -641,16 +621,13 @@ void consolePrintChar(char c) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-void consoleClear(void) {
-//---------------------------------------------------------------------------------
+void consoleClear(void)
+{
 	printf("\x1b[2J");
 }
 
-//---------------------------------------------------------------------------------
-void consoleSetWindow(PrintConsole* console, int x, int y, int width, int height){
-//---------------------------------------------------------------------------------
-
+void consoleSetWindow(PrintConsole* console, int x, int y, int width, int height)
+{
 	if(!console) console = currentConsole;
 
 	console->windowWidth = width;
@@ -662,5 +639,3 @@ void consoleSetWindow(PrintConsole* console, int x, int y, int width, int height
 	console->cursorY = 0;
 
 }
-
-

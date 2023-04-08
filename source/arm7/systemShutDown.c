@@ -27,9 +27,8 @@
 #include <nds/system.h>
 #include <nds/arm7/i2c.h>
 
-//---------------------------------------------------------------------------------
-void systemShutDown() {
-//---------------------------------------------------------------------------------
+void systemShutDown()
+{
 	if (!isDSiMode()) {
 		writePowerManagement(PM_CONTROL_REG,PM_SYSTEM_PWR);
 	} else {

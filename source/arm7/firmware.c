@@ -34,9 +34,8 @@ static u8 readwriteSPI(u8 data) {
 	return REG_SPIDATA;
 }
 
-//---------------------------------------------------------------------------------
-void readFirmware(u32 address, void * destination, u32 size) {
-//---------------------------------------------------------------------------------
+void readFirmware(u32 address, void *destination, u32 size)
+{
 	int oldIME=enterCriticalSection();
 	u8 *buffer = destination;
 
@@ -60,9 +59,8 @@ void readFirmware(u32 address, void * destination, u32 size) {
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-static int writeFirmwarePage(u32 address,u8 *buffer) {
-//---------------------------------------------------------------------------------
+static int writeFirmwarePage(u32 address, u8 *buffer)
+{
 	int i;
 	u8 pagebuffer[256];
 	readFirmware(address, pagebuffer, 256);
@@ -110,10 +108,8 @@ static int writeFirmwarePage(u32 address,u8 *buffer) {
 	return -1;
 }
 
-
-//---------------------------------------------------------------------------------
-int writeFirmware(u32 address, void * source, u32 size) {
-//---------------------------------------------------------------------------------
+int writeFirmware(u32 address, void *source, u32 size)
+{
 	if( ((address & 0xff) != 0) || ((size  & 0xff) != 0)) return -1;
 	u8 *buffer = source;
 	int response = -1;
@@ -128,17 +124,16 @@ int writeFirmware(u32 address, void * source, u32 size) {
 	return response;
 }
 
-//---------------------------------------------------------------------------------
-void firmwareMsgHandler(int bytes, void *user_data) {
-//---------------------------------------------------------------------------------
+void firmwareMsgHandler(int bytes, void *user_data)
+{
 	(void)user_data;
 
 	FifoMessage msg;
 
 	int response = -1;
-	
+
 	fifoGetDatamsg(FIFO_FIRMWARE, bytes, (u8*)&msg);
-	
+
 	switch(msg.type) {
 		case FW_READ:
 			readFirmware(msg.blockParams.address, msg.blockParams.buffer, msg.blockParams.length);
@@ -150,4 +145,3 @@ void firmwareMsgHandler(int bytes, void *user_data) {
 	}
 	fifoSendValue32(FIFO_FIRMWARE,response);
 }
-

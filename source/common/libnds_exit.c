@@ -53,6 +53,6 @@ ARM_CODE void __libnds_exit(int rc) {
 	} else {
 		systemShutDown();
 	}
-	
+
 	while(1);
 }

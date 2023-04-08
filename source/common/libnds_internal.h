@@ -26,15 +26,13 @@
 
 #ifndef _libnds_internal_h_
 #define _libnds_internal_h_
-//---------------------------------------------------------------------------------
+
 #include <time.h>
 #include <nds/ndstypes.h>
 #include <nds/arm9/input.h>
 #include <nds/system.h>
 
-//---------------------------------------------------------------------------------
 typedef struct __TransferRegion {
-//---------------------------------------------------------------------------------
 	vs16 touchX,   touchY;		// TSC X, Y
 	vs16 touchXpx, touchYpx;	// TSC X, Y pixel values
 	vs16 touchZ1,  touchZ2;		// TSC x-panel measurements
@@ -60,8 +58,4 @@ __TransferRegion volatile * __transferRegion(void) {
 	return &transfer;
 }
 
-
-//---------------------------------------------------------------------------------
-#endif
-//---------------------------------------------------------------------------------
-
+#endif // _libnds_internal_h_

@@ -43,11 +43,10 @@ static uint16 keysrepeat = 0;
 
 static u8 delay = 30, repeat = 15, count = 30;
 
-//------------------------------------------------------------------------------
-void scanKeys(void) {
-//------------------------------------------------------------------------------
-	keysold = keys;
-	keys = KEYS_CUR;
+void scanKeys(void)
+{
+    keysold = keys;
+    keys = KEYS_CUR;
 
     if ( delay != 0 ) {
         if ( keys != keysold ) {
@@ -62,21 +61,18 @@ void scanKeys(void) {
     }
 }
 
-//------------------------------------------------------------------------------
-uint32 keysHeld(void) {
-//------------------------------------------------------------------------------
+uint32 keysHeld(void)
+{
 	return keys;
 }
 
-//------------------------------------------------------------------------------
-uint32 keysDown(void) {
-//------------------------------------------------------------------------------
+uint32 keysDown(void)
+{
 	return (keys &~ keysold);
 }
 
-//------------------------------------------------------------------------------
-uint32 keysDownRepeat(void) {
-//------------------------------------------------------------------------------
+uint32 keysDownRepeat(void)
+{
 	uint32 tmp = keysrepeat;
 
     keysrepeat = 0;
@@ -84,23 +80,20 @@ uint32 keysDownRepeat(void) {
     return tmp;
 }
 
-//------------------------------------------------------------------------------
-void keysSetRepeat( u8 setDelay, u8 setRepeat ) {
-//------------------------------------------------------------------------------
-    delay = setDelay ;
-    repeat = setRepeat ;
-    count = delay ;
-    keysrepeat = 0 ;
+void keysSetRepeat(u8 setDelay, u8 setRepeat)
+{
+    delay = setDelay;
+    repeat = setRepeat;
+    count = delay;
+    keysrepeat = 0;
 }
 
-//------------------------------------------------------------------------------
-uint32 keysUp(void) {
-//------------------------------------------------------------------------------
+uint32 keysUp(void)
+{
 	return (keys ^ keysold) & (~keys);
 }
 
-//------------------------------------------------------------------------------
-uint32 keysCurrent(void) {
-//------------------------------------------------------------------------------
-	return (KEYS_CUR);
+uint32 keysCurrent(void)
+{
+    return KEYS_CUR;
 }

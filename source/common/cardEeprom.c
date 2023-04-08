@@ -28,9 +28,8 @@
 #include "nds/dma.h"
 #include "nds/memory.h"
 
-//---------------------------------------------------------------------------------
-u8 cardEepromCommand(u8 command) {
-//---------------------------------------------------------------------------------
+u8 cardEepromCommand(u8 command)
+{
 	u8 retval;
 
 	REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
@@ -46,10 +45,8 @@ u8 cardEepromCommand(u8 command) {
 	return retval;
 }
 
-
-//---------------------------------------------------------------------------------
-u32 cardEepromReadID() {
-//---------------------------------------------------------------------------------
+u32 cardEepromReadID(void)
+{
 	int i;
 
 	REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
@@ -69,25 +66,21 @@ u32 cardEepromReadID() {
 	return id;
 }
 
-
-//---------------------------------------------------------------------------------
-int cardEepromGetType(void) {
-//---------------------------------------------------------------------------------
+int cardEepromGetType(void)
+{
 	int sr = cardEepromCommand(SPI_EEPROM_RDSR);
 	int id = cardEepromReadID();
-	
+
 	if (( sr == 0xff && id == 0xffffff) || ( sr == 0 && id == 0 )) return -1;
 	if ( sr == 0xf0 && id == 0xffffff ) return 1;
 	if ( sr == 0x00 && id == 0xffffff ) return 2;
 	if ( id != 0xffffff || ( sr == 0x02 && id == 0xffffff )) return 3;
-	
+
 	return 0;
 }
 
-//---------------------------------------------------------------------------------
-uint32 cardEepromGetSize() {
-//---------------------------------------------------------------------------------
-
+uint32 cardEepromGetSize(void)
+{
 	int type = cardEepromGetType();
 
 	if(type == -1)
@@ -136,9 +129,9 @@ uint32 cardEepromGetSize() {
 		int id = cardEepromReadID();
 
 		device = id & 0xffff;
-		
+
 		if ( ((id >> 16) & 0xff) == 0x20 ) { // ST
-			
+
 			switch(device) {
 
 			case 0x4014:
@@ -155,14 +148,14 @@ uint32 cardEepromGetSize() {
 		}
 
 		if ( ((id >> 16) & 0xff) == 0x62 ) { // Sanyo
-			
+
 			if (device == 0x1100)
 				return 512*1024;		//	4Mbit(512KByte)
 
 		}
 
 		if ( ((id >> 16) & 0xff) == 0xC2 ) { // Macronix
-			
+
 			switch(device) {
 
 			case 0x2211:
@@ -180,7 +173,7 @@ uint32 cardEepromGetSize() {
 				return 128*1024; // 1Mbit (128KByte)
 			}
 		}
-		
+
 
 		return 256*1024;		//	2Mbit(256KByte)
 	}
@@ -188,11 +181,8 @@ uint32 cardEepromGetSize() {
 	return 0;
 }
 
-
-//---------------------------------------------------------------------------------
-void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype) {
-//---------------------------------------------------------------------------------
-
+void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype)
+{
 	REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
 	REG_AUXSPIDATA = 0x03 | ((addrtype == 1) ? address>>8<<3 : 0);
 	eepromWaitBusy();
@@ -200,8 +190,8 @@ void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype) {
 	if (addrtype == 3) {
 		REG_AUXSPIDATA = (address >> 16) & 0xFF;
 		eepromWaitBusy();
-	} 
-	
+	}
+
 	if (addrtype >= 2) {
 		REG_AUXSPIDATA = (address >> 8) & 0xFF;
 		eepromWaitBusy();
@@ -222,11 +212,8 @@ void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype) {
 	REG_AUXSPICNT = /*MODE*/0x40;
 }
 
-
-//---------------------------------------------------------------------------------
-void cardWriteEeprom(uint32 address, uint8 *data, uint32 length, uint32 addrtype) {
-//---------------------------------------------------------------------------------
-
+void cardWriteEeprom(uint32 address, uint8 *data, uint32 length, uint32 addrtype)
+{
 	uint32 address_end = address + length;
 	int i;
 	int maxblocks = 32;
@@ -269,9 +256,9 @@ void cardWriteEeprom(uint32 address, uint8 *data, uint32 length, uint32 addrtype
 			eepromWaitBusy();
 		}
 
-		for (i=0; address<address_end && i<maxblocks; i++, address++) { 
-			REG_AUXSPIDATA = *data++; 
-			eepromWaitBusy(); 
+		for (i=0; address<address_end && i<maxblocks; i++, address++) {
+			REG_AUXSPIDATA = *data++;
+			eepromWaitBusy();
 		}
 		REG_AUXSPICNT = /*MODE*/0x40;
 
@@ -284,11 +271,9 @@ void cardWriteEeprom(uint32 address, uint8 *data, uint32 length, uint32 addrtype
 	}
 }
 
-//---------------------------------------------------------------------------------
-//	Chip Erase : clear FLASH MEMORY (TYPE 3 ONLY)
-//---------------------------------------------------------------------------------
-void cardEepromChipErase(void) {
-//---------------------------------------------------------------------------------
+// Chip Erase : clear FLASH MEMORY (TYPE 3 ONLY)
+void cardEepromChipErase(void)
+{
 	int sz, sector;
 	sz=cardEepromGetSize();
 
@@ -297,39 +282,37 @@ void cardEepromChipErase(void) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-//	COMMAND Sec.erase 0xD8
-//---------------------------------------------------------------------------------
-void cardEepromSectorErase(uint32 address) {
-//---------------------------------------------------------------------------------
-		// set WEL (Write Enable Latch)
-		REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
-		REG_AUXSPIDATA = 0x06;
-		eepromWaitBusy();
+// COMMAND Sec.erase 0xD8
+void cardEepromSectorErase(uint32 address)
+{
+    // set WEL (Write Enable Latch)
+    REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
+    REG_AUXSPIDATA = 0x06;
+    eepromWaitBusy();
 
-		REG_AUXSPICNT = /*MODE*/0x40;
+    REG_AUXSPICNT = /*MODE*/0x40;
 
-		// SectorErase 0xD8
-		REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
-		REG_AUXSPIDATA = 0xD8;
-		eepromWaitBusy();
-		REG_AUXSPIDATA = (address >> 16) & 0xFF;
-		eepromWaitBusy();
-		REG_AUXSPIDATA = (address >> 8) & 0xFF;
-		eepromWaitBusy();
-		REG_AUXSPIDATA = address & 0xFF;
-		eepromWaitBusy();
+    // SectorErase 0xD8
+    REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
+    REG_AUXSPIDATA = 0xD8;
+    eepromWaitBusy();
+    REG_AUXSPIDATA = (address >> 16) & 0xFF;
+    eepromWaitBusy();
+    REG_AUXSPIDATA = (address >> 8) & 0xFF;
+    eepromWaitBusy();
+    REG_AUXSPIDATA = address & 0xFF;
+    eepromWaitBusy();
 
-		REG_AUXSPICNT = /*MODE*/0x40;
+    REG_AUXSPICNT = /*MODE*/0x40;
 
-		// wait erase to finish
-		REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
-		REG_AUXSPIDATA = 0x05;
-		eepromWaitBusy();
+    // wait erase to finish
+    REG_AUXSPICNT = /*E*/0x8000 | /*SEL*/0x2000 | /*MODE*/0x40;
+    REG_AUXSPIDATA = 0x05;
+    eepromWaitBusy();
 
-		do {
-			REG_AUXSPIDATA = 0;
-			eepromWaitBusy();
-		} while (REG_AUXSPIDATA & 0x01);  // WIP (Write In Progress) ?
-		REG_AUXSPICNT = /*MODE*/0x40;
+    do {
+        REG_AUXSPIDATA = 0;
+        eepromWaitBusy();
+    } while (REG_AUXSPIDATA & 0x01);  // WIP (Write In Progress) ?
+    REG_AUXSPICNT = /*MODE*/0x40;
 }

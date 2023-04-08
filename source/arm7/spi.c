@@ -27,9 +27,8 @@
 #include <nds/interrupts.h>
 #include <nds/system.h>
 
-//---------------------------------------------------------------------------------
-int writePowerManagement(int reg, int command) {
-//---------------------------------------------------------------------------------
+int writePowerManagement(int reg, int command)
+{
 	int oldIME=enterCriticalSection();
 	// Write the register / access mode (bit 7 sets access mode)
 	while (REG_SPICNT & SPI_BUSY);
@@ -49,13 +48,10 @@ int writePowerManagement(int reg, int command) {
 	return REG_SPIDATA & 0xFF;
 }
 
-
-//---------------------------------------------------------------------------------
-void ledBlink(int value) {
-//---------------------------------------------------------------------------------
+void ledBlink(int value)
+{
 	u32 temp = readPowerManagement(PM_CONTROL_REG);
 	temp &= ~(3 << 4); //clear led bits
 	temp |= ((value & 3)<<4);
 	writePowerManagement(PM_CONTROL_REG, temp);
 }
-

@@ -48,19 +48,16 @@
 #define SIO_out (1<<4)
 #define SIO_in  (1)
 
-//---------------------------------------------------------------------------------
-void BCDToInteger(uint8 * data, uint32 length) {
-//---------------------------------------------------------------------------------
+void BCDToInteger(uint8 *data, uint32 length)
+{
 	u32 i;
 	for (i = 0; i < length; i++) {
 		data[i] = (data[i] & 0xF) + ((data[i] & 0xF0)>>4)*10;
 	}
 }
 
-
-//---------------------------------------------------------------------------------
-void integerToBCD(uint8 * data, uint32 length) {
-//---------------------------------------------------------------------------------
+void integerToBCD(uint8 *data, uint32 length)
+{
 	u32 i;
 	for (i = 0; i < length; i++) {
 		int high, low;
@@ -69,9 +66,8 @@ void integerToBCD(uint8 * data, uint32 length) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-void rtcTransaction(uint8 * command, uint32 commandLength, uint8 * result, uint32 resultLength) {
-//---------------------------------------------------------------------------------
+void rtcTransaction(uint8 *command, uint32 commandLength, uint8 *result, uint32 resultLength)
+{
 	uint32 bit;
 	uint8 data;
 
@@ -129,10 +125,8 @@ void rtcTransaction(uint8 * command, uint32 commandLength, uint8 * result, uint3
 	swiDelay(RTC_DELAY);
 }
 
-
-//---------------------------------------------------------------------------------
-void rtcReset(void) {
-//---------------------------------------------------------------------------------
+void rtcReset(void)
+{
 	uint8 status;
 	uint8 command[2];
 
@@ -148,10 +142,8 @@ void rtcReset(void) {
 	}
 }
 
-
-//---------------------------------------------------------------------------------
-void rtcGetTimeAndDate(uint8 * time) {
-//---------------------------------------------------------------------------------
+void rtcGetTimeAndDate(uint8 *time)
+{
 	uint8 command, status;
 
 	command = READ_TIME_AND_DATE;
@@ -168,9 +160,8 @@ void rtcGetTimeAndDate(uint8 * time) {
 	BCDToInteger(time,7);
 }
 
-//---------------------------------------------------------------------------------
-void rtcSetTimeAndDate(uint8 * time) {
-//---------------------------------------------------------------------------------
+void rtcSetTimeAndDate(uint8 *time)
+{
 	uint8 command[8];
 
 	int i;
@@ -182,9 +173,8 @@ void rtcSetTimeAndDate(uint8 * time) {
 	rtcTransaction(command, 8, 0, 0);
 }
 
-//---------------------------------------------------------------------------------
-void rtcGetTime(uint8 * time) {
-//---------------------------------------------------------------------------------
+void rtcGetTime(uint8 *time)
+{
 	uint8 command, status;
 
 	command = READ_TIME;
@@ -198,12 +188,10 @@ void rtcGetTime(uint8 * time) {
 
 	}
 	BCDToInteger(time,3);
-
 }
 
-//---------------------------------------------------------------------------------
-void rtcSetTime(uint8 * time) {
-//---------------------------------------------------------------------------------
+void rtcSetTime(uint8 *time)
+{
 	uint8 command[4];
 
 	int i;
@@ -215,9 +203,8 @@ void rtcSetTime(uint8 * time) {
 	rtcTransaction(command, 4, 0, 0);
 }
 
-//---------------------------------------------------------------------------------
-void syncRTC(void) {
-//---------------------------------------------------------------------------------
+void syncRTC(void)
+{
 	__transferRegion()->unixTime++;
 }
 
@@ -238,9 +225,8 @@ static const short ydays[] = {
 /* Length of month `m' (0 .. 11) */
 #define monthlen(m, y) (ydays[(m)+1] - ydays[m] + leapday (m, y))
 
-//---------------------------------------------------------------------------------
-static time_t __mktime( RTCtime *dstime ) {
-//---------------------------------------------------------------------------------
+static time_t __mktime(RTCtime *dstime)
+{
 	int years, months, days, hours, minutes, seconds;
 
 	years = dstime->year + 2000;	/* year - 2000 -> year */
@@ -261,19 +247,16 @@ static time_t __mktime( RTCtime *dstime ) {
 					(unsigned long)(60 * minutes + seconds));
 }
 
-//---------------------------------------------------------------------------------
-void resyncClock(void) {
-//---------------------------------------------------------------------------------
+void resyncClock(void)
+{
 	RTCtime dstime;
 	rtcGetTimeAndDate((uint8 *)&dstime);
 
 	__transferRegion()->unixTime = __mktime(&dstime);
 }
 
-//---------------------------------------------------------------------------------
-void initClockIRQ(void) {
-//---------------------------------------------------------------------------------
-
+void initClockIRQ(void)
+{
 	REG_RCNT = 0x8100;
 	irqSet(IRQ_RTC, syncRTC);
 	// Reset the clock if needed
@@ -300,4 +283,3 @@ void initClockIRQ(void) {
 	// Read all time settings on first start
 	resyncClock();
 }
-

@@ -30,11 +30,8 @@
 #include <nds/fifocommon.h>
 #include <libnds_internal.h>
 
-
-//---------------------------------------------------------------------------------
-void touchRead(touchPosition *data) {
-//---------------------------------------------------------------------------------
-
+void touchRead(touchPosition *data)
+{
 	if ( !data ) return;
 
 	data->rawx = __transferRegion()->touchX;
@@ -47,13 +44,10 @@ void touchRead(touchPosition *data) {
 
 }
 
-//---------------------------------------------------------------------------------
-touchPosition touchReadXY() {
-//---------------------------------------------------------------------------------
-	
+touchPosition touchReadXY()
+{
 	touchPosition touchPos;
 
 	touchRead(&touchPos);
 	return touchPos;
-
 }

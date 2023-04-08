@@ -42,17 +42,14 @@ distribution.
 
 static void(*SDcallback)(int)=NULL;
 
-//---------------------------------------------------------------------------------
-void setSDcallback(void(*callback)(int)) {
-//---------------------------------------------------------------------------------
-	SDcallback = callback;
+void setSDcallback(void(*callback)(int))
+{
+    SDcallback = callback;
 }
 
-//---------------------------------------------------------------------------------
 // Handle system requests from the arm7
-//---------------------------------------------------------------------------------
-void systemValueHandler(u32 value, void* data){
-//---------------------------------------------------------------------------------
+void systemValueHandler(u32 value, void *data)
+{
 	(void)data;
 
 	switch(value) {
@@ -68,9 +65,8 @@ void systemValueHandler(u32 value, void* data){
 	}
 }
 
-//---------------------------------------------------------------------------------
-void systemMsgHandler(int bytes, void* user_data){
-//---------------------------------------------------------------------------------
+void systemMsgHandler(int bytes, void* user_data)
+{
 	(void)user_data;
 
 	FifoMessage msg;
@@ -84,59 +80,51 @@ void systemMsgHandler(int bytes, void* user_data){
 	}
 }
 
-//---------------------------------------------------------------------------------
-void systemSleep(void) {
-//---------------------------------------------------------------------------------
+void systemSleep(void)
+{
    fifoSendValue32(FIFO_PM, PM_REQ_SLEEP);
-  
+
    //100ms
    swiDelay(419000);
 }
 
-
-//---------------------------------------------------------------------------------
-void powerOn(uint32_t bits) {
-//---------------------------------------------------------------------------------
+void powerOn(uint32_t bits)
+{
 	if(bits & PM_ARM9_DIRECT)
 		REG_POWERCNT |= bits & 0xFFFF;
 	else
 		fifoSendValue32(FIFO_PM, PM_REQ_ON | (bits & 0xFFFF));
 }
 
-//---------------------------------------------------------------------------------
-void powerOff(uint32_t bits) {
+void powerOff(uint32_t bits)
+{
 	if(bits & PM_ARM9_DIRECT)
 		REG_POWERCNT &= ~(bits & 0xFFFF);
 	else
 		fifoSendValue32(FIFO_PM, PM_REQ_OFF | (bits & 0xFFFF));
 }
 
-//---------------------------------------------------------------------------------
-void ledBlink(int bm) {
-//---------------------------------------------------------------------------------
+void ledBlink(int bm)
+{
 	fifoSendValue32(FIFO_PM, PM_REQ_LED | bm);
 }
 
-//---------------------------------------------------------------------------------
-u32 getBatteryLevel(void) {
-//---------------------------------------------------------------------------------
+u32 getBatteryLevel(void)
+{
 	fifoSendValue32(FIFO_PM, PM_REQ_BATTERY);
 	fifoWaitValue32(FIFO_PM);
 	return fifoGetValue32(FIFO_PM);
 }
 
-//---------------------------------------------------------------------------------
-void enableSlot1(void) {
-//---------------------------------------------------------------------------------
-
-	if(isDSiMode()) fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_ENABLE);
+void enableSlot1(void)
+{
+    if (isDSiMode())
+        fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_ENABLE);
 
 }
 
-//---------------------------------------------------------------------------------
-void disableSlot1(void) {
-//---------------------------------------------------------------------------------
-
-	if(isDSiMode()) fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_DISABLE);
-
+void disableSlot1(void)
+{
+    if(isDSiMode())
+        fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_DISABLE);
 }

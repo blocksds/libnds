@@ -36,9 +36,8 @@
 #define sassert(v, s)
 #endif
 
-//---------------------------------------------------------------------------------
-void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback){
-//---------------------------------------------------------------------------------
+void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback)
+{
 	sassert(timer < 4, "timer must be in range 0 - 3");
 	TIMER_DATA(timer) = ticks;
 
@@ -51,12 +50,10 @@ void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback){
 	}
 }
 
-
 u16 elapsed[4] = {0, 0, 0, 0};
 
-//---------------------------------------------------------------------------------
-u16 timerElapsed(int timer) {
-//---------------------------------------------------------------------------------
+u16 timerElapsed(int timer)
+{
 	sassert(timer < 4, "timer must be in range 0 - 3");
 	u16 time = TIMER_DATA(timer);
 
@@ -72,10 +69,8 @@ u16 timerElapsed(int timer) {
 	return (u16) result;
 }
 
-
-//---------------------------------------------------------------------------------
-u16 timerPause(int timer) {
-//---------------------------------------------------------------------------------
+u16 timerPause(int timer)
+{
 	sassert(timer < 4, "timer must be in range 0 - 3");
 	TIMER_CR(timer) &= ~TIMER_ENABLE;
 	u16 temp = timerElapsed(timer);
@@ -83,16 +78,14 @@ u16 timerPause(int timer) {
 	return temp;
 }
 
-//---------------------------------------------------------------------------------
-u16 timerStop(int timer) {
-//---------------------------------------------------------------------------------
+u16 timerStop(int timer)
+{
 	sassert(timer < 4, "timer must be in range 0 - 3");
 	TIMER_CR(timer) = 0;
 	u16 temp = timerElapsed(timer);
 	elapsed[timer] = 0;
 	return temp;
 }
-
 
 /*
   CPU Usage - http://forums.devkitpro.org/viewtopic.php?f=6&t=415
@@ -102,11 +95,10 @@ u16 timerStop(int timer) {
 */
 static int localTimer = 0;
 
-//---------------------------------------------------------------------------------
-void cpuStartTiming(int timer) {
-//---------------------------------------------------------------------------------
-	sassert(timer < 3, "timer must be in range 0 - 2");
-	localTimer = timer;
+void cpuStartTiming(int timer)
+{
+    sassert(timer < 3, "timer must be in range 0 - 2");
+    localTimer = timer;
 
     TIMER_CR(timer) = 0;
     TIMER_CR(timer+1) = 0;
@@ -118,9 +110,8 @@ void cpuStartTiming(int timer) {
     TIMER_CR(timer) = TIMER_ENABLE;
 }
 
-//---------------------------------------------------------------------------------
-u32 cpuGetTiming() {
-//---------------------------------------------------------------------------------
+u32 cpuGetTiming(void)
+{
 	int lo = TIMER_DATA(localTimer);
 	int hi = TIMER_DATA(localTimer+1);
 	int lo2 = TIMER_DATA(localTimer);
@@ -132,9 +123,8 @@ u32 cpuGetTiming() {
 	return ( lo | hi<<16 );
 }
 
-//---------------------------------------------------------------------------------
-u32 cpuEndTiming() {
-//---------------------------------------------------------------------------------
+u32 cpuEndTiming(void)
+{
 	int lo = TIMER_DATA(localTimer);
 	int hi = TIMER_DATA(localTimer+1);
 	int lo2 = TIMER_DATA(localTimer);
@@ -148,6 +138,4 @@ u32 cpuEndTiming() {
 	TIMER_CR(localTimer+1) = 0;
 
 	return ( lo | hi<<16 );
-
 }
-

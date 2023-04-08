@@ -36,11 +36,9 @@
 void micSetAmp_TWL(u8 control, u8 gain);
 u16 micReadData16_TWL(void);
 
-//---------------------------------------------------------------------------------
 // Turn on the Microphone Amp. Code based on neimod's example.
-//---------------------------------------------------------------------------------
-void micSetAmp_NTR(u8 control, u8 gain) {
-//---------------------------------------------------------------------------------
+void micSetAmp_NTR(u8 control, u8 gain)
+{
 	SerialWaitBusy();
 	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
 	REG_SPIDATA = PM_AMP_OFFSET;
@@ -61,11 +59,9 @@ void micSetAmp_NTR(u8 control, u8 gain) {
 	REG_SPIDATA = gain;
 }
 
-//---------------------------------------------------------------------------------
 // Read a byte from the microphone. Code based on neimod's example.
-//---------------------------------------------------------------------------------
-u8 micReadData8_NTR(void) {
-//---------------------------------------------------------------------------------
+u8 micReadData8_NTR(void)
+{
 	u16 result, result2;
 
 	SerialWaitBusy();
@@ -90,11 +86,9 @@ u8 micReadData8_NTR(void) {
 	return (((result & 0x7F) << 1) | ((result2>>7)&1));
 }
 
-//---------------------------------------------------------------------------------
 // Read a short from the microphone. Code based on neimod's example.
-//---------------------------------------------------------------------------------
-u16 micReadData12_NTR(void) {
-//---------------------------------------------------------------------------------
+u16 micReadData12_NTR(void)
+{
 	u16 result, result2;
 
 	SerialWaitBusy();
@@ -119,10 +113,8 @@ u16 micReadData12_NTR(void) {
 	return (((result & 0x7F) << 5) | ((result2>>3)&0x1F));
 }
 
-//---------------------------------------------------------------------------------
-void micSetAmp(u8 control, u8 gain) {
-//---------------------------------------------------------------------------------
-
+void micSetAmp(u8 control, u8 gain)
+{
 	int oldIME = enterCriticalSection();
 	if (cdcIsAvailable()) {
 		micSetAmp_TWL(control, gain);
@@ -132,10 +124,8 @@ void micSetAmp(u8 control, u8 gain) {
 	leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-u8 micReadData8(void) {
-//---------------------------------------------------------------------------------
-
+u8 micReadData8(void)
+{
 	u8 smp;
 	int oldIME = enterCriticalSection();
 	if (cdcIsAvailable()) {
@@ -147,10 +137,8 @@ u8 micReadData8(void) {
 	return smp;
 }
 
-//---------------------------------------------------------------------------------
-u16 micReadData12(void) {
-//---------------------------------------------------------------------------------
-
+u16 micReadData12(void)
+{
 	u16 smp;
 	int oldIME = enterCriticalSection();
 	if (cdcIsAvailable()) {
@@ -170,54 +158,50 @@ static bool eightBit = true;
 static int micTimer = 0;
 static MIC_BUF_SWAP_CB swapCallback;
 
-//---------------------------------------------------------------------------------
-void micStartRecording(u8* buffer, int length, int freq, int timer, bool eightBitSample, MIC_BUF_SWAP_CB bufferSwapCallback ) {
-//---------------------------------------------------------------------------------
-  microphone_front_buffer = buffer + length / 2;
-  microphone_back_buffer = buffer;
-  microphone_buffer_length = length / 2;
-  swapCallback = bufferSwapCallback;
-  sampleCount = 0;
-  micTimer = timer;
-  eightBit = eightBitSample;
-  micOn();
+void micStartRecording(u8 *buffer, int length, int freq, int timer,
+                       bool eightBitSample, MIC_BUF_SWAP_CB bufferSwapCallback)
+{
+    microphone_front_buffer = buffer + length / 2;
+    microphone_back_buffer = buffer;
+    microphone_buffer_length = length / 2;
+    swapCallback = bufferSwapCallback;
+    sampleCount = 0;
+    micTimer = timer;
+    eightBit = eightBitSample;
+    micOn();
 
-  irqSet(BIT(3 + timer), micTimerHandler);
-  irqEnable(BIT(3 + timer));
+    irqSet(BIT(3 + timer), micTimerHandler);
+    irqEnable(BIT(3 + timer));
 
-  // Setup a timer
-  TIMER_DATA(timer) = TIMER_FREQ(freq); 
-  TIMER_CR(timer) = TIMER_ENABLE |TIMER_IRQ_REQ;
-  //irqSet(IRQ_TIMER2, micTimerHandler);
-  //irqEnable(IRQ_TIMER2);
+    // Setup a timer
+    TIMER_DATA(timer) = TIMER_FREQ(freq);
+    TIMER_CR(timer) = TIMER_ENABLE |TIMER_IRQ_REQ;
+    //irqSet(IRQ_TIMER2, micTimerHandler);
+    //irqEnable(IRQ_TIMER2);
 
-  //// Setup a timer
-  //TIMER_DATA(2) = TIMER_FREQ(freq); 
-  //TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_1 | TIMER_IRQ_REQ;
+    //// Setup a timer
+    //TIMER_DATA(2) = TIMER_FREQ(freq);
+    //TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_1 | TIMER_IRQ_REQ;
 }
 
-//---------------------------------------------------------------------------------
-int micStopRecording(void) {
-//---------------------------------------------------------------------------------
-  TIMER_CR(micTimer) &= ~TIMER_ENABLE;
-  micOff();
+int micStopRecording(void)
+{
+    TIMER_CR(micTimer) &= ~TIMER_ENABLE;
+    micOff();
 
-  if(swapCallback)
-	  swapCallback(microphone_back_buffer, eightBit ? sampleCount : (sampleCount << 1));
+    if(swapCallback)
+        swapCallback(microphone_back_buffer, eightBit ? sampleCount : (sampleCount << 1));
 
-  microphone_front_buffer = microphone_back_buffer = 0;
+    microphone_front_buffer = microphone_back_buffer = 0;
 
-  return sampleCount;
+    return sampleCount;
 }
 
-//---------------------------------------------------------------------------------
-void micTimerHandler(void) {
-//---------------------------------------------------------------------------------
-	int len = 0;
-	// Read data from the microphone. Data from the Mic is unsigned, flipping
+void micTimerHandler(void)
+{
+    int len = 0;
+    // Read data from the microphone. Data from the Mic is unsigned, flipping
     // the highest bit makes it signed.
-
-	
 
     if(eightBit)
     {
@@ -227,16 +211,16 @@ void micTimerHandler(void) {
     {
 	   *(u16*)(microphone_back_buffer + sampleCount * 2) = (micReadData12() - 2048) << 4; // ^ 0x8000;
 	}
-  
+
 
     sampleCount++;
 
 	len = eightBit ? sampleCount : (sampleCount << 1);
-    
+
 	if(len >= microphone_buffer_length)
 	{
 		sampleCount = 0;
-		
+
 		u8* temp = microphone_back_buffer;
 		microphone_back_buffer = microphone_front_buffer;
 		microphone_front_buffer = temp;
@@ -244,5 +228,4 @@ void micTimerHandler(void) {
 		if(swapCallback)
 			swapCallback(microphone_front_buffer, microphone_buffer_length);
 	}
-	
 }

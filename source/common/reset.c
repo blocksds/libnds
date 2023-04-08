@@ -44,6 +44,6 @@ void resetARM7(u32 address) {
 	while((REG_IPC_SYNC & 0x0f) != 1);
 	REG_IPC_SYNC = 0x100;
 	while((REG_IPC_SYNC & 0x0f) != 0);
-	REG_IPC_SYNC = 0;	
+	REG_IPC_SYNC = 0;
 }
 

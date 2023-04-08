@@ -32,9 +32,8 @@
 
 #include <stdio.h>
 
-//---------------------------------------------------------------------------------
-unsigned long ARMShift(unsigned long value,unsigned char shift) {
-//---------------------------------------------------------------------------------
+unsigned long ARMShift(unsigned long value,unsigned char shift)
+{
 	// no shift at all
 	if (shift == 0x0B) return value ;
 	int index ;
@@ -73,11 +72,8 @@ unsigned long ARMShift(unsigned long value,unsigned char shift) {
 	return value;
 }
 
-
-//---------------------------------------------------------------------------------
-u32 getExceptionAddress( u32 opcodeAddress, u32 thumbState) {
-//---------------------------------------------------------------------------------
-
+u32 getExceptionAddress( u32 opcodeAddress, u32 thumbState)
+{
 	int Rf, Rb, Rd, Rn, Rm;
 
 	if (thumbState) {
@@ -205,9 +201,8 @@ static const char *registerNames[] =
 
 extern const char __itcm_start[];
 
-//---------------------------------------------------------------------------------
-void guruMeditationDump(void) {
-//---------------------------------------------------------------------------------
+void guruMeditationDump(void)
+{
 	consoleDemoInit();
 
 	BG_PALETTE_SUB[0] = RGB15(31,0,0);
@@ -255,15 +250,13 @@ void guruMeditationDump(void) {
 	}
 }
 
-//---------------------------------------------------------------------------------
-static void defaultHandler(void) {
-//---------------------------------------------------------------------------------
+static void defaultHandler(void)
+{
 	guruMeditationDump();
 	while(1);
 }
 
-//---------------------------------------------------------------------------------
-void defaultExceptionHandler(void) {
-//---------------------------------------------------------------------------------
-	setExceptionHandler(defaultHandler) ;
+void defaultExceptionHandler(void)
+{
+    setExceptionHandler(defaultHandler);
 }

@@ -26,10 +26,8 @@
 #include <nds/system.h>
 #include <string.h>
 
-//---------------------------------------------------------------------------------
-void readUserSettings() {
-//---------------------------------------------------------------------------------
-
+void readUserSettings(void)
+{
 	PERSONAL_DATA slots[2];
 
 	short slot1count, slot2count;
@@ -65,5 +63,4 @@ void readUserSettings() {
 			currentSettingsSlot = 1;
 	}
 	*PersonalData = slots[currentSettingsSlot];
-
 }

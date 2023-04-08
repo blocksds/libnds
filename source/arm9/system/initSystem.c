@@ -43,11 +43,9 @@ bool __dsimode; // set in crt0
 
 time_t *punixTime;
 
-//---------------------------------------------------------------------------------
 // Reset the DS registers to sensible defaults
-//---------------------------------------------------------------------------------
-void __attribute__((weak)) initSystem(void) {
-//---------------------------------------------------------------------------------
+void __attribute__((weak)) initSystem(void)
+{
 	register int i;
 	// stop timers and dma
 	for (i=0; i<4; i++)
@@ -91,5 +89,4 @@ void __attribute__((weak)) initSystem(void) {
 	extern  char *fake_heap_end;
 	__transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
 	irqEnable(IRQ_VBLANK);
-
 }

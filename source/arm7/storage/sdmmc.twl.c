@@ -17,18 +17,15 @@ static struct mmcdevice deviceNAND;
 }
 */
 
-//---------------------------------------------------------------------------------
-int geterror(struct mmcdevice *ctx) {
-//---------------------------------------------------------------------------------
+int geterror(struct mmcdevice *ctx)
+{
     //if(ctx->error == 0x4) return -1;
     //else return 0;
     return (ctx->error << 29) >> 31;
 }
 
-
-//---------------------------------------------------------------------------------
-void setTarget(struct mmcdevice *ctx) {
-//---------------------------------------------------------------------------------
+void setTarget(struct mmcdevice *ctx)
+{
     sdmmc_mask16(REG_SDPORTSEL,0x3,(u16)ctx->devicenumber);
     setckl(ctx->clk);
     if (ctx->SDOPT == 0) {
@@ -39,11 +36,9 @@ void setTarget(struct mmcdevice *ctx) {
 
 }
 
-
-//---------------------------------------------------------------------------------
-void sdmmc_send_command(struct mmcdevice *ctx, uint32_t cmd, uint32_t args) {
-//---------------------------------------------------------------------------------
-	int i;
+void sdmmc_send_command(struct mmcdevice *ctx, uint32_t cmd, uint32_t args)
+{
+    int i;
     bool getSDRESP = (cmd << 15) >> 31;
     uint16_t flags = (cmd << 15) >> 31;
     const bool readdata = cmd & 0x20000;
@@ -171,20 +166,15 @@ void sdmmc_send_command(struct mmcdevice *ctx, uint32_t cmd, uint32_t args) {
     }
 }
 
-
-//---------------------------------------------------------------------------------
-int sdmmc_cardinserted(void) {
-//---------------------------------------------------------------------------------
-	return 1; //sdmmc_cardready;
+int sdmmc_cardinserted(void)
+{
+    return 1; //sdmmc_cardready;
 }
-
 
 static bool sdmmc_controller_initialised = false;
 
-//---------------------------------------------------------------------------------
-void sdmmc_controller_init( bool force_init ) {
-//---------------------------------------------------------------------------------
-
+void sdmmc_controller_init(bool force_init)
+{
     if (!force_init && sdmmc_controller_initialised) return;
 
     deviceSD.isSDHC = 0;
@@ -242,9 +232,8 @@ void sdmmc_controller_init( bool force_init ) {
     setTarget(&deviceSD);
 }
 
-//---------------------------------------------------------------------------------
-static u32 calcSDSize(u8* csd, int type) {
-//---------------------------------------------------------------------------------
+static u32 calcSDSize(u8 *csd, int type)
+{
     u32 result = 0;
     if (type == -1) type = csd[14] >> 6;
     switch (type) {
@@ -270,9 +259,8 @@ static u32 calcSDSize(u8* csd, int type) {
     return result;
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_sdcard_init(void) {
-//---------------------------------------------------------------------------------
+int sdmmc_sdcard_init(void)
+{
     setTarget(&deviceSD);
     swiDelay(0xF000);
 
@@ -341,12 +329,10 @@ int sdmmc_sdcard_init(void) {
     deviceSD.clk |= 0x200;
 
     return 0;
-
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_nand_init(void) {
-//---------------------------------------------------------------------------------
+int sdmmc_nand_init(void)
+{
     setTarget(&deviceNAND);
     swiDelay(0xF000);
 
@@ -396,9 +382,8 @@ int sdmmc_nand_init(void) {
     return 0;
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_readsectors(struct mmcdevice *device, u32 sector_no, u32 numsectors, void *out) {
-//---------------------------------------------------------------------------------
+int sdmmc_readsectors(struct mmcdevice *device, u32 sector_no, u32 numsectors, void *out)
+{
     if (device->isSDHC == 0) sector_no <<= 9;
     setTarget(device);
     sdmmc_write16(REG_SDSTOP,0x100);
@@ -416,9 +401,8 @@ int sdmmc_readsectors(struct mmcdevice *device, u32 sector_no, u32 numsectors, v
     return geterror(device);
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_writesectors(struct mmcdevice *device, u32 sector_no, u32 numsectors, void *in) {
-//---------------------------------------------------------------------------------
+int sdmmc_writesectors(struct mmcdevice *device, u32 sector_no, u32 numsectors, void *in)
+{
     if (device->isSDHC == 0)
         sector_no <<= 9;
     setTarget(device);
@@ -437,10 +421,8 @@ int sdmmc_writesectors(struct mmcdevice *device, u32 sector_no, u32 numsectors, 
     return geterror(device);
 }
 
-//---------------------------------------------------------------------------------
-void sdmmc_get_cid(int devicenumber, u32 *cid) {
-//---------------------------------------------------------------------------------
-
+void sdmmc_get_cid(int devicenumber, u32 *cid)
+{
     struct mmcdevice *device = (devicenumber == 1 ? &deviceNAND : &deviceSD);
 
     int oldIME = enterCriticalSection();
@@ -465,9 +447,8 @@ void sdmmc_get_cid(int devicenumber, u32 *cid) {
     leaveCriticalSection(oldIME);
 }
 
-//---------------------------------------------------------------------------------
-int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg) {
-//---------------------------------------------------------------------------------
+int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg)
+{
     (void)bytes;
     (void)user_data;
 
@@ -492,23 +473,20 @@ int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg) {
     return retval;
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_nand_startup(void) {
-//---------------------------------------------------------------------------------
+int sdmmc_nand_startup(void)
+{
     sdmmc_controller_init(false);
     return sdmmc_nand_init();
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_sd_startup(void) {
-//---------------------------------------------------------------------------------
+int sdmmc_sd_startup(void)
+{
     sdmmc_controller_init(false);
     return sdmmc_sdcard_init();
 }
 
-//---------------------------------------------------------------------------------
-int sdmmcValueHandler(u32 value, void *user_data) {
-//---------------------------------------------------------------------------------
+int sdmmcValueHandler(u32 value, void *user_data)
+{
     (void)user_data;
 
     int result = 0;
@@ -546,28 +524,22 @@ int sdmmcValueHandler(u32 value, void *user_data) {
     return result;
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_sdcard_readsectors(u32 sector_no, u32 numsectors, void *out) {
-//---------------------------------------------------------------------------------
+int sdmmc_sdcard_readsectors(u32 sector_no, u32 numsectors, void *out)
+{
     return sdmmc_readsectors(&deviceSD, sector_no, numsectors, out);
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_sdcard_writesectors(u32 sector_no, u32 numsectors, void *in) {
-//---------------------------------------------------------------------------------
+int sdmmc_sdcard_writesectors(u32 sector_no, u32 numsectors, void *in)
+{
     return sdmmc_writesectors(&deviceSD, sector_no, numsectors, in);
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_nand_readsectors(u32 sector_no, u32 numsectors, void *out) {
-//---------------------------------------------------------------------------------
+int sdmmc_nand_readsectors(u32 sector_no, u32 numsectors, void *out)
+{
     return sdmmc_readsectors(&deviceNAND, sector_no, numsectors, out);
 }
 
-//---------------------------------------------------------------------------------
-int sdmmc_nand_writesectors(u32 sector_no, u32 numsectors, void *in) {
-//---------------------------------------------------------------------------------
+int sdmmc_nand_writesectors(u32 sector_no, u32 numsectors, void *in)
+{
     return sdmmc_writesectors(&deviceNAND, sector_no, numsectors, in);
 }
-
-
