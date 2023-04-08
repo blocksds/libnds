@@ -5,12 +5,15 @@
 #ifndef __SDMMC_H__
 #define __SDMMC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 #define DATA32_SUPPORT
 
 #define SDMMC_BASE	0x04004800
-
 
 #define REG_SDCMD       0x00
 #define REG_SDPORTSEL   0x02
@@ -194,5 +197,9 @@ static inline void setckl(u32 data) {
     sdmmc_mask16(REG_SDCLKCTL, 0x2FF, data & 0x2FF);
     sdmmc_mask16(REG_SDCLKCTL, 0x0, 0x100);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

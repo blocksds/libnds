@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Adrian Siekierka
+// Copyright (c) 2023 Adrian "asie" Siekierka
 
 #include <errno.h>
 #include <stdio.h>

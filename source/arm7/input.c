@@ -4,6 +4,7 @@
 // Copyright (C) 2008-2010 Jason Rogers (Dovoto)
 
 #include <nds/arm7/input.h>
+#include <nds/arm7/serial.h>
 #include <nds/arm7/touch.h>
 #include <nds/system.h>
 #include <nds/touch.h>
@@ -12,53 +13,55 @@
 #include <nds/ipc.h>
 #include <nds/ndstypes.h>
 
-enum{
-	KEY_TOUCH = (1<<6),
-	KEY_LID = (1<<7)
-}Keys;
+static u16 sleepCounter = 0;
+static u16 sleepCounterMax = 20;
 
-void inputGetAndSend(void){
+void inputSetLidSleepDuration(u16 frames) {
+	sleepCounterMax = frames;
+}
 
-	static int sleepCounter = 0;
-
+void inputGetAndSend(void) {
 	touchPosition tempPos = {0};
 	FifoMessage msg = {0};
 
-	u16 keys= REG_KEYXY;
+	u16 keys = REG_KEYXY;
 
-
+	// touchPenDown() handles DSi-mode touch detection
+	// (on DS mode, it just checks REG_KEYXY & KEYXY_TOUCH)
 	if(!touchPenDown()) {
-		keys |= KEY_TOUCH;
-  	} else {
-		keys &= ~KEY_TOUCH;
+		keys |= KEYXY_TOUCH;
+	} else {
+		keys &= ~KEYXY_TOUCH;
 	}
 
 	msg.SystemInput.keys = keys;
 
-	if(!(keys & KEY_TOUCH)) {
-		msg.SystemInput.keys |= KEY_TOUCH;
+	if(!(keys & KEYXY_TOUCH)) {
+		// only mark pen as down if valid coordinates
+		msg.SystemInput.keys |= KEYXY_TOUCH;
 
-		touchReadXY(&tempPos);	
+		touchReadXY(&tempPos);
 
 		if(tempPos.rawx && tempPos.rawy) {
-			msg.SystemInput.keys &= ~KEY_TOUCH;
+			msg.SystemInput.keys &= ~KEYXY_TOUCH;
 			msg.SystemInput.touch = tempPos;
 		}
-	}	
-
-	if(keys & KEY_LID) 
-		sleepCounter++;
-	else
-		sleepCounter = 0;
-
-	//sleep if lid has been closed for 20 frames
-	if(sleepCounter >= 20) 
-	{
-		systemSleep();
-		sleepCounter = 0;
 	}
 
-	msg.type = SYS_INPUT_MESSAGE; //set message type
+	// sleep if lid has been closed for a specified number of frames
+	if(sleepCounterMax > 0) {
+		if(keys & KEYXY_LID) {
+			sleepCounter++;
+		} else {
+			sleepCounter = 0;
+		}
 
+		if(sleepCounter >= sleepCounterMax) {
+			systemSleep();
+			sleepCounter = 0;
+		}
+	}
+
+	msg.type = SYS_INPUT_MESSAGE;
 	fifoSendDatamsg(FIFO_SYSTEM, sizeof(msg), (u8*)&msg);
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Adrian Siekierka
+// Copyright (c) 2023 Adrian "asie" Siekierka
 
 #ifndef _SYS_STATVFS_H
 #define _SYS_STATVFS_H
