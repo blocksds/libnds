@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023 Adrian "asie" Siekierka
+// Copyright (c) 2023 Adrian "asie" Siekierka
 
 // Camera control for the ARM7
 
