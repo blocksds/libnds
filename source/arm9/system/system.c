@@ -63,6 +63,16 @@ void systemSleep(void)
    swiDelay(419000);
 }
 
+void enableSleep(void)
+{
+   fifoSendValue32(FIFO_PM, PM_REQ_SLEEP_ENABLE);
+}
+
+void disableSleep(void)
+{
+   fifoSendValue32(FIFO_PM, PM_REQ_SLEEP_DISABLE);
+}
+
 void powerOn(uint32_t bits)
 {
 	if(bits & PM_ARM9_DIRECT)

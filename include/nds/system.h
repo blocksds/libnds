@@ -117,6 +117,12 @@ void powerOn(uint32_t bits);
 */
 void powerOff(uint32_t bits);
 
+//! Enables sleep mode from arm9.
+void enableSleep(void);
+
+//! Disables sleep mode from arm9.
+void disableSleep(void);
+
 //internal fifo handlers
 void systemMsgHandler(int bytes, void* user_data);
 void systemValueHandler(u32 value, void* data);
@@ -138,7 +144,6 @@ void systemShutDown(void) {
 
 void readFirmware(u32 address, void *buffer, u32 length);
 int writeFirmware(u32 address, void *buffer, u32 length);
-
 
 //! gets the DS Battery level
 u32 getBatteryLevel(void);
