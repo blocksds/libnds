@@ -49,6 +49,17 @@
 #define CP15_CTYPE_ICACHE_BASE_SIZE             BIT(2)
 #define CP15_CTYPE_ICACHE_WORDS_PER_LINE_MASK   MASK(1, 0) // 0b10 = 8 words per line
 
+#define CP15_CACHE_SIZE_0KB         (0x0)
+#define CP15_CACHE_SIZE_4KB         (0x3)
+#define CP15_CACHE_SIZE_8KB         (0x4)
+#define CP15_CACHE_SIZE_16KB        (0x5)
+#define CP15_CACHE_SIZE_32KB        (0x6)
+#define CP15_CACHE_SIZE_64KB        (0x7)
+#define CP15_CACHE_SIZE_128KB       (0x8)
+#define CP15_CACHE_SIZE_256KB       (0x9)
+#define CP15_CACHE_SIZE_512KB       (0xA)
+#define CP15_CACHE_SIZE_1MB         (0xB)
+
 // Register 0, Tightly-coupled memory size register
 
 #define CP15_REG0_TCM_SIZE(rd)                      p15, 0, rd, c0, c0, 2
@@ -160,7 +171,31 @@
 
 #define CP15_REG9_DTCM_CONTROL(rd)                      p15, 0, rd, c9, c1, 0
 #define CP15_REG9_ITCM_CONTROL(rd)                      p15, 0, rd, c9, c1, 1
-// Same definitions as "Register 6, Protection region/base size registers"
+
+// The "ARM 946E-S Technical Reference Manual" has an erratum and it refers to
+// table 2-20, but it should be referring to "Table 2-23 Tightly-coupled memory
+// area size encoding". GBATEK has the right formula.
+#define CP15_TCM_SIZE_4KB         (0x03)
+#define CP15_TCM_SIZE_8KB         (0x04)
+#define CP15_TCM_SIZE_16KB        (0x05)
+#define CP15_TCM_SIZE_32KB        (0x06)
+#define CP15_TCM_SIZE_64KB        (0x07)
+#define CP15_TCM_SIZE_128KB       (0x08)
+#define CP15_TCM_SIZE_256KB       (0x09)
+#define CP15_TCM_SIZE_512KB       (0x0A)
+#define CP15_TCM_SIZE_1MB         (0x0B)
+#define CP15_TCM_SIZE_2MB         (0x0C)
+#define CP15_TCM_SIZE_4MB         (0x0D)
+#define CP15_TCM_SIZE_8MB         (0x0E)
+#define CP15_TCM_SIZE_16MB        (0x0F)
+#define CP15_TCM_SIZE_32MB        (0x10)
+#define CP15_TCM_SIZE_64MB        (0x11)
+#define CP15_TCM_SIZE_128MB       (0x12)
+#define CP15_TCM_SIZE_256MB       (0x13)
+#define CP15_TCM_SIZE_512MB       (0x14)
+#define CP15_TCM_SIZE_1GB         (0x15)
+#define CP15_TCM_SIZE_2GB         (0x16)
+#define CP15_TCM_SIZE_4GB         (0x17)
 
 // Register 13, Trace process identifier register
 

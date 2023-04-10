@@ -36,12 +36,16 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     // Wait for the write buffer to be empty
     mcr     CP15_REG7_DRAIN_WRITE_BUFFER
 
+    // DTCM base is moveable. Set it to __dtcm_start
+    // DTCM size = 16 KB, not mirrored
     ldr     r0, =__dtcm_start
-    orr     r0, r0, #0x0a // TODO: BUG?
-    mcr     CP15_REG9_DTCM_CONTROL(r0)  // DTCM base = __dtcm_start, size = 16 KB
+    orr     r0, r0, #(CP15_TCM_SIZE_16KB << 1)
+    mcr     CP15_REG9_DTCM_CONTROL(r0)
 
-    mov     r0, #0x20 // TODO
-    mcr     CP15_REG9_ITCM_CONTROL(r0)  // ITCM base = 0, size = 32 MB
+    // ITCM base is not moveable. Fixed to 0x00000000.
+    // ITCM size = 32 KB, mirrored every 32KB up to 32MB
+    mov     r0, #(0x00000000 | (CP15_TCM_SIZE_32MB << 1))
+    mcr     CP15_REG9_ITCM_CONTROL(r0)
 
     // Setup memory regions similar to Release Version
 
