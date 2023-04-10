@@ -4,7 +4,6 @@
 // Copyright (C) 2017 fincs
 
 #include <nds/asminc.h>
-//#include <nds/arm9/cache_asm.h>
 #include <nds/arm9/cp15_asm.h>
 
     .arch   armv5te
@@ -14,13 +13,6 @@
     .arm
 
 BEGIN_ASM_FUNC __libnds_mpu_setup
-
-    // Turn on power for video mode 3
-    // REG_POWCNT1 = POWER_LCD | POWER_2D_A | POWER_2D_B | POWER_SWAP_LCDS
-    ldr     r1, =0x8203
-    mov     r0, #0x04000000
-    add     r0, r0, #0x304
-    strh    r1, [r0]
 
     // Disable TCM and protection unit
     ldr     r1, =(CP15_CONTROL_ALTERNATE_VECTOR_SELECT | CP15_CONTROL_RESERVED_SBO_MASK)

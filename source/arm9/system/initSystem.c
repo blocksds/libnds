@@ -18,54 +18,54 @@
 #include <time.h>
 #include <libnds_internal.h>
 
-bool __dsimode; // set in crt0
+bool __dsimode; // The crt0 sets this variable
 
 time_t *punixTime;
 
 // Reset the DS registers to sensible defaults
 void __attribute__((weak)) initSystem(void)
 {
-	register int i;
-	// stop timers and dma
-	for (i=0; i<4; i++)
-	{
-		DMA_CR(i) = 0;
-		DMA_SRC(i) = 0;
-		DMA_DEST(i) = 0;
-		TIMER_CR(i) = 0;
-		TIMER_DATA(i) = 0;
-	}
+    // Stop timers and dma
+    for (int i = 0; i < 4; i++)
+    {
+        DMA_CR(i) = 0;
+        DMA_SRC(i) = 0;
+        DMA_DEST(i) = 0;
+        TIMER_CR(i) = 0;
+        TIMER_DATA(i) = 0;
+    }
 
+    // Clear video display registers
+    dmaFillWords(0, (void*)0x04000000, 0x56);
+    dmaFillWords(0, (void*)0x04001008, 0x56);
 
-	// clear video display registers
-	dmaFillWords(0, (void*)0x04000000, 0x56);
-	dmaFillWords(0, (void*)0x04001008, 0x56);
+    // Turn on power for 2D video
+    REG_POWERCNT = (POWER_LCD | POWER_2D_A | POWER_2D_B | POWER_SWAP_LCDS) & 0xFFFF;
 
-	videoSetModeSub(0);
+    videoSetModeSub(0);
 
-	vramDefault();
+    vramDefault();
 
-	VRAM_E_CR = 0;
-	VRAM_F_CR = 0;
-	VRAM_G_CR = 0;
-	VRAM_H_CR = 0;
-	VRAM_I_CR = 0;
+    VRAM_E_CR = 0;
+    VRAM_F_CR = 0;
+    VRAM_G_CR = 0;
+    VRAM_H_CR = 0;
+    VRAM_I_CR = 0;
 
-	if (isDSiMode()) {
-		setCpuClock(true);
-	}
+    if (isDSiMode())
+        setCpuClock(true);
 
-	irqInit();
-	fifoInit();
+    irqInit();
+    fifoInit();
 
-	fifoSetValue32Handler(FIFO_SYSTEM, systemValueHandler, 0);
-	fifoSetDatamsgHandler(FIFO_SYSTEM, systemMsgHandler, 0);
+    fifoSetValue32Handler(FIFO_SYSTEM, systemValueHandler, 0);
+    fifoSetDatamsgHandler(FIFO_SYSTEM, systemMsgHandler, 0);
 
-	__transferRegion()->buttons = 0xffff;
+    __transferRegion()->buttons = 0xffff;
 
-	punixTime = (time_t*)memUncached((void *)&__transferRegion()->unixTime);
+    punixTime = (time_t *)memUncached((void *)&__transferRegion()->unixTime);
 
-	extern  char *fake_heap_end;
-	__transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
-	irqEnable(IRQ_VBLANK);
+    extern  char *fake_heap_end;
+    __transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
+    irqEnable(IRQ_VBLANK);
 }
