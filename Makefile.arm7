@@ -14,7 +14,9 @@ INCLUDEDIRS	:= include source/common source/common/ndsabi/
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:=
+ifneq ($(DEBUG),1)
+DEFINES		:= -DNDEBUG
+endif
 
 # Libraries
 # ---------
@@ -24,8 +26,14 @@ LIBDIRS		:=
 # Build artifacts
 # ---------------
 
+ifeq ($(DEBUG),1)
+NAME		:= libnds7d
+BUILDDIR	:= build/debug/arm7
+else
 NAME		:= libnds7
-BUILDDIR	:= build/arm7
+BUILDDIR	:= build/release/arm7
+endif
+
 ARCHIVE		:= lib/$(NAME).a
 
 # Tools

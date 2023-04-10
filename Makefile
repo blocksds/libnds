@@ -49,9 +49,11 @@ $(VERSION_HEADER): Makefile
 
 arm9:
 	@+$(MAKE) -f Makefile.arm9 --no-print-directory
+	@+$(MAKE) -f Makefile.arm9 --no-print-directory DEBUG=1
 
 arm7:
 	@+$(MAKE) -f Makefile.arm7 --no-print-directory
+	@+$(MAKE) -f Makefile.arm7 --no-print-directory DEBUG=1
 
 clean:
 	@echo "  CLEAN"

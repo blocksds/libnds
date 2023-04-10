@@ -16,7 +16,9 @@ BINDIRS		:= source/arm9
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:=
+ifneq ($(DEBUG),1)
+DEFINES		:= -DNDEBUG
+endif
 
 # Libraries
 # ---------
@@ -26,8 +28,14 @@ LIBDIRS		:=
 # Build artifacts
 # ---------------
 
+ifeq ($(DEBUG),1)
+NAME		:= libnds9d
+BUILDDIR	:= build/debug/arm9
+else
 NAME		:= libnds9
-BUILDDIR	:= build/arm9
+BUILDDIR	:= build/release/arm9
+endif
+
 ARCHIVE		:= lib/$(NAME).a
 
 # Tools
