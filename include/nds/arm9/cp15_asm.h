@@ -20,9 +20,10 @@
 
 // General definitions for the NDS
 
-#define ICACHE_SIZE     0x2000
-#define DCACHE_SIZE     0x1000
-#define CACHE_LINE_SIZE 32
+#define ICACHE_SIZE             0x2000
+#define DCACHE_SIZE             0x1000
+#define CACHE_LINE_SIZE         32
+#define ENTRIES_PER_SEGMENT     4
 
 // Register 0, ID code register
 
