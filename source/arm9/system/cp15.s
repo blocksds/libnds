@@ -268,35 +268,6 @@ BEGIN_ASM_FUNC CP15_SetITCM
 
 //////////////////////////////////////////////////////////////////////
 
-BEGIN_ASM_FUNC CP15_ITCMEnableDefault
-	mcr	p15, 0, r0, c7, c5
-
-	mov r0, #0 // make sure protection regions are all disabled
-	mcr p15, 0, r0, c6, c0, 0
-	mcr p15, 0, r0, c6, c1, 0
-	mcr p15, 0, r0, c6, c2, 0
-	mcr p15, 0, r0, c6, c3, 0
-	mcr p15, 0, r0, c6, c4, 0
-	mcr p15, 0, r0, c6, c5, 0
-	mcr p15, 0, r0, c6, c6, 0
-	mcr p15, 0, r0, c6, c7, 0
-
-	ldr r0, =0x3F // set read write access on regon 0 and 1
-	mcr p15, 0, r0, c6, c0, 0
-
-	ldr r0, =0x3 // set all mem to read write
-	mcr p15, 0, r0, c5, c0, 3
-
-	mov r0, #1 // enable catching for region 1
-	mcr p15, 0, r0, c2, c0, 1
-
-	ldr r0, =0x5707D // enable ITCM and Protection unit
-	mrc p15, 0, r0, c1, c0, 0
-	orr r0, r1, r0
-	mcr p15, 0, r0, c1, c0, 0
-
-	bx lr
-
 #define DCACHE_SIZE           0x1000
 #define CACHE_LINE_SIZE       32
 #define ENTRIES_PER_SEGMENT   4
