@@ -281,7 +281,7 @@ s32 atanLerp(s32 par)
 
 	/ *
 	If the parameter is greater than the maximum value the LUT supports,
-	we can be assured the binary search may crap out on us as atanComp
+	we can be assured the binary search may fail as atanComp
 	doesn't run bounds checking. It is faster to add this than fix that
 	(in terms of runtime speed, I'm not just being lazy).
 	* /
@@ -304,4 +304,4 @@ s32 atanLerp(s32 par)
 	// returns a value in [-128, 128]
 	return (neg ? -angle :angle);
 }
-//*/
+*/

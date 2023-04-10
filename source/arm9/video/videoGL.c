@@ -518,7 +518,7 @@ int glInit_C(void)
 	glGlob->deallocTexSize = 0;
 	glGlob->deallocPalSize = 0;
 
-	// Clean out all this crap
+	// Clean out all of this
 	DynamicArrayInit( &glGlob->texturePtrs, 16 );
 	DynamicArrayInit( &glGlob->palettePtrs, 16 );
 	DynamicArrayInit( &glGlob->deallocTex, 16 );
