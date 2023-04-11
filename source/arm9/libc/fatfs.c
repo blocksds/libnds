@@ -11,7 +11,8 @@
 #include "fatfs/cache.h"
 #include "fatfs/ff.h"
 
-#define DEFAULT_CACHED_SECTORS (40) // Each sector is 512 bytes
+#define DEFAULT_CACHE_PAGES         16
+#define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
 // Devices: "fat:/", "sd:/", "nitro:/"
 static FATFS fs_info[FF_VOLUMES] = { 0 };
@@ -76,8 +77,10 @@ int fatfs_error_to_posix(FRESULT error)
     return codes[error];
 }
 
-bool fatInitDefault(void)
+bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
 {
+    (void)set_as_default_device;
+
     static bool has_been_called = false;
 
     if (has_been_called == true)
@@ -99,7 +102,9 @@ bool fatInitDefault(void)
     const char *fat_drive = "fat:/";
     const char *sd_drive = "sd:/";
 
-    int ret = cache_init(DEFAULT_CACHED_SECTORS);
+    uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
+
+    int ret = cache_init(cache_size_sectors);
     if (ret != 0)
     {
         errno = ENOMEM;
@@ -146,6 +151,11 @@ bool fatInitDefault(void)
     fat_initialized = true;
 
     return true;
+}
+
+bool fatInitDefault(void)
+{
+    return fatInit(DEFAULT_CACHE_PAGES, true);
 }
 
 bool nitroFSInit(char **basepath)

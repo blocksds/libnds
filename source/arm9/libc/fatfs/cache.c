@@ -28,6 +28,10 @@ int cache_init(uint32_t num_sectors)
     if (cache_entries == NULL)
         return -1;
 
+#if FF_MAX_SS != FF_MIN_SS
+#error "Set the block size to the right value"
+#endif
+
     cache_mem = malloc(num_sectors * FF_MAX_SS);
     if (cache_mem == NULL)
     {

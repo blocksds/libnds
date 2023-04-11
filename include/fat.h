@@ -11,7 +11,11 @@ extern "C" {
 
 #include <stdbool.h>
 
-// This function works whether it's running on a regular DS or a DSi:
+// This function calls fatInit() with the default cache size (16 pages = 64 KB).
+bool fatInitDefault(void);
+
+// This function initializes the FAT filesystem with a default cache size. It
+// works whether it's running on a regular DS or a DSi:
 //
 // - DS:  It will try to use DLDI to initialize access to the SD card of the
 //        flashcard. If it isn't possible it returns false. If it succeedes, it
@@ -27,7 +31,13 @@ extern "C" {
 // This function can be called multiple times, only the first one has any
 // effect. Any call after the first one returns the value returned the first
 // time.
-bool fatInitDefault(void);
+//
+// The parameter "cache_size_pages" is the desired size in pages. One page is
+// made of 8 sectors (512 bytes each, 4KB in total).
+//
+// The parameter "set_as_default_device" is ignored, and kept for compatibility
+// with libfat.
+bool fatInit(uint32_t cache_size_pages, bool set_as_default_device);
 
 #ifdef __cplusplus
 }
