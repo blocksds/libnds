@@ -11,7 +11,7 @@ extern "C" {
 
 #include <stdbool.h>
 
-// This function calls fatInit() with the default cache size (16 pages = 64 KB).
+// This function calls fatInit() with the default cache size (5 pages = 20 KB).
 bool fatInitDefault(void);
 
 // This function initializes the FAT filesystem with a default cache size. It

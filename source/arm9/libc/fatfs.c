@@ -11,7 +11,7 @@
 #include "fatfs/cache.h"
 #include "fatfs/ff.h"
 
-#define DEFAULT_CACHE_PAGES         16
+#define DEFAULT_CACHE_PAGES         5
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
 // Devices: "fat:/", "sd:/", "nitro:/"
