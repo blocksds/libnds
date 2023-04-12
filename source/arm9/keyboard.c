@@ -285,8 +285,8 @@ void keyboardShow(void) {
 	curKeyboard->visible = 1;
 
 	bgSetScroll(curKeyboard->background, 0, -192);
-
 	bgShow(curKeyboard->background);
+	bgUpdate();
 
 	if(curKeyboard->scrollSpeed)
 	{
