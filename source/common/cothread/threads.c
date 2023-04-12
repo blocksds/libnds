@@ -2,6 +2,7 @@
 //
 // SPDX-FileContributor: Antonio Niño Díaz, 2023
 
+#include <malloc.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -201,8 +202,8 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     if ((stack_base == NULL) || (entrypoint == NULL))
         goto invalid_args;
 
-    // They must be aligned to 32 bit
-    if (((stack_size & 3) != 0) || (((uintptr_t)stack_base & 3) != 0))
+    // They must be aligned to 8 bytes
+    if (((stack_size & 7) != 0) || (((uintptr_t)stack_base & 7) != 0))
         goto invalid_args;
 
     // Setup context
@@ -252,7 +253,7 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
 {
     // Setup stack
 
-    if ((stack_size & 3) != 0)
+    if ((stack_size & 7) != 0)
     {
         errno = EINVAL;
         return -1;
@@ -261,7 +262,8 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
     if (stack_size == 0)
         stack_size = DEFAULT_STACK_SIZE_CHILD;
 
-    void *stack_base = malloc(stack_size);
+    // The stack must be aligned to 8 bytes
+    void *stack_base = memalign(8, stack_size);
     if (stack_base == NULL)
     {
         errno = ENOMEM;
