@@ -427,11 +427,23 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
 
     int num_bytes = FIFO_BUFFER_GETEXTRA(block);
     int num_words = (num_bytes + 3) >> 2;
-    u32 buffer_array[num_words]; // TODO: Switch this away from VLA
+
+    int copied_bytes = 0;
 
     for (int i = 0; i < num_words; i++)
     {
-        buffer_array[i] = FIFO_BUFFER_DATA(block);
+        u32 data = FIFO_BUFFER_DATA(block);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (copied_bytes < buffersize)
+            {
+                *destbuffer++ = data & 0xFF;
+                data = data >> 8;
+                copied_bytes++;
+            }
+        }
+
         int next = FIFO_BUFFER_GETNEXT(block);
         fifo_buffer_free_block(block);
         block = next;
@@ -440,12 +452,9 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
     }
     fifo_data_queue[channel].head = block;
 
-    if (buffersize < num_bytes)
-        num_bytes = buffersize;
-    memcpy(destbuffer, buffer_array, num_bytes);
-
     leaveCriticalSection(oldIME);
-    return num_bytes;
+
+    return copied_bytes;
 }
 
 bool fifoCheckAddress(u32 channel)
