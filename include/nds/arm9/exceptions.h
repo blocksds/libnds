@@ -5,6 +5,8 @@
 #ifndef _exceptions_h_
 #define _exceptions_h_
 
+#include <nds/cpu.h>
+
 /** \file
 	\brief functions to handle hardware exceptions.
 */
@@ -30,9 +32,6 @@ void setExceptionHandler(VoidFn handler);
 
 //! sets the default hardware exception handler.
 void defaultExceptionHandler(void);
-
-//! returns the cpu status register.
-u32 getCPSR(void);
 
 #ifdef __cplusplus
 }
