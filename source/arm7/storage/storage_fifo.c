@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// SPDX-FileContributor: Antonio Niño Díaz, 2023
+// Copyright (c) 2023 Antonio Niño Díaz
 
 #include <nds/card.h>
 #include <nds/system.h>

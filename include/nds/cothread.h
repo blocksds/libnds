@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// SPDX-FileContributor: Antonio Niño Díaz, 2023
+// Copyright (c) 2023 Antonio Niño Díaz
 
 #ifndef NDS_COTHREAD_H__
 #define NDS_COTHREAD_H__
