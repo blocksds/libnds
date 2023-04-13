@@ -174,7 +174,7 @@ int swiSqrt(int value);
 
 	\return the CRC-16 after the data has been processed.
 */
-uint16 swiCRC16(uint16 crc, void * data, uint32 size);
+uint16 swiCRC16(uint16 crc, const void * data, uint32 size);
 
 
 /*!	\brief returns 0 if running on a nintendo hardware debugger.
@@ -191,7 +191,7 @@ int swiIsDebugger(void);
 	\param destination		destination address (word aligned).
 	\param params			pointer to an UnpackStruct.
 */
-void swiUnpackBits(uint8 * source, uint32 * destination, PUnpackStruct params);
+void swiUnpackBits(const uint8 * source, uint32 * destination, PUnpackStruct params);
 
 
 /*!	\brief Decompresses LZSS compressed data.
@@ -202,7 +202,7 @@ void swiUnpackBits(uint8 * source, uint32 * destination, PUnpackStruct params);
 	\note Writes data a byte at a time.
 	\see decompress.h
 */
-void swiDecompressLZSSWram(void * source, void * destination);
+void swiDecompressLZSSWram(const void * source, void * destination);
 
 
 /*!	\brief Decompresses LZSS compressed data vram safe.
@@ -216,10 +216,10 @@ void swiDecompressLZSSWram(void * source, void * destination);
 	\note Writes data a halfword at a time.
 	\see decompress.h
 */
-int swiDecompressLZSSVram(void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
+int swiDecompressLZSSVram(const void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
 
-int swiDecompressLZSSVramNTR(void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
-int swiDecompressLZSSVramTWL(void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
+int swiDecompressLZSSVramNTR(const void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
+int swiDecompressLZSSVramTWL(const void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
 
 
 /*!	\brief Decompresses Huffman compressed data.
@@ -232,7 +232,7 @@ int swiDecompressLZSSVramTWL(void * source, void * destination, uint32 toGetSize
 	\return The length of the decompressed data, or a signed errorcode from the Open/Close functions.
 	\see decompress.h
 */
-int swiDecompressHuffman(void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
+int swiDecompressHuffman(const void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
 
 
 /*!	\brief Decompresses RLE compressed data.
@@ -249,7 +249,7 @@ int swiDecompressHuffman(void * source, void * destination, uint32 toGetSize, TD
 	\note Writes data a byte at a time.
 	\see decompress.h
 */
-void swiDecompressRLEWram(void * source, void * destination);
+void swiDecompressRLEWram(const void * source, void * destination);
 
 
 /*!	\brief Decompresses RLE compressed data vram safe.
@@ -268,7 +268,7 @@ void swiDecompressRLEWram(void * source, void * destination);
 	\note Writes data a halfword at a time.
 	\see decompress.h
 */
-int swiDecompressRLEVram(void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
+int swiDecompressRLEVram(const void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream);
 
 
 
@@ -298,7 +298,7 @@ void swiSetHaltCR(uint32 data);
 	\note Writes data a byte at a time.
 	\note ARM9 exclusive.
 */
-void swiDecodeDelta8(void * source, void * destination);
+void swiDecodeDelta8(const void * source, void * destination);
 
 
 /*!	\brief Decodes a stream of bytes based on the difference of the bytes.
@@ -310,7 +310,7 @@ void swiDecodeDelta8(void * source, void * destination);
 	\note Writes data a halfword at a time.
 	\note ARM9 exclusive.
 */
-void swiDecodeDelta16(void * source, void * destination);
+void swiDecodeDelta16(const void * source, void * destination);
 #endif
 
 
