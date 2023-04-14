@@ -7,6 +7,7 @@
 #include "keyboardGfx.h"
 #include <nds/ndstypes.h>
 #include <nds/interrupts.h>
+#include <nds/cothread.h>
 #include <nds/arm9/keyboard.h>
 #include <nds/arm9/input.h>
 #include <nds/arm9/decompress.h>
@@ -15,6 +16,8 @@
 #include <stdio.h>
 
 s16 lastKey = -1;
+// TODO: This is a kludge to handle BACKSPACE in libc/iob.c. Maybe there's a way to do this better?
+extern bool stdin_buf_empty;
 
 //default keyboard map
 const s16 SimpleKbdLower[] = {
@@ -209,6 +212,8 @@ s16 keyboardUpdate(void) {
 
 			swapKeyGfx(key, true);
 
+			if(key == DVK_BACKSPACE && stdin_buf_empty) return -1;
+
 			if(curKeyboard->OnKeyPressed) curKeyboard->OnKeyPressed(lastKey);
 
 			return lastKey;
@@ -280,7 +285,7 @@ void keyboardShow(void) {
 
 	int i;
 
-	swiWaitForVBlank();
+	cothread_yield_irq(IRQ_VBLANK);
 
 	curKeyboard->visible = 1;
 
@@ -292,7 +297,7 @@ void keyboardShow(void) {
 	{
 		for(i = -192; i < curKeyboard->offset_y; i += curKeyboard->scrollSpeed)
 		{
-			swiWaitForVBlank();
+			cothread_yield_irq(IRQ_VBLANK);
 			bgSetScroll(curKeyboard->background, 0, i);
 			bgUpdate();
 		}
@@ -313,7 +318,7 @@ void keyboardHide(void) {
 	{
 		for(i = curKeyboard->offset_y; i > -192; i-= curKeyboard->scrollSpeed)
 		{
-			swiWaitForVBlank();
+			cothread_yield_irq(IRQ_VBLANK);
 			bgSetScroll(curKeyboard->background, 0, i);
 			bgUpdate();
 		}
@@ -328,7 +333,7 @@ s16 keyboardGetChar(void) {
 	int pressed;
 
 	while(1) {
-		swiWaitForVBlank();
+		cothread_yield_irq(IRQ_VBLANK);
 		scanKeys();
 		pressed = keysDown();
 
