@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/errno.h>
 
 #include <ndsabi.h>
@@ -31,6 +32,47 @@ static cothread_info_t *cothread_active_thread = NULL;
 // This context is the start of the linked list that contains the contexts of
 // all threads. It is also used for the main() thread, which can never be freed.
 static cothread_info_t cothread_list;
+
+//-------------------------------------------------------------------
+
+// Linker symbols
+extern char __tdata_start[];
+extern char __tdata_size[];
+
+extern char __tbss_start[];
+extern char __tbss_size[];
+
+extern char __tls_start[];
+extern char __tls_end[];
+
+void init_tls(void *__tls)
+{
+    char *tls = __tls;
+
+    char *tdata_start = tls;
+    // The linker places tbss right after tdata
+    char *tbss_start = tls + (uintptr_t)__tdata_size;
+
+    // Copy tdata
+    memcpy(tdata_start, __tdata_start, (uintptr_t)__tdata_size);
+
+    // Clear tbss
+    memset(tbss_start, 0, (uintptr_t)__tbss_size);
+}
+
+// This holds the pointer to the TLS of the current thread for __aeabi_read_tp.
+// It doesn't hold the pointer to the start of the TLS data, but to to the
+// beginning of the thread control block.
+void *__tls;
+
+// Size of a thread control block. TLS relocations are generated relative to a
+// location before tdata and tbss.
+#define TCB_SIZE 8
+
+static inline void set_tls(void *tls)
+{
+    __tls = (uint8_t *)tls - TCB_SIZE;
+}
 
 //-------------------------------------------------------------------
 
@@ -215,9 +257,6 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         return -1;
     }
 
-    // Defined by the linker
-    extern char __tls_start[];
-    extern char __tls_end[];
     size_t __tls_size = (uintptr_t)__tls_end - (uintptr_t)__tls_start;
 
     void *tls = malloc(__tls_size);
@@ -228,8 +267,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         return -1;
     }
 
-    extern void _init_tls(void *__tls);
-    _init_tls(tls);
+    init_tls(tls);
 
     // Assign the free() function to the pointer because now we are sure that we
     // will need to free the resources of the newly created thread eventually.
@@ -398,8 +436,7 @@ static int cothread_scheduler_start(void)
         // Set this thread as the active one and resume it.
         cothread_active_thread = ctx;
 
-        extern void _set_tls(void *tls);
-        _set_tls(ctx->tls);
+        set_tls(ctx->tls);
 
         int ret = __ndsabi_coro_resume((void *)ctx);
 
@@ -488,9 +525,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
 #endif
 
     // Thread local storage for the main thread, defined by the linker
-    extern char __tls_start[];
-    extern void _init_tls(void *__tls);
-    _init_tls(__tls_start);
+    init_tls(__tls_start);
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.

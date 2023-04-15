@@ -78,7 +78,8 @@ int execve(const char *name, char * const *argv, char * const *env)
     return -1;
 }
 
-int getentropy(void *buffer, size_t length) {
+int getentropy(void *buffer, size_t length)
+{
     (void)buffer;
     (void)length;
 
@@ -87,3 +88,14 @@ int getentropy(void *buffer, size_t length) {
     errno = ENOSYS;
     return -1;
 }
+
+unsigned long getauxval(unsigned long type)
+{
+    (void)type;
+    errno = EINVAL;
+    return 0;
+}
+
+// Dummy symbol to allow linking C++ applications. This is only needed to handle
+// dynamic shared objects (.so), but they don't exist on the NDS.
+void *__dso_handle;
