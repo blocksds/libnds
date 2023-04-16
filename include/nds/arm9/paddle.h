@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
+#include <nds/ndstypes.h>
 
 /*! \fn bool paddleIsInserted()
     \brief Check for the paddle
