@@ -6,10 +6,9 @@
 
 	.arch    armv5te
 	.cpu     arm946e-s
-	.section .itcm, "ax", %progbits
 	.arm
 
-BEGIN_ASM_FUNC setCpuClock
+BEGIN_ASM_FUNC setCpuClock itcm
 	mov	r12, #0x4000000			@ temp = REG_IME;
 	ldrb	r3,  [r12, #0x208]
 	strb	r12, [r12, #0x208]		@ REG_IME = 0;

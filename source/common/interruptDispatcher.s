@@ -4,18 +4,15 @@
 
 #include <nds/asminc.h>
 
-#ifdef ARM7
-    .text
-#endif
-
-#ifdef ARM9
-    .section .itcm,"ax",%progbits
-#endif
-
     .extern irqTable
     .code   32
 
+#ifdef ARM9
+BEGIN_ASM_FUNC IntrMain itcm
+#endif
+#ifdef ARM7
 BEGIN_ASM_FUNC IntrMain
+#endif
 
     mov     r12, #0x4000000         // REG_BASE
 
