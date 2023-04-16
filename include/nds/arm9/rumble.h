@@ -15,6 +15,10 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
+#include <nds/ndstypes.h>
+
 #define RUMBLE_PAK		(*(vuint16 *)0x08000000)
 #define WARIOWARE_PAK		(*(vuint16 *)0x080000C4)
 #define WARIOWARE_ENABLE	(*(vuint16 *)0x080000C6)

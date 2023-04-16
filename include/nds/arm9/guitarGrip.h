@@ -13,6 +13,10 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
+#include <nds/ndstypes.h>
+
 #define GUITARGRIP_GREEN BIT(6)
 #define GUITARGRIP_RED BIT(5)
 #define GUITARGRIP_YELLOW BIT(4)
