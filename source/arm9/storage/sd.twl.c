@@ -107,14 +107,14 @@ bool sdio_Shutdown(void)
 }
 
 const DISC_INTERFACE __io_dsisd = {
-	DEVICE_TYPE_DSI_SD,
-	FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,
-	&sdio_Startup,
-	&sdio_IsInserted,
-	&sdio_ReadSectors,
-	&sdio_WriteSectors,
-	&sdio_ClearStatus,
-	&sdio_Shutdown
+    DEVICE_TYPE_DSI_SD,
+    FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,
+    &sdio_Startup,
+    &sdio_IsInserted,
+    &sdio_ReadSectors,
+    &sdio_WriteSectors,
+    &sdio_ClearStatus,
+    &sdio_Shutdown
 };
 
 const DISC_INTERFACE *get_io_dsisd(void)
