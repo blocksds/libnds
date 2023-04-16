@@ -8,7 +8,7 @@
 #include <sys/_timeval.h>
 #include <time.h>
 
-#include "libnds_internal.h"
+#include "common/libnds_internal.h"
 
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib:

@@ -9,7 +9,7 @@ BLOCKSDSEXT	?= /opt/blocksds/external
 # -----------------
 
 SOURCEDIRS	:= source/arm7 source/common
-INCLUDEDIRS	:= include source/common source/common/ndsabi/
+INCLUDEDIRS	:= include source source/common/ndsabi/
 
 # Defines passed to all files
 # ---------------------------

@@ -9,7 +9,7 @@ BLOCKSDSEXT	?= /opt/blocksds/external
 # -----------------
 
 SOURCEDIRS	:= source/arm9 source/common
-INCLUDEDIRS	:= include source/common source/common/ndsabi
+INCLUDEDIRS	:= include source source/common/ndsabi
 GFXDIRS		:= source/arm9/gfx
 BINDIRS		:= source/arm9
 

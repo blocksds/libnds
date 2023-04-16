@@ -9,7 +9,7 @@
 #include <nds/cothread.h>
 #include <nds/arm9/keyboard.h>
 
-#include "../libc_private.h"
+#include "arm9/libnds_internal.h"
 
 // Newline buffer so that we can support pressing the Backspace key.
 // If not defined, unbuffered keyboard input is used.

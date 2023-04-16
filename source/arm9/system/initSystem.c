@@ -4,19 +4,21 @@
 
 // Code for initialising the DS
 
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
-#include <nds/timers.h>
-#include <nds/dma.h>
-#include <nds/ipc.h>
-#include <nds/arm9/video.h>
-#include <nds/arm9/sprite.h>
-#include <nds/arm9/input.h>
-#include <nds/system.h>
-#include <nds/interrupts.h>
-#include <nds/fifocommon.h>
 #include <time.h>
-#include <libnds_internal.h>
+
+#include <nds/arm9/input.h>
+#include <nds/arm9/sprite.h>
+#include <nds/arm9/video.h>
+#include <nds/dma.h>
+#include <nds/fifocommon.h>
+#include <nds/interrupts.h>
+#include <nds/ipc.h>
+#include <nds/memory.h>
+#include <nds/ndstypes.h>
+#include <nds/system.h>
+#include <nds/timers.h>
+
+#include "common/libnds_internal.h"
 
 bool __dsimode; // The crt0 sets this variable
 

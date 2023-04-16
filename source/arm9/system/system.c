@@ -4,13 +4,14 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#include <nds/memory.h>
 #include <nds/bios.h>
-#include <nds/system.h>
 #include <nds/fifocommon.h>
-#include <nds/interrupts.h>
 #include <nds/fifomessages.h>
-#include <libnds_internal.h>
+#include <nds/interrupts.h>
+#include <nds/memory.h>
+#include <nds/system.h>
+
+#include "common/libnds_internal.h"
 
 // todo document
 //

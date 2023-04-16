@@ -4,16 +4,15 @@
 // Copyright (C) 2005 Jason Rogers (Dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#include "nds/bios.h"
-#include "nds/arm7/clock.h"
-#include "nds/interrupts.h"
-#include "nds/ipc.h"
-#include "nds/system.h"
-#include "libnds_internal.h"
-
 #include <time.h>
 
+#include <nds/arm7/clock.h>
+#include <nds/bios.h>
+#include <nds/interrupts.h>
+#include <nds/ipc.h>
+#include <nds/system.h>
 
+#include "common/libnds_internal.h"
 
 // Delay (in swiDelay units) for each bit transfer
 #define RTC_DELAY 48

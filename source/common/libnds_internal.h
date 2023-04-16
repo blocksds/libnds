@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (C) 2005-2008 Dave Murphy (WinterMute)
+// Copyright (c) 2023 Antonio Niño Díaz
 
 // Internal variables for libnds
 
-#ifndef _libnds_internal_h_
-#define _libnds_internal_h_
+#ifndef COMMON_LIBNDS_INTERNAL_H__
+#define COMMON_LIBNDS_INTERNAL_H__
 
 #include <time.h>
 
@@ -36,10 +37,13 @@ static inline void setTransferInputData(touchPosition *touch, u16 buttons)
     transfer.touchZ2 = touch->z2;
 }
 
-static inline
-__TransferRegion volatile *__transferRegion(void)
+static inline __TransferRegion volatile *__transferRegion(void)
 {
     return &transfer;
 }
 
-#endif // _libnds_internal_h_
+void __libnds_exit(int rc);
+
+extern time_t *punixTime;
+
+#endif // COMMON_LIBNDS_INTERNAL_H__

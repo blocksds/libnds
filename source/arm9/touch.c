@@ -4,10 +4,11 @@
 
 // Touch screen input code
 
-#include <nds/ipc.h>
 #include <nds/arm9/input.h>
 #include <nds/fifocommon.h>
-#include <libnds_internal.h>
+#include <nds/ipc.h>
+
+#include "common/libnds_internal.h"
 
 void touchRead(touchPosition *data)
 {

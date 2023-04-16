@@ -10,7 +10,8 @@
 #include <nds/ipc.h>
 #include <nds/system.h>
 #include <nds/arm9/input.h>
-#include <libnds_internal.h>
+
+#include "common/libnds_internal.h"
 
 //------------------------------------------------------------------------------
 
