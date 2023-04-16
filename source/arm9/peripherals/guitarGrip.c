@@ -3,55 +3,62 @@
 // Copyright (C) 2011 zeromus
 // Copyright (C) 2011 Dave Murphy (WinterMute)
 
+#include <nds/arm9/guitarGrip.h>
 #include <nds/memory.h>
 #include <nds/system.h>
-#include <nds/arm9/guitarGrip.h>
 
 static u8 guitar_keys = 0;
 static u8 guitar_keys_old = 0;
 
 static void guitarGripSetBus(void)
 {
-	//setting the bus owner is not sufficient, as we need to ensure that the bus speeds are adequately slowed.
-	//this magic number contains the appropriate timings.
-	REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
-	REG_EXMEMCNT &= ~(EXMEMCNT_SRAM_TIME_MASK | EXMEMCNT_ROM_TIME1_MASK | EXMEMCNT_ROM_TIME2_MASK | EXMEMCNT_PHI_CLOCK_MASK);
-	REG_EXMEMCNT |= (EXMEMCNT_SRAM_TIME_10_CYCLES | EXMEMCNT_ROM_TIME1_18_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_PHI_CLOCK_OFF);
+    // Setting the bus owner is not sufficient, as we need to ensure that the
+    // bus speeds are adequately slowed. this magic number contains the
+    // appropriate timings.
+
+    REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
+    REG_EXMEMCNT &= ~(EXMEMCNT_SRAM_TIME_MASK | EXMEMCNT_ROM_TIME1_MASK
+                      | EXMEMCNT_ROM_TIME2_MASK | EXMEMCNT_PHI_CLOCK_MASK);
+    REG_EXMEMCNT |= (EXMEMCNT_SRAM_TIME_10_CYCLES | EXMEMCNT_ROM_TIME1_18_CYCLES
+                     | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_PHI_CLOCK_OFF);
 }
 
 bool guitarGripIsInserted(void)
 {
-	if(isDSiMode()) return false;
+    if (isDSiMode())
+        return false;
 
-	guitarGripSetBus();
+    guitarGripSetBus();
 
-	//This is 0x96h is a GBA game is inserted
-	if(GBA_HEADER.is96h == 0x96) return false;
+    // This is 0x96h is a GBA game is inserted
+    if (GBA_HEADER.is96h == 0x96)
+        return false;
 
-	//guitar grip signifies itself this way
-	if(*(vu16*)0x08000000 != 0xF9FF) return false;
+    // Guitar grip signifies itself this way
+    if (*(vu16 *)0x08000000 != 0xF9FF)
+        return false;
 
-	return true;
+    return true;
 }
 
 void guitarGripScanKeys(void)
 {
-	guitarGripSetBus();
-	guitar_keys_old = guitar_keys;
-	guitar_keys = ~(*(vu8*)0x0A000000);
+    guitarGripSetBus();
+    guitar_keys_old = guitar_keys;
+    guitar_keys = ~(*(vu8 *)0x0A000000);
 }
 
 u8 guitarGripKeysHeld(void)
 {
-	return guitar_keys;
+    return guitar_keys;
 }
 
 u16 guitarGripKeysDown(void)
 {
-	return guitar_keys & ~guitar_keys_old;
+    return guitar_keys & ~guitar_keys_old;
 }
 
 u16 guitarGripKeysUp(void)
 {
-	return (guitar_keys ^ guitar_keys_old) & ~guitar_keys;
+    return (guitar_keys ^ guitar_keys_old) & ~guitar_keys;
 }

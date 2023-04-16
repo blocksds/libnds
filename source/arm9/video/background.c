@@ -5,10 +5,11 @@
 
 // DS Background Control
 
+#include <string.h>
+
 #include <nds/arm9/background.h>
 #include <nds/arm9/trig_lut.h>
 
-#include <string.h>
 
 //const char* BgUsage =
 //"______________________________\n"
@@ -24,41 +25,40 @@
 //"R = Rotation\n"
 //"E = Extended Rotation (Bitmap or tiled)\n";
 
-//look up tables for smoothing register access between the two
-//displays
+// Look up tables for smoothing register access between the two displays
 vu16* bgControl[8] = {
-	&REG_BG0CNT,
-	&REG_BG1CNT,
-	&REG_BG2CNT,
-	&REG_BG3CNT,
-	&REG_BG0CNT_SUB,
-	&REG_BG1CNT_SUB,
-	&REG_BG2CNT_SUB,
-	&REG_BG3CNT_SUB,
+    &REG_BG0CNT,
+    &REG_BG1CNT,
+    &REG_BG2CNT,
+    &REG_BG3CNT,
+    &REG_BG0CNT_SUB,
+    &REG_BG1CNT_SUB,
+    &REG_BG2CNT_SUB,
+    &REG_BG3CNT_SUB,
 };
 
-bg_scroll* bgScrollTable[8] = {
-	&BG_OFFSET[0],
-	&BG_OFFSET[1],
-	&BG_OFFSET[2],
-	&BG_OFFSET[3],
+bg_scroll *bgScrollTable[8] = {
+    &BG_OFFSET[0],
+    &BG_OFFSET[1],
+    &BG_OFFSET[2],
+    &BG_OFFSET[3],
 
-	&BG_OFFSET_SUB[0],
-	&BG_OFFSET_SUB[1],
-	&BG_OFFSET_SUB[2],
-	&BG_OFFSET_SUB[3]
+    &BG_OFFSET_SUB[0],
+    &BG_OFFSET_SUB[1],
+    &BG_OFFSET_SUB[2],
+    &BG_OFFSET_SUB[3]
 };
 
-bg_transform* bgTransform[8] = {
-	(bg_transform*)0,
-	(bg_transform*)0,
-	(bg_transform*)0x04000020,
-	(bg_transform*)0x04000030,
+bg_transform *bgTransform[8] = {
+    (bg_transform *)0,
+    (bg_transform *)0,
+    (bg_transform *)0x04000020,
+    (bg_transform *)0x04000030,
 
-	(bg_transform*)0,
-	(bg_transform*)0,
-	(bg_transform*)0x04001020,
-	(bg_transform*)0x04001030,
+    (bg_transform *)0,
+    (bg_transform *)0,
+    (bg_transform *)0x04001020,
+    (bg_transform *)0x04001030,
 };
 
 BgState bgState[8];
@@ -88,105 +88,105 @@ bool checkIfText(int id)
     return false;
 }
 
-void bgUpdate(void) {
+void bgUpdate(void)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        if (!bgState[i].dirty)
+            continue;
 
-	int i = 0;
+        if (bgIsTextLut[i])
+        {
+            bgScrollTable[i]->x = bgState[i].scrollX >> 8;
+            bgScrollTable[i]->y = bgState[i].scrollY >> 8;
+        }
+        else
+        {
+            s16 angleSin;
+            s16 angleCos;
 
-	for(i = 0; i < 8; i++)
-	{
-		if(!bgState[i].dirty) continue;
+            s32 pa, pb, pc, pd;
 
-		if(bgIsTextLut[i])
-		{
+            // Compute sin and cos
+            angleSin = sinLerp(bgState[i].angle);
+            angleCos = cosLerp(bgState[i].angle);
 
-			bgScrollTable[i]->x = bgState[i].scrollX >> 8;
-			bgScrollTable[i]->y = bgState[i].scrollY >> 8;
+            // Set the background registers
+            pa = (angleCos * bgState[i].scaleX) >> 12;
+            pb = (-angleSin * bgState[i].scaleX) >> 12;
+            pc = (angleSin * bgState[i].scaleY) >> 12;
+            pd = (angleCos * bgState[i].scaleY) >> 12;
 
-		}
-		else
-		{
-			s16 angleSin;
-			s16 angleCos;
+            bgTransform[i]->hdx = pa;
+            bgTransform[i]->vdx = pb;
+            bgTransform[i]->hdy = pc;
+            bgTransform[i]->vdy = pd;
 
-			s32 pa, pb, pc, pd;
+            bgTransform[i]->dx =
+                bgState[i].scrollX
+                - ((pa * bgState[i].centerX + pb * bgState[i].centerY) >> 8);
+            bgTransform[i]->dy =
+                bgState[i].scrollY
+                - ((pc * bgState[i].centerX + pd * bgState[i].centerY) >> 8);
+        }
 
-			// Compute sin and cos
-			angleSin = sinLerp(bgState[i].angle);
-			angleCos = cosLerp(bgState[i].angle);
-
-			// Set the background registers
-			pa = ( angleCos * bgState[i].scaleX ) >> 12;
-			pb = (-angleSin * bgState[i].scaleX ) >> 12;
-			pc = ( angleSin * bgState[i].scaleY ) >> 12;
-			pd = ( angleCos * bgState[i].scaleY ) >> 12;
-
-			bgTransform[i]->hdx = pa;
-			bgTransform[i]->vdx = pb;
-			bgTransform[i]->hdy = pc;
-			bgTransform[i]->vdy = pd;
-
-			bgTransform[i]->dx  = (bgState[i].scrollX) - ((pa * bgState[i].centerX + pb * bgState[i].centerY) >> 8);
-			bgTransform[i]->dy  = (bgState[i].scrollY) - ((pc * bgState[i].centerX + pd * bgState[i].centerY) >> 8);
-		}
-
-		bgState[i].dirty = false;
-	}
+        bgState[i].dirty = false;
+    }
 }
 
+// Initializes and enables the appropriate background with the supplied
+// attributes returns an id which must be supplied to the remainder of the
+// background functions.
+int bgInit_call(int layer, BgType type, BgSize size, int mapBase, int tileBase)
+{
+    BGCTRL[layer] = BG_MAP_BASE(mapBase) | BG_TILE_BASE(tileBase) | size
+                    | ((type == BgType_Text8bpp) ? BG_COLOR_256 : 0);
 
+    memset(&bgState[layer], 0, sizeof(BgState));
 
-//initializes and enables the appropriate background with the supplied attributes
-//returns an id which must be supplied to the remainder of the background functions
-int bgInit_call(int layer, BgType type, BgSize size, int mapBase, int tileBase) {
+    bgIsTextLut[layer] = checkIfText(layer);
 
-	BGCTRL[layer] = BG_MAP_BASE(mapBase) | BG_TILE_BASE(tileBase)
-		| size | ((type == BgType_Text8bpp) ? BG_COLOR_256 : 0);
+    if (type != BgType_Text8bpp && type != BgType_Text4bpp)
+    {
+        bgSetScale(layer, 1 << 8, 1 << 8);
+        bgSetRotate(layer, 0);
+    }
 
-	memset(&bgState[layer], 0, sizeof(BgState) );
+    bgState[layer].type = type;
+    bgState[layer].size = size;
 
-	bgIsTextLut[layer] = checkIfText(layer);
+    videoBgEnable(layer);
 
-	if(type != BgType_Text8bpp && type != BgType_Text4bpp) {
-		bgSetScale(layer, 1 << 8, 1 << 8);
-		bgSetRotate(layer, 0);
-	}
+    bgState[layer].dirty = true;
 
-	bgState[layer].type = type;
-	bgState[layer].size = size;
+    bgUpdate();
 
-	videoBgEnable(layer);
-
-	bgState[layer].dirty = true;
-
-	bgUpdate();
-
-	return layer;
+    return layer;
 }
 
+int bgInitSub_call(int layer, BgType type, BgSize size, int mapBase, int tileBase)
+{
+    BGCTRL_SUB[layer] = BG_MAP_BASE(mapBase) | BG_TILE_BASE(tileBase) | size
+                        | ((type == BgType_Text8bpp) ? BG_COLOR_256 : 0);
 
-int bgInitSub_call(int layer, BgType type, BgSize size, int mapBase, int tileBase) {
+    memset(&bgState[layer + 4], 0, sizeof(BgState));
 
-	BGCTRL_SUB[layer] = BG_MAP_BASE(mapBase) | BG_TILE_BASE(tileBase)
-		| size | ((type == BgType_Text8bpp) ? BG_COLOR_256 : 0) ;
+    bgIsTextLut[layer + 4] = checkIfText(layer + 4);
 
-	memset(&bgState[layer + 4], 0, sizeof(BgState) );
+    if (type != BgType_Text8bpp && type != BgType_Text4bpp)
+    {
+        bgSetScale(layer + 4, 1 << 8, 1 << 8);
+        bgSetRotate(layer + 4, 0);
+    }
 
-	bgIsTextLut[layer + 4] = checkIfText(layer + 4);
+    bgState[layer + 4].type = type;
+    bgState[layer + 4].size = size;
 
-	if(type != BgType_Text8bpp && type != BgType_Text4bpp) {
-		bgSetScale(layer + 4, 1 << 8, 1 << 8);
-		bgSetRotate(layer + 4, 0);
-	}
+    videoBgEnableSub(layer);
 
-	bgState[layer + 4].type = type;
-	bgState[layer + 4].size = size;
+    bgState[layer + 4].dirty = true;
 
-	videoBgEnableSub(layer);
+    bgUpdate();
 
-	bgState[layer + 4].dirty = true;
-
-	bgUpdate();
-
-	return layer + 4;
+    return layer + 4;
 }
-
