@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <nds/ndstypes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
