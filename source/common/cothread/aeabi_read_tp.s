@@ -4,8 +4,8 @@
 
 #include <nds/asminc.h>
 
-// __aeabi_read_tp() is used by GCC to get a pointer to the thread local storage
-// pointer.
+// __aeabi_read_tp() is used by GCC to get a pointer to the thread local
+// storage.
 //
 // This is a special function that can't clobber any registers other than r0 and
 // lr. This is done so that calls to this function are very fast.
