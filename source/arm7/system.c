@@ -14,6 +14,8 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
+#include "arm7/libnds_internal.h"
+
 bool sleepIsEnabled = true;
 bool __dsimode = false; // Set in crt0
 
@@ -136,10 +138,6 @@ int sleepEnabled(void)
 {
     return sleepIsEnabled;
 }
-
-void storageMsgHandler(int bytes, void *user_data);
-void storageValueHandler(u32 value, void *user_data);
-void firmwareMsgHandler(int bytes, void *user_data);
 
 void installSystemFIFO(void)
 {
