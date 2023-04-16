@@ -27,13 +27,16 @@ void scanKeys(void)
     keysold = keys;
     keys = KEYS_CUR;
 
-    if ( delay != 0 ) {
-        if ( keys != keysold ) {
-            count = delay ;
-            keysrepeat = keysDown() ;
+    if (delay != 0)
+    {
+        if (keys != keysold)
+        {
+            count = delay;
+            keysrepeat = keysDown();
         }
         count--;
-        if ( count == 0 ) {
+        if (count == 0)
+        {
             count = repeat;
             keysrepeat = keys;
         }
@@ -42,17 +45,17 @@ void scanKeys(void)
 
 uint32 keysHeld(void)
 {
-	return keys;
+    return keys;
 }
 
 uint32 keysDown(void)
 {
-	return (keys &~ keysold);
+    return (keys & ~keysold);
 }
 
 uint32 keysDownRepeat(void)
 {
-	uint32 tmp = keysrepeat;
+    uint32 tmp = keysrepeat;
 
     keysrepeat = 0;
 
@@ -69,7 +72,7 @@ void keysSetRepeat(u8 setDelay, u8 setRepeat)
 
 uint32 keysUp(void)
 {
-	return (keys ^ keysold) & (~keys);
+    return (keys ^ keysold) & (~keys);
 }
 
 uint32 keysCurrent(void)

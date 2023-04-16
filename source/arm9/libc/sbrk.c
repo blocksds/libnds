@@ -2,9 +2,9 @@
 //
 // Copyright (c) 2023 Antonio Niño Díaz
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <errno.h>
 
 void *fake_heap_end = NULL;
 void *fake_heap_start = NULL;

@@ -36,8 +36,8 @@ void __attribute__((weak)) initSystem(void)
     }
 
     // Clear video display registers
-    dmaFillWords(0, (void*)0x04000000, 0x56);
-    dmaFillWords(0, (void*)0x04001008, 0x56);
+    dmaFillWords(0, (void *)0x04000000, 0x56);
+    dmaFillWords(0, (void *)0x04001008, 0x56);
 
     // Turn on power for 2D video
     REG_POWERCNT = (POWER_LCD | POWER_2D_A | POWER_2D_B | POWER_SWAP_LCDS) & 0xFFFF;
@@ -65,7 +65,7 @@ void __attribute__((weak)) initSystem(void)
 
     punixTime = (time_t *)memUncached((void *)&__transferRegion()->unixTime);
 
-    extern  char *fake_heap_end;
+    extern char *fake_heap_end;
     __transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
     irqEnable(IRQ_VBLANK);
 }

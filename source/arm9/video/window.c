@@ -49,7 +49,7 @@ void windowSetBoundsSub(WINDOW w, u8 left, u8 top, u8 right, u8 bottom)
 void bgWindowEnable(int id, WINDOW w)
 {
     vu32 *win = 0;
-    u32  mask = 0;
+    u32 mask = 0;
 
     sassert(id >= 0 && id <= 7, "Must choose a valid bg id.");
 
@@ -78,11 +78,11 @@ void bgWindowEnable(int id, WINDOW w)
 void bgWindowDisable(int id, WINDOW w)
 {
     vu32 *win = 0;
-    u32  mask = 0;
+    u32 mask = 0;
 
     sassert(id >= 0 && id <= 7, "Must choose a valid bg id.");
 
-    if(id < 4)
+    if (id < 4)
     {
         win = (vu32 *)(&WIN_IN);
     }
@@ -107,14 +107,14 @@ void bgWindowDisable(int id, WINDOW w)
 void oamWindowEnable(OamState *oam, WINDOW w)
 {
     vu32 *win = 0;
-    u32  mask = 0;
+    u32 mask = 0;
 
     sassert(oam == &oamMain || oam == &oamSub, "Must choose a valid OamState.");
 
     if (oam == &oamMain)
-        win = (vu32*)(&WIN_IN);
+        win = (vu32 *)(&WIN_IN);
     else
-        win = (vu32*)(&SUB_WIN_IN);
+        win = (vu32 *)(&SUB_WIN_IN);
 
     if (w & WINDOW_0)
         mask |= BIT(4);

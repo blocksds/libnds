@@ -12,12 +12,12 @@
 #include <nds/fifomessages.h>
 #include <libnds_internal.h>
 
-//todo document
+// todo document
 //
 
-static void(*SDcallback)(int)=NULL;
+static void (*SDcallback)(int) = NULL;
 
-void setSDcallback(void(*callback)(int))
+void setSDcallback(void (*callback)(int))
 {
     SDcallback = callback;
 }
@@ -25,91 +25,94 @@ void setSDcallback(void(*callback)(int))
 // Handle system requests from the arm7
 void systemValueHandler(u32 value, void *data)
 {
-	(void)data;
+    (void)data;
 
-	switch(value) {
-	case PM_REQ_SLEEP:
-		systemSleep();
-		break;
-	case SDMMC_INSERT:
-		if(SDcallback) SDcallback(1);
-		break;
-	case SDMMC_REMOVE:
-		if(SDcallback) SDcallback(0);
-		break;
-	}
+    switch (value)
+    {
+        case PM_REQ_SLEEP:
+            systemSleep();
+            break;
+        case SDMMC_INSERT:
+            if (SDcallback)
+                SDcallback(1);
+            break;
+        case SDMMC_REMOVE:
+            if (SDcallback)
+                SDcallback(0);
+            break;
+    }
 }
 
-void systemMsgHandler(int bytes, void* user_data)
+void systemMsgHandler(int bytes, void *user_data)
 {
-	(void)user_data;
+    (void)user_data;
 
-	FifoMessage msg;
+    FifoMessage msg;
 
-	fifoGetDatamsg(FIFO_SYSTEM, bytes, (u8*)&msg);
+    fifoGetDatamsg(FIFO_SYSTEM, bytes, (u8 *)&msg);
 
-	switch (msg.type) {
-	case SYS_INPUT_MESSAGE:
-		setTransferInputData(&(msg.SystemInput.touch), msg.SystemInput.keys);
-		break;
-	}
+    switch (msg.type)
+    {
+        case SYS_INPUT_MESSAGE:
+            setTransferInputData(&(msg.SystemInput.touch), msg.SystemInput.keys);
+            break;
+    }
 }
 
 void systemSleep(void)
 {
-   fifoSendValue32(FIFO_PM, PM_REQ_SLEEP);
+    fifoSendValue32(FIFO_PM, PM_REQ_SLEEP);
 
-   //100ms
-   swiDelay(419000);
+    // 100ms
+    swiDelay(419000);
 }
 
 void enableSleep(void)
 {
-   fifoSendValue32(FIFO_PM, PM_REQ_SLEEP_ENABLE);
+    fifoSendValue32(FIFO_PM, PM_REQ_SLEEP_ENABLE);
 }
 
 void disableSleep(void)
 {
-   fifoSendValue32(FIFO_PM, PM_REQ_SLEEP_DISABLE);
+    fifoSendValue32(FIFO_PM, PM_REQ_SLEEP_DISABLE);
 }
 
 void powerOn(uint32_t bits)
 {
-	if(bits & PM_ARM9_DIRECT)
-		REG_POWERCNT |= bits & 0xFFFF;
-	else
-		fifoSendValue32(FIFO_PM, PM_REQ_ON | (bits & 0xFFFF));
+    if (bits & PM_ARM9_DIRECT)
+        REG_POWERCNT |= bits & 0xFFFF;
+    else
+        fifoSendValue32(FIFO_PM, PM_REQ_ON | (bits & 0xFFFF));
 }
 
 void powerOff(uint32_t bits)
 {
-	if(bits & PM_ARM9_DIRECT)
-		REG_POWERCNT &= ~(bits & 0xFFFF);
-	else
-		fifoSendValue32(FIFO_PM, PM_REQ_OFF | (bits & 0xFFFF));
+    if (bits & PM_ARM9_DIRECT)
+        REG_POWERCNT &= ~(bits & 0xFFFF);
+    else
+        fifoSendValue32(FIFO_PM, PM_REQ_OFF | (bits & 0xFFFF));
 }
 
 void ledBlink(int bm)
 {
-	fifoSendValue32(FIFO_PM, PM_REQ_LED | bm);
+    fifoSendValue32(FIFO_PM, PM_REQ_LED | bm);
 }
 
 u32 getBatteryLevel(void)
 {
-	fifoSendValue32(FIFO_PM, PM_REQ_BATTERY);
-	fifoWaitValue32(FIFO_PM);
-	return fifoGetValue32(FIFO_PM);
+    fifoSendValue32(FIFO_PM, PM_REQ_BATTERY);
+    fifoWaitValue32(FIFO_PM);
+    return fifoGetValue32(FIFO_PM);
 }
 
 void enableSlot1(void)
 {
     if (isDSiMode())
         fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_ENABLE);
-
 }
 
 void disableSlot1(void)
 {
-    if(isDSiMode())
+    if (isDSiMode())
         fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_DISABLE);
 }

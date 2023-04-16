@@ -21,7 +21,7 @@
 // right after the command line string in the heap. The first free address
 // after `argv` must be placed in `endARGV`. The new start of the heap will be
 // located at that address.
-void build_argv(struct __argv* argstruct)
+void build_argv(struct __argv *argstruct)
 {
     char *p = argstruct->commandLine;
     size_t len = argstruct->length;

@@ -36,13 +36,13 @@ int fatfs_error_to_posix(FRESULT error)
         [FR_INT_ERR] = EFAULT,
         // The physical drive cannot work
         [FR_NOT_READY] = ECANCELED,
-         // Could not find the file
+        // Could not find the file
         [FR_NO_FILE] = ENOENT,
-         // Could not find the path
+        // Could not find the path
         [FR_NO_PATH] = ENOENT,
         // The path name format is invalid
         [FR_INVALID_NAME] = EINVAL,
-         // Access denied due to prohibited access or directory full
+        // Access denied due to prohibited access or directory full
         [FR_DENIED] = EACCES,
         // Access denied due to prohibited access
         [FR_EXIST] = EEXIST,

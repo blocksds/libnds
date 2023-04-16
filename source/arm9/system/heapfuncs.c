@@ -4,10 +4,10 @@
 
 #include <nds/ndstypes.h>
 #include <nds/system.h>
-#include <unistd.h>    // for sbrk()
+#include <unistd.h> // for sbrk()
 
 extern u8 *fake_heap_end;   // current heap start
-extern u8 *fake_heap_start;   // current heap end
+extern u8 *fake_heap_start; // current heap end
 
 u8 *getHeapStart(void)
 {
@@ -16,10 +16,10 @@ u8 *getHeapStart(void)
 
 u8 *getHeapEnd(void)
 {
-    return (u8*)sbrk(0);
+    return (u8 *)sbrk(0);
 }
 
 u8 *getHeapLimit(void)
 {
-   return fake_heap_end;
+    return fake_heap_end;
 }

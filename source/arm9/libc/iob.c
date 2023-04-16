@@ -129,7 +129,8 @@ int stdin_getc_keyboard(FILE *file)
 #else
         c = keyboardUpdate();
 #endif
-        if (c != -1) break;
+        if (c != -1)
+            break;
         cothread_yield_irq(IRQ_VBLANK);
     }
 

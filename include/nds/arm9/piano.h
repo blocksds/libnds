@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+#include <nds/ndstypes.h>
+
 #define PIANO_PAK   (*(vu16 *)0x09FFFFFE)
 
 #define PIANO_C     BIT(0)

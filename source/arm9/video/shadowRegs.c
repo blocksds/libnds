@@ -7,4 +7,4 @@
 #include <nds/ndstypes.h>
 
 u16 mosaicShadow = 0;
-u16 mosaicShadowSub =0;
+u16 mosaicShadowSub = 0;

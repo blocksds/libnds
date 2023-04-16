@@ -65,22 +65,27 @@ BgState bgState[8];
 
 bool bgIsTextLut[8];
 
-bool bgIsText(int id) {
-	return bgIsTextLut[id];
+bool bgIsText(int id)
+{
+    return bgIsTextLut[id];
 }
 
-bool checkIfText(int id) {
-	if(id < 2 || (id > 3 && id < 6)) return true;
+bool checkIfText(int id)
+{
+    if (id < 2 || (id > 3 && id < 6))
+        return true;
 
-	u8 mode = (id < 4) ? (videoGetMode() & 7) : (videoGetModeSub() & 7);
+    u8 mode = (id < 4) ? (videoGetMode() & 7) : (videoGetModeSub() & 7);
 
-	if(!mode) return true;
+    if (!mode)
+        return true;
 
-	if(mode == 1 || mode == 3) {
-		return id == 3 || id == 7 ? false : true;
-	}
+    if (mode == 1 || mode == 3)
+    {
+        return id == 3 || id == 7 ? false : true;
+    }
 
-	return false;
+    return false;
 }
 
 void bgUpdate(void) {

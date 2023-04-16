@@ -6,6 +6,7 @@
 #define _exceptions_h_
 
 #include <nds/cpu.h>
+#include <nds/ndstypes.h>
 
 /** \file
 	\brief functions to handle hardware exceptions.
