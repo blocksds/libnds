@@ -9,29 +9,33 @@
 
 int writePowerManagement(int reg, int command)
 {
-	int oldIME=enterCriticalSection();
-	// Write the register / access mode (bit 7 sets access mode)
-	while (REG_SPICNT & SPI_BUSY);
-	REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHz | SPI_BYTE_MODE | SPI_CONTINUOUS | SPI_DEVICE_POWER;
-	REG_SPIDATA = reg;
+    int oldIME = enterCriticalSection();
 
-	// Write the command / start a read
-	while (REG_SPICNT & SPI_BUSY);
-	REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHz | SPI_BYTE_MODE | SPI_DEVICE_POWER;
-	REG_SPIDATA = command;
+    // Write the register / access mode (bit 7 sets access mode)
+    while (REG_SPICNT & SPI_BUSY);
 
-	// Read the result
-	while (REG_SPICNT & SPI_BUSY);
+    REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHz | SPI_BYTE_MODE | SPI_CONTINUOUS
+               | SPI_DEVICE_POWER;
+    REG_SPIDATA = reg;
 
-	leaveCriticalSection(oldIME);
+    // Write the command / start a read
+    while (REG_SPICNT & SPI_BUSY);
 
-	return REG_SPIDATA & 0xFF;
+    REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHz | SPI_BYTE_MODE | SPI_DEVICE_POWER;
+    REG_SPIDATA = command;
+
+    // Read the result
+    while (REG_SPICNT & SPI_BUSY);
+
+    leaveCriticalSection(oldIME);
+
+    return REG_SPIDATA & 0xFF;
 }
 
 void ledBlink(int value)
 {
-	u32 temp = readPowerManagement(PM_CONTROL_REG);
-	temp &= ~(3 << 4); //clear led bits
-	temp |= ((value & 3)<<4);
-	writePowerManagement(PM_CONTROL_REG, temp);
+    u32 temp = readPowerManagement(PM_CONTROL_REG);
+    temp &= ~(3 << 4); // Clear LED bits
+    temp |= ((value & 3) << 4);
+    writePowerManagement(PM_CONTROL_REG, temp);
 }

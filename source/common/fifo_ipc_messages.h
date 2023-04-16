@@ -171,7 +171,7 @@ static inline bool fifo_ipc_is_data(uint32_t dataword)
 
 static inline uint32_t fifo_ipc_unpack_datalength(uint32_t dataword)
 {
-	return dataword & FIFO_VALUE32_MASK;
+    return dataword & FIFO_VALUE32_MASK;
 }
 
 // Defines related to special commands

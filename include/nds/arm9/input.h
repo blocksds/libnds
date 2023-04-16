@@ -5,6 +5,9 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2005 Christian Auby (DesktopMan)
 
+#ifndef INPUT_HEADER_INCLUDE
+#define INPUT_HEADER_INCLUDE
+
 /*! \file
 	\brief NDS button and touchscreen input support.
  
@@ -20,10 +23,7 @@
  
 */
 
-//---------------------------------------------------------------------------------
-#ifndef	INPUT_HEADER_INCLUDE
-#define	INPUT_HEADER_INCLUDE
-//---------------------------------------------------------------------------------
+#include <nds/ndstypes.h>
 #include <nds/touch.h>
 #include <nds/input.h>
 
@@ -74,6 +74,4 @@ void touchRead(touchPosition *data);
 }
 #endif
 
-//---------------------------------------------------------------------------------
 #endif // INPUT_HEADER_INCLUDE
-//---------------------------------------------------------------------------------

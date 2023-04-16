@@ -5,11 +5,11 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2005 Chris Double (doublec)
 
-#include <nds/interrupts.h>
-#include <nds/fifocommon.h>
-#include <nds/timers.h>
 #include <nds/arm7/audio.h>
 #include <nds/arm7/codec.h>
+#include <nds/fifocommon.h>
+#include <nds/interrupts.h>
+#include <nds/timers.h>
 
 void micSetAmp_TWL(u8 control, u8 gain);
 u16 micReadData16_TWL(void);
@@ -17,115 +17,121 @@ u16 micReadData16_TWL(void);
 // Turn on the Microphone Amp. Code based on neimod's example.
 void micSetAmp_NTR(u8 control, u8 gain)
 {
-	SerialWaitBusy();
-	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
-	REG_SPIDATA = PM_AMP_OFFSET;
+    SerialWaitBusy();
 
-	SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
+    REG_SPIDATA = PM_AMP_OFFSET;
 
-	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz;
-	REG_SPIDATA = control;
+    SerialWaitBusy();
 
-	SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz;
+    REG_SPIDATA = control;
 
-	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
-	REG_SPIDATA = PM_GAIN_OFFSET;
+    SerialWaitBusy();
 
-	SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
+    REG_SPIDATA = PM_GAIN_OFFSET;
 
-	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz;
-	REG_SPIDATA = gain;
+    SerialWaitBusy();
+
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz;
+    REG_SPIDATA = gain;
 }
 
 // Read a byte from the microphone. Code based on neimod's example.
 u8 micReadData8_NTR(void)
 {
-	u16 result, result2;
+    u16 result, result2;
 
-	SerialWaitBusy();
+    SerialWaitBusy();
 
-	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_MICROPHONE | SPI_BAUD_2MHz | SPI_CONTINUOUS;
-	REG_SPIDATA = 0xEC;  // Touchscreen command format for AUX
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_MICROPHONE | SPI_BAUD_2MHz | SPI_CONTINUOUS;
+    REG_SPIDATA = 0xEC;  // Touchscreen command format for AUX
 
-	SerialWaitBusy();
+    SerialWaitBusy();
 
-	REG_SPIDATA = 0x00;
+    REG_SPIDATA = 0x00;
 
-	SerialWaitBusy();
+    SerialWaitBusy();
 
-	result = REG_SPIDATA;
-  	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_TOUCH | SPI_BAUD_2MHz;
-	REG_SPIDATA = 0x00;
+    result = REG_SPIDATA;
 
-	SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_TOUCH | SPI_BAUD_2MHz;
+    REG_SPIDATA = 0x00;
 
-	result2 = REG_SPIDATA;
+    SerialWaitBusy();
 
-	return (((result & 0x7F) << 1) | ((result2>>7)&1));
+    result2 = REG_SPIDATA;
+
+    return (((result & 0x7F) << 1) | ((result2 >> 7) & 1));
 }
 
 // Read a short from the microphone. Code based on neimod's example.
 u16 micReadData12_NTR(void)
 {
-	u16 result, result2;
+    u16 result, result2;
 
-	SerialWaitBusy();
+    SerialWaitBusy();
 
-	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_MICROPHONE | SPI_BAUD_2MHz | SPI_CONTINUOUS;
-	REG_SPIDATA = 0xE4;  // Touchscreen command format for AUX, 12bit
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_MICROPHONE | SPI_BAUD_2MHz | SPI_CONTINUOUS;
+    REG_SPIDATA = 0xE4; // Touchscreen command format for AUX, 12bit
 
-	SerialWaitBusy();
+    SerialWaitBusy();
 
-	REG_SPIDATA = 0x00;
+    REG_SPIDATA = 0x00;
 
-	SerialWaitBusy();
+    SerialWaitBusy();
 
-	result = REG_SPIDATA;
-  	REG_SPICNT = SPI_ENABLE | SPI_DEVICE_TOUCH | SPI_BAUD_2MHz;
-	REG_SPIDATA = 0x00;
+    result = REG_SPIDATA;
 
-	SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_TOUCH | SPI_BAUD_2MHz;
+    REG_SPIDATA = 0x00;
 
-	result2 = REG_SPIDATA;
+    SerialWaitBusy();
 
-	return (((result & 0x7F) << 5) | ((result2>>3)&0x1F));
+    result2 = REG_SPIDATA;
+
+    return (((result & 0x7F) << 5) | ((result2 >> 3) & 0x1F));
 }
 
 void micSetAmp(u8 control, u8 gain)
 {
-	int oldIME = enterCriticalSection();
-	if (cdcIsAvailable()) {
-		micSetAmp_TWL(control, gain);
-	} else {
-		micSetAmp_NTR(control, gain);
-	}
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    if (cdcIsAvailable())
+        micSetAmp_TWL(control, gain);
+    else
+        micSetAmp_NTR(control, gain);
+
+    leaveCriticalSection(oldIME);
 }
 
 u8 micReadData8(void)
 {
-	u8 smp;
-	int oldIME = enterCriticalSection();
-	if (cdcIsAvailable()) {
-		smp = micReadData16_TWL() >> 8;
-	} else {
-		smp = micReadData8_NTR();
-	}
-	leaveCriticalSection(oldIME);
-	return smp;
+    u8 smp;
+    int oldIME = enterCriticalSection();
+
+    if (cdcIsAvailable())
+        smp = micReadData16_TWL() >> 8;
+    else
+        smp = micReadData8_NTR();
+
+    leaveCriticalSection(oldIME);
+    return smp;
 }
 
 u16 micReadData12(void)
 {
-	u16 smp;
-	int oldIME = enterCriticalSection();
-	if (cdcIsAvailable()) {
-		smp = micReadData16_TWL() >> 4;
-	} else {
-		smp = micReadData12_NTR();
-	}
-	leaveCriticalSection(oldIME);
-	return smp;
+    u16 smp;
+    int oldIME = enterCriticalSection();
+
+    if (cdcIsAvailable())
+        smp = micReadData16_TWL() >> 4;
+    else
+        smp = micReadData12_NTR();
+
+    leaveCriticalSection(oldIME);
+    return smp;
 }
 
 static u8* microphone_front_buffer;
@@ -167,7 +173,7 @@ int micStopRecording(void)
     TIMER_CR(micTimer) &= ~TIMER_ENABLE;
     micOff();
 
-    if(swapCallback)
+    if (swapCallback)
         swapCallback(microphone_back_buffer, eightBit ? sampleCount : (sampleCount << 1));
 
     microphone_front_buffer = microphone_back_buffer = 0;
@@ -178,32 +184,33 @@ int micStopRecording(void)
 void micTimerHandler(void)
 {
     int len = 0;
-    // Read data from the microphone. Data from the Mic is unsigned, flipping
+
+    // Read data from the microphone. Data from the mic is unsigned, flipping
     // the highest bit makes it signed.
 
-    if(eightBit)
+    if (eightBit)
     {
-    	*(microphone_back_buffer+sampleCount) = micReadData8() ^ 0x80;
+        *(microphone_back_buffer+sampleCount) = micReadData8() ^ 0x80;
     }
     else
     {
-	   *(u16*)(microphone_back_buffer + sampleCount * 2) = (micReadData12() - 2048) << 4; // ^ 0x8000;
-	}
-
+        *(u16*)(microphone_back_buffer + sampleCount * 2) =
+                (micReadData12() - 2048) << 4; // ^ 0x8000;
+    }
 
     sampleCount++;
 
-	len = eightBit ? sampleCount : (sampleCount << 1);
+    len = eightBit ? sampleCount : (sampleCount << 1);
 
-	if(len >= microphone_buffer_length)
-	{
-		sampleCount = 0;
+    if (len >= microphone_buffer_length)
+    {
+        sampleCount = 0;
 
-		u8* temp = microphone_back_buffer;
-		microphone_back_buffer = microphone_front_buffer;
-		microphone_front_buffer = temp;
+        u8 *temp = microphone_back_buffer;
+        microphone_back_buffer = microphone_front_buffer;
+        microphone_front_buffer = temp;
 
-		if(swapCallback)
-			swapCallback(microphone_front_buffer, microphone_buffer_length);
-	}
+        if (swapCallback)
+            swapCallback(microphone_front_buffer, microphone_buffer_length);
+    }
 }

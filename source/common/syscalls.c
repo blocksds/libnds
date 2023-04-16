@@ -7,11 +7,11 @@
 #include <nds/system.h>
 #include <nds/bios.h>
 
-int swiDecompressLZSSVram(const void * source, void * destination, uint32 toGetSize, TDecompressionStream * stream) {
-
-	if (isDSiMode()) {
-		return swiDecompressLZSSVramTWL(source,destination,toGetSize,stream);
-	} else {
-		return swiDecompressLZSSVramNTR(source,destination,toGetSize,stream);
-	}
+int swiDecompressLZSSVram(const void *source, void *destination,
+                          uint32 toGetSize, TDecompressionStream *stream)
+{
+    if (isDSiMode())
+        return swiDecompressLZSSVramTWL(source,destination,toGetSize,stream);
+    else
+        return swiDecompressLZSSVramNTR(source,destination,toGetSize,stream);
 }

@@ -8,31 +8,37 @@
 
 #define BASE_DELAY (100)
 
-void twlEnableSlot1(void) {
-	int oldIME = enterCriticalSection();
+void twlEnableSlot1(void)
+{
+    int oldIME = enterCriticalSection();
 
-	while((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF) swiDelay(1 * BASE_DELAY);
+    while ((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF)
+        swiDelay(1 * BASE_DELAY);
 
-	if((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_OFF) {
+    if ((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_OFF)
+    {
+        REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_RESET;
+        swiDelay(10 * BASE_DELAY);
+        REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_ON;
+        swiDelay(10 * BASE_DELAY);
+    }
 
-		REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_RESET;
-		swiDelay(10 * BASE_DELAY);
-		REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_ON;
-		swiDelay(10 * BASE_DELAY);
-	}
-	leaveCriticalSection(oldIME);
+    leaveCriticalSection(oldIME);
 }
 
-void twlDisableSlot1(void) {
-	int oldIME = enterCriticalSection();
+void twlDisableSlot1(void)
+{
+    int oldIME = enterCriticalSection();
 
-	while((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF) swiDelay(1 * BASE_DELAY);
+    while ((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_REQUEST_OFF)
+        swiDelay(1 * BASE_DELAY);
 
-	if((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_ON) {
+    if ((REG_SCFG_MC & SCFG_MC_PWR_MASK) == SCFG_MC_PWR_ON)
+    {
+        REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_REQUEST_OFF;
+        while ((REG_SCFG_MC & SCFG_MC_PWR_MASK) != SCFG_MC_PWR_OFF)
+            swiDelay(1 * BASE_DELAY);
+    }
 
-		REG_SCFG_MC = (REG_SCFG_MC & ~SCFG_MC_PWR_MASK) | SCFG_MC_PWR_REQUEST_OFF;
-		while((REG_SCFG_MC & SCFG_MC_PWR_MASK) != SCFG_MC_PWR_OFF) swiDelay(1 * BASE_DELAY);
-	}
-
-	leaveCriticalSection(oldIME);
+    leaveCriticalSection(oldIME);
 }

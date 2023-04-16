@@ -29,189 +29,222 @@ static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
 TWL_CODE void i2cIRQHandler(void)
 {
-	int cause = (i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & 0x3) | (i2cReadRegister(I2C_GPIO, 0x02)<<2);
+    int cause = (i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & 0x3)
+              | (i2cReadRegister(I2C_GPIO, 0x02) << 2);
 
-	switch (cause & 3) {
-	case 1:
-		if (__powerbuttonCB) {
-			__powerbuttonCB();
-		} else {
-			i2cWriteRegister(I2C_PM, I2CREGPM_RESETFLAG, 1);
-			i2cWriteRegister(I2C_PM, I2CREGPM_PWRCNT, 1);
-		}
-		break;
-	case 2:
-		writePowerManagement(PM_CONTROL_REG,PM_SYSTEM_PWR);
-		break;
-	}
+    switch (cause & 3)
+    {
+        case 1:
+            if (__powerbuttonCB)
+            {
+                __powerbuttonCB();
+            }
+            else
+            {
+                i2cWriteRegister(I2C_PM, I2CREGPM_RESETFLAG, 1);
+                i2cWriteRegister(I2C_PM, I2CREGPM_PWRCNT, 1);
+            }
+            break;
+        case 2:
+            writePowerManagement(PM_CONTROL_REG,PM_SYSTEM_PWR);
+            break;
+    }
 }
 
 TWL_CODE void irqInitAUX(void)
 {
-	// Set all interrupts to dummy functions.
-	for(int i = 0; i < MAX_INTERRUPTS_AUX; i++)
-	{
-		irqTableAUX[i].handler = irqDummy;
-		irqTableAUX[i].mask = 0;
-	}
+    // Set all interrupts to dummy functions.
+    for (int i = 0; i < MAX_INTERRUPTS_AUX; i++)
+    {
+        irqTableAUX[i].handler = irqDummy;
+        irqTableAUX[i].mask = 0;
+    }
 }
 
 VoidFn setPowerButtonCB(VoidFn CB)
 {
-	if (!isDSiMode()) return CB;
-	VoidFn tmp = __powerbuttonCB;
-	__powerbuttonCB = CB;
-	return tmp;
+    if (!isDSiMode())
+        return CB;
+
+    VoidFn tmp = __powerbuttonCB;
+    __powerbuttonCB = CB;
+    return tmp;
 }
 #endif
 
 static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 max)
 {
-	if (!mask) return;
+    if (mask == 0)
+        return;
 
-	u32 i;
+    u32 i;
 
-	for	(i=0;i<max;i++)
-		if	(!irqTable[i].mask || irqTable[i].mask == mask) break;
+    for (i = 0; i < max; i++)
+    {
+        if (!irqTable[i].mask || irqTable[i].mask == mask)
+            break;
+    }
 
-	if ( i == max ) return;
+    if (i == max)
+        return;
 
-	irqTable[i].handler	= handler;
-	irqTable[i].mask	= mask;
+    irqTable[i].handler = handler;
+    irqTable[i].mask = mask;
 }
 
 void irqSet(u32 mask, IntFn handler)
 {
-	int oldIME = enterCriticalSection();
-	__irqSet(mask,handler,irqTable,MAX_INTERRUPTS);
-	if(mask & IRQ_VBLANK)
-		REG_DISPSTAT |= DISP_VBLANK_IRQ ;
-	if(mask & IRQ_HBLANK)
-		REG_DISPSTAT |= DISP_HBLANK_IRQ ;
-	if(mask & IRQ_IPC_SYNC)
-		REG_IPC_SYNC |= IPC_SYNC_IRQ_ENABLE;
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    __irqSet(mask, handler, irqTable, MAX_INTERRUPTS);
+
+    if (mask & IRQ_VBLANK)
+        REG_DISPSTAT |= DISP_VBLANK_IRQ;
+    if (mask & IRQ_HBLANK)
+        REG_DISPSTAT |= DISP_HBLANK_IRQ;
+    if (mask & IRQ_IPC_SYNC)
+        REG_IPC_SYNC |= IPC_SYNC_IRQ_ENABLE;
+
+    leaveCriticalSection(oldIME);
 }
 
 void irqInitHandler(IntFn handler)
 {
-	REG_IME = 0;
-	REG_IE = 0;
-	REG_IF = ~0;
+    REG_IME = 0;
+    REG_IE = 0;
+    REG_IF = ~0;
 
 #ifdef ARM7
-	if (isDSiMode()) {
-		REG_AUXIE = 0;
-		REG_AUXIF = ~0;
-	}
+    if (isDSiMode())
+    {
+        REG_AUXIE = 0;
+        REG_AUXIF = ~0;
+    }
 #endif
-	IRQ_HANDLER = handler;
+    IRQ_HANDLER = handler;
 }
 
 void irqInit(void)
 {
-	int i;
+    irqInitHandler(IntrMain);
 
-	irqInitHandler(IntrMain);
-
-	// Set all interrupts to dummy functions.
-	for(i = 0; i < MAX_INTERRUPTS; i++)
-	{
-		irqTable[i].handler = irqDummy;
-		irqTable[i].mask = 0;
-	}
+    // Set all interrupts to dummy functions.
+    for (int i = 0; i < MAX_INTERRUPTS; i++)
+    {
+        irqTable[i].handler = irqDummy;
+        irqTable[i].mask = 0;
+    }
 
 #ifdef ARM7
-	if (isDSiMode()) {
-		irqInitAUX();
-		irqSetAUX(IRQ_I2C, i2cIRQHandler);
-		irqEnableAUX(IRQ_I2C);
-	}
+    if (isDSiMode())
+    {
+        irqInitAUX();
+        irqSetAUX(IRQ_I2C, i2cIRQHandler);
+        irqEnableAUX(IRQ_I2C);
+    }
 #endif
-	REG_IME = 1;			// enable global interrupt
+    REG_IME = 1; // Enable interrupts
 }
 
 void irqEnable(uint32 irq)
 {
-	int oldIME = enterCriticalSection();
-	if (irq & IRQ_VBLANK)
-		REG_DISPSTAT |= DISP_VBLANK_IRQ ;
-	if (irq & IRQ_HBLANK)
-		REG_DISPSTAT |= DISP_HBLANK_IRQ ;
-	if (irq & IRQ_VCOUNT)
-		REG_DISPSTAT |= DISP_YTRIGGER_IRQ;
-	if(irq & IRQ_IPC_SYNC)
-		REG_IPC_SYNC |= IPC_SYNC_IRQ_ENABLE;
+    int oldIME = enterCriticalSection();
 
-	REG_IE |= irq;
-	leaveCriticalSection(oldIME);
+    if (irq & IRQ_VBLANK)
+        REG_DISPSTAT |= DISP_VBLANK_IRQ;
+    if (irq & IRQ_HBLANK)
+        REG_DISPSTAT |= DISP_HBLANK_IRQ;
+    if (irq & IRQ_VCOUNT)
+        REG_DISPSTAT |= DISP_YTRIGGER_IRQ;
+    if (irq & IRQ_IPC_SYNC)
+        REG_IPC_SYNC |= IPC_SYNC_IRQ_ENABLE;
+
+    REG_IE |= irq;
+
+    leaveCriticalSection(oldIME);
 }
 
 void irqDisable(uint32 irq)
 {
-	int oldIME = enterCriticalSection();
-	if (irq & IRQ_VBLANK)
-		REG_DISPSTAT &= ~DISP_VBLANK_IRQ ;
-	if (irq & IRQ_HBLANK)
-		REG_DISPSTAT &= ~DISP_HBLANK_IRQ ;
-	if (irq & IRQ_VCOUNT)
-		REG_DISPSTAT &= ~DISP_YTRIGGER_IRQ;
-	if(irq & IRQ_IPC_SYNC)
-		REG_IPC_SYNC &= ~IPC_SYNC_IRQ_ENABLE;
+    int oldIME = enterCriticalSection();
 
-	REG_IE &= ~irq;
-	leaveCriticalSection(oldIME);
+    if (irq & IRQ_VBLANK)
+        REG_DISPSTAT &= ~DISP_VBLANK_IRQ;
+    if (irq & IRQ_HBLANK)
+        REG_DISPSTAT &= ~DISP_HBLANK_IRQ;
+    if (irq & IRQ_VCOUNT)
+        REG_DISPSTAT &= ~DISP_YTRIGGER_IRQ;
+    if(irq & IRQ_IPC_SYNC)
+        REG_IPC_SYNC &= ~IPC_SYNC_IRQ_ENABLE;
+
+    REG_IE &= ~irq;
+
+    leaveCriticalSection(oldIME);
 }
 
 static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max)
 {
-	u32 i = 0;
+    u32 i = 0;
 
-	for	(i=0;i<max;i++)
-		if	(irqTable[i].mask == mask) break;
+    for (i = 0; i < max; i++)
+    {
+        if (irqTable[i].mask == mask)
+            break;
+    }
 
-	if ( i == max ) return;
+    if (i == max)
+        return;
 
-	irqTable[i].handler	= irqDummy;
+    irqTable[i].handler = irqDummy;
 }
 
 void irqClear(u32 mask)
 {
-	int oldIME = enterCriticalSection();
-	__irqClear(mask,irqTable,MAX_INTERRUPTS);
-	irqDisable( mask);
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    __irqClear(mask, irqTable, MAX_INTERRUPTS);
+    irqDisable(mask);
+
+    leaveCriticalSection(oldIME);
 }
 
 #ifdef ARM7
 
 TWL_CODE void irqSetAUX(u32 mask, IntFn handler)
 {
-	int oldIME = enterCriticalSection();
-	__irqSet(mask,handler,irqTableAUX,MAX_INTERRUPTS_AUX);
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    __irqSet(mask, handler, irqTableAUX, MAX_INTERRUPTS_AUX);
+
+    leaveCriticalSection(oldIME);
 }
 
 TWL_CODE void irqClearAUX(u32 mask)
 {
-	int oldIME = enterCriticalSection();
-	__irqClear(mask,irqTableAUX,MAX_INTERRUPTS_AUX);
-	irqDisable( mask);
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    __irqClear(mask, irqTableAUX, MAX_INTERRUPTS_AUX);
+    irqDisable(mask);
+
+    leaveCriticalSection(oldIME);
 }
 
 TWL_CODE void irqDisableAUX(uint32 irq)
 {
-	int oldIME = enterCriticalSection();
-	REG_AUXIE &= ~irq;
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    REG_AUXIE &= ~irq;
+
+    leaveCriticalSection(oldIME);
 }
 
 TWL_CODE void irqEnableAUX(uint32 irq)
 {
-	int oldIME = enterCriticalSection();
-	REG_AUXIE |= irq;
-	leaveCriticalSection(oldIME);
+    int oldIME = enterCriticalSection();
+
+    REG_AUXIE |= irq;
+
+    leaveCriticalSection(oldIME);
 }
 
 #endif

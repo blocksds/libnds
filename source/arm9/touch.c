@@ -11,22 +11,21 @@
 
 void touchRead(touchPosition *data)
 {
-	if ( !data ) return;
+    if (data == NULL)
+        return;
 
-	data->rawx = __transferRegion()->touchX;
-	data->rawy = __transferRegion()->touchY;
-	data->px = __transferRegion()->touchXpx;
-	data->py = __transferRegion()->touchYpx;
-	data->z1 = __transferRegion()->touchZ1;
-	data->z2 = __transferRegion()->touchZ2;
-
-
+    data->rawx = __transferRegion()->touchX;
+    data->rawy = __transferRegion()->touchY;
+    data->px = __transferRegion()->touchXpx;
+    data->py = __transferRegion()->touchYpx;
+    data->z1 = __transferRegion()->touchZ1;
+    data->z2 = __transferRegion()->touchZ2;
 }
 
-touchPosition touchReadXY()
+touchPosition touchReadXY(void)
 {
-	touchPosition touchPos;
+    touchPosition touchPos;
 
-	touchRead(&touchPos);
-	return touchPos;
+    touchRead(&touchPos);
+    return touchPos;
 }
