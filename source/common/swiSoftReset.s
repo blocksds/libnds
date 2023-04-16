@@ -1,42 +1,53 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (C) 2009 Dave Murphy (WinterMute)
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #include <nds/asminc.h>
 
-	.text
-	.align 4
+#ifdef ARM9
+#include <nds/arm9/cp15_asm.h>
 
-	.arm
-@---------------------------------------------------------------------------------
+    .arch    armv5te
+    .cpu    arm946e-s
+#endif
+
+    .text
+    .align 4
+    .arm
+
 BEGIN_ASM_FUNC swiSoftReset
-@---------------------------------------------------------------------------------
 
     // Disable interrupts (REG_IME = 0)
     mov     r0, #0x4000000
     str     r0, [r0, #0x208]
 
 #ifdef ARM7
-	ldr	r0,=0x2FFFE34
+
+    ldr     r0, =0x2FFFE34
+    ldr     r0, [r0]
+    bx      r0
+
 #endif
 
 #ifdef ARM9
-	.arch	armv5te
-	.cpu	arm946e-s
-	ldr	r1, =0x00002078			@ disable TCM and protection unit
-	mcr	p15, 0, r1, c1, c0
-	@ Disable cache
-	mov	r0, #0
-	mcr	p15, 0, r0, c7, c5, 0		@ Instruction cache
-	mcr	p15, 0, r0, c7, c6, 0		@ Data cache
 
-	@ Wait for write buffer to empty 
-	mcr	p15, 0, r0, c7, c10, 4
+    // Disable TCM, caches and protection unit
+    ldr     r0, =(CP15_CONTROL_ALTERNATE_VECTOR_SELECT | CP15_CONTROL_RESERVED_SBO_MASK)
+    mcr     CP15_REG1_CONTROL_REGISTER(r0)
 
-	ldr	r0,=0x2FFFE24
+    // Disable cache
+    mov     r0, #0
+    mcr     CP15_REG7_FLUSH_ICACHE
+    mcr     CP15_REG7_FLUSH_DCACHE
+
+    // Wait for write buffer to empty
+    mcr     CP15_REG7_DRAIN_WRITE_BUFFER
+
+    ldr     r0, =0x2FFFE24
+    ldr     r0, [r0]
+    bx      r0
+
 #endif
 
-	ldr	r0,[r0]
-	bx	r0
-
-	.pool
+    .pool
