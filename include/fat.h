@@ -5,6 +5,10 @@
 #ifndef LIBNDS_FAT_H__
 #define LIBNDS_FAT_H__
 
+/// @file fat.h
+///
+/// @brief Simple replacement of libfat.
+
 #ifdef __cplusplus
 extern "C" {
 #endif

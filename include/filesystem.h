@@ -5,6 +5,11 @@
 #ifndef LIBNDS_FILESYSTEM_H__
 #define LIBNDS_FILESYSTEM_H__
 
+/// @file filesystem.h
+///
+/// @brief NitroFAT, filesystem embedded in a NDS ROM (mostly compatible with
+/// NitroFS).
+
 #ifdef __cplusplus
 extern "C" {
 #endif
