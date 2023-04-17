@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2016 Dave Murphy (WinterMute)
 
-#ifndef NDS_NAND_INCLUDE
-#define NDS_NAND_INCLUDE
+#ifndef LIBNDS_NDS_ARM9_NAND_H__
+#define LIBNDS_NDS_ARM9_NAND_H__
 
 #include <unistd.h>
 
@@ -11,11 +11,12 @@
 extern "C" {
 #endif
 
-bool nand_ReadSectors(sec_t sector, sec_t numSectors,void* buffer);
-bool nand_WriteSectors(sec_t sector, sec_t numSectors,const void* buffer);
+bool nand_ReadSectors(sec_t sector, sec_t numSectors, void* buffer);
+bool nand_WriteSectors(sec_t sector, sec_t numSectors, const void* buffer);
 ssize_t nand_GetSize(void);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // NDS_NAND_INCLUDE
+
+#endif // LIBNDS_NDS_ARM9_NAND_H__

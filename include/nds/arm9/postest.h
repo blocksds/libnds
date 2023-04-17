@@ -2,92 +2,86 @@
 //
 // Copyright (C) 2007 Gabe Ghearing (gabebear)
 
-// Code for performing hardware position testing
+/// @file postest.h
+///
+/// @brief Position Test Functions.<BR>
+///
+/// <div class="fileHeader">
+/// The position test multiplies a given vector by the position matrix and
+/// returns the coords(x,y,z,w). The position test is really quick, about 10x
+/// faster than a box test.
+/// </div>
 
-/*! \file postest.h
-\brief Position Test Functions.<BR>
-
-<div class="fileHeader">
-The position test multiplies a given vector by the position matrix and returns the coords(x,y,z,w). The position test is really quick, about 10x faster than a box test.
-</div>
-*/
-
-#ifndef POS_TEST_INCLUDE
-#define POS_TEST_INCLUDE
+#ifndef LIBNDS_NDS_ARM9_POSTEST_H__
+#define LIBNDS_NDS_ARM9_POSTEST_H__
 
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
 
-
-GL_STATIC_INL
-/*! \brief true if the hardware is currently performing a position/vertex/box test.
-	\return whether a test is being performed
-*/
-bool PosTestBusy()
+/// Checks if a position test is being performed.
+///
+/// @return Returns true if the hardware is currently performing a
+/// position/vertex/box test.
+static inline bool PosTestBusy(void)
 {
-	return (GFX_STATUS & BIT(0))!=0;
+    return (GFX_STATUS & BIT(0)) != 0;
 }
 
-GL_STATIC_INL
-/*! \brief Starts a position test asynchronously
-	\param x specifies x offset from the current modelview matrix
-	\param y specifies y offset from the current modelview matrix
-	\param z specifies z offset from the current modelview matrix
-*/
-void PosTest_Asynch(v16 x, v16 y, v16 z)
+/// Starts a position test asynchronously.
+///
+/// @param x Specifies x offset from the current modelview matrix.
+/// @param y Specifies y offset from the current modelview matrix.
+/// @param z Specifies z offset from the current modelview matrix.
+static inline void PosTest_Asynch(v16 x, v16 y, v16 z)
 {
-	GFX_POS_TEST = VERTEX_PACK(x, y);
-	GFX_POS_TEST = z;
+    GFX_POS_TEST = VERTEX_PACK(x, y);
+    GFX_POS_TEST = z;
 }
 
-
-GL_STATIC_INL
-/*! \brief Performs a position test
-	\param x specifies x offset from the current modelview matrix
-	\param y specifies y offset from the current modelview matrix
-	\param z specifies z offset from the current modelview matrix
-*/
-void PosTest(v16 x, v16 y, v16 z)
+/// Performs a position test.
+///
+/// @param x Specifies x offset from the current modelview matrix.
+/// @param y Specifies y offset from the current modelview matrix.
+/// @param z Specifies z offset from the current modelview matrix.
+static inline void PosTest(v16 x, v16 y, v16 z)
 {
-	PosTest_Asynch(x,y,z);
-	while(PosTestBusy());
+    PosTest_Asynch(x, y, z);
+    while (PosTestBusy());
 }
 
-GL_STATIC_INL
-/*! \brief Returns the distance from the camera of the last position test, pretty darn useful.
-	\return W magnitude
-*/
-int32 PosTestWresult()
+/// Returns the distance from the camera of the last position test.
+///
+/// @return W magnitude
+static inline int32 PosTestWresult(void)
 {
-	return GFX_POS_RESULT[3];
+    return GFX_POS_RESULT[3];
 }
 
-GL_STATIC_INL
-/*! \brief Returns absolute X position of the last position test (location if the modelview matrix was identity)
-	\return Absolute X position
-*/
-int32 PosTestXresult()
+/// Returns the absolute X position of the last position test (location if the
+/// modelview matrix was identity)
+///
+/// @return Absolute X position
+static inline int32 PosTestXresult(void)
 {
-	return GFX_POS_RESULT[0];
+    return GFX_POS_RESULT[0];
 }
 
-GL_STATIC_INL
-/*! \brief Returns absolute Y position of the last position test (location if the modelview matrix was identity)
-	\return Absolute Y position
-*/
-int32 PosTestYresult()
+/// Returns the absolute Y position of the last position test (location if the
+/// modelview matrix was identity).
+///
+/// @return Absolute Y position.
+static inline int32 PosTestYresult(void)
 {
-	return GFX_POS_RESULT[1];
+    return GFX_POS_RESULT[1];
 }
 
-GL_STATIC_INL
-/*! \brief Returns absolute Z position of the last position test (location if the modelview matrix was identity)
-	\return Absolute Z position
-*/
-int32 PosTestZresult()
+/// Returns the absolute Z position of the last position test (location if the
+/// modelview matrix was identity).
+///
+/// @return Absolute Z position.
+static inline int32 PosTestZresult(void)
 {
-	return GFX_POS_RESULT[2];
+    return GFX_POS_RESULT[2];
 }
 
-#endif // ifndef POS_TEST_INCLUDE
-
+#endif // LIBNDS_NDS_ARM9_POSTEST_H__

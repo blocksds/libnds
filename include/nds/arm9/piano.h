@@ -2,17 +2,19 @@
 //
 // Copyright (C) 2011 Tobias Weyand (0xtob)
 
-/*! \file piano.h
-   \brief NDS Easy Piano option pack support.
-*/
-#ifndef PIANO_HEADER_INCLUDE
-#define PIANO_HEADER_INCLUDE
+/// @file piano.h
+///
+/// @brief NDS Easy Piano option pack support.
+
+#ifndef LIBNDS_NDS_ARM9_PIANO_H__
+#define LIBNDS_NDS_ARM9_PIANO_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdbool.h>
+
 #include <nds/ndstypes.h>
 
 #define PIANO_PAK   (*(vu16 *)0x09FFFFFE)
@@ -31,30 +33,33 @@ extern "C" {
 #define PIANO_B     BIT(13)
 #define PIANO_C2    BIT(14)
 
-/*! \fn bool pianoIsInserted()
-    \brief Check for piano option pack.
-    \return true if the cart in the GBA slot is the piano option pack.
-*/
+/// Check for piano option pack.
+///
+/// @return true if the cart in the GBA slot is the piano option pack.
 bool pianoIsInserted(void);
 
-/*! \fn void pianoScanKeys()
-    \brief Obtain the current piano state.
-    Call this function once per main loop to use the piano functions.
-*/
+/// Obtain the current piano state.
+///
+/// Call this function once per main loop to use the piano functions.
 void pianoScanKeys(void);
 
-//! Obtains the current piano keys held state
+/// Obtains the current piano keys held state.
+///
+/// @return Bitmask of keys.
 u16 pianoKeysHeld(void);
 
-//! Obtains the current piano keys pressed state
+/// Obtains the current piano keys pressed state.
+///
+/// @return Bitmask of keys.
 u16 pianoKeysDown(void);
 
-//! Obtains the current piano keys released state
+/// Obtains the current piano keys released state.
+///
+/// @return Bitmask of keys.
 u16 pianoKeysUp(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
-
+#endif // LIBNDS_NDS_ARM9_PIANO_H__
