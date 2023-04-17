@@ -94,6 +94,7 @@ extern "C" {
 #include <nds/camera.h>
 #include <nds/card.h>
 #include <nds/cothread.h>
+#include <nds/cpu.h>
 #include <nds/debug.h>
 #include <nds/dma.h>
 #include <nds/fifocommon.h>
