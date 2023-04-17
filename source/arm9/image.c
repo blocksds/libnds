@@ -14,7 +14,7 @@
 
 void image24to16(sImage *img)
 {
-    u16 *temp = (u16 *)malloc(img->height * img->width * 2);
+    u16 *temp = malloc(img->height * img->width * 2);
 
     for (int y = 0; y < img->height; y++)
     {
@@ -89,7 +89,7 @@ void imageTileData(sImage *img)
     int tw = img->width >> 3;
 
     // Buffer to hold data
-    u32 *temp = (u32 *)malloc(img->height * img->width);
+    u32 *temp = malloc(img->height * img->width);
 
     int i = 0;
 

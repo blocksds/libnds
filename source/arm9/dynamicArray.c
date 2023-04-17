@@ -10,7 +10,7 @@ void *DynamicArrayInit(DynamicArray *v, unsigned int initialSize)
         return NULL;
 
     v->cur_size = initialSize;
-    v->data = (void **)malloc(sizeof(void *) * initialSize);
+    v->data = malloc(sizeof(void *) * initialSize);
 
     return v->data;
 }
@@ -45,7 +45,7 @@ bool DynamicArraySet(DynamicArray *v, unsigned int index, void *item)
         // resize the array, making sure it is bigger than index.
         unsigned int newSize = (v->cur_size * 2 > index ? v->cur_size * 2 : index + 1);
 
-        void **temp = (void **)realloc(v->data, sizeof(void *) * newSize);
+        void **temp = realloc(v->data, sizeof(void *) * newSize);
 
         if (temp == NULL)
             return false;

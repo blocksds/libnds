@@ -8,7 +8,7 @@
 
 LinkedList *linkedlistAdd(LinkedList **front, void *data)
 {
-    LinkedList *node = (LinkedList *)malloc(sizeof(LinkedList));
+    LinkedList *node = malloc(sizeof(LinkedList));
 
     if (node == NULL)
         return NULL;
@@ -19,13 +19,11 @@ LinkedList *linkedlistAdd(LinkedList **front, void *data)
     if (*front == NULL)
     {
         node->next = NULL;
-
         *front = node;
     }
     else
     {
         node->next = *front;
-
         (*front)->prev = node;
     }
 
