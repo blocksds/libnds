@@ -13,9 +13,11 @@
 
 #include "common/libnds_internal.h"
 
-//------------------------------------------------------------------------------
-
-#define KEYS_CUR (( ((~REG_KEYINPUT)&0x3ff) | (((~__transferRegion()->buttons)&3)<<10) | (((~__transferRegion()->buttons)<<6) & (KEY_TOUCH|KEY_LID) ))^KEY_LID)
+static inline uint16 keys_cur(void)
+{
+    return (((~REG_KEYINPUT) & 0x3ff) | (((~__transferRegion()->buttons) & 3) << 10)
+            | (((~__transferRegion()->buttons) << 6) & (KEY_TOUCH | KEY_LID))) ^ KEY_LID;
+}
 
 static uint16 keys = 0;
 static uint16 keysold = 0;
@@ -26,7 +28,7 @@ static u8 delay = 30, repeat = 15, count = 30;
 void scanKeys(void)
 {
     keysold = keys;
-    keys = KEYS_CUR;
+    keys = keys_cur();
 
     if (delay != 0)
     {
@@ -78,5 +80,5 @@ uint32 keysUp(void)
 
 uint32 keysCurrent(void)
 {
-    return KEYS_CUR;
+    return keys_cur();
 }
