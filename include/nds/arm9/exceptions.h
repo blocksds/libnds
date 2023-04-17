@@ -2,40 +2,41 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#ifndef _exceptions_h_
-#define _exceptions_h_
+#ifndef LIBNDS_NDS_ARM9_EXCEPTIONS_H__
+#define LIBNDS_NDS_ARM9_EXCEPTIONS_H__
 
 #include <nds/cpu.h>
 #include <nds/ndstypes.h>
 
-/** \file
-	\brief functions to handle hardware exceptions.
-*/
+/// @file
+///
+/// @brief Functions to handle hardware exceptions.
 
-#define EXCEPTION_VECTOR	(*(VoidFn *)(0x2FFFD9C))
+#define EXCEPTION_VECTOR (*(VoidFn *)(0x2FFFD9C))
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-extern VoidFn exceptionC[];//shouldn't this be a pointer instead of an array?
+extern VoidFn *exceptionC;
 extern u32 exceptionStack;
 
-//! an array with a copy of all the registers of when the exception occured.
+/// Array with a copy of all the registers of when the exception occured.
 extern s32 exceptionRegisters[];
 
-
+/// Default exception handler of libnds
 void enterException(void);
 
-//! sets a custom hardware exception handler.
+/// Sets a custom hardware exception handler.
+///
+/// @param handler Exception handler routine.
 void setExceptionHandler(VoidFn handler);
 
-//! sets the default hardware exception handler.
+/// Sets the default hardware exception handler.
 void defaultExceptionHandler(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // _exceptions_h_
+#endif // LIBNDS_NDS_ARM9_EXCEPTIONS_H__
