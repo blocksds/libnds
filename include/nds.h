@@ -51,6 +51,9 @@
 /// - @ref fifocommon.h "FIFO"
 /// - @ref timers.h "Timers"
 ///
+/// @section multithreading_api Multithreading
+/// - @ref cothread.h "Cooperative multithreading"
+///
 /// @section user_io_api User Input/ouput
 /// - @ref arm9/input.h "Keypad and Touch pad"
 /// - @ref keyboard.h "Keyboard"
