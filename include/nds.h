@@ -38,7 +38,8 @@
 /// - @ref dma.h "Direct Memory Access"
 /// - @ref ndma.h "DSi New Direct Memory Access"
 ///
-/// @section filesystem_api Filesystem Access
+/// @section filesystem_api Storage Access
+/// - @ref card.h "Slot-1 access functions"
 /// - @ref fat.h "Simple replacement of libfat"
 /// - @ref filesystem.h "NitroFAT, filesystem embedded in a NDS ROM"
 ///
