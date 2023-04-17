@@ -3,28 +3,28 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/*! \file dma.h
-\brief Wrapper functions for direct memory access hardware
+/// @file dma.h
+///
+/// @brief Wrapper functions for direct memory access hardware.
+///
+/// <div class="fileHeader">
+/// The DS has 4 hardware direct memory access devices per CPU which can be used
+/// to transfer or fill chunks of memeory without CPU intervention. Using DMA is
+/// generaly faster than CPU copies (memcpy, swiCopy, for loops, etc..).
+///
+/// DMA has no access to data caches on the DS and as such will give unexpected
+/// results when DMAing data from main memory. The cache must be flushed as
+/// follows when using DMA to ensure proper opertion on the ARM9:
+///
+/// <pre>
+/// DC_FlushRange(source, sizeof(dataToCopy));
+/// dmaCopy(source, destination, sizeof(dataToCopy));
+/// </pre>
+///
+/// </div>
 
-<div class="fileHeader">
-The DS has 4 hardware direct memory access devices per CPU which can be used to
-transfer or fill chunks of memeory without CPU intervention.  Utilizing DMA is
-generaly faster than CPU copies (memcpy, swiCopy, for loops, etc..).
-
-DMA has no access to data caches on the DS and as such will give unexpected
-results when DMAing data from main memory. The cache must be flushed as follows
-when using DMA to ensure proper opertion on the arm9:
-
-<pre>
-DC_FlushRange(source, sizeof(dataToCopy));
-dmaCopy(source, destination, sizeof(dataToCopy));
-</pre>
-
-</div>
-*/
-
-#ifndef NDS_DMA_INCLUDE
-#define NDS_DMA_INCLUDE
+#ifndef LIBNDS_NDS_DMA_H__
+#define LIBNDS_NDS_DMA_H__
 
 #include <nds/ndstypes.h>
 
@@ -251,4 +251,4 @@ static inline int dmaBusy(uint8 channel)
     return (DMA_CR(channel) & DMA_BUSY) >> 31;
 }
 
-#endif
+#endif // LIBNDS_NDS_DMA_H__
