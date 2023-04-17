@@ -79,214 +79,203 @@
 
 
  \section games Example Games
- - <a href="http://rel.phatcode.net/index.php?action=contents&item=Bubble_Fight_EX_DS">Bubble Fight EX</a>
- - <a href="http://rel.phatcode.net/index.php?action=contents&item=Space-Impakto-DS">Space Impakto DS</a>
+ - <a
+ href="http://rel.phatcode.net/index.php?action=contents&item=Bubble_Fight_EX_DS">Bubble
+ Fight EX</a>
+ - <a href="http://rel.phatcode.net/index.php?action=contents&item=Space-Impakto-DS">Space
+ Impakto DS</a>
 
 */
 
-
-//adding the example page.
+// adding the example page.
 /*!
  <!-- EXAMPLES -->
     <!-- hello world -->
-	\example hello_world/source/main.cpp
+    \example hello_world/source/main.cpp
 
     <!-- backgrounds -->
     \example Graphics/Backgrounds/all_in_one/source/main.cpp
-	\example Graphics/Backgrounds/all_in_one/source/advanced.cpp
-	\example Graphics/Backgrounds/all_in_one/source/basic.cpp
-	\example Graphics/Backgrounds/all_in_one/source/scrolling.cpp
-	\example Graphics/Backgrounds/all_in_one/source/handmade.cpp
-	\example Graphics/Backgrounds/16bit_color_bmp/source/template.cpp
-	\example Graphics/Backgrounds/256_color_bmp/source/main.cpp
-	\example Graphics/Backgrounds/Double_Buffer/source/main.cpp
-	\example Graphics/Backgrounds/rotation/source/main.cpp
-	
+    \example Graphics/Backgrounds/all_in_one/source/advanced.cpp
+    \example Graphics/Backgrounds/all_in_one/source/basic.cpp
+    \example Graphics/Backgrounds/all_in_one/source/scrolling.cpp
+    \example Graphics/Backgrounds/all_in_one/source/handmade.cpp
+    \example Graphics/Backgrounds/16bit_color_bmp/source/template.cpp
+    \example Graphics/Backgrounds/256_color_bmp/source/main.cpp
+    \example Graphics/Backgrounds/Double_Buffer/source/main.cpp
+    \example Graphics/Backgrounds/rotation/source/main.cpp
+
     <!-- sprites -->
     \example Graphics/Sprites/allocation_test/source/main.c
-	\example Graphics/Sprites/animate_simple/source/template.c
-	\example Graphics/Sprites/bitmap_sprites/source/main.cpp
- 	\example Graphics/Sprites/fire_and_sprites/source/main.cpp
-	\example Graphics/Sprites/simple/source/template.c
-	\example Graphics/Sprites/sprite_extended_palettes/source/template.c
-	\example Graphics/Sprites/sprite_rotate/source/template.c
-	
-	<!-- Graphics Effects -->
-	\example Graphics/Effects/windows/source/template.c
+    \example Graphics/Sprites/animate_simple/source/template.c
+    \example Graphics/Sprites/bitmap_sprites/source/main.cpp
+     \example Graphics/Sprites/fire_and_sprites/source/main.cpp
+    \example Graphics/Sprites/simple/source/template.c
+    \example Graphics/Sprites/sprite_extended_palettes/source/template.c
+    \example Graphics/Sprites/sprite_rotate/source/template.c
 
-	<!-- keyboard -->
-	\example input/keyboard/keyboard_stdin/source/keymain.c
-	\example input/keyboard/keyboard_async/source/template.c
+    <!-- Graphics Effects -->
+    \example Graphics/Effects/windows/source/template.c
 
-	<!-- touchpad -->
-	\example input/Touch_Pad/touch_area/source/template.c
-	\example input/Touch_Pad/touch_look/source/main.cpp
-	\example input/Touch_Pad/touch_test/source/main.c
+    <!-- keyboard -->
+    \example input/keyboard/keyboard_stdin/source/keymain.c
+    \example input/keyboard/keyboard_async/source/template.c
 
-	<!-- 3D -->
-	\example Graphics/3D/nehe/lesson01/source/nehe1.cpp
-	\example Graphics/3D/nehe/lesson02/source/nehe2.cpp
-	\example Graphics/3D/nehe/lesson03/source/nehe3.cpp
-	\example Graphics/3D/nehe/lesson04/source/nehe4.cpp
-	\example Graphics/3D/nehe/lesson05/source/nehe5.cpp
-	\example Graphics/3D/nehe/lesson06/source/nehe6.cpp
-	\example Graphics/3D/nehe/lesson07/source/nehe7.cpp
-	\example Graphics/3D/nehe/lesson08/source/nehe8.cpp
-	\example Graphics/3D/nehe/lesson09/source/nehe9.cpp
-	\example Graphics/3D/nehe/lesson10/source/nehe10.cpp
-	\example Graphics/3D/nehe/lesson10b/source/nehe10b.cpp
-	\example Graphics/3D/nehe/lesson11/source/nehe11.cpp
-	\example Graphics/3D/3D_Both_Screens/source/template.c
-	\example Graphics/3D/Display_List/source/main.cpp
-	\example Graphics/3D/Display_List_2/source/main.cpp
-	\example Graphics/3D/Env_Mapping/source/main.cpp
-	\example Graphics/3D/BoxTest/source/main.cpp
-	\example Graphics/3D/Ortho/source/main.cpp
-	\example Graphics/3D/Paletted_Cube/source/main.cpp
-	\example Graphics/3D/Picking/source/main.cpp
-	\example Graphics/3D/Simple_Quad/source/main.cpp
-	\example Graphics/3D/Simple_Tri/source/main.cpp
-	\example Graphics/3D/Textured_Cube/source/main.cpp	
-	\example Graphics/3D/Textured_Quad/source/main.cpp
-	\example Graphics/3D/Toon_Shading/source/main.cpp	
-	
-	<!-- RTC -->
-	\example time/RealTimeClock/source/main.c
-	
-	<!-- Timers -->
-	\example time/stopwatch/source/main.c
-	\example time/timercallback/source/main.c
-	
+    <!-- touchpad -->
+    \example input/Touch_Pad/touch_area/source/template.c
+    \example input/Touch_Pad/touch_look/source/main.cpp
+    \example input/Touch_Pad/touch_test/source/main.c
 
-	<!-- capture -->
-	\example capture/ScreenShot/source/main.cpp
-	\example capture/ScreenShot/source/screenshot.cpp
+    <!-- 3D -->
+    \example Graphics/3D/nehe/lesson01/source/nehe1.cpp
+    \example Graphics/3D/nehe/lesson02/source/nehe2.cpp
+    \example Graphics/3D/nehe/lesson03/source/nehe3.cpp
+    \example Graphics/3D/nehe/lesson04/source/nehe4.cpp
+    \example Graphics/3D/nehe/lesson05/source/nehe5.cpp
+    \example Graphics/3D/nehe/lesson06/source/nehe6.cpp
+    \example Graphics/3D/nehe/lesson07/source/nehe7.cpp
+    \example Graphics/3D/nehe/lesson08/source/nehe8.cpp
+    \example Graphics/3D/nehe/lesson09/source/nehe9.cpp
+    \example Graphics/3D/nehe/lesson10/source/nehe10.cpp
+    \example Graphics/3D/nehe/lesson10b/source/nehe10b.cpp
+    \example Graphics/3D/nehe/lesson11/source/nehe11.cpp
+    \example Graphics/3D/3D_Both_Screens/source/template.c
+    \example Graphics/3D/Display_List/source/main.cpp
+    \example Graphics/3D/Display_List_2/source/main.cpp
+    \example Graphics/3D/Env_Mapping/source/main.cpp
+    \example Graphics/3D/BoxTest/source/main.cpp
+    \example Graphics/3D/Ortho/source/main.cpp
+    \example Graphics/3D/Paletted_Cube/source/main.cpp
+    \example Graphics/3D/Picking/source/main.cpp
+    \example Graphics/3D/Simple_Quad/source/main.cpp
+    \example Graphics/3D/Simple_Tri/source/main.cpp
+    \example Graphics/3D/Textured_Cube/source/main.cpp
+    \example Graphics/3D/Textured_Quad/source/main.cpp
+    \example Graphics/3D/Toon_Shading/source/main.cpp
 
-	<!-- sound api -->
-	\example audio/micrecord/source/micrecord.c
-	\example audio/maxmod/audio_modes/source/main.c
-	\example audio/maxmod/basic_sound/source/MaxModExample.c
-	\example audio/maxmod/reverb/source/main.c
-	\example audio/maxmod/song_events_example/source/template.c
-	\example audio/maxmod/song_events_example2/source/template.c
-	\example audio/maxmod/streaming/source/main.c
+    <!-- RTC -->
+    \example time/RealTimeClock/source/main.c
 
-	<!-- debugging -->
-	\example debugging/exceptionTest/source/exceptionTest.c
+    <!-- Timers -->
+    \example time/stopwatch/source/main.c
+    \example time/timercallback/source/main.c
 
-	<!-- printing -->
-	\example Graphics/Printing/ansi_console/source/main.c
-	\example Graphics/Printing/console_windows/source/main.c
-	\example Graphics/Printing/custom_font/source/main.c
-	\example Graphics/Printing/print_both_screens/source/template.c
-	\example Graphics/Printing/rotscale_text/source/main.c
 
-	<!-- filesystem -->
-	\example filesystem/libfat/libfatdir/source/directory.c
-	\example filesystem/nitrofs/nitrodir/source/directory.c
+    <!-- capture -->
+    \example capture/ScreenShot/source/main.cpp
+    \example capture/ScreenShot/source/screenshot.cpp
 
-	<!-- dswifi -->
-	\example dswifi/ap_search/source/template.c
-	\example dswifi/autoconnect/source/autoconnect.c
-	\example dswifi/httpget/source/httpget.c
+    <!-- sound api -->
+    \example audio/micrecord/source/micrecord.c
+    \example audio/maxmod/audio_modes/source/main.c
+    \example audio/maxmod/basic_sound/source/MaxModExample.c
+    \example audio/maxmod/reverb/source/main.c
+    \example audio/maxmod/song_events_example/source/template.c
+    \example audio/maxmod/song_events_example2/source/template.c
+    \example audio/maxmod/streaming/source/main.c
 
-	<!-- card -->
-	\example card/eeprom/source/main.cpp
+    <!-- debugging -->
+    \example debugging/exceptionTest/source/exceptionTest.c
 
-	<!-- ds_motion -->
-	\example ds_motion/source/main.c
+    <!-- printing -->
+    \example Graphics/Printing/ansi_console/source/main.c
+    \example Graphics/Printing/console_windows/source/main.c
+    \example Graphics/Printing/custom_font/source/main.c
+    \example Graphics/Printing/print_both_screens/source/template.c
+    \example Graphics/Printing/rotscale_text/source/main.c
+
+    <!-- filesystem -->
+    \example filesystem/libfat/libfatdir/source/directory.c
+    \example filesystem/nitrofs/nitrodir/source/directory.c
+
+    <!-- dswifi -->
+    \example dswifi/ap_search/source/template.c
+    \example dswifi/autoconnect/source/autoconnect.c
+    \example dswifi/httpget/source/httpget.c
+
+    <!-- card -->
+    \example card/eeprom/source/main.cpp
+
+    <!-- ds_motion -->
+    \example ds_motion/source/main.c
 */
 
-
-#ifndef NDS_INCLUDE
-#define NDS_INCLUDE
+#ifndef LIBNDS_NDS_H__
+#define LIBNDS_NDS_H__
 
 #ifndef ARM7
-#ifndef ARM9
-#error Either ARM7 or ARM9 must be defined
-#endif
+#    ifndef ARM9
+#        error Either ARM7 or ARM9 must be defined
+#    endif
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#include "nds/libversion.h"
-#include "nds/ndstypes.h"
-#include "nds/bios.h"
-#include "nds/card.h"
-#include "nds/cothread.h"
-#include "nds/debug.h"
-#include "nds/dma.h"
-#include "nds/interrupts.h"
-#include "nds/ipc.h"
-#include "nds/memory.h"
-#include "nds/system.h"
-#include "nds/timers.h"
-#include "nds/fifocommon.h"
-#include "nds/touch.h"
-#include "nds/input.h"
-#include "nds/sha1.h"
+#include <nds/bios.h>
+#include <nds/camera.h>
+#include <nds/card.h>
+#include <nds/cothread.h>
+#include <nds/debug.h>
+#include <nds/dma.h>
+#include <nds/fifocommon.h>
+#include <nds/input.h>
+#include <nds/interrupts.h>
+#include <nds/ipc.h>
+#include <nds/libversion.h>
+#include <nds/memory.h>
+#include <nds/ndma.h>
+#include <nds/ndstypes.h>
+#include <nds/sha1.h>
+#include <nds/system.h>
+#include <nds/timers.h>
+#include <nds/touch.h>
 
-#include "nds/camera.h"
-#include "nds/ndma.h"
-
-//---------------------------------------------------------------------------------
 #ifdef ARM9
-//---------------------------------------------------------------------------------
-
-#include "nds/arm9/dynamicArray.h"
-#include "nds/arm9/linkedlist.h"
-#include "nds/arm9/background.h"
-#include "nds/arm9/boxtest.h"
-#include "nds/arm9/cache.h"
-#include "nds/arm9/console.h"
-#include "nds/arm9/decompress.h"
-#include "nds/arm9/exceptions.h"
-#include "nds/arm9/guitarGrip.h"
-#include "nds/arm9/image.h"
-#include "nds/arm9/input.h"
-#include "nds/arm9/keyboard.h"
-#include "nds/arm9/math.h"
-#include "nds/arm9/paddle.h"
-#include "nds/arm9/pcx.h"
-#include "nds/arm9/piano.h"
-#include "nds/arm9/rumble.h"
-#include "nds/arm9/sassert.h"
-#include "nds/arm9/sound.h"
-#include "nds/arm9/sprite.h"
-#include "nds/arm9/window.h"
-#include "nds/arm9/trig_lut.h"
-#include "nds/arm9/video.h"
-#include "nds/arm9/videoGL.h"
-#include "nds/arm9/nand.h"
-#include "nds/arm9/camera.h"
-
-//---------------------------------------------------------------------------------
+#    include <nds/arm9/background.h>
+#    include <nds/arm9/boxtest.h>
+#    include <nds/arm9/cache.h>
+#    include <nds/arm9/camera.h>
+#    include <nds/arm9/console.h>
+#    include <nds/arm9/decompress.h>
+#    include <nds/arm9/dynamicArray.h>
+#    include <nds/arm9/exceptions.h>
+#    include <nds/arm9/guitarGrip.h>
+#    include <nds/arm9/image.h>
+#    include <nds/arm9/input.h>
+#    include <nds/arm9/keyboard.h>
+#    include <nds/arm9/linkedlist.h>
+#    include <nds/arm9/math.h>
+#    include <nds/arm9/nand.h>
+#    include <nds/arm9/paddle.h>
+#    include <nds/arm9/pcx.h>
+#    include <nds/arm9/piano.h>
+#    include <nds/arm9/rumble.h>
+#    include <nds/arm9/sassert.h>
+#    include <nds/arm9/sound.h>
+#    include <nds/arm9/sprite.h>
+#    include <nds/arm9/trig_lut.h>
+#    include <nds/arm9/video.h>
+#    include <nds/arm9/videoGL.h>
+#    include <nds/arm9/window.h>
 #endif // #ifdef ARM9
-//---------------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------------
 #ifdef ARM7
-//---------------------------------------------------------------------------------
-#include "nds/arm7/aes.h"
-#include "nds/arm7/audio.h"
-#include "nds/arm7/camera.h"
-#include "nds/arm7/clock.h"
-#include "nds/arm7/codec.h"
-#include "nds/arm7/input.h"
-#include "nds/arm7/i2c.h"
-#include "nds/arm7/sdmmc.h"
-#include "nds/arm7/serial.h"
-#include "nds/arm7/touch.h"
-
-//---------------------------------------------------------------------------------
-#endif // #ifdef ARM7
-//---------------------------------------------------------------------------------
+#    include <nds/arm7/aes.h>
+#    include <nds/arm7/audio.h>
+#    include <nds/arm7/camera.h>
+#    include <nds/arm7/clock.h>
+#    include <nds/arm7/codec.h>
+#    include <nds/arm7/i2c.h>
+#    include <nds/arm7/input.h>
+#    include <nds/arm7/sdmmc.h>
+#    include <nds/arm7/serial.h>
+#    include <nds/arm7/touch.h>
+#endif // ARM7
 
 #ifdef __cplusplus
 }
 #endif
-#endif // NDS_INCLUDE
 
-
+#endif // LIBNDS_NDS_H__
