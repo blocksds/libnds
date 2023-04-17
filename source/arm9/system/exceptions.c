@@ -8,5 +8,5 @@
 void setExceptionHandler(VoidFn handler)
 {
     EXCEPTION_VECTOR = enterException;
-    *exceptionC = handler;
+    exceptionC = handler;
 }
