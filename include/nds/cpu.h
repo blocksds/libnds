@@ -14,7 +14,7 @@ extern "C" {
 #include <nds/cpu_asm.h>
 
 /// Sets the CPU status register.
-uint32_t setCPSR(void);
+void setCPSR(uint32_t);
 
 /// Returns the cpu status register.
 uint32_t getCPSR(void);
