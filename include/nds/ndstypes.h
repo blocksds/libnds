@@ -18,24 +18,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// Section macros
-#define ITCM_CODE   __attribute__((section(".itcm"), long_call))
+/// Used to place a function in ITCM
+#define ITCM_CODE __attribute__((section(".itcm"), long_call))
 
-#define DTCM_DATA   __attribute__((section(".dtcm")))
-#define DTCM_BSS    __attribute__((section(".sbss")))
+/// Used to place initialized data in DTCM
+#define DTCM_DATA __attribute__((section(".dtcm")))
+/// Used to place uninitialized data in DTCM
+#define DTCM_BSS __attribute__((section(".sbss")))
 
-#define TWL_CODE    __attribute__((section(".twl")))
-#define TWL_DATA    __attribute__((section(".twl")))
-#define TWL_BSS     __attribute__((section(".twl_bss")))
+/// Used to place a function in DSi RAM.
+#define TWL_CODE __attribute__((section(".twl")))
+/// Used to place initialized data in DSi RAM.
+#define TWL_DATA __attribute__((section(".twl")))
+/// Used to place uninitialized data in DSi RAM.
+#define TWL_BSS __attribute__((section(".twl_bss")))
 
-#define ARM_CODE    __attribute__((target("arm")))
-#define THUMB_CODE  __attribute__((target("thumb")))
+/// Used to tell the compiler to compile a function as ARM code
+#define ARM_CODE __attribute__((target("arm")))
+/// Used to tell the compiler to compile a function as Thumb code (default)
+#define THUMB_CODE __attribute__((target("thumb")))
 
 /// Aligns a struct (and other types) to "m".
-#define ALIGN(m)    __attribute__((aligned (m)))
+#define ALIGN(m) __attribute__((aligned (m)))
 
 /// Packs a struct so it won't include padding bytes.
-#define PACKED      __attribute__ ((packed))
+#define PACKED __attribute__ ((packed))
 #define packed_struct struct PACKED
 
 // Macros related to the bin2o macro of the Makefile

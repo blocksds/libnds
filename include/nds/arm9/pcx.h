@@ -3,45 +3,45 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/*! \file pcx.h
-	\brief A simple 256 color pcx file loader.
-*/
+/// @file pcx.h
+///
+/// @brief A simple 256 color pcx file loader.
 
-#ifndef PCX_H
-#define PCX_H
+#ifndef LIBNDS_NDS_ARM9_PCX_H__
+#define LIBNDS_NDS_ARM9_PCX_H__
 
 typedef struct PCXHeader
 {
-   char         manufacturer;   //should be 0
-   char         version;        //should be 5
-   char         encoding;       //should be 1
-   char         bitsPerPixel; //should be 8
-   short int    xmin,ymin;      //coordinates for top left,bottom right
-   short int    xmax,ymax;
-   short int    hres;           //resolution
-   short int    vres;
-   char         palette16[48];  //16 color palette if 16 color image
-   char         reserved;       //ignore
-   char         colorPlanes;   //ignore
-   short int    bytesPerLine;
-   short int    paletteYype;   //should be 2
-   char         filler[58];     //ignore
+   char      manufacturer;  // Should be 0
+   char      version;       // Should be 5
+   char      encoding;      // Should be 1
+   char      bitsPerPixel;  // Should be 8
+   short int xmin,ymin;     // Coordinates for top left,bottom right
+   short int xmax,ymax;
+   short int hres;          // Resolution
+   short int vres;
+   char      palette16[48]; // 16 color palette if 16 color image
+   char      reserved;      // Ignore
+   char      colorPlanes;   // Ignore
+   short int bytesPerLine;
+   short int paletteYype;   // Should be 2
+   char      filler[58];    // Ignore
 }__attribute__ ((packed)) PCXHeader, *pPCXHeader;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*! \brief Loads an image structure with data from PCX formatted data
-	\param pcx a pointer to the pcx file loaded into memory
-	\param image the image structure to fill in (the loader will allocate room for the palette and pixel data)
-	\return 1 on success, 0 on failure
-*/
-int loadPCX(const unsigned char* pcx, sImage* image);
+/// Loads an image structure with data from PCX formatted data.
+///
+/// @param pcx A pointer to the pcx file loaded into memory.
+/// @param image The image structure to fill in (the loader will allocate room
+///              for the palette and pixel data)
+/// @return 1 on success, 0 on failure.
+int loadPCX(const unsigned char *pcx, sImage *image);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
-
+#endif // LIBNDS_NDS_ARM9_PCX_H__

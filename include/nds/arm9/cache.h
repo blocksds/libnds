@@ -5,18 +5,18 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
 /// @file cache.h
+///
 /// @brief ARM9 cache control functions.
 
-#ifndef _cache_h_
-#define _cache_h_
+#ifndef LIBNDS_NDS_ARM9_CACHE_H__
+#define LIBNDS_NDS_ARM9_CACHE_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "nds/ndstypes.h"
-
-#include "nds/arm9/cp15.h"
+#include <nds/arm9/cp15.h>
+#include <nds/ndstypes.h>
 
 /// Invalidate the entire instruction cache.
 static inline void IC_InvalidateAll(void)
@@ -55,6 +55,7 @@ static inline void DC_InvalidateAll(void)
 }
 
 /// Invalidate the data cache of a range of addresses.
+///
 /// @param base base address of the region to invalidate
 /// @param size size of the region to invalidate.
 static inline void DC_InvalidateRange(const void *base, u32 size)
@@ -66,4 +67,4 @@ static inline void DC_InvalidateRange(const void *base, u32 size)
 }
 #endif
 
-#endif
+#endif // LIBNDS_NDS_ARM9_CACHE_H__

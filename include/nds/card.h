@@ -9,7 +9,7 @@
 
 #include <stddef.h>
 
-#include "ndstypes.h"
+#include <nds/ndstypes.h>
 
 // Card bus
 #define REG_CARD_DATA_RD (*(vu32 *)0x04100010)

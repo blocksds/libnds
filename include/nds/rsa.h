@@ -2,27 +2,27 @@
 //
 // Copyright (C) 2017 Dave Murphy (WinterMute)
 
-#ifndef RSA_H_INCLUDE
-#define RSA_H_INCLUDE
+#ifndef LIBNDS_NDS_RSA_H__
+#define LIBNDS_NDS_RSA_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "nds/ndstypes.h"
 #include <stddef.h>
 
+#include <nds/ndstypes.h>
+
 typedef struct swiRSAHeapContext {
-	void *heapStart;
-	void *heapEnd;
-	size_t heapSize;
+    void *heapStart;
+    void *heapEnd;
+    size_t heapSize;
 } swiRSAHeapContext_t;
 
-
 typedef struct swiRSAbuffers {
-	void *dst;
-	const void *sig;
-	const void *key;
+    void *dst;
+    const void *sig;
+    const void *key;
 } swiRSAbuffers_t;
 
 int swiRSAInitHeap(swiRSAHeapContext_t *ctx, void *heapStart, size_t heapSize);
@@ -34,5 +34,4 @@ int swiRSADecryptPGP(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const
 }
 #endif
 
-
-#endif // RSA_H_INCLUDE
+#endif // LIBNDS_NDS_RSA_H__

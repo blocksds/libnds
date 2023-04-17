@@ -6,8 +6,8 @@
 #include <stdlib.h>
 
 #include <nds/arm9/image.h>
+#include <nds/arm9/pcx.h>
 #include <nds/arm9/video.h>
-#include <nds/ndstypes.h>
 
 int loadPCX(const unsigned char *pcx, sImage *image)
 {

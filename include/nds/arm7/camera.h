@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2023 Adrian "asie" Siekierka
 
-#ifndef NDS_ARM7_CAMERA_H__
-#define NDS_ARM7_CAMERA_H__
+#ifndef LIBNDS_NDS_ARM7_CAMERA_H__
+#define LIBNDS_NDS_ARM7_CAMERA_H__
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-/* low-level Aptina I2C register read/write functions */
+// Low-level Aptina I2C register read/write functions
 u8 aptI2cWrite(u8 device, u16 reg, u16 data);
 u16 aptI2cRead(u8 device, u16 reg);
 // #define aptI2cWrite i2cWriteRegister16
@@ -24,7 +24,7 @@ void aptI2cWaitSetBits(u8 device, u16 reg, u16 mask);
 void aptI2cClearBits(u8 device, u16 reg, u16 mask);
 void aptI2cSetBits(u8 device, u16 reg, u16 mask);
 
-/* low-level Aptina MCU register read/write functions */
+// Low-level Aptina MCU register read/write functions
 u16 aptMcuRead(u8 device, u16 reg);
 void aptMcuWrite(u8 device, u16 reg, u16 data);
 void aptMcuWaitClearBits(u8 device, u16 reg, u16 mask);
@@ -32,18 +32,18 @@ void aptMcuWaitSetBits(u8 device, u16 reg, u16 mask);
 void aptMcuClearBits(u8 device, u16 reg, u16 mask);
 void aptMcuSetBits(u8 device, u16 reg, u16 mask);
 
-/* high-level camera functions */
+// High-level camera functions
 void aptCameraSetMode(u8 device, u8 mode);
 void aptCameraInit(u8 device);
 void aptCameraDeinit(u8 device);
 void aptCameraActivate(u8 device);
 void aptCameraDeactivate(u8 device);
 
-/* camera FIFO handler */
+// Camera FIFO handler
 void installCameraFIFO(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // NDS_ARM7_CAMERA_H__
+#endif // LIBNDS_NDS_ARM7_CAMERA_H__

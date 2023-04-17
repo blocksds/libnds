@@ -13,7 +13,7 @@
 ///
 /// @brief Contains a struct with touch screen data.
 
-//! holds data related to the touch screen.
+/// Holds data related to the touch screen.
 typedef struct touchPosition {
     u16 rawx; ///< Raw x value from the A2D
     u16 rawy; ///< Raw y value from the A2D

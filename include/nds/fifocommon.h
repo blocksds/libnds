@@ -3,43 +3,44 @@
 // Copyright (c) 2008-2015 Dave Murphy (WinterMute)
 // Copyright (c) 2023 Antonio Niño Díaz
 
-#ifndef FIFOCOMMON_H__
-#define FIFOCOMMON_H__
+#ifndef LIBNDS_NDS_FIFOCOMMON_H__
+#define LIBNDS_NDS_FIFOCOMMON_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "ndstypes.h"
-#include "cothread.h"
-#include "interrupts.h"
+#include <nds/ndstypes.h>
+#include <nds/cothread.h>
+#include <nds/interrupts.h>
 
 /// @file fifocommon.h
+///
 /// @brief Low level FIFO API.
 
-//! Enum values for the different fifo channels.
+/// Enum values for the different FIFO channels.
 typedef enum {
-    FIFO_PM         = 0,  //!< \brief Channel used for power management
-    FIFO_SOUND      = 1,  //!< \brief Channel used for sound access
-    FIFO_SYSTEM     = 2,  //!< \brief Channel used for system functions
-    FIFO_MAXMOD     = 3,  //!< \brief Channel used for the maxmod library
-    FIFO_DSWIFI     = 4,  //!< \brief Channel used for the dswifi library
-    FIFO_STORAGE    = 5,  //!< \brief Channel used for DS cart, DLDI, DSi SD and NAND access
-    FIFO_FIRMWARE   = 6,  //!< \brief Channel used for firmware access
-    FIFO_CAMERA     = 7,  //!< \brief Channel used for camera access
-    FIFO_USER_01    = 8,  //!< \brief Channel available for users
-    FIFO_USER_02    = 9,  //!< \brief Channel available for users
-    FIFO_USER_03    = 10, //!< \brief Channel available for users
-    FIFO_USER_04    = 11, //!< \brief Channel available for users
-    FIFO_USER_05    = 12, //!< \brief Channel available for users
-    FIFO_USER_06    = 13, //!< \brief Channel available for users
-    FIFO_USER_07    = 14, //!< \brief Channel available for users
-    FIFO_USER_08    = 15, //!< \brief Channel available for users
+    FIFO_PM         = 0,  ///< Channel used for power management
+    FIFO_SOUND      = 1,  ///< Channel used for sound access
+    FIFO_SYSTEM     = 2,  ///< Channel used for system functions
+    FIFO_MAXMOD     = 3,  ///< Channel used for the maxmod library
+    FIFO_DSWIFI     = 4,  ///< Channel used for the dswifi library
+    FIFO_STORAGE    = 5,  ///< Channel used for DS cart, DLDI, DSi SD and NAND access
+    FIFO_FIRMWARE   = 6,  ///< Channel used for firmware access
+    FIFO_CAMERA     = 7,  ///< Channel used for camera access
+    FIFO_USER_01    = 8,  ///< Channel available for users
+    FIFO_USER_02    = 9,  ///< Channel available for users
+    FIFO_USER_03    = 10, ///< Channel available for users
+    FIFO_USER_04    = 11, ///< Channel available for users
+    FIFO_USER_05    = 12, ///< Channel available for users
+    FIFO_USER_06    = 13, ///< Channel available for users
+    FIFO_USER_07    = 14, ///< Channel available for users
+    FIFO_USER_08    = 15, ///< Channel available for users
 
-    FIFO_SDMMC      = 5,  //!< \brief Deprecated name of FIFO_STORAGE
+    FIFO_SDMMC      = 5,  ///< Deprecated name of FIFO_STORAGE
 } FifoChannels;
 
-//! Enum values for the fifo sound commands.
+/// Enum values for the FIFO sound commands.
 typedef enum {
     SOUND_SET_PAN           = 0 << 20,
     SOUND_SET_VOLUME        = 1 << 20,
@@ -54,7 +55,7 @@ typedef enum {
     MIC_STOP                = 10 << 20
 } FifoSoundCommand;
 
-//! Enum values for the fifo system commands.
+/// Enum values for the FIFO system commands.
 typedef enum {
     SYS_REQ_TOUCH,
     SYS_REQ_KEYS,
@@ -86,7 +87,7 @@ typedef enum {
     FW_WRITE
 } FifoFirmwareCommands;
 
-//! Enum values for the fifo power management commands.
+/// Enum values for the FIFO power management commands.
 typedef enum {
     PM_REQ_ON               = 1 << 16,
     PM_REQ_OFF              = 2 << 16,
@@ -97,9 +98,9 @@ typedef enum {
     PM_REQ_BATTERY          = 7 << 16,
     PM_REQ_SLOT1_DISABLE    = 8 << 16,
     PM_REQ_SLOT1_ENABLE     = 9 << 16,
-}FifoPMCommands;
+} FifoPMCommands;
 
-//! Enum values for the fifo wifi commands.
+/// Enum values for the FIFO wifi commands.
 typedef enum {
     WIFI_ENABLE,
     WIFI_DISABLE,
@@ -108,12 +109,12 @@ typedef enum {
 } FifoWifiCommands;
 
 
-//! Power Management LED blink mode control bits.
+/// Power Management LED blink mode control bits.
 typedef enum {
-    PM_LED_ON       = 0, //!< \brief Steady on
-    PM_LED_SLEEP    = 1, //!< \brief Blinking, mostly off
-    PM_LED_BLINK    = 3, //!< \brief Blinking, mostly on
-}PM_LedBlinkMode;
+    PM_LED_ON       = 0, ///< Steady on
+    PM_LED_SLEEP    = 1, ///< Blinking, mostly off
+    PM_LED_BLINK    = 3, ///< Blinking, mostly on
+} PM_LedBlinkMode;
 
 /// Callback that is called with the address sent from the other CPU and the
 /// callback's user data.
@@ -286,7 +287,6 @@ u32 fifoGetValue32(u32 channel);
 /// @param destbuffer Pointer to the buffer to store the message.
 ///
 /// @return The number of bytes written, or -1 if there is no message.
-///
 /// @warning If your buffer is not big enough, you may lose data. Check the
 /// actual size first with fifoCheckDatamsgLength().
 int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer);
@@ -379,7 +379,6 @@ void fifoMutexAcquire(u32 channel);
 /// Tries to acquire the mutex of the specified FIFO channel.
 ///
 /// @return Returns true if the lock was acquired, false if not.
-///
 /// @param channel Channel number.
 bool fifoMutexTryAcquire(u32 channel);
 
@@ -394,4 +393,4 @@ void fifoMutexRelease(u32 channel);
 };
 #endif
 
-#endif // FIFOCOMMON_H__
+#endif // LIBNDS_NDS_FIFOCOMMON_H__

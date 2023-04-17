@@ -36,16 +36,16 @@ endif
 all: $(VERSION_HEADER) arm9 arm7
 
 $(VERSION_HEADER): Makefile
-	@echo "#ifndef __LIBNDSVERSION_H__" > $@
-	@echo "#define __LIBNDSVERSION_H__" >> $@
+	@echo "#ifndef LIBNDS_NDS_LIBVERSION_H__" > $@
+	@echo "#define LIBNDS_NDS_LIBVERSION_H__" >> $@
 	@echo >> $@
 	@echo "#define _LIBNDS_MAJOR_ $(LIBNDS_MAJOR)" >> $@
 	@echo "#define _LIBNDS_MINOR_ $(LIBNDS_MINOR)" >> $@
 	@echo "#define _LIBNDS_PATCH_ $(LIBNDS_PATCH)" >> $@
 	@echo >> $@
-	@echo '#define _LIBNDS_STRING "libNDS Release '$(LIBNDS_MAJOR).$(LIBNDS_MINOR).$(LIBNDS_PATCH)'"' >> $@
+	@echo '#define _LIBNDS_STRING "libnds release '$(LIBNDS_MAJOR).$(LIBNDS_MINOR).$(LIBNDS_PATCH)'"' >> $@
 	@echo >> $@
-	@echo "#endif // __LIBNDSVERSION_H__" >> $@
+	@echo "#endif // LIBNDS_NDS_LIBVERSION_H__" >> $@
 
 arm9:
 	@+$(MAKE) -f Makefile.arm9 --no-print-directory

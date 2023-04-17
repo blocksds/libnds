@@ -11,7 +11,7 @@
 
 /// @file bios.h
 ///
-/// @brief Nintendo DS Bios functions
+/// @brief Nintendo DS BIOS functions
 ///
 /// See gbatek for more information.
 

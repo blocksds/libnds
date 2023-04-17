@@ -2,8 +2,10 @@
 //
 // Copyright (c) 2023 Antonio Niño Díaz
 
-#ifndef NDS_CPU_ASM_H__
-#define NDS_CPU_ASM_H__
+#ifndef LIBNDS_NDS_CPU_ASM_H__
+#define LIBNDS_NDS_CPU_ASM_H__
+
+// This file must only have definitions that can be used from assembly files.
 
 #ifndef BIT
 #define BIT(n) (1 << (n))
@@ -34,4 +36,4 @@
 #define CPSR_FLAG_STATE         BIT(5) // 0 = ARM, 1 = THUMB
 #define CPSR_FLAG_T             BIT(5)
 
-#endif // NDS_CPU_ASM_H__
+#endif // LIBNDS_NDS_CPU_ASM_H__

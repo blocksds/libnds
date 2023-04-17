@@ -3,11 +3,11 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2023 Antonio Niño Díaz
-//
+
 // CP15 control for the ARM9
 
-#ifndef CP15_INCLUDE
-#define CP15_INCLUDE
+#ifndef LIBNDS_NDS_ARM9_CP15_H__
+#define LIBNDS_NDS_ARM9_CP15_H__
 
 #ifndef ARM9
 #error CP15 is only for the ARM9
@@ -22,12 +22,8 @@ extern "C" {
 
 #include <nds/arm9/cp15_asm.h>
 
-//////////////////////////////////////////////////////////////////////
-
 // Flush functions invalidate cache entries. Clean functions force the memory to
 // be updated to the contents of the cache
-
-//////////////////////////////////////////////////////////////////////
 
 #define CPUID_IMPLEMENTOR(id) ((id) >> 24)          // 0x41
 #define CPUID_ARCH(id)        (((id) >> 16) & 0xF)  // 0x04
@@ -36,20 +32,12 @@ extern "C" {
 
 uint32_t CP15_GetID(void);
 
-//////////////////////////////////////////////////////////////////////
-
 uint32_t CP15_GetCacheType(void);
-
-//////////////////////////////////////////////////////////////////////
 
 uint32_t CP15_GetTCMSize(void);
 
-//////////////////////////////////////////////////////////////////////
-
 uint32_t CP15_GetControl(void);
 void CP15_SetControl(uint32_t data);
-
-//////////////////////////////////////////////////////////////////////
 
 uint32_t CP15_GetDataCachable(void);
 uint32_t CP15_GetInstructionCachable(void);
@@ -58,14 +46,10 @@ void CP15_SetInstructionCachable(void);
 uint32_t CP15_GetDataBufferable(void);
 void CP15_SetDataBufferable(void);
 
-//////////////////////////////////////////////////////////////////////
-
 uint32_t CP15_GetDataPermissions(void);
 uint32_t CP15_GetInstructionPermissions(void);
 void CP15_SetDataPermissions(void);
 void CP15_SetInstructionPermissions(void);
-
-//////////////////////////////////////////////////////////////////////
 
 uint32_t CP15_GetRegion0(void);
 uint32_t CP15_GetRegion1(void);
@@ -83,8 +67,6 @@ void CP15_SetRegion4(uint32_t data);
 void CP15_SetRegion5(uint32_t data);
 void CP15_SetRegion6(uint32_t data);
 void CP15_SetRegion7(uint32_t data);
-
-//////////////////////////////////////////////////////////////////////
 
 // Flush entire instruction cache
 void CP15_FlushICache(void);
@@ -105,25 +87,17 @@ void CP15_CleanAndFlushDCacheEntryByIndex(uint32_t index);
 // buffer are completed, that is, until all data is written to external memory.
 void CP15_DrainWriteBuffer(void);
 
-//////////////////////////////////////////////////////////////////////
-
 void CP15_WaitForInterrupt(void);
-
-//////////////////////////////////////////////////////////////////////
 
 uint32_t CP15_GetDCacheLockdown(void);
 uint32_t CP15_GetICacheLockdown(void);
 void CP15_SetDCacheLockdown(uint32_t data);
 void CP15_SetICacheLockdown(uint32_t data);
 
-//////////////////////////////////////////////////////////////////////
-
 uint32_t CP15_GetDTCM(void);
 uint32_t CP15_GetITCM(void);
 void CP15_SetDTCM(uint32_t data);
 void CP15_SetITCM(uint32_t data);
-
-//////////////////////////////////////////////////////////////////////
 
 // Helper functions
 
@@ -133,12 +107,8 @@ void CP15_CleanAndFlushDcache(void);
 
 void CP15_FlushIcacheRange(const void *base, size_t size);
 
-//////////////////////////////////////////////////////////////////////
-
 #ifdef __cplusplus
 }
 #endif
 
-//////////////////////////////////////////////////////////////////////
-
-#endif // CP15_INCLUDE
+#endif // LIBNDS_NDS_ARM9_CP15_H__

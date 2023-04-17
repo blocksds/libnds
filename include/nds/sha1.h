@@ -20,11 +20,11 @@ extern "C" {
 #include <nds/ndstypes.h>
 
 typedef struct swiSHA1context {
-    u32 state[5];       //!< intermediate digest state
-    u32 total[2];       //!< number of bytes processed
-    u8  buffer[64];     //!< data block being processed
+    u32 state[5];       ///< Intermediate digest state
+    u32 total[2];       ///< Number of bytes processed
+    u8  buffer[64];     ///< Data block being processed
     u32 fragment_size;
-    void (*sha_block)(struct swiSHA1context *ctx, const void *src, size_t len); //!< data block being processed
+    void (*sha_block)(struct swiSHA1context *ctx, const void *src, size_t len); ///< Data block being processed
 } swiSHA1context_t;
 
 /// SHA-1 context setup.

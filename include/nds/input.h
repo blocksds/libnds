@@ -6,6 +6,8 @@
 #ifndef LIBNDS_NDS_INPUT_H__
 #define LIBNDS_NDS_INPUT_H__
 
+#include <nds/ndstypes.h>
+
 /// @file input.h
 ///
 /// @brief common values for keypad input.

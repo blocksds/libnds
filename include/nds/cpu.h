@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2023 Antonio Niño Díaz
 
-#ifndef NDS_CPU_H__
-#define NDS_CPU_H__
+#ifndef LIBNDS_NDS_CPU_H__
+#define LIBNDS_NDS_CPU_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,14 +13,14 @@ extern "C" {
 
 #include <nds/cpu_asm.h>
 
-//! Sets the CPU status register.
+/// Sets the CPU status register.
 uint32_t setCPSR(void);
 
-//! Returns the cpu status register.
+/// Returns the cpu status register.
 uint32_t getCPSR(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // NDS_CPU_H__
+#endif // LIBNDS_NDS_CPU_H__

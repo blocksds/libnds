@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2023 Antonio Niño Díaz
 
-#ifndef NDS_ARM9_CP15_ASM_H__
-#define NDS_ARM9_CP15_ASM_H__
+#ifndef LIBNDS_NDS_ARM9_CP15_ASM_H__
+#define LIBNDS_NDS_ARM9_CP15_ASM_H__
 
 // Information from the "ARM 946E-S Technical Reference Manual" ARM DDI 0155A.
 //
@@ -242,4 +242,4 @@
 #define CP15_REG15_INSTRUCTION_CACHE(rd)            p15, 3, rd, c15, c3, 0
 #define CP15_REG15_DATA_CACHE(rd)                   p15, 3, rd, c15, c4, 0
 
-#endif // NDS_ARM9_CP15_ASM_H__
+#endif // LIBNDS_NDS_ARM9_CP15_ASM_H__
