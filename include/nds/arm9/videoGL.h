@@ -24,14 +24,6 @@
 #    error 3D hardware is only available from the ARM9
 #endif
 
-/*---------------------------------------------------------------------------------
-	lut resolution for trig functions
-	(must be power of two and must be the same as LUT resolution)
-	in other words dont change unless you also change your LUTs
----------------------------------------------------------------------------------*/
-#define LUT_SIZE (1<<15)
-#define LUT_MASK ((1<<15) - 1)
-
 ////////////////////////////////////////////////////////////
 // Misc. constants
 ////////////////////////////////////////////////////////////

@@ -35,6 +35,12 @@
 extern "C" {
 #endif
 
+// LUT resolution for trig functions. It must be power of two and must be the
+// same as the LUT resolution. In other words dont change unless you also
+// change your LUTs.
+#define LUT_SIZE    (1 << 15)
+#define LUT_MASK    ((1 << 15) - 1)
+
 /// Number of degrees in a circle.
 #define DEGREES_IN_CIRCLE (1 << 15)
 
