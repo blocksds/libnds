@@ -1072,8 +1072,8 @@ static inline void glMultMatrix3x3(const m3x3 *m)
 /// @param angle The angle to rotate by (angle is -32768 to 32767).
 static inline void glRotateXi(int angle)
 {
-    int sine = sinLerp(angle); // SIN[angle & LUT_MASK];
-    int cosine = cosLerp(angle); // COS[angle & LUT_MASK];
+    int sine = sinLerp(angle);
+    int cosine = cosLerp(angle);
 
     MATRIX_MULT3x3 = inttof32(1);
     MATRIX_MULT3x3 = 0;
@@ -1093,8 +1093,8 @@ static inline void glRotateXi(int angle)
 /// @param angle The angle to rotate by (angle is -32768 to 32767).
 static inline void glRotateYi(int angle)
 {
-    int sine = sinLerp(angle); // SIN[angle & LUT_MASK];
-    int cosine = cosLerp(angle); // COS[angle & LUT_MASK];
+    int sine = sinLerp(angle);
+    int cosine = cosLerp(angle);
 
     MATRIX_MULT3x3 = cosine;
     MATRIX_MULT3x3 = 0;
@@ -1114,8 +1114,8 @@ static inline void glRotateYi(int angle)
 /// @param angle The angle to rotate by (angle is -32768 to 32767).
 static inline void glRotateZi(int angle)
 {
-    int sine = sinLerp(angle); // SIN[angle & LUT_MASK];
-    int cosine = cosLerp(angle); // COS[angle & LUT_MASK];
+    int sine = sinLerp(angle);
+    int cosine = cosLerp(angle);
 
     MATRIX_MULT3x3 = cosine;
     MATRIX_MULT3x3 = sine;

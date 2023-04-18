@@ -30,8 +30,8 @@ gl_hidden_globals *glGetGlobals(void)
 void glRotatef32i(int angle, int32 x, int32 y, int32 z)
 {
     int32 axis[3];
-    int32 sin = sinLerp(angle); // SIN[angle &  LUT_MASK];
-    int32 cos = cosLerp(angle); // COS[angle & LUT_MASK];
+    int32 sin = sinLerp(angle);
+    int32 cos = cosLerp(angle);
     int32 one_minus_cos = inttof32(1) - cos;
 
     axis[0] = x;

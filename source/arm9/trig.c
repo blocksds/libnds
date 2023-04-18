@@ -2,9 +2,10 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
+#include <stdlib.h>
+
 #include <nds/arm9/math.h>
 #include <nds/arm9/trig_lut.h>
-#include <stdlib.h>
 
 // As far as the LUTs are concerned, an angle has 512 degrees (9 bits long) with
 // an range of [0-511] (512 is the same as 0). The LUTs then implement a quarter
