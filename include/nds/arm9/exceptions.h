@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-extern VoidFn *exceptionC;
+extern VoidFn exceptionC;
 extern u32 exceptionStack;
 
 /// Array with a copy of all the registers of when the exception occured.
