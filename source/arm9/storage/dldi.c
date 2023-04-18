@@ -5,7 +5,7 @@
 // Interface to the low level disc functions. Used by the higher level file
 // system code. Based on code originally written by MightyMax.
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/fcntl.h>
 #include <unistd.h>

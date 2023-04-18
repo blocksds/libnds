@@ -6,8 +6,8 @@
 
 // Timer API
 
-#include <nds/timers.h>
 #include <nds/interrupts.h>
+#include <nds/timers.h>
 
 #ifdef ARM9
 #include <nds/arm9/sassert.h>

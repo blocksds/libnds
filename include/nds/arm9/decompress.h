@@ -10,8 +10,8 @@
 #ifndef LIBNDS_NDS_ARM9_DECOMPRESS_H__
 #define LIBNDS_NDS_ARM9_DECOMPRESS_H__
 
-#include <nds/ndstypes.h>
 #include <nds/bios.h>
+#include <nds/ndstypes.h>
 
 /// The types of decompression available.
 typedef enum

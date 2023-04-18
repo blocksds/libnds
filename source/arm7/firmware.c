@@ -2,12 +2,13 @@
 //
 // Copyright (C) 2014 Dave Murphy (WinterMute)
 
+#include <string.h>
+
 #include <nds/arm7/serial.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/interrupts.h>
 #include <nds/system.h>
-#include <string.h>
 
 static u8 readwriteSPI(u8 data)
 {

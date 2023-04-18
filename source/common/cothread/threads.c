@@ -11,7 +11,6 @@
 #include <sys/errno.h>
 
 #include <ndsabi.h>
-
 #include <nds/bios.h>
 #include <nds/cothread.h>
 #include <nds/interrupts.h>

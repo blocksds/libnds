@@ -2,9 +2,10 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
+#include <string.h>
+
 #include <nds/arm7/serial.h>
 #include <nds/system.h>
-#include <string.h>
 
 void readUserSettings(void)
 {

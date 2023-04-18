@@ -4,8 +4,8 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2009 Dave Murphy (WinterMute)
 
-#include <nds/asminc.h>
 #include <nds/arm9/cp15_asm.h>
+#include <nds/asminc.h>
 
     .section    .vectors,"ax",%progbits
 

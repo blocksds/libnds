@@ -25,9 +25,9 @@
 ///
 /// @see nds/input.h available key masks on the Nintendo DS
 
+#include <nds/input.h>
 #include <nds/ndstypes.h>
 #include <nds/touch.h>
-#include <nds/input.h>
 
 #ifdef __cplusplus
 extern "C" {

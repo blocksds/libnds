@@ -3,8 +3,8 @@
 // Copyright (C) 2010 Dave Murphy (WinterMute)
 // Copyright (c) 2023 Antonio Niño Díaz
 
-#include <nds/ndstypes.h>
 #include <nds/ipc.h>
+#include <nds/ndstypes.h>
 #include <nds/system.h>
 
 #include "fifo_ipc_messages.h"

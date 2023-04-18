@@ -5,9 +5,9 @@
 
 #include <stdio.h>
 
-#include <nds/interrupts.h>
-#include <nds/cothread.h>
 #include <nds/arm9/keyboard.h>
+#include <nds/cothread.h>
+#include <nds/interrupts.h>
 
 #include "arm9/libnds_internal.h"
 

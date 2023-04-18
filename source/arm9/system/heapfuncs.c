@@ -2,12 +2,13 @@
 //
 // Copyright (C) 2011 Dave Murphy (WinterMute)
 
+#include <unistd.h>
+
 #include <nds/ndstypes.h>
 #include <nds/system.h>
-#include <unistd.h> // for sbrk()
 
-extern u8 *fake_heap_end;   // current heap start
-extern u8 *fake_heap_start; // current heap end
+extern u8 *fake_heap_end;   // Current heap start
+extern u8 *fake_heap_start; // Current heap end
 
 u8 *getHeapStart(void)
 {

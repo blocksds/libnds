@@ -15,8 +15,8 @@
 #define LIBNDS_NDS_NDSTYPES_H__
 
 // Define libnds types in terms of stdint
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /// Used to place a function in ITCM
 #define ITCM_CODE __attribute__((section(".itcm"), long_call))

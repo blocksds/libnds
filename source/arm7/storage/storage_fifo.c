@@ -2,14 +2,14 @@
 //
 // Copyright (c) 2023 Antonio Niño Díaz
 
+#include <stddef.h>
+
 #include <nds/card.h>
-#include <nds/system.h>
 #include <nds/disc_io.h>
-#include <nds/interrupts.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
-
-#include <stddef.h>
+#include <nds/interrupts.h>
+#include <nds/system.h>
 
 static const DISC_INTERFACE *dldi_io = NULL;
 

@@ -5,11 +5,12 @@
 
 // Sound Functions
 
+#include <string.h>
+
 #include <nds/arm9/cache.h>
 #include <nds/arm9/sound.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
-#include <string.h>
 
 void soundEnable(void)
 {

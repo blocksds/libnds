@@ -2,6 +2,8 @@
 //
 // Copyright (C) 2011-2017 Dave Murphy (WinterMute)
 
+#include <stddef.h>
+
 #include <nds/system.h>
 #include <nds/bios.h>
 #include <nds/disc_io.h>
@@ -9,8 +11,6 @@
 #include <nds/interrupts.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
-
-#include <stddef.h>
 
 static struct mmcdevice deviceSD;
 static struct mmcdevice deviceNAND;

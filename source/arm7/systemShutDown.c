@@ -4,9 +4,9 @@
 // Copyright (C) 2005-20111 Jason Rogers (Dovoto)
 // Copyright (C) 2005-20111 Dave Murphy (WinterMute)
 
+#include <nds/arm7/i2c.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
-#include <nds/arm7/i2c.h>
 
 void systemShutDown(void)
 {

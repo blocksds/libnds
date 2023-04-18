@@ -2,12 +2,12 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#include <nds/interrupts.h>
-#include <nds/system.h>
-#include <nds/ipc.h>
 #ifdef ARM7
 #include <nds/arm7/i2c.h>
 #endif
+#include <nds/interrupts.h>
+#include <nds/ipc.h>
+#include <nds/system.h>
 
 void IntrMain(void); // Prototype for assembly interrupt dispatcher
 

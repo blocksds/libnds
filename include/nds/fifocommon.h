@@ -10,9 +10,9 @@
 extern "C" {
 #endif
 
-#include <nds/ndstypes.h>
 #include <nds/cothread.h>
 #include <nds/interrupts.h>
+#include <nds/ndstypes.h>
 
 /// @file fifocommon.h
 ///

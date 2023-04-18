@@ -3,15 +3,15 @@
 // Copyright (c) 2008-2015 Dave Murphy (WinterMute)
 // Copyright (c) 2023 Antonio Niño Díaz
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <nds/bios.h>
 #include <nds/cothread.h>
 #include <nds/fifocommon.h>
 #include <nds/interrupts.h>
 #include <nds/ipc.h>
 #include <nds/system.h>
-
-#include <stdlib.h>
-#include <string.h>
 
 #include "fifo_ipc_messages.h"
 

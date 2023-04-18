@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#include <nds/asminc.h>
 #include <nds/arm9/cp15_asm.h>
+#include <nds/asminc.h>
 
     .text
     .arm

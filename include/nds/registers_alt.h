@@ -5,7 +5,7 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2005 Chris Double (doublec)
 
-// This file should be deprecated.
+// This file is deprecated.
 //
 // All hardware register defines should be replaced with REG_ for consistency
 // and namespacing.

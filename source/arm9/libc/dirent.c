@@ -17,6 +17,7 @@
 #include "fatfs_internal.h"
 #undef DIR
 
+// Include "dirent.h" after the FatFs inclusion hack.
 #include <dirent.h>
 
 #define INDEX_NO_ENTRY  -1

@@ -3,8 +3,8 @@
 // Copyright (C) 2009-2017 Dave Murphy (WinterMute)
 // Copyright (C) 2017 fincs
 
-#include <nds/asminc.h>
 #include <nds/arm9/cp15_asm.h>
+#include <nds/asminc.h>
 
     .arch   armv5te
     .cpu    arm946e-s

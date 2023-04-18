@@ -4,11 +4,11 @@
 
 // DSi microphone control
 
+#include <nds/arm7/audio.h>
+#include <nds/arm7/codec.h>
 #include <nds/interrupts.h>
 #include <nds/fifocommon.h>
 #include <nds/timers.h>
-#include <nds/arm7/audio.h>
-#include <nds/arm7/codec.h>
 
 void micSetAmp_TWL(u8 control, u8 gain)
 {

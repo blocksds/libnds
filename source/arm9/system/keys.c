@@ -3,13 +3,13 @@
 // Copyright (C) 2005 Christian Auby (DesktopMan)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-// key input code -- provides slightly higher level input forming
+// Key input code. Provides slightly higher level input forming.
 
 #include <stdlib.h>
 
+#include <nds/arm9/input.h>
 #include <nds/ipc.h>
 #include <nds/system.h>
-#include <nds/arm9/input.h>
 
 #include "common/libnds_internal.h"
 
