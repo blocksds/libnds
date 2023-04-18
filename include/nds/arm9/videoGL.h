@@ -241,9 +241,6 @@ enum GL_TEXTURE_PALETTE_PARAM_ENUM {
     GL_COLOR_TABLE_WIDTH_EXT  = 1  ///< Retrieve the size of the palette
 };
 
-// TODO: Must polygon IDs be different for antialias to work?
-// TODO: What does GL_FOG_ONLY_ALPHA do?
-
 /// 3D display control register bits.
 ///
 /// Related functions: glEnable(), glDisable(), glInit()
@@ -256,13 +253,21 @@ enum DISP3DCNT_ENUM {
     GL_ALPHA_TEST      = (1 << 2),
     /// Enable/disable alpha blending
     GL_BLEND           = (1 << 3),
-    /// Enable/disable edge antialiasing; polygons must have different polygon
-    /// IDs for the effect to work and the rear plane must be clear.
+
+    /// Enable/disable edge antialiasing.
+    ///
+    /// Antialiasing is applied to polygon edges, to make the edges look
+    /// smoother. There is no antialiasing applied inside polygons or at
+    /// intersections between two polygons. Antialiasing also doesn't apply to
+    /// translucent pixels. Antialiasing interferes with wireframe polygons,
+    /// lines, points, and edge marking.
     GL_ANTIALIAS       = (1 << 4),
+
     /// Enable/disable edge coloring; the high 3bits of the polygon ID
     /// determine the color; glSetOutlineColor() sets the available colors.
     GL_OUTLINE         = (1 << 5),
-    /// Enable = fade into background?; disable = don't fade?
+    /// If it's enabled, only the fog alpha value is used, not the color. If
+    /// it's disabled, both fog color and alpha are used.
     GL_FOG_ONLY_ALPHA  = (1 << 6),
     /// Enables/disables fog
     GL_FOG             = (1 << 7),
@@ -625,11 +630,7 @@ static inline void glBegin(GL_GLBEGIN_ENUM mode)
     GFX_BEGIN = mode;
 }
 
-// TODO: Is the note about GFX_END right?
-
 /// Ends a polygon group.
-///
-/// This seems to do nothing, feel free to never use it.
 static inline void glEnd(void)
 {
     GFX_END = 0;
@@ -840,8 +841,6 @@ static inline void glMaterialShinyness(void)
         GFX_SHININESS = shiny32[i];
 }
 
-// TODO: Is the note about GFX_END below true?
-
 /// Sends a packed list of commands into the graphics FIFO via asyncronous DMA.
 ///
 /// The first 32 bits is the length of the packed command list, followed by the
@@ -849,9 +848,6 @@ static inline void glMaterialShinyness(void)
 ///
 /// If you want to do this really fast then write your own code that that does
 /// this synchronously and only flushes the cache when the list is changed.
-///
-/// There is sometimes a problem when you pack the GFX_END command
-/// into a list, so don't. GFX_END is a dummy command and never needs called.
 ///
 /// @param list Pointer to the packed list.
 static inline void glCallList(const u32 *list)
@@ -1205,7 +1201,6 @@ static inline void gluLookAtf32(int eyex, int eyey, int eyez,
 
     glMatrixMode(GL_MODELVIEW);
 
-    // TODO: Should we use MATRIX_MULT4x3?
     MATRIX_MULT4x3 = side[0];
     MATRIX_MULT4x3 = up[0];
     MATRIX_MULT4x3 = forward[0];
