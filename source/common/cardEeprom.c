@@ -4,9 +4,9 @@
 // Copyright (C) 2005-2010 Jason Rogers (Dovoto)
 // Copyright (C) 2005-2010 Dave Murphy (WinterMute)
 
-#include "nds/card.h"
-#include "nds/dma.h"
-#include "nds/memory.h"
+#include <nds/card.h>
+#include <nds/dma.h>
+#include <nds/memory.h>
 
 u8 cardEepromCommand(u8 command)
 {

@@ -4,12 +4,12 @@
 // Copyright (C) 2005 Jason Rogers (Dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#include "nds/card.h"
-#include "nds/dma.h"
-#include "nds/memory.h"
-#include "nds/bios.h"
-
 #include <stdio.h>
+
+#include <nds/bios.h>
+#include <nds/card.h>
+#include <nds/dma.h>
+#include <nds/memory.h>
 
 void cardWriteCommand(const u8 *command)
 {

@@ -15,14 +15,6 @@
 #ifndef VIDEOGL_ARM9_INCLUDE
 #define VIDEOGL_ARM9_INCLUDE
 
-#include "nds/dma.h"
-#include "nds/ndstypes.h"
-#include "nds/arm9/sassert.h"
-#include "nds/arm9/video.h"
-#include "nds/arm9/cache.h"
-#include "nds/arm9/trig_lut.h"
-#include "nds/arm9/math.h"
-#include "nds/arm9/dynamicArray.h"
 
 
 // for some reason doxygen doesn't like "static inline" but is fine with "GL_STATIC_INL"
@@ -30,6 +22,14 @@
 //...I didn't had any problems, so maybe the bug is already solved in doxygen...
 
 
+#include <nds/arm9/cache.h>
+#include <nds/arm9/dynamicArray.h>
+#include <nds/arm9/math.h>
+#include <nds/arm9/sassert.h>
+#include <nds/arm9/trig_lut.h>
+#include <nds/arm9/video.h>
+#include <nds/dma.h>
+#include <nds/ndstypes.h>
 
 #ifndef ARM9
 #error 3D hardware is only available from the ARM9

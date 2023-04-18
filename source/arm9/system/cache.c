@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2023 Antonio Niño Díaz
 
-#include "nds/ndstypes.h"
-#include "nds/arm9/cp15.h"
+#include <nds/arm9/cp15.h>
+#include <nds/ndstypes.h>
 
 ITCM_CODE ARM_CODE static inline
 uintptr_t align_up(const void *address, size_t size)

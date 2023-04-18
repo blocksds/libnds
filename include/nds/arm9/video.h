@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2005-2010 Michael Noland (joat)
-// Copyright (C) 2005-2010 Jason Rogers (dovoto)
-// Copyright (C) 2005-2010 Dave Murphy (WinterMute)
+// Copyright (C) 2005 Michael Noland (joat)
+// Copyright (C) 2005-2011 Jason Rogers (Dovoto)
+// Copyright (C) 2005-2011 Dave Murphy (WinterMute)
 
 /// @file video.h
 ///
