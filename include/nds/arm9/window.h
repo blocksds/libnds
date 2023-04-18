@@ -3,106 +3,103 @@
 // Copyright (C) 2007 Jason Rogers (dovoto)
 // Copyright (C) 2007 Dave Murphy (WinterMute)
 
-// Definitions for object and background windowing
+#ifndef LIBNDS_NDS_ARM9_WINDOW_H__
+#define LIBNDS_NDS_ARM9_WINDOW_H__
 
-/*! \file window.h
-    \brief windowing support functions for objects and backgrounds
-*/
+/// @file window.h
+///
+/// @brief Definitions for object and background windowing.
 
-#include <nds/ndstypes.h>
-#include <nds/arm9/video.h>
-#include <nds/arm9/sprite.h>
 #include <nds/arm9/background.h>
 #include <nds/arm9/sassert.h>
-#include <nds/memory.h>
+#include <nds/arm9/sprite.h>
+#include <nds/arm9/video.h>
 #include <nds/dma.h>
+#include <nds/memory.h>
+#include <nds/ndstypes.h>
 
-/*!	\brief the supported windows*/
+/// The supported windows
 typedef enum {
-  WINDOW_0    = DISPLAY_WIN0_ON,	//!< Window 0.
-  WINDOW_1    = DISPLAY_WIN1_ON,	//!< Window 1
-  WINDOW_OBJ  = DISPLAY_SPR_WIN_ON, //!< Object window
-  WINDOW_OUT  = BIT(16),			//!< Area outside all windows
- 
-}WINDOW;
+  WINDOW_0    = DISPLAY_WIN0_ON,    ///< Window 0
+  WINDOW_1    = DISPLAY_WIN1_ON,    ///< Window 1
+  WINDOW_OBJ  = DISPLAY_SPR_WIN_ON, ///< Object window
+  WINDOW_OUT  = BIT(16),            ///< Area outside all windows
+} WINDOW;
 
-#define WINDOW_MASK  (WINDOW_0|WINDOW_1|WINDOW_OBJ) 
+#define WINDOW_MASK  (WINDOW_0 | WINDOW_1 | WINDOW_OBJ)
 
-static inline 
-/**
-*    \brief Enable the specified window(s)
-*    \param window The window to set bounds on (may be ORed together)
-*/
-void windowEnable(WINDOW w)     { REG_DISPCNT     |= w & WINDOW_MASK;    }
+/// Enable the specified window(s) (main engine).
+///
+/// @param window The window to set bounds on (may be ORed together).
+static inline void windowEnable(WINDOW w)
+{
+    REG_DISPCNT |= w & WINDOW_MASK;
+}
 
-static inline 
-/**
-*    \brief Enable the specified window(s)
-*    \param window The window to set bounds on (may be ORed together)
-*/
-void windowDisable(WINDOW w)    { REG_DISPCNT     &= ~(w & WINDOW_MASK); }
+/// Disable the specified window(s) (main engine).
+///
+/// @param window The window to set bounds on (may be ORed together).
+static inline void windowDisable(WINDOW w)
+{
+    REG_DISPCNT &= ~(w & WINDOW_MASK);
+}
 
-static inline
-/**
-*    \brief Enable the specified window(s)
-*    \param window The window to set bounds on (may be ORed together)
-*/
-void windowEnableSub(WINDOW w)  { REG_DISPCNT_SUB |= w & WINDOW_MASK;    }
+/// Enable the specified window(s) (sub engine).
+///
+/// @param window The window to set bounds on (may be ORed together).
+static inline void windowEnableSub(WINDOW w)
+{
+    REG_DISPCNT_SUB |= w & WINDOW_MASK;
+}
 
-static inline
-/**
-*    \brief Enable the specified window(s)
-*    \param window The window to set bounds on (may be ORed together)
-*/
-void windowDisableSub(WINDOW w) { REG_DISPCNT_SUB &= ~(w & WINDOW_MASK); }
+/// Disable the specified window(s) (sub engine).
+///
+/// @param window The window to set bounds on (may be ORed together).
+static inline void windowDisableSub(WINDOW w)
+{
+    REG_DISPCNT_SUB &= ~(w & WINDOW_MASK);
+}
 
-/**
-*    \brief Set the windows bounds
-*    \param window The window to set bounds on
-*    \param left The X coordinate of the left hand side of the rectangle
-*    \param top The Y coordinate of the top of the rectangle
-*    \param right The X coordinate of the right hand side of the rectangle
-*    \param bottom The Y coordinate of the bottom of the rectangle
-*/
+/// Set the windows bounds (main engine).
+///
+/// @param window The window to set bounds on.
+/// @param left The X coordinate of the left hand side of the rectangle.
+/// @param top The Y coordinate of the top of the rectangle.
+/// @param right The X coordinate of the right hand side of the rectangle.
+/// @param bottom The Y coordinate of the bottom of the rectangle.
 void windowSetBounds(WINDOW window, u8 left, u8 top, u8 right, u8 bottom);
 
-/**
-*    \brief Set the windows bounds (Sub engine)
-*    \param window The window to set bounds on
-*    \param left The X coordinate of the left hand side of the rectangle
-*    \param top The Y coordinate of the top of the rectangle
-*    \param right The X coordinate of the right hand side of the rectangle
-*    \param bottom The Y coordinate of the bottom of the rectangle
-*/
+/// Set the windows bounds (sub engine).
+///
+/// @param window The window to set bounds on.
+/// @param left The X coordinate of the left hand side of the rectangle.
+/// @param top The Y coordinate of the top of the rectangle.
+/// @param right The X coordinate of the right hand side of the rectangle.
+/// @param bottom The Y coordinate of the bottom of the rectangle.
 void windowSetBoundsSub(WINDOW window, u8 left, u8 top, u8 right, u8 bottom);
 
-
-
-/*!	\brief Enables the window on the supplied background.
-	\param id
-		background id returned from bgInit or bgInitSub
-	\param window
-		the the window to enable
-*/
+/// Enables the window on the supplied background.
+///
+/// @param id Background ID returned from bgInit or bgInitSub.
+/// @param window The window to enable.
 void bgWindowEnable(int id, WINDOW window);
-/*!	\brief Disables the window on the supplied background.
-	\param id
-		background id returned from bgInit or bgInitSub
-	\param window
-		the the window to disable
-*/
+
+/// Disables the window on the supplied background.
+///
+/// @param id Background ID returned from bgInit or bgInitSub.
+/// @param window The window to disable.
 void bgWindowDisable(int id, WINDOW window);
 
-/**
-*    \brief Enables the specified window.
-*    \param oam must be: &oamMain or &oamSub
-*    \param the window to enable
-*/
+/// Enables the specified OAM window.
+///
+/// @param oam Must be &oamMain or &oamSub.
+/// @param w The window to enable.
 void oamWindowEnable(OamState* oam, WINDOW w);
 
-/**
-*    \brief Disables the specified window.
-*    \param oam must be: &oamMain or &oamSub
-*    \param the window to disable
-*/
+/// Disables the specified OAM window.
+///
+/// @param oam Must be &oamMain or &oamSub.
+/// @param w The window to disable.
 void oamWindowDisable(OamState* oam, WINDOW w);
+
+#endif // LIBNDS_NDS_ARM9_WINDOW_H__

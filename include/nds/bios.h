@@ -38,10 +38,10 @@ typedef int (*getHeaderCallback)(u8 *source, u16 *dest, u32 arg);
 
 /// Should verify the result after data got decompressed.
 ///
-/// getResult is used to provide a result for the bios function, given the
-/// source pointer after all data has been read (or if getSize < 0). Its value
-/// is only returned if negative, otherwise the typical result is used, so it is
-/// likely some sort of error-checking procedure.
+/// getResultCallback is used to provide a result for the bios function, given
+/// the source pointer after all data has been read (or if getSize < 0). Its
+/// value is only returned if negative, otherwise the typical result is used, so
+/// it is likely some sort of error-checking procedure.
 ///
 /// @param source The current source address.
 /// @return 0 if it went right, or a negative number if something went wrong.

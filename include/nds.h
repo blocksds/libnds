@@ -137,7 +137,7 @@ extern "C" {
 #    include <nds/arm9/video.h>
 #    include <nds/arm9/videoGL.h>
 #    include <nds/arm9/window.h>
-#endif // #ifdef ARM9
+#endif // ARM9
 
 #ifdef ARM7
 #    include <nds/arm7/aes.h>
