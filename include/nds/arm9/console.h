@@ -4,8 +4,6 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-// TODO: Check that the sizes in the documentation below are still accurate.
-
 /// @file console.h
 ///
 /// @brief NDS stdio support.
@@ -17,8 +15,8 @@
 /// General usage is to initialize the console by calling consoleDemoInit() or
 /// to customize the console usage by calling consoleInit()
 ///
-/// The default instance utilizes the sub display, approximatly 15 KiB of VRAM C
-/// starting at tile base 0 and 2KiB of map at map base 30.
+/// The default instance utilizes the sub display, approximatly 4 KiB of VRAM C
+/// starting at tile base 3 and 2 KiB of map at map base 22.
 ///
 /// Debug printing is performed by initializing the debug console via
 /// consoleDebugInit() as follows:

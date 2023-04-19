@@ -2,8 +2,6 @@
 //
 // Copyright (C) 2007 Jason Rogers (dovoto)
 
-// TODO: Check if the sizes below are still correct.
-
 /// @file keyboard.h
 ///
 /// @brief Integration of stdin with a simple keyboard.
@@ -14,9 +12,9 @@
 /// hidden keyboard that shows on a call to scanf(stdin, ...).
 ///
 /// By default the keyboard uses background 3 of the sub display, consumes
-/// approximatly 40 KB of background VRAM begining at tile base 1 and 2 KB of
-/// map stored at map base 30. The default is designed to function along side a
-/// default instance of the console print functionality.
+/// approximatly 40 KiB of background VRAM begining at tile base 0 and 4 KiB of
+/// map stored at map base 20. The default is designed to work alongside an
+/// instance of the demo console.
 ///
 /// To customize keyboard behavior and resource usage modify the keyboard
 /// structure returned by keyboardGetDefault() or create your own keyboard.

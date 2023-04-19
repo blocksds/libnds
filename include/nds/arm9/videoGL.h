@@ -65,7 +65,7 @@ typedef short int v16;
 #define inttov16(n)         ((n) << 12)
 /// Convert f32 to v16
 #define f32tov16(n)         (n)
-/// convert v16 to int
+/// Convert v16 to int
 #define v16toint(n)         ((n) >> 12)
 /// Convert float to v16
 #define floattov16(n)       ((v16)((n) * (1 << 12)))
@@ -846,9 +846,6 @@ static inline void glMaterialShinyness(void)
 /// The first 32 bits is the length of the packed command list, followed by the
 /// packed list.
 ///
-/// If you want to do this really fast then write your own code that that does
-/// this synchronously and only flushes the cache when the list is changed.
-///
 /// @param list Pointer to the packed list.
 static inline void glCallList(const u32 *list)
 {
@@ -925,10 +922,10 @@ static inline void glFogOffset(int offset)
 
 /// Sets the fog color.
 ///
-/// @param red component (0-31)
-/// @param green component (0-31)
-/// @param blue component (0-31)
-/// @param alpha from 0(clear) to 31(opaque)*/
+/// @param red Red component (0 - 31).
+/// @param green Green component (0 - 31).
+/// @param blue Blue component (0 - 31).
+/// @param alpha From 0 (clear) to 31 (opaque).
 static inline void glFogColor(uint8 red, uint8 green, uint8 blue, uint8 alpha)
 {
     sassert(red < 32, "glFogColor red is out of range");
