@@ -12,9 +12,23 @@
 SpriteEntry OamMemorySub[128];
 SpriteEntry OamMemory[128];
 
-OamState oamMain = { -1, 0, NULL, 32, { OamMemory }, SpriteMapping_1D_128 };
+OamState oamMain = {
+    .gfxOffsetStep = -1,
+    .firstFree = 0,
+    .allocBufferSize = 32,
+    .allocBuffer = NULL,
+    .oamMemory = OamMemory,
+    .spriteMapping = SpriteMapping_1D_128
+};
 
-OamState oamSub = { -1, 0, NULL, 32, { OamMemorySub }, SpriteMapping_1D_128 };
+OamState oamSub = {
+    .gfxOffsetStep = -1,
+    .firstFree = 0,
+    .allocBufferSize = 32,
+    .allocBuffer = NULL,
+    .oamMemory = OamMemorySub,
+    .spriteMapping = SpriteMapping_1D_128
+};
 
 void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette)
 {
