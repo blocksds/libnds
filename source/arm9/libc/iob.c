@@ -71,8 +71,7 @@ static int stderr_putc_buffered(char c, FILE *file)
     return putc_buffered(c, stderr_buf, &stderr_buf_len, libnds_stderr_write);
 }
 
-
-int stdin_getc_keyboard(FILE *file)
+static int stdin_getc_keyboard(FILE *file)
 {
     (void)file;
 

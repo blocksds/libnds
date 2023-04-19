@@ -163,11 +163,13 @@ static void consoleClearLine(char mode)
 
 ssize_t nocash_write(const char *ptr, size_t len)
 {
-    nocashWrite(ptr, len);
+    for (size_t i = 0; i < len; i++)
+        nocash_putc_buffered(ptr[i], NULL);
+
     return len;
 }
 
-ssize_t con_write(const char *ptr, size_t len)
+static ssize_t con_write(const char *ptr, size_t len)
 {
     char *tmp = (char *)ptr;
 

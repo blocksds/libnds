@@ -15,8 +15,6 @@
 //
 //     https://sourceware.org/newlib/libc.html#Syscalls
 
-// TODO: Use stderr console to send messages to no$gba?
-
 int getpid(void)
 {
     // The PID of this process is 1
@@ -75,22 +73,27 @@ ssize_t read(int fd, void *ptr, size_t len)
 {
     (void)fd;
     (void)ptr;
+    (void)len;
 
-    return len;
+    errno = EINVAL;
+    return 0;
 }
 
 ssize_t write(int fd, const void *ptr, size_t len)
 {
     (void)fd;
     (void)ptr;
+    (void)len;
 
-    return len;
+    errno = EINVAL;
+    return 0;
 }
 
 int close(int fd)
 {
     (void)fd;
 
+    errno = EINVAL;
     return -1;
 }
 

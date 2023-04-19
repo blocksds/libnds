@@ -8,6 +8,7 @@
 #ifndef COMMON_LIBNDS_INTERNAL_H__
 #define COMMON_LIBNDS_INTERNAL_H__
 
+#include <stdio.h>
 #include <time.h>
 
 #include <nds/arm9/input.h>
@@ -45,5 +46,8 @@ static inline __TransferRegion volatile *__transferRegion(void)
 void __libnds_exit(int rc);
 
 extern time_t *punixTime;
+
+int nocash_putc_buffered(char c, FILE *file);
+ssize_t nocash_write(const char *ptr, size_t len);
 
 #endif // COMMON_LIBNDS_INTERNAL_H__
