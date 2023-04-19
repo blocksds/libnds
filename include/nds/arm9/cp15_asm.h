@@ -8,7 +8,7 @@
 // Information from the "ARM 946E-S Technical Reference Manual" ARM DDI 0155A.
 //
 // NOTE: SBO means "should be one". They are bits that should always be set to
-// one even // if they don't have a documented meaning.
+// one even if they don't have a documented meaning.
 
 #ifndef BIT
 #define BIT(n)          (1 << (n))
