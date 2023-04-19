@@ -1,15 +1,12 @@
-/*---------------------------------------------------------------------------------
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2010 Richard Eric M. Lope BSN RN (Relminator)
 
-	Easy GL2D
-
-	Relminator 2010
-	Richard Eric M. Lope BSN RN
-
-	http://rel.betterwebber.com
-
-	A very small and simple DS rendering lib using the 3d core to render 2D stuff
-
----------------------------------------------------------------------------------*/
+// Easy GL2D
+//
+// http://rel.betterwebber.com
+//
+// A very small and simple DS rendering lib using the 3d core to render 2D stuff
 
 
 /*! \file gl2d.h
