@@ -1367,58 +1367,7 @@ static inline void glSetToonTableRange(int start, int end, rgb color)
 ///
 /// @param param The state variable to retrieve.
 /// @param f Pointer with room to hold the requested data.
-static inline void glGetFixed(const GL_GET_ENUM param, int *f)
-{
-    switch (param)
-    {
-        case GL_GET_MATRIX_VECTOR:
-            while (GFX_BUSY);
-            for (int i = 0; i < 9; i++)
-                f[i] = MATRIX_READ_VECTOR[i];
-            break;
-
-        case GL_GET_MATRIX_CLIP:
-            while (GFX_BUSY);
-            for (int i = 0; i < 16; i++)
-                f[i] = MATRIX_READ_CLIP[i];
-            break;
-
-        case GL_GET_MATRIX_PROJECTION:
-            glMatrixMode(GL_POSITION);
-            // Save the current state of the position matrix
-            glPushMatrix();
-            // Load an identity matrix into the position matrix so that the clip
-            // matrix = projection matrix
-            glLoadIdentity();
-            // Wait until the graphics engine has stopped to read matrices
-            while (GFX_BUSY);
-            // Read out the projection matrix
-            for (int i = 0; i < 16; i++)
-                f[i] = MATRIX_READ_CLIP[i];
-            // Restore the position matrix
-            glPopMatrix(1);
-            break;
-
-        case GL_GET_MATRIX_POSITION:
-            glMatrixMode(GL_PROJECTION);
-            // Save the current state of the projection matrix
-            glPushMatrix();
-            // Load an identity matrix into the projection matrix so that the
-            // clip matrix = position matrix
-            glLoadIdentity();
-            // Wait until the graphics engine has stopped to read matrices
-            while(GFX_BUSY);
-            // Read out the position matrix
-            for (int i = 0; i < 16; i++)
-                f[i] = MATRIX_READ_CLIP[i];
-            // Restore the projection matrix
-            glPopMatrix(1);
-            break;
-
-        default:
-            break;
-    }
-}
+void glGetFixed(const GL_GET_ENUM param, int *f);
 
 /// Set the minimum alpha value that will be displayed.
 ///
@@ -1479,36 +1428,7 @@ static inline void glClearPolyID(uint8 ID)
 ///
 /// @param param The state variable to retrieve
 /// @param i Pointer with room to hold the requested data
-static inline void glGetInt(GL_GET_ENUM param, int *i)
-{
-    gl_texture_data *tex;
-
-    switch (param)
-    {
-        case GL_GET_POLYGON_RAM_COUNT:
-            *i = GFX_POLYGON_RAM_USAGE;
-            break;
-
-        case GL_GET_VERTEX_RAM_COUNT:
-            *i = GFX_VERTEX_RAM_USAGE;
-            break;
-
-        case GL_GET_TEXTURE_WIDTH:
-            tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-            if (tex)
-                *i = 8 << ((tex->texFormat >> 20) & 7);
-            break;
-
-        case GL_GET_TEXTURE_HEIGHT:
-            tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-            if (tex)
-                *i = 8 << ((tex->texFormat >> 23 ) & 7);
-            break;
-
-        default:
-            break;
-    }
-}
+void glGetInt(GL_GET_ENUM param, int *i);
 
 /// Specifies a vertex location.
 ///
@@ -1698,15 +1618,6 @@ static inline void gluPerspective(float fovy, float aspect, float zNear, float z
 /// @param s S (a.k.a. U) texture coordinate (0.0 - 1.0).
 /// @param t T (a.k.a. V) texture coordinate (0.0 - 1.0).
 /// @warning Float version! Please, use glTexCoord2t16() instead.
-static inline void glTexCoord2f(float s, float t)
-{
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-    if (tex)
-    {
-        int x = (tex->texFormat >> 20) & 7;
-        int y = (tex->texFormat >> 23) & 7;
-        glTexCoord2t16(floattot16(s * (8 << x)), floattot16(t * (8<<y)));
-    }
-}
+void glTexCoord2f(float s, float t);
 
 #endif // LIBNDS_NDS_ARM9_VIDEOGL_H__

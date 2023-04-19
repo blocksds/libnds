@@ -1482,3 +1482,98 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
     return 1;
 }
+
+void glGetFixed(const GL_GET_ENUM param, int *f)
+{
+    switch (param)
+    {
+        case GL_GET_MATRIX_VECTOR:
+            while (GFX_BUSY);
+            for (int i = 0; i < 9; i++)
+                f[i] = MATRIX_READ_VECTOR[i];
+            break;
+
+        case GL_GET_MATRIX_CLIP:
+            while (GFX_BUSY);
+            for (int i = 0; i < 16; i++)
+                f[i] = MATRIX_READ_CLIP[i];
+            break;
+
+        case GL_GET_MATRIX_PROJECTION:
+            glMatrixMode(GL_POSITION);
+            // Save the current state of the position matrix
+            glPushMatrix();
+            // Load an identity matrix into the position matrix so that the clip
+            // matrix = projection matrix
+            glLoadIdentity();
+            // Wait until the graphics engine has stopped to read matrices
+            while (GFX_BUSY);
+            // Read out the projection matrix
+            for (int i = 0; i < 16; i++)
+                f[i] = MATRIX_READ_CLIP[i];
+            // Restore the position matrix
+            glPopMatrix(1);
+            break;
+
+        case GL_GET_MATRIX_POSITION:
+            glMatrixMode(GL_PROJECTION);
+            // Save the current state of the projection matrix
+            glPushMatrix();
+            // Load an identity matrix into the projection matrix so that the
+            // clip matrix = position matrix
+            glLoadIdentity();
+            // Wait until the graphics engine has stopped to read matrices
+            while(GFX_BUSY);
+            // Read out the position matrix
+            for (int i = 0; i < 16; i++)
+                f[i] = MATRIX_READ_CLIP[i];
+            // Restore the projection matrix
+            glPopMatrix(1);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void glGetInt(GL_GET_ENUM param, int *i)
+{
+    gl_texture_data *tex;
+
+    switch (param)
+    {
+        case GL_GET_POLYGON_RAM_COUNT:
+            *i = GFX_POLYGON_RAM_USAGE;
+            break;
+
+        case GL_GET_VERTEX_RAM_COUNT:
+            *i = GFX_VERTEX_RAM_USAGE;
+            break;
+
+        case GL_GET_TEXTURE_WIDTH:
+            tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+            if (tex)
+                *i = 8 << ((tex->texFormat >> 20) & 7);
+            break;
+
+        case GL_GET_TEXTURE_HEIGHT:
+            tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+            if (tex)
+                *i = 8 << ((tex->texFormat >> 23 ) & 7);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void glTexCoord2f(float s, float t)
+{
+    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    if (tex)
+    {
+        int x = (tex->texFormat >> 20) & 7;
+        int y = (tex->texFormat >> 23) & 7;
+        glTexCoord2t16(floattot16(s * (8 << x)), floattot16(t * (8<<y)));
+    }
+}
