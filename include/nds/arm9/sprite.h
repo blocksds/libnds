@@ -260,8 +260,6 @@ typedef struct AllocHeader
    u16 size;
 } AllocHeader;
 
-// TODO: This struct can be made smaller by rearanging the members.
-
 /// Holds the state for a 2D sprite engine.
 ///
 /// There are two of these objects, oamMain and oamSub and these must be passed
@@ -269,15 +267,15 @@ typedef struct AllocHeader
 typedef struct OamState
 {
     int gfxOffsetStep;        ///< The distance between tiles as 2^gfxOffsetStep
-    s16 firstFree;            ///< pointer to the first free block of tiles
-    AllocHeader *allocBuffer; ///< array, allocation buffer for graphics allocation
-    s16 allocBufferSize;      ///< current size of the allocation buffer
+    s16 firstFree;            ///< Pointer to the first free block of tiles
+    s16 allocBufferSize;      ///< Current size of the allocation buffer
+    AllocHeader *allocBuffer; ///< Array, allocation buffer for graphics allocation
     union
     {
-        SpriteEntry *oamMemory;            ///< pointer to shadow oam memory
-        SpriteRotation *oamRotationMemory; ///< pointer to shadow oam memory for rotation
+        SpriteEntry *oamMemory;            ///< Pointer to shadow oam memory
+        SpriteRotation *oamRotationMemory; ///< Pointer to shadow oam memory for rotation
     };
-    SpriteMapping spriteMapping; ///< the mapping of the OAM.
+    SpriteMapping spriteMapping; ///< The mapping of the OAM.
 } OamState;
 
 #ifdef __cplusplus
