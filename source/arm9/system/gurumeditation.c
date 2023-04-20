@@ -239,7 +239,7 @@ void guruMeditationDump(void)
 
     printf("\x1b[5CGuru Meditation Error!\n");
     u32 currentMode = getCPSR() & 0x1f;
-    u32 thumbState = ((*(u32 *)0x02FFFD90) & 0x20);
+    u32 thumbState = (*(u32 *)0x02FFFD90) & 0x20;
 
     u32 codeAddress, exceptionAddress = 0;
 

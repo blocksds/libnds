@@ -78,7 +78,7 @@ void soundDataHandler(int bytes, void *user_data)
                                  | (msg.SoundPlay.loop ?  SOUND_REPEAT : SOUND_ONE_SHOT);
         }
     }
-    else if(msg.type == SOUND_PSG_MESSAGE)
+    else if (msg.type == SOUND_PSG_MESSAGE)
     {
         channel = getFreePSGChannel();
 
