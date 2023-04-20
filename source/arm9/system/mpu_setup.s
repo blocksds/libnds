@@ -36,8 +36,8 @@
 //     | 0x02000000 |  16 MB | DSI, DSId |        |       |    |
 //
 // TODO: Is the entry for region 6 of regular DS wrong? Shouldn't it be 4 MB?
-// TODO: Is the last entry a bug? Do DSi and DSid have 16 MB of cacheable main
-// RAM, but the debugger has 32 MB of non-cachable main RAM?
+// TODO: Is the last entry a bug? Do regular DSi and debugger DSi have 16 MB of
+// cacheable main RAM, but the debugger has 32 MB of non-cachable main RAM?
 //
 // Legend:
 //
