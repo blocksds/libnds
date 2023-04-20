@@ -42,6 +42,11 @@
 // interrupt flags). The other two mirrors aren't used by libnds, but the mirror
 // at 0x02400000 is used by some legacy applications built with libnds.
 //
+// Also, note that this section overlaps with the cacheable main RAM (region 7).
+// This is required because the size of the regions must be a power of two (and
+// 12 MB isn't a power of two), and regions with a higher index have priority
+// over regions with a lower index (so the cacheable region has priority).
+//
 // [2]: The actual size of the main RAM of the DSi debugger version is 32 MB,
 // but it isn't possible to map everything at 0x02000000 because shared WRAM is
 // mapped at 0x03000000, so there are only 16 MB available. The last 16 MB of
