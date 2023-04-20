@@ -4,6 +4,7 @@
 
 #include <errno.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <nds/memory.h>
 #include <nds/system.h>
@@ -88,19 +89,9 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
 
     has_been_called = true;
 
-    // In DSi mode, require that there is a SD card in the SD card slot. In DS
-    // mode, require that there is a flashcard, that this ROM has been DLDI
-    // patched, and that DLDI can be initialized.
-
-    bool require_fat = false, require_sd = false;
-
-    if (isDSiMode())
-        require_sd = true;
-    else
-        require_fat = true;
-
     const char *fat_drive = "fat:/";
     const char *sd_drive = "sd:/";
+    const char *default_drive = NULL;
 
     uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
 
@@ -111,17 +102,39 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         return false;
     }
 
-    // Try to initialize DLDI on DS and DSi
-    FRESULT result = f_mount(&fs_info[0], fat_drive, 1);
-    if ((result != FR_OK) && require_fat)
-    {
-        errno = fatfs_error_to_posix(result);
-        return false;
-    }
+    FRESULT result;
 
     if (isDSiMode())
     {
-        // On DSi, try to initialize the internal SD slot
+        // On DSi there is the internal SD card slot, but it is possible to also
+        // have a device that uses DLDI. Normally, only the internal SD slot is
+        // required, but it is possible for a ROM to be loaded from a DLDI
+        // device. In that case, it makes sense to require that drive to be
+        // initialized.
+        //
+        // In short:
+        // - If argv specifies that the location of the ROM is "fat:", default
+        //   to DLDI. If it specifies "sd:", or nothing, default to SD.
+        // - Try to initialize SD slot and DLDI device.
+        // - If the default device can't be initialized, fatInit() has failed.
+
+        bool require_fat = false;
+        bool require_sd = true;
+        default_drive = sd_drive;
+
+        if (__system_argv->argvMagic == ARGV_MAGIC && __system_argv->argc >= 1)
+        {
+            if (strncmp(__system_argv->argv[0], fat_drive, strlen(fat_drive)) == 0)
+            {
+                // This is the unusual case of the ROM being loaded from the
+                // DLDI device instead of the internal SD card.
+                require_fat = true;
+                require_sd = false;
+                default_drive = fat_drive;
+            }
+        }
+
+        // Try to initialize the internal SD slot
         result = f_mount(&fs_info[1], sd_drive, 1);
         if ((result != FR_OK) && require_sd)
         {
@@ -129,9 +142,9 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
             return false;
         }
 
-        // Default to using the internal SD slot
-        result = f_chdrive(sd_drive);
-        if (result != FR_OK)
+        // Try to initialize DLDI
+        result = f_mount(&fs_info[0], fat_drive, 1);
+        if ((result != FR_OK) && require_fat)
         {
             errno = fatfs_error_to_posix(result);
             return false;
@@ -139,13 +152,23 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
     }
     else
     {
-        // On DS, use the DLDI driver
-        result = f_chdrive(fat_drive);
+        // On DS always require DLDI to initialize correctly.
+        result = f_mount(&fs_info[0], fat_drive, 1);
         if (result != FR_OK)
         {
             errno = fatfs_error_to_posix(result);
             return false;
         }
+
+        default_drive = fat_drive;
+    }
+
+    // Set the selected default drive as current drive
+    result = f_chdrive(default_drive);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return false;
     }
 
     fat_initialized = true;
