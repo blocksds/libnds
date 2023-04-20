@@ -86,7 +86,6 @@ const s32 TAN_LUT[LUT_SIZE + 1] = {
 
 s32 sinLutLookup(int i)
 {
-    // i = (i >> ANGLE_FRACTION_BITS) & 511;
     i = LIBNDS_TO_LUT_ANGLE(i);
 
     int lutVal = i & LUT_QUARTER_ANGLE_MASK;
@@ -141,7 +140,6 @@ s32 tanLutLookup(int i)
 s32 tanLerp(s16 angle)
 {
     angle = TO_POSITIVE_ANGLE(angle);
-    // s32 lut_val = (angle >> ANGLE_FRACTION_BITS) & 511;
     int lutVal = LIBNDS_TO_LUT_ANGLE(angle);
 
     s32 prev = ((lutVal == 128 || lutVal == 384) ? -MAX_TAN : tanLutLookup(angle));
