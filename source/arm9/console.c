@@ -16,6 +16,8 @@
 
 #include <default_font_bin.h>
 
+#include "common/libnds_internal.h"
+
 PrintConsole defaultConsole = {
     // Font:
     {
