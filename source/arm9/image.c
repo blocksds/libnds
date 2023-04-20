@@ -15,6 +15,8 @@
 void image24to16(sImage *img)
 {
     u16 *temp = malloc(img->height * img->width * 2);
+    if (temp == NULL)
+        return;
 
     for (int y = 0; y < img->height; y++)
     {
@@ -40,6 +42,8 @@ void image8to16(sImage *img)
     sassert(img->palette != NULL, "image must have a palette set");
 
     u16 *temp = malloc(img->height * img->width * 2);
+    if (temp == NULL)
+        return;
 
     for (int i = 0; i < img->height * img->width; i++)
         temp[i] = img->palette[img->image.data8[i]] | (1 << 15);
@@ -59,6 +63,8 @@ void image8to16trans(sImage *img, u8 transparentColor)
     sassert(img->palette != NULL, "image must have a palette set");
 
     u16 *temp = malloc(img->height * img->width * 2);
+    if (temp == NULL)
+        return;
 
     for (int i = 0; i < img->height * img->width; i++)
     {
@@ -90,6 +96,8 @@ void imageTileData(sImage *img)
 
     // Buffer to hold data
     u32 *temp = malloc(img->height * img->width);
+    if (temp == NULL)
+        return;
 
     int i = 0;
 
