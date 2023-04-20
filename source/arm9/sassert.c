@@ -36,15 +36,14 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
     vprintf(format, ap);
     va_end(ap);
 
-    printf("\x1b[39m"); // Print in default color
-
-    printf("\x1b[23;0HPress START to exit");
+    printf("\x1b[23;0HPress SELECT+START to exit");
 
     while (1)
     {
         swiWaitForVBlank();
         scanKeys();
-        if (keysHeld() & KEY_START)
+        uint16_t keys_mask = KEY_START | KEY_SELECT;
+        if ((keysHeld() & keys_mask) == keys_mask)
             break;
     }
 
@@ -52,7 +51,7 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
     // be seen by the user because exit() is called right afterwards. It will
     // only be seen if exit() hangs, which is not its normal behaviour (it
     // should power off the NDS if it fails to exit to the loader).
-    printf("\x1b[23;0HFailed to exit     ");
+    printf("\x1b[23;0HFailed to exit            ");
 
     // Return an error code to the loader
     exit(-1);
