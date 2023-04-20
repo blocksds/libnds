@@ -3,6 +3,53 @@
 // Copyright (C) 2009-2017 Dave Murphy (WinterMute)
 // Copyright (C) 2017 fincs
 
+// List of MPU regions
+// ===================
+//
+// The base addresses of ITCM and DTCM are defined by the linkerscript.
+//
+// The base address of ITCM is fixed at 0x00000000, but it is mirrored for 32 MB
+// every 32 KB. This means that 0x01000000 is a valid base address.
+//
+// Num |    Base    |  Size  | System    | Access | Cache | WB | Description
+// ====+============+========+===========+========+=======+====+=======================
+//   0 | 0x04000000 |  64 MB | All       |  R/W   |   N   | N  | I/O registers
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   1 | 0xFFFF0000 |  64 KB | All       |  RO    |   Y   | N  | System ROM
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   2 | 0x00000000 |   4 KB | All       |  R/W   |   N   | N  | Alternate vector base
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   3 | 0x08000000 | 128 MB | DS, DSd   |  R/W   |   N   | N  | DS Accessory (GBA Cart)
+//     | 0x03000000 |   8 MB | DSI, DSId |        |       |    | DSi switchable IWRAM
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   4 | 0x01000000 |  32 KB | All       |  R/W   |   N   | N  | ITCM
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   5 | 0x02FF0000 |  16 KB | All       |  R/W   |   N   | N  | DTCM
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   6 | 0x02000000 |  16 MB | DS        |  R/W   |   N   | N  | Non-cacheable main RAM
+//     | 0x02800000 |   8 MB | DSd       |        |       |    |
+//     | 0x0C000000 |  16 MB | DSI       |        |       |    |
+//     | 0x0C000000 |  32 MB | DSId      |        |       |    | DSi debugger extended IWRAM
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   7 | 0x02000000 |   4 MB | DS        |  R/W   |   Y   | Y  | Cacheable main RAM
+//     | 0x02000000 |   8 MB | DSd       |        |       |    |
+//     | 0x02000000 |  16 MB | DSI, DSId |        |       |    |
+//
+// TODO: Is the entry for region 6 of regular DS wrong? Shouldn't it be 4 MB?
+// TODO: Is the last entry a bug? Do DSi and DSid have 16 MB of cacheable main
+// RAM, but the debugger has 32 MB of non-cachable main RAM?
+//
+// Legend:
+//
+//   Access: Data and instruction access permissions (same for privileged and user)
+//   Cache: Data and instruction cacheable
+//   WB: Write buffer enable
+//
+//   DS: Regular DS
+//   DSd: Debugger DS
+//   DSI: Regular DSi
+//   DSId: Debugger DSi
+
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
@@ -12,6 +59,7 @@
     .text
     .arm
 
+// This sets r8 to the end address of RAM for this DS model
 BEGIN_ASM_FUNC __libnds_mpu_setup
 
     // Disable TCM and protection unit
@@ -49,7 +97,7 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     ldr     r0, =(0xFFFF0000 | CP15_REGION_SIZE_64KB | CP15_CONFIG_REGION_ENABLE)
     mcr     CP15_REG6_PROTECTION_REGION(r0, 1)
 
-    // Region 2 - alternate vector base
+    // Region 2 - Alternate vector base
     ldr     r0, =(0x00000000 | CP15_REGION_SIZE_4KB | CP15_CONFIG_REGION_ENABLE)
     mcr     CP15_REG6_PROTECTION_REGION(r0, 2)
 
@@ -98,6 +146,7 @@ dsi_mode:
     tst     r0, #0x4000
     ldr     r1, =(0x03000000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
+    // Regular DSi
     ldreq   r2, =(0x0C000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
     // DSi debugger extended IWRAM
     ldrne   r2, =(0x0C000000 | CP15_REGION_SIZE_32MB | CP15_CONFIG_REGION_ENABLE)
