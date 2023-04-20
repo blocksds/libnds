@@ -13,15 +13,15 @@
 
 #include "common/libnds_internal.h"
 
-static inline uint16 keys_cur(void)
+static inline uint16_t keys_cur(void)
 {
     return (((~REG_KEYINPUT) & 0x3ff) | (((~__transferRegion()->buttons) & 3) << 10)
             | (((~__transferRegion()->buttons) << 6) & (KEY_TOUCH | KEY_LID))) ^ KEY_LID;
 }
 
-static uint16 keys = 0;
-static uint16 keysold = 0;
-static uint16 keysrepeat = 0;
+static uint16_t keys = 0;
+static uint16_t keysold = 0;
+static uint16_t keysrepeat = 0;
 
 static u8 delay = 30, repeat = 15, count = 30;
 
@@ -46,19 +46,19 @@ void scanKeys(void)
     }
 }
 
-uint32 keysHeld(void)
+uint32_t keysHeld(void)
 {
     return keys;
 }
 
-uint32 keysDown(void)
+uint32_t keysDown(void)
 {
     return (keys & ~keysold);
 }
 
-uint32 keysDownRepeat(void)
+uint32_t keysDownRepeat(void)
 {
-    uint32 tmp = keysrepeat;
+    uint32_t tmp = keysrepeat;
 
     keysrepeat = 0;
 
@@ -73,12 +73,12 @@ void keysSetRepeat(u8 setDelay, u8 setRepeat)
     keysrepeat = 0;
 }
 
-uint32 keysUp(void)
+uint32_t keysUp(void)
 {
     return (keys ^ keysold) & (~keys);
 }
 
-uint32 keysCurrent(void)
+uint32_t keysCurrent(void)
 {
     return keys_cur();
 }

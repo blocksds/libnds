@@ -92,7 +92,7 @@ void disableSlot1(void);
 void cardWriteCommand(const u8 *command);
 void cardPolledTransfer(u32 flags, u32 *destination, u32 length, const u8 *command);
 void cardStartTransfer(const u8 *command, u32 *destination, int channel, u32 flags);
-uint32 cardWriteAndRead(const u8 *command, u32 flags);
+uint32_t cardWriteAndRead(const u8 *command, u32 flags);
 void cardParamCommand(u8 command, u32 parameter, u32 flags, u32 *destination, u32 length);
 
 // These commands require the cart to not be initialized yet, which may mean the

@@ -146,7 +146,7 @@ void irqInit(void)
     REG_IME = 1; // Enable interrupts
 }
 
-void irqEnable(uint32 irq)
+void irqEnable(uint32_t irq)
 {
     int oldIME = enterCriticalSection();
 
@@ -164,7 +164,7 @@ void irqEnable(uint32 irq)
     leaveCriticalSection(oldIME);
 }
 
-void irqDisable(uint32 irq)
+void irqDisable(uint32_t irq)
 {
     int oldIME = enterCriticalSection();
 
@@ -229,7 +229,7 @@ TWL_CODE void irqClearAUX(u32 mask)
     leaveCriticalSection(oldIME);
 }
 
-TWL_CODE void irqDisableAUX(uint32 irq)
+TWL_CODE void irqDisableAUX(uint32_t irq)
 {
     int oldIME = enterCriticalSection();
 
@@ -238,7 +238,7 @@ TWL_CODE void irqDisableAUX(uint32 irq)
     leaveCriticalSection(oldIME);
 }
 
-TWL_CODE void irqEnableAUX(uint32 irq)
+TWL_CODE void irqEnableAUX(uint32_t irq)
 {
     int oldIME = enterCriticalSection();
 

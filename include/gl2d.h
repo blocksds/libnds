@@ -291,7 +291,7 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
                      const unsigned int *texcoords, GL_TEXTURE_TYPE_ENUM type,
                      int sizeX, int sizeY, int param, int pallette_width,
-                     const u16 *palette, const uint8 *texture);
+                     const u16 *palette, const uint8_t *texture);
 
 /// Initializes our tileset (like glInitSpriteset()) but without the use of
 /// Texture Packer auto-generated files.
@@ -317,7 +317,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 /// @param texture Pointer to the texture data to load.
 int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int bmp_hei,
                   GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
-                  int pallette_width, const u16 *palette, const uint8 *texture);
+                  int pallette_width, const u16 *palette, const uint8_t *texture);
 
 #ifdef __cplusplus
 }

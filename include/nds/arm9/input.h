@@ -44,23 +44,23 @@ void scanKeys(void);
 /// functions (keysUp keysHeld etc...).
 ///
 /// @return Bitmask of keys that are pressed.
-uint32 keysCurrent(void);
+uint32_t keysCurrent(void);
 
 /// Obtains the current keypad held state.
 ///
 /// @return Bitmask of keys that are pressed.
-uint32 keysHeld(void);
+uint32_t keysHeld(void);
 
 /// Obtains the current keypad pressed state.
 ///
 /// @return Bitmask of keys that have just been released.
-uint32 keysDown(void);
+uint32_t keysDown(void);
 
 /// Obtains the current keypad pressed or repeating state.
 ///
 /// @return Bitmask of keys that have just been pressed or have been held for
 /// long enough to repeat the press.
-uint32 keysDownRepeat(void);
+uint32_t keysDownRepeat(void);
 
 /// Sets the key repeat parameters.
 ///
@@ -71,7 +71,7 @@ void keysSetRepeat(u8 setDelay, u8 setRepeat);
 /// Obtains the current keypad released state.
 ///
 /// @return Bitmask of keys that have just been released.
-uint32 keysUp(void);
+uint32_t keysUp(void);
 
 // Old way of reading the touchpad state.
 __attribute__((deprecated)) touchPosition touchReadXY(void);

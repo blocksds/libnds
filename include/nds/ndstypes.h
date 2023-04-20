@@ -53,28 +53,20 @@
 /// Returns a number with the nth bit set.
 #define BIT(n) (1 << (n))
 
-/// 8 bit unsigned integer.
+// Deprecated types. TODO: Remove
 typedef uint8_t uint8;
-/// 16 bit unsigned integer.
 typedef uint16_t uint16;
-/// 32 bit unsigned integer.
 typedef uint32_t uint32;
-/// 64 bit unsigned integer.
 typedef uint64_t uint64;
-
-/// 8 bit signed integer.
 typedef int8_t int8;
-/// 16 bit signed integer.
 typedef int16_t int16;
-/// 32 bit signed integer.
 typedef int32_t int32;
-/// 64 bit signed integer.
 typedef int64_t int64;
-
-/// 32 bit signed floating point number.
 typedef float float32;
-/// 64 bit signed floating point number.
 typedef double float64;
+typedef volatile float32 vfloat32;
+typedef volatile float64 vfloat64;
+typedef uint8_t byte;
 
 /// 8 bit volatile unsigned integer.
 typedef volatile uint8_t vuint8;
@@ -93,14 +85,6 @@ typedef volatile int16_t vint16;
 typedef volatile int32_t vint32;
 /// 64 bit volatile signed integer.
 typedef volatile int64_t vint64;
-
-/// 32 bit volatile signed floating point number.
-typedef volatile float32 vfloat32;
-/// 64 bit volatile signed floating point number.
-typedef volatile float64 vfloat64;
-
-/// 8 bit unsigned integer.
-typedef uint8_t byte;
 
 /// 8 bit unsigned integer.
 typedef uint8_t u8;

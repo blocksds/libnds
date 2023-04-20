@@ -106,7 +106,7 @@
 ///
 /// @param channel the NDMA channel to check (0 - 3).
 /// @return non zero if busy, 0 if channel is free.
-static inline int ndmaBusy(uint8 channel)
+static inline int ndmaBusy(uint8_t channel)
 {
     return (NDMA_CR(channel) & NDMA_BUSY) >> 31;
 }

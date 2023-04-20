@@ -27,13 +27,13 @@
 #define SIO_out (1 << 4)
 #define SIO_in  (1)
 
-void BCDToInteger(uint8 *data, uint32 length)
+void BCDToInteger(uint8_t *data, uint32_t length)
 {
     for (u32 i = 0; i < length; i++)
         data[i] = (data[i] & 0xF) + ((data[i] & 0xF0) >> 4) * 10;
 }
 
-void integerToBCD(uint8 *data, uint32 length)
+void integerToBCD(uint8_t *data, uint32_t length)
 {
     for (u32 i = 0; i < length; i++)
     {
@@ -43,11 +43,11 @@ void integerToBCD(uint8 *data, uint32 length)
     }
 }
 
-void rtcTransaction(uint8 *command, uint32 commandLength, uint8 *result,
-                    uint32 resultLength)
+void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
+                    uint32_t resultLength)
 {
-    uint32 bit;
-    uint8 data;
+    uint32_t bit;
+    uint8_t data;
 
     // Raise CS
     RTC_CR8 = CS_0 | SCK_1 | SIO_1;
@@ -112,8 +112,8 @@ void rtcTransaction(uint8 *command, uint32 commandLength, uint8 *result,
 
 void rtcReset(void)
 {
-    uint8 status;
-    uint8 command[2];
+    uint8_t status;
+    uint8_t command[2];
 
     // Read the first status register
     command[0] = READ_STATUS_REG1;
@@ -128,9 +128,9 @@ void rtcReset(void)
     }
 }
 
-void rtcGetTimeAndDate(uint8 *time)
+void rtcGetTimeAndDate(uint8_t *time)
 {
-    uint8 command, status;
+    uint8_t command, status;
 
     command = READ_TIME_AND_DATE;
     rtcTransaction(&command, 1, time, 7);
@@ -144,9 +144,9 @@ void rtcGetTimeAndDate(uint8 *time)
     BCDToInteger(time, 7);
 }
 
-void rtcSetTimeAndDate(uint8 *time)
+void rtcSetTimeAndDate(uint8_t *time)
 {
-    uint8 command[8];
+    uint8_t command[8];
 
     for (int i = 0; i < 7; i++)
         command[i + 1] = time[i];
@@ -157,9 +157,9 @@ void rtcSetTimeAndDate(uint8 *time)
     rtcTransaction(command, 8, 0, 0);
 }
 
-void rtcGetTime(uint8 *time)
+void rtcGetTime(uint8_t *time)
 {
-    uint8 command, status;
+    uint8_t command, status;
 
     command = READ_TIME;
     rtcTransaction(&command, 1, time, 3);
@@ -172,9 +172,9 @@ void rtcGetTime(uint8 *time)
     BCDToInteger(time, 3);
 }
 
-void rtcSetTime(uint8 *time)
+void rtcSetTime(uint8_t *time)
 {
-    uint8 command[4];
+    uint8_t command[4];
 
     for (int i = 0; i < 3; i++)
         command[i + 1] = time[i];
@@ -231,7 +231,7 @@ static time_t __mktime(RTCtime *dstime)
 void resyncClock(void)
 {
     RTCtime dstime;
-    rtcGetTimeAndDate((uint8 *)&dstime);
+    rtcGetTimeAndDate((uint8_t *)&dstime);
 
     __transferRegion()->unixTime = __mktime(&dstime);
 }
@@ -244,7 +244,7 @@ void initClockIRQ(void)
     // Reset the clock if needed
     rtcReset();
 
-    uint8 command[4];
+    uint8_t command[4];
     command[0] = READ_STATUS_REG2;
     rtcTransaction(command, 1, &command[1], 1);
 

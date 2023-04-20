@@ -15,7 +15,7 @@
 static inline void gxVertex3i(v16 x, v16 y, v16 z)
 {
     GFX_VERTEX16 = (y << 16) | (x & 0xFFFF);
-    GFX_VERTEX16 = ((uint32)(uint16)z);
+    GFX_VERTEX16 = ((uint32_t)(uint16_t)z);
 }
 
 // Again no gxVertex2i() in the videoGL header. This is used for optimizing
@@ -44,7 +44,7 @@ static inline void gxScalef32(s32 x, s32 y, s32 z)
 }
 
 // I this made for future naming conflicts.
-static inline void gxTranslate3f32(int32 x, int32 y, int32 z)
+static inline void gxTranslate3f32(int32_t x, int32_t y, int32_t z)
 {
     MATRIX_TRANSLATE = x;
     MATRIX_TRANSLATE = y;
@@ -690,7 +690,7 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
                     const unsigned int *texcoords, GL_TEXTURE_TYPE_ENUM type,
                     int sizeX, int sizeY, int param, int pallette_width,
-                    const u16 *palette, const uint8 *texture)
+                    const u16 *palette, const uint8_t *texture)
 {
     int textureID;
     glGenTextures(1, &textureID);
@@ -716,7 +716,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 
 int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int bmp_hei,
                   GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
-                  int pallette_width, const u16 *palette, const uint8 *texture)
+                  int pallette_width, const u16 *palette, const uint8_t *texture)
 {
     int textureID;
     glGenTextures(1, &textureID);

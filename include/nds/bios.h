@@ -67,10 +67,10 @@ typedef struct DecompressionStream
 /// A struct and struct pointer with information about unpacking data.
 typedef struct UnpackStruct
 {
-    uint16 sourceSize; ///< in bytes
-    uint8 sourceWidth; ///< 1,2,4 or 8 bits.
-    uint8 destWidth;   ///< 1,2,4,8,16 or 32 bits.
-    uint32 dataOffset; ///< bits 0-30 are added to all non-zero destination writes, unless bit 31 is set, which does it for zeros too.
+    uint16_t sourceSize; ///< in bytes
+    uint8_t sourceWidth; ///< 1,2,4 or 8 bits.
+    uint8_t destWidth;   ///< 1,2,4,8,16 or 32 bits.
+    uint32_t dataOffset; ///< bits 0-30 are added to all non-zero destination writes, unless bit 31 is set, which does it for zeros too.
 } PACKED TUnpackStruct, * PUnpackStruct;
 
 /// Resets the DS.
@@ -88,7 +88,7 @@ void swiSoftReset(void);
 ///
 /// @param duration Length of delay.
 /// @note Duration should be 1 or more, a duration of 0 is a huge delay.
-void swiDelay(uint32 duration);
+void swiDelay(uint32_t duration);
 
 /// Divides 2 numbers.
 ///
@@ -155,7 +155,7 @@ int swiSqrt(int value);
 /// @param data Pointer to data (processed nibble by nibble)
 /// @param size Size in bytes.
 /// @return The CRC-16 after the data has been processed.
-uint16 swiCRC16(uint16 crc, const void *data, uint32 size);
+uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size);
 
 /// Returns 0 if running on a Nintendo hardware debugger.
 ///
@@ -170,7 +170,7 @@ int swiIsDebugger(void);
 /// @param source Source address.
 /// @param destination Destination address (word aligned).
 /// @param params Pointer to an UnpackStruct.
-void swiUnpackBits(const uint8 *source, uint32 *destination, PUnpackStruct params);
+void swiUnpackBits(const uint8_t *source, uint32_t *destination, PUnpackStruct params);
 
 /// Decompresses LZSS compressed data.
 ///
@@ -194,13 +194,13 @@ void swiDecompressLZSSWram(const void *source, void *destination);
 ///         Open/Close functions.
 /// @note Writes data a halfword at a time.
 /// @see decompress.h
-int swiDecompressLZSSVram(const void *source, void *destination, uint32 toGetSize,
+int swiDecompressLZSSVram(const void *source, void *destination, uint32_t toGetSize,
                           TDecompressionStream *stream);
 
-int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32 toGetSize,
+int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream);
 
-int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32 toGetSize,
+int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream);
 
 /// Decompresses Huffman compressed data.
@@ -214,7 +214,7 @@ int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32 toGet
 /// @return The length of the decompressed data, or a signed errorcode from the
 ///         Open/Close functions.
 /// @see decompress.h
-int swiDecompressHuffman(const void *source, void *destination, uint32 toGetSize,
+int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream);
 
 /// Decompresses RLE compressed data.
@@ -253,7 +253,7 @@ void swiDecompressRLEWram(const void *source, void *destination);
 ///         Open/Close functions.
 /// @note Writes data a halfword at a time.
 /// @see decompress.h
-int swiDecompressRLEVram(const void *source, void *destination, uint32 toGetSize,
+int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream);
 
 #ifdef ARM9
@@ -267,7 +267,7 @@ void swiWaitForIRQ(void);
 ///
 /// @param data The word to write.
 /// @note This is on the ARM9, but works differently then the ARM7 function!
-void swiSetHaltCR(uint32 data);
+void swiSetHaltCR(uint32_t data);
 
 /// Decodes a stream of bytes based on the difference of the bytes.
 ///
@@ -297,7 +297,7 @@ void swiDecodeDelta16(const void *source, void *destination);
 ///
 /// @param data The byte to write.
 /// @note ARM7 exclusive.
-void swiSetHaltCR(uint8 data);
+void swiSetHaltCR(uint8_t data);
 
 /// Halts the CPU until an interupt occures.
 ///
@@ -319,21 +319,21 @@ void swiSwitchToGBAMode(void);
 /// @param index The index of the sine table (0 - 63).
 /// @return The entry.
 /// @note ARM7 exclusive.
-uint16 swiGetSineTable(int index);
+uint16_t swiGetSineTable(int index);
 
 /// Returns an entry in the pitch table.
 ///
 /// @param index The index of the pitch table (0 - 767).
 /// @return The entry.
 /// @note ARM7 exclusive.
-uint16 swiGetPitchTable(int index);
+uint16_t swiGetPitchTable(int index);
 
 /// Returns an entry in the volume table.
 ///
 /// @param index The index of the volume table (0 - 723).
 /// @return The entry.
 /// @note ARM7 exclusive.
-uint8 swiGetVolumeTable(int index);
+uint8_t swiGetVolumeTable(int index);
 
 /// Increments or decrements the sound bias once per delay.
 ///

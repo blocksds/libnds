@@ -14,11 +14,11 @@ void readUserSettings(void)
     short slot1count, slot2count;
     short slot1CRC, slot2CRC;
 
-    uint32 userSettingsBase;
+    uint32_t userSettingsBase;
     readFirmware(0x20, &userSettingsBase,2);
 
-    uint32 slot1Address = userSettingsBase * 8;
-    uint32 slot2Address = userSettingsBase * 8 + 0x100;
+    uint32_t slot1Address = userSettingsBase * 8;
+    uint32_t slot2Address = userSettingsBase * 8 + 0x100;
 
     readFirmware(slot1Address , &slots[0], sizeof(PERSONAL_DATA));
     readFirmware(slot2Address , &slots[1], sizeof(PERSONAL_DATA));

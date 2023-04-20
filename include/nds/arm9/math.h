@@ -58,13 +58,13 @@
 /// @param num 20.12 numerator.
 /// @param den 20.12 denominator.
 /// @return returns 20.12 result.
-static inline int32 divf32(int32 num, int32 den)
+static inline int32_t divf32(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
 
     while (REG_DIVCNT & DIV_BUSY);
 
-    REG_DIV_NUMER = ((int64)num) << 12;
+    REG_DIV_NUMER = ((int64_t)num) << 12;
     REG_DIV_DENOM_L = den;
 
     while (REG_DIVCNT & DIV_BUSY);
@@ -77,10 +77,10 @@ static inline int32 divf32(int32 num, int32 den)
 /// @param a 20.12 value.
 /// @param b 20.12 value.
 /// @return returns 20.12 result.
-static inline int32 mulf32(int32 a, int32 b)
+static inline int32_t mulf32(int32_t a, int32_t b)
 {
     int64_t result = (int64_t)a * (int64_t)b;
-    return (int32)(result >> 12);
+    return (int32_t)(result >> 12);
 }
 
 #pragma GCC diagnostic push
@@ -89,13 +89,13 @@ static inline int32 mulf32(int32 a, int32 b)
 ///
 /// @param a 20.12 value.
 /// @return 20.12 result.
-static inline int32 sqrtf32(int32 a)
+static inline int32_t sqrtf32(int32_t a)
 {
     REG_SQRTCNT = SQRT_64;
 
     while (REG_SQRTCNT & SQRT_BUSY);
 
-    REG_SQRT_PARAM = ((int64)a) << 12;
+    REG_SQRT_PARAM = ((int64_t)a) << 12;
 
     while (REG_SQRTCNT & SQRT_BUSY);
 
@@ -110,7 +110,7 @@ static inline int32 sqrtf32(int32 a)
 /// @param num Numerator.
 /// @param den Denominator.
 /// @return 32 bit integer result.
-static inline int32 div32(int32 num, int32 den)
+static inline int32_t div32(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
 
@@ -129,7 +129,7 @@ static inline int32 div32(int32 num, int32 den)
 /// @param num Numerator.
 /// @param den Denominator.
 /// @return 32 bit integer remainder.
-static inline int32 mod32(int32 num, int32 den)
+static inline int32_t mod32(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
 
@@ -148,7 +148,7 @@ static inline int32 mod32(int32 num, int32 den)
 /// @param num 64 bit numerator.
 /// @param den 32 bit denominator.
 /// @return 32 bit integer result.
-static inline int32 div64(int64 num, int32 den)
+static inline int32_t div64(int64_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
 
@@ -167,7 +167,7 @@ static inline int32 div64(int64 num, int32 den)
 /// @param num 64 bit numerator.
 /// @param den 32 bit denominator.
 /// @return returns 32 bit integer remainder.
-static inline int32 mod64(int64 num, int32 den)
+static inline int32_t mod64(int64_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
 
@@ -230,7 +230,7 @@ static inline u32 sqrt64(long long a)
 /// @param a Pointer to fixed 3 dimensions vector.
 /// @param b Pointer to fixed 3 dimensions vector.
 /// @param Result pointer to fixed 3x3 matrix
-static inline void crossf32(int32 *a, int32 *b, int32 *result)
+static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 {
     result[0] = mulf32(a[1], b[2]) - mulf32(b[1], a[2]);
     result[1] = mulf32(a[2], b[0]) - mulf32(b[2], a[0]);
@@ -248,7 +248,7 @@ static inline void crossf32(int32 *a, int32 *b, int32 *result)
 /// @param a Pointer to fixed 3 dimensions vector.
 /// @param b Pointer to fixed 3 dimensions vector.
 /// @return 32 bit integer result
-static inline int32 dotf32(int32 *a, int32 *b)
+static inline int32_t dotf32(int32_t *a, int32_t *b)
 {
     return mulf32(a[0], b[0]) + mulf32(a[1], b[1]) + mulf32(a[2], b[2]);
 }
@@ -256,10 +256,10 @@ static inline int32 dotf32(int32 *a, int32 *b)
 /// 20.12 fixed point normalize (set magnitude to 1.0 and keep the direction).
 ///
 /// @param a Pointer to the vector to normalize.
-static inline void normalizef32(int32 *a)
+static inline void normalizef32(int32_t *a)
 {
     // magnitude = sqrt(Ax^2 + Ay^2 + Az^2)
-    int32 magnitude = sqrtf32(mulf32(a[0], a[0]) + mulf32(a[1], a[1]) + mulf32(a[2], a[2]));
+    int32_t magnitude = sqrtf32(mulf32(a[0], a[0]) + mulf32(a[1], a[1]) + mulf32(a[2], a[2]));
 
     a[0] = divf32(a[0], magnitude);
     a[1] = divf32(a[1], magnitude);

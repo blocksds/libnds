@@ -98,11 +98,11 @@
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the data to copy. Will be truncated to the
 ///             nearest word (4 bytes).
-static inline
-void dmaCopyWords(uint8 channel, const void *src, void *dest, uint32 size)
+static inline void dmaCopyWords(uint8_t channel, const void *src, void *dest,
+                                uint32_t size)
 {
-    DMA_SRC(channel) = (uint32)src;
-    DMA_DEST(channel) = (uint32)dest;
+    DMA_SRC(channel) = (uint32_t)src;
+    DMA_DEST(channel) = (uint32_t)dest;
     DMA_CR(channel) = DMA_COPY_WORDS | (size >> 2);
     while (DMA_CR(channel) & DMA_BUSY)
         ;
@@ -116,11 +116,11 @@ void dmaCopyWords(uint8 channel, const void *src, void *dest, uint32 size)
 /// @param dest The destination to copy to
 /// @param size The size in bytes of the data to copy. Will be truncated to the
 ///             nearest half word (2 bytes)
-static inline
-void dmaCopyHalfWords(uint8 channel, const void *src, void *dest, uint32 size)
+static inline void dmaCopyHalfWords(uint8_t channel, const void *src, void *dest,
+                                    uint32_t size)
 {
-    DMA_SRC(channel) = (uint32)src;
-    DMA_DEST(channel) = (uint32)dest;
+    DMA_SRC(channel) = (uint32_t)src;
+    DMA_DEST(channel) = (uint32_t)dest;
     DMA_CR(channel) = DMA_COPY_HALFWORDS | (size >> 1);
     while (DMA_CR(channel) & DMA_BUSY)
         ;
@@ -133,11 +133,10 @@ void dmaCopyHalfWords(uint8 channel, const void *src, void *dest, uint32 size)
 /// @param dest The destination to copy to
 /// @param size The size in bytes of the data to copy.  Will be truncated to the
 ///             nearest half word (2 bytes).
-static inline
-void dmaCopy(const void *source, void *dest, uint32 size)
+static inline void dmaCopy(const void *source, void *dest, uint32_t size)
 {
-    DMA_SRC(3) = (uint32)source;
-    DMA_DEST(3) = (uint32)dest;
+    DMA_SRC(3) = (uint32_t)source;
+    DMA_DEST(3) = (uint32_t)dest;
     DMA_CR(3) = DMA_COPY_HALFWORDS | (size >> 1);
     while (DMA_CR(3) & DMA_BUSY)
         ;
@@ -153,11 +152,11 @@ void dmaCopy(const void *source, void *dest, uint32 size)
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the data to copy. Will be truncated to the
 ///             nearest word (4 bytes)
-static inline
-void dmaCopyWordsAsynch(uint8 channel, const void *src, void *dest, uint32 size)
+static inline void dmaCopyWordsAsynch(uint8_t channel, const void *src, void *dest,
+                                      uint32_t size)
 {
-    DMA_SRC(channel) = (uint32)src;
-    DMA_DEST(channel) = (uint32)dest;
+    DMA_SRC(channel) = (uint32_t)src;
+    DMA_DEST(channel) = (uint32_t)dest;
     DMA_CR(channel) = DMA_COPY_WORDS | (size >> 2);
 }
 
@@ -171,11 +170,11 @@ void dmaCopyWordsAsynch(uint8 channel, const void *src, void *dest, uint32 size)
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the data to copy. Will be truncated to the
 ///             nearest half word (2 bytes)
-static inline
-void dmaCopyHalfWordsAsynch(uint8 channel, const void *src, void *dest, uint32 size)
+static inline void dmaCopyHalfWordsAsynch(uint8_t channel, const void *src,
+                                          void *dest, uint32_t size)
 {
-    DMA_SRC(channel) = (uint32)src;
-    DMA_DEST(channel) = (uint32)dest;
+    DMA_SRC(channel) = (uint32_t)src;
+    DMA_DEST(channel) = (uint32_t)dest;
     DMA_CR(channel) = DMA_COPY_HALFWORDS | (size >> 1);
 }
 
@@ -188,11 +187,10 @@ void dmaCopyHalfWordsAsynch(uint8 channel, const void *src, void *dest, uint32 s
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the data to copy. Will be truncated to the
 ///             nearest half word (2 bytes)
-static inline
-void dmaCopyAsynch(const void *source, void *dest, uint32 size)
+static inline void dmaCopyAsynch(const void *source, void *dest, uint32_t size)
 {
-    DMA_SRC(3) = (uint32)source;
-    DMA_DEST(3) = (uint32)dest;
+    DMA_SRC(3) = (uint32_t)source;
+    DMA_DEST(3) = (uint32_t)dest;
     DMA_CR(3) = DMA_COPY_HALFWORDS | (size >> 1);
 }
 
@@ -202,18 +200,17 @@ void dmaCopyAsynch(const void *source, void *dest, uint32 size)
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the area to fill. Will be truncated to the
 ///             nearest word (4 bytes).
-static inline
-void dmaFillWords(u32 value, void *dest, uint32 size)
+static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
 {
 #ifdef ARM7
     (*(vu32 *)0x027FFE04) = value;
     DMA_SRC(3) = 0x027FFE04;
 #else
     DMA_FILL(3) = value;
-    DMA_SRC(3) = (uint32)&DMA_FILL(3);
+    DMA_SRC(3) = (uint32_t)&DMA_FILL(3);
 #endif
 
-    DMA_DEST(3) = (uint32)dest;
+    DMA_DEST(3) = (uint32_t)dest;
     DMA_CR(3) = DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2);
     while (DMA_CR(3) & DMA_BUSY)
         ;
@@ -225,18 +222,17 @@ void dmaFillWords(u32 value, void *dest, uint32 size)
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the area to fill. Will be truncated to the
 ///             nearest half word (2 bytes).
-static inline
-void dmaFillHalfWords(u16 value, void *dest, uint32 size)
+static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
 {
 #ifdef ARM7
     (*(vu32 *)0x027FFE04) = (u32)value;
     DMA_SRC(3) = 0x027FFE04;
 #else
-    DMA_FILL(3) = (uint32)value;
-    DMA_SRC(3) = (uint32)&DMA_FILL(3);
+    DMA_FILL(3) = (uint32_t)value;
+    DMA_SRC(3) = (uint32_t)&DMA_FILL(3);
 #endif
 
-    DMA_DEST(3) = (uint32)dest;
+    DMA_DEST(3) = (uint32_t)dest;
     DMA_CR(3) = DMA_SRC_FIX | DMA_COPY_HALFWORDS | (size >> 1);
     while (DMA_CR(3) & DMA_BUSY)
         ;
@@ -246,7 +242,7 @@ void dmaFillHalfWords(u16 value, void *dest, uint32 size)
 //
 /// @param channel The DMA channel to check (0 - 3).
 /// @return Non zero if busy, 0 if channel is free.
-static inline int dmaBusy(uint8 channel)
+static inline int dmaBusy(uint8_t channel)
 {
     return (DMA_CR(channel) & DMA_BUSY) >> 31;
 }

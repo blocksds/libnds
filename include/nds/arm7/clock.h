@@ -95,19 +95,19 @@ extern "C" {
 
 
 void rtcReset(void);
-void rtcTransaction(uint8 *command, uint32 commandLength, uint8 *result,
-                    uint32 resultLength);
+void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
+                    uint32_t resultLength);
 
-void rtcGetTime(uint8 *time);
-void rtcSetTime(uint8 *time);
+void rtcGetTime(uint8_t *time);
+void rtcSetTime(uint8_t *time);
 
-void rtcGetTimeAndDate(uint8 *time);
-void rtcSetTimeAndDate(uint8 *time);
+void rtcGetTimeAndDate(uint8_t *time);
+void rtcSetTimeAndDate(uint8_t *time);
 
-void rtcGetData(uint8 *data, uint32 size);
+void rtcGetData(uint8_t *data, uint32_t size);
 
-void BCDToInteger(uint8 *data, uint32 length);
-void integerToBCD(uint8 *data, uint32 length);
+void BCDToInteger(uint8_t *data, uint32_t length);
+void integerToBCD(uint8_t *data, uint32_t length);
 
 void initClockIRQ(void);
 void resyncClock(void);

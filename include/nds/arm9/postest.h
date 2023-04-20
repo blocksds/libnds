@@ -52,7 +52,7 @@ static inline void PosTest(v16 x, v16 y, v16 z)
 /// Returns the distance from the camera of the last position test.
 ///
 /// @return W magnitude
-static inline int32 PosTestWresult(void)
+static inline int32_t PosTestWresult(void)
 {
     return GFX_POS_RESULT[3];
 }
@@ -61,7 +61,7 @@ static inline int32 PosTestWresult(void)
 /// modelview matrix was identity)
 ///
 /// @return Absolute X position
-static inline int32 PosTestXresult(void)
+static inline int32_t PosTestXresult(void)
 {
     return GFX_POS_RESULT[0];
 }
@@ -70,7 +70,7 @@ static inline int32 PosTestXresult(void)
 /// modelview matrix was identity).
 ///
 /// @return Absolute Y position.
-static inline int32 PosTestYresult(void)
+static inline int32_t PosTestYresult(void)
 {
     return GFX_POS_RESULT[1];
 }
@@ -79,7 +79,7 @@ static inline int32 PosTestYresult(void)
 /// modelview matrix was identity).
 ///
 /// @return Absolute Z position.
-static inline int32 PosTestZresult(void)
+static inline int32_t PosTestZresult(void)
 {
     return GFX_POS_RESULT[2];
 }

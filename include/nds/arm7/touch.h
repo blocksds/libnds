@@ -34,8 +34,8 @@ extern "C" {
 
 void touchInit(void);
 void touchReadXY(touchPosition *touchPos);
-uint16 touchRead(uint32 command);
-uint32 touchReadTemperature(int *t1, int *t2);
+uint16_t touchRead(uint32_t command);
+uint32_t touchReadTemperature(int *t1, int *t2);
 bool touchPenDown(void);
 
 #ifdef __cplusplus

@@ -8,7 +8,7 @@
 #include <nds/system.h>
 
 int swiDecompressLZSSVram(const void *source, void *destination,
-                          uint32 toGetSize, TDecompressionStream *stream)
+                          uint32_t toGetSize, TDecompressionStream *stream)
 {
     if (isDSiMode())
         return swiDecompressLZSSVramTWL(source,destination,toGetSize,stream);

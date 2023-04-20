@@ -6,15 +6,15 @@
 #include <nds/arm9/sassert.h>
 #include <nds/bios.h>
 
-static int getHeader(uint8 *source, uint16 *dest, uint32 arg)
+static int getHeader(uint8_t *source, uint16_t *dest, uint32_t arg)
 {
     (void)dest;
     (void)arg;
 
-    return *(uint32 *)source;
+    return *(uint32_t *)source;
 }
 
-static uint8 readByte(uint8 *source)
+static uint8_t readByte(uint8_t *source)
 {
     return *source;
 }
