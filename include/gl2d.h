@@ -25,7 +25,8 @@
 ///
 /// These enums are bits for flipping the sprites.
 ///
-/// You can <b>"|"</b> (or) GL_FLIP_V and GL_FLIP_H to flip both ways. <br><br>
+/// You can <b>"|"</b> (or) GL_FLIP_V and GL_FLIP_H to flip both ways.
+///
 /// <ul>
 ///   <li> Related functions:
 ///   <ol>
@@ -105,6 +106,8 @@ void glEnd2D(void);
 /// Returns the active texture. Use with care.
 ///
 /// Needed to achieve some effects since libnds 1.5.0.
+///
+/// @return Returns the texture ID.
 static inline int glGetActiveTexture(void)
 {
     return gCurrentTexture;
@@ -113,6 +116,8 @@ static inline int glGetActiveTexture(void)
 /// Set the active texture. Use with care.
 ///
 /// Needed to achieve some effects since libnds 1.5.0.
+///
+/// @param TextureID Texture to set as active.
 static inline void glSetActiveTexture(int TextureID)
 {
     glBindTexture(0, TextureID);
@@ -288,6 +293,7 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 /// @param palette Pointer to the palette data to load (if NULL, then palette is
 ///                emoved from currently bound texture).
 /// @param texture Pointer to the texture data to load.
+/// @return Returns the texture ID.
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
                      const unsigned int *texcoords, GL_TEXTURE_TYPE_ENUM type,
                      int sizeX, int sizeY, int param, int pallette_width,
@@ -315,6 +321,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 /// @param palette Pointer to the palette data to load (if NULL, then palette
 ///                 is removed from currently bound texture).
 /// @param texture Pointer to the texture data to load.
+/// @return Returns the texture ID.
 int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int bmp_hei,
                   GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
                   int pallette_width, const u16 *palette, const uint8_t *texture);

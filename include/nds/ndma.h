@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_NDMA_H__
 #define LIBNDS_NDS_NDMA_H__
 
+/// @file ndma.h
+///
+/// @brief NDMA helpers.
+
 #include <nds/ndstypes.h>
 
 #define NDMA_GCR            (*(vuint32 *)0x04004100)

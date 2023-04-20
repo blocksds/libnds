@@ -30,7 +30,7 @@ typedef enum {
 
 /// Enable the specified window(s) (main engine).
 ///
-/// @param window The window to set bounds on (may be ORed together).
+/// @param w The window to set bounds on (may be ORed together).
 static inline void windowEnable(WINDOW w)
 {
     REG_DISPCNT |= w & WINDOW_MASK;
@@ -38,7 +38,7 @@ static inline void windowEnable(WINDOW w)
 
 /// Disable the specified window(s) (main engine).
 ///
-/// @param window The window to set bounds on (may be ORed together).
+/// @param w The window to set bounds on (may be ORed together).
 static inline void windowDisable(WINDOW w)
 {
     REG_DISPCNT &= ~(w & WINDOW_MASK);
@@ -46,7 +46,7 @@ static inline void windowDisable(WINDOW w)
 
 /// Enable the specified window(s) (sub engine).
 ///
-/// @param window The window to set bounds on (may be ORed together).
+/// @param w The window to set bounds on (may be ORed together).
 static inline void windowEnableSub(WINDOW w)
 {
     REG_DISPCNT_SUB |= w & WINDOW_MASK;
@@ -54,7 +54,7 @@ static inline void windowEnableSub(WINDOW w)
 
 /// Disable the specified window(s) (sub engine).
 ///
-/// @param window The window to set bounds on (may be ORed together).
+/// @param w The window to set bounds on (may be ORed together).
 static inline void windowDisableSub(WINDOW w)
 {
     REG_DISPCNT_SUB &= ~(w & WINDOW_MASK);

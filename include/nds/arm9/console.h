@@ -8,7 +8,6 @@
 ///
 /// @brief NDS stdio support.
 ///
-/// <div class="fileHeader">
 /// Provides stdio integration for printing to the DS screen as well as debug
 /// print functionality provided by stderr.
 ///
@@ -33,9 +32,7 @@
 /// fprintf(stderr, "debug message on DS console screen");
 /// </pre>
 ///
-/// The print console must be initialized to use DB_CONSOLE
-///
-/// </div>
+/// The print console must be initialized to use DB_CONSOLE.
 
 #ifndef LIBNDS_NDS_ARM9_CONSOLE_H__
 #define LIBNDS_NDS_ARM9_CONSOLE_H__
@@ -69,7 +66,7 @@ typedef struct ConsoleFont
 /// Console structure used to store the state of a console render context.
 ///
 /// Default values from consoleGetDefault();
-/// <div class="fixedFont"><pre>
+/// <pre>
 /// PrintConsole defaultConsole =
 /// {
 ///     // Font:
@@ -103,7 +100,7 @@ typedef struct ConsoleFont
 ///     false,  // Console initialized
 ///     true,   // Load graphics
 /// };
-/// </pre></div>
+/// </pre>
 typedef struct PrintConsole
 {
     ConsoleFont font;   ///< Font of the console.

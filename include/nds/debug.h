@@ -7,23 +7,16 @@
 ///
 /// @brief Currently only used to send debug messages to NO$GBA debug window.
 ///
-/// <div class="fileHeader">
 /// This functionality is best accessed via the console stdio integration.
 /// - @ref console.h "Debug Messages via stdio"
-/// </div>
 ///
 /// On the ARM7 stderr is setup to print to the no$gba debug console:
 /// <pre>
-/// #include <stdio.h>
-///
 /// fprintf(stderr,"ARM7 %%scanline%%\n");
 /// </pre>
 /// On the ARM9 stderr is directed to the console by default, but it's possible
 /// to direct it to the no$gba debug console:
 /// <pre>
-/// #include <stdio.h>
-/// #include <nds.h>
-///
 /// consoleDebugInit(DebugDevice_NOCASH);
 /// fprintf(stderr, "ARM9 %%scanline%%\n");
 /// </pre>

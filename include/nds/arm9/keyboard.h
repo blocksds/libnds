@@ -6,7 +6,6 @@
 ///
 /// @brief Integration of stdin with a simple keyboard.
 ///
-/// <div class="fileHeader">
 /// The keyboard component allows the use of a default keyboard via stdin as
 /// well as direct via the functions exposed below. The default behavior is a
 /// hidden keyboard that shows on a call to scanf(stdin, ...).
@@ -18,7 +17,6 @@
 ///
 /// To customize keyboard behavior and resource usage modify the keyboard
 /// structure returned by keyboardGetDefault() or create your own keyboard.
-/// </div>
 
 #ifndef LIBNDS_NDS_ARM9_KEYBOARD_H__
 #define LIBNDS_NDS_ARM9_KEYBOARD_H__

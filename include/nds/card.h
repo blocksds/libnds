@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_CARD_H__
 #define LIBNDS_NDS_CARD_H__
 
+/// @file card.h
+///
+/// @brief Slot-1 card commands.
+
 #include <stddef.h>
 
 #include <nds/ndstypes.h>

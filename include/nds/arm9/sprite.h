@@ -292,6 +292,7 @@ extern OamState oamSub;
 ///
 /// @param oam Must be &oamMain or &oamSub.
 /// @param offset The VRAM of the sprite graphics (not an offset).
+/// @return OAM offset.
 unsigned int oamGfxPtrToOffset(OamState *oam, const void *offset);
 
 /// Initializes the 2D sprite engine.

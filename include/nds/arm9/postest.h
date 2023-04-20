@@ -4,13 +4,11 @@
 
 /// @file postest.h
 ///
-/// @brief Position Test Functions.<BR>
+/// @brief Position Test Functions.
 ///
-/// <div class="fileHeader">
 /// The position test multiplies a given vector by the position matrix and
-/// returns the coords(x,y,z,w). The position test is really quick, about 10x
-/// faster than a box test.
-/// </div>
+/// returns the coords(x, y, z, w). The position test is really quick, about 10
+/// times faster than a box test.
 
 #ifndef LIBNDS_NDS_ARM9_POSTEST_H__
 #define LIBNDS_NDS_ARM9_POSTEST_H__

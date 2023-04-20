@@ -81,19 +81,19 @@ extern "C" {
 
 /// Fixed point sine.
 ///
-/// @param Angle (-32768 to 32767).
+/// @param angle Angle (-32768 to 32767).
 /// @return 4.12 fixed point number with the range [-1, 1].
 s16 sinLerp(s16 angle);
 
 /// Fixed point cosine.
 ///
-/// @param Angle (-32768 to 32767).
+/// @param angle Angle (-32768 to 32767).
 /// @return 4.12 fixed point number with the range [-1, 1].
 s16 cosLerp(s16 angle);
 
 /// Fixed point tangent.
 ///
-/// @param Angle (-32768 to 32767).
+/// @param angle Angle (-32768 to 32767).
 /// @return 20.12 fixed point number with the range [-81.483, 524287.999].
 s32 tanLerp(s16 angle);
 

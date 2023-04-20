@@ -7,7 +7,6 @@
 ///
 /// @brief Wrapper functions for direct memory access hardware.
 ///
-/// <div class="fileHeader">
 /// The DS has 4 hardware direct memory access devices per CPU which can be used
 /// to transfer or fill chunks of memeory without CPU intervention. Using DMA is
 /// generaly faster than CPU copies (memcpy, swiCopy, for loops, etc..).
@@ -20,8 +19,6 @@
 /// DC_FlushRange(source, sizeof(dataToCopy));
 /// dmaCopy(source, destination, sizeof(dataToCopy));
 /// </pre>
-///
-/// </div>
 
 #ifndef LIBNDS_NDS_DMA_H__
 #define LIBNDS_NDS_DMA_H__
@@ -183,7 +180,7 @@ static inline void dmaCopyHalfWordsAsynch(uint8_t channel, const void *src,
 ///
 /// This function returns immediately after starting the transfer.
 ///
-/// @param src The source to copy from.
+/// @param source The source to copy from.
 /// @param dest The destination to copy to.
 /// @param size The size in bytes of the data to copy. Will be truncated to the
 ///             nearest half word (2 bytes)

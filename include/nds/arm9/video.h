@@ -445,9 +445,9 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 
 /// @enum VideoMode
 ///
-/// @brief The allowed video modes of the 2D processors <br>
+/// @brief The allowed video modes of the 2D processors.
 ///
-/// <div class="fixedFont"><pre>
+/// <pre>
 /// Main 2D engine
 /// ______________________________
 /// |Mode | BG0 | BG1 | BG2 |BG3 |   T = Text
@@ -458,7 +458,7 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 /// |  4  |  T  |  T  |  R  |  E |
 /// |  5  |  T  |  T  |  E  |  E |
 /// |  6  |     |  L  |     |    |
-/// -----------------------------
+/// ------------------------------
 ///
 /// Sub 2D engine
 /// ______________________________
@@ -469,9 +469,8 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 /// |  3  |  T  |  T  |  T  |  E |
 /// |  4  |  T  |  T  |  R  |  E |
 /// |  5  |  T  |  T  |  E  |  E |
-/// -----------------------------
-///
-/// </pre></div>
+/// ------------------------------
+/// </pre>
 
 typedef enum
 {

@@ -7,14 +7,12 @@
 ///
 /// @brief An image abstraction for working with image data.
 ///
-/// <div class="fileHeader">
 /// Image data buffers must be allocated using malloc() rather than pointing to
 /// stack data, as the conversion routines will free() the argument's image
 /// buffer and allocate a new block for the replacement data.
 ///
 /// As such, any loader implemented utilizing this structure must use malloc()
 /// to allocate the image buffer.
-/// </div>
 
 #ifndef LIBNDS_NDS_ARM9_IMAGE_H__
 #define LIBNDS_NDS_ARM9_IMAGE_H__

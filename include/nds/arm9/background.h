@@ -7,7 +7,6 @@
 ///
 /// @brief NDS background defines and functionality.
 ///
-/// <div class="fileHeader">
 /// Background control is provided via an API or direct register access. Usually
 /// these methods can be mixed. However, scrolling, scaling, and rotation will
 /// have unexpected results if API and direct register access are mixed. Effort
@@ -27,7 +26,6 @@
 ///
 /// The following modes of operation are allowed:
 ///
-/// <div class="fixedFont">
 /// <pre>
 /// Main 2D engine
 /// ______________________________
@@ -52,11 +50,8 @@
 /// |  5  |  T  |  T  |  E  |  E |
 /// -----------------------------
 /// </pre>
-/// </div>
 ///
 /// On the main engine BG0 can be used as a 3D rendering surface.
-///
-/// </div>
 ///
 /// Note about extended palettes:
 ///

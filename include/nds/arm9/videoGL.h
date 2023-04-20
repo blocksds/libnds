@@ -539,6 +539,7 @@ void glGetColorTableParameterEXT(int target, int pname, int *params);
 /// Returns the address alocated to the texure named by name.
 ///
 /// @param name The name of the texture to get a pointer to.
+/// @return The address.
 void *glGetTexturePointer(int name);
 
 /// glBindTexure sets the current named texture to the active texture.
@@ -1373,7 +1374,7 @@ void glGetFixed(const GL_GET_ENUM param, int *f);
 ///
 /// Polygons with a lower alpha value won't be displayed.
 ///
-/// alphaThreshold Minimum alpha value that will be used (0 - 15)
+/// @param alphaThreshold Minimum alpha value that will be used (0 - 15).
 static inline void glAlphaFunc(int alphaThreshold)
 {
     GFX_ALPHA_TEST = alphaThreshold;

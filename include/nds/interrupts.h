@@ -195,9 +195,8 @@ void irqDisableAUX(u32 irq);
 
 /// Wait for interrupt(s) to occur.
 ///
-/// @param waitForSet.
-///     0: Return if the interrupt has already occured
-///     1: Wait until the interrupt has been set since the call
+/// @param waitForSet 0: Return if the interrupt has already occured; 1: Wait
+///                   until the interrupt has been set since the call
 /// @param flags Interrupt mask to wait for.
 void swiIntrWait(u32 waitForSet, uint32_t flags);
 

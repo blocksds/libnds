@@ -183,7 +183,7 @@ static inline int32_t mod64(int64_t num, int32_t den)
 
 /// Integer sqrt.
 ///
-/// @param 32 bit integer value.
+/// @param a 32 bit integer value.
 /// @return 32 bit integer result.
 static inline u32 sqrt32(int a)
 {
@@ -200,7 +200,7 @@ static inline u32 sqrt32(int a)
 
 /// Integer sqrt.
 ///
-/// @param 64 bit integer value.
+/// @param a 64 bit integer value.
 /// @return 32 bit integer result.
 static inline u32 sqrt64(long long a)
 {
@@ -229,7 +229,7 @@ static inline u32 sqrt64(long long a)
 ///
 /// @param a Pointer to fixed 3 dimensions vector.
 /// @param b Pointer to fixed 3 dimensions vector.
-/// @param Result pointer to fixed 3x3 matrix
+/// @param result Result pointer to fixed 3x3 matrix
 static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 {
     result[0] = mulf32(a[1], b[2]) - mulf32(b[1], a[2]);
