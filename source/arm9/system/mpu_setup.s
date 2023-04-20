@@ -27,18 +27,26 @@
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   5 | 0x02FF0000 |  16 KB | All       |  R/W   |   N   | N  | DTCM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   6 | 0x02000000 |  16 MB | DS        |  R/W   |   N   | N  | Non-cacheable main RAM
+//   6 | 0x02000000 |  16 MB | DS    [1] |  R/W   |   N   | N  | Non-cacheable main RAM
 //     | 0x02800000 |   8 MB | DSd       |        |       |    |
 //     | 0x0C000000 |  16 MB | DSI       |        |       |    |
 //     | 0x0C000000 |  32 MB | DSId      |        |       |    | DSi debugger extended IWRAM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   7 | 0x02000000 |   4 MB | DS        |  R/W   |   Y   | Y  | Cacheable main RAM
-//     | 0x02000000 |   8 MB | DSd       |        |       |    |
+//     | 0x02000000 |   8 MB | DSd   [2] |        |       |    |
 //     | 0x02000000 |  16 MB | DSI, DSId |        |       |    |
 //
-// TODO: Is the entry for region 6 of regular DS wrong? Shouldn't it be 4 MB?
-// TODO: Is the last entry a bug? Do regular DSi and debugger DSi have 16 MB of
-// cacheable main RAM, but the debugger has 32 MB of non-cachable main RAM?
+// [1]: The size of the main RAM of the DS is 4 MB. This is mirrored up to
+// 0x03000000 (4 times in total). The last mirror is often used for
+// optimizations that involve accessing the end of main RAM (like the BIOS
+// interrupt flags). The other two mirrors aren't used by libnds, but the mirror
+// at 0x02400000 is used by some legacy applications built with libnds.
+//
+// [2]: The actual size of the main RAM of the DSi debugger version is 32 MB,
+// but it isn't possible to map everything at 0x02000000 because shared WRAM is
+// mapped at 0x03000000, so there are only 16 MB available. The last 16 MB of
+// the main RAM can only be accessed from their non-cachable mirror. This isn't
+// a problem in a regular consumer DSi because it has exactly 16 MB of RAM.
 //
 // Legend:
 //
