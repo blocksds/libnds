@@ -193,14 +193,14 @@ char *fatGetDefaultCwd(void)
         if (argv0)
         {
             if (strncmp(argv0, fat_drive, strlen(fat_drive)) == 0)
-                return strdup("fat:/");
+                return strdup(fat_drive);
         }
 
-        return strdup("sd:/");
+        return strdup(sd_drive);
     }
     else
     {
-        return strdup("fat:/");
+        return strdup(fat_drive);
     }
 }
 
@@ -260,7 +260,7 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         bool require_sd = true;
         default_drive = sd_drive;
 
-        if (strncmp(default_cwd, fat_drive, strlen(fat_drive)) == 0)
+        if (default_cwd != NULL && strncmp(default_cwd, fat_drive, strlen(fat_drive)) == 0)
         {
             // This is the unusual case of the ROM being loaded from the
             // DLDI device instead of the internal SD card.
@@ -314,6 +314,7 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         }
     }
 
+    free(default_cwd);
     fat_initialized = true;
     return true;
 
