@@ -203,6 +203,13 @@ bool nitroFSInit(char **basepath)
         return false;
     }
 
+    // Set "nitro:/" as default path
+    if (chdir(nitro_drive) != 0)
+    {
+        errno = fatfs_error_to_posix(result);
+        return false;
+    }
+
     nitrofat_initialized = true;
 
     return true;
