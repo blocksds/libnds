@@ -307,6 +307,8 @@
 /  The FF_FS_TIMEOUT defines timeout period in unit of O/S time tick.
 */
 
-
+#include <stdlib.h>
+#define ff_memalloc malloc
+#define ff_memfree free
 
 /*--- End of configuration options ---*/
