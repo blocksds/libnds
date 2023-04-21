@@ -12,11 +12,11 @@
 #include <nds/dma.h>
 #include <nds/ndstypes.h>
 
-void image24to16(sImage *img)
+bool image24to16(sImage *img)
 {
     u16 *temp = malloc(img->height * img->width * 2);
     if (temp == NULL)
-        return;
+        return false;
 
     for (int y = 0; y < img->height; y++)
     {
@@ -34,16 +34,18 @@ void image24to16(sImage *img)
 
     img->bpp = 16;
     img->image.data16 = temp;
+
+    return true;
 }
 
-void image8to16(sImage *img)
+bool image8to16(sImage *img)
 {
     sassert(img->bpp == 8, "image must be 8 bpp");
     sassert(img->palette != NULL, "image must have a palette set");
 
     u16 *temp = malloc(img->height * img->width * 2);
     if (temp == NULL)
-        return;
+        return false;
 
     for (int i = 0; i < img->height * img->width; i++)
         temp[i] = img->palette[img->image.data8[i]] | (1 << 15);
@@ -55,16 +57,18 @@ void image8to16(sImage *img)
 
     img->bpp = 16;
     img->image.data16 = temp;
+
+    return true;
 }
 
-void image8to16trans(sImage *img, u8 transparentColor)
+bool image8to16trans(sImage *img, u8 transparentColor)
 {
     sassert(img->bpp == 8, "image must be 8 bpp");
     sassert(img->palette != NULL, "image must have a palette set");
 
     u16 *temp = malloc(img->height * img->width * 2);
     if (temp == NULL)
-        return;
+        return false;
 
     for (int i = 0; i < img->height * img->width; i++)
     {
@@ -83,13 +87,15 @@ void image8to16trans(sImage *img, u8 transparentColor)
 
     img->bpp = 16;
     img->image.data16 = temp;
+
+    return true;
 }
 
-void imageTileData(sImage *img)
+bool imageTileData(sImage *img)
 {
     // Can only tile 8 bit data that is a multiple of 8 in dimention
-    if (img->bpp != 8 || (img->height & 3) != 0 || (img->width & 3) != 0)
-        return;
+    sassert(img->bpp == 8, "image must be 8 bpp");
+    sassert((img->height & 7) == 0 && (img->width & 7) == 0, "image must be a multiple of 8 in dimension");
 
     int th = img->height >> 3;
     int tw = img->width >> 3;
@@ -97,7 +103,7 @@ void imageTileData(sImage *img)
     // Buffer to hold data
     u32 *temp = malloc(img->height * img->width);
     if (temp == NULL)
-        return;
+        return false;
 
     int i = 0;
 
@@ -116,6 +122,8 @@ void imageTileData(sImage *img)
     free(img->image.data32);
 
     img->image.data32 = (u32 *)temp;
+
+    return true;
 }
 
 void imageDestroy(sImage *img)

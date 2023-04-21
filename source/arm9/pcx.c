@@ -9,7 +9,7 @@
 #include <nds/arm9/pcx.h>
 #include <nds/arm9/video.h>
 
-int loadPCX(const unsigned char *pcx, sImage *image)
+bool loadPCX(const unsigned char *pcx, sImage *image)
 {
     // struct rgb {
     //     unsigned char b,g,r;
@@ -29,10 +29,18 @@ int loadPCX(const unsigned char *pcx, sImage *image)
     int size = image->width * image->height;
 
     if (hdr->bitsPerPixel != 8)
-        return 0;
+        return false;
 
     unsigned char *scanline = image->image.data8 = malloc(size);
+    if (scanline == NULL)
+        return false;
+
     image->palette = malloc(256 * 2);
+    if (image->palette == NULL)
+    {
+        free(scanline);
+        return false;
+    }
 
     int count = 0;
 
@@ -68,7 +76,7 @@ int loadPCX(const unsigned char *pcx, sImage *image)
         image->image.data8 = 0;
         free(image->palette);
         image->palette = 0;
-        return 0;
+        return false;
     }
 
     pcx++;
@@ -85,5 +93,5 @@ int loadPCX(const unsigned char *pcx, sImage *image)
         image->palette[i] = RGB15(r >> 3, g >> 3, b >> 3);
     }
 
-    return 1;
+    return true;
 }

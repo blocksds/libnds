@@ -22,35 +22,6 @@
 #include "ff.h"
 
 
-#if FF_USE_LFN == 3	/* Use dynamic memory allocation */
-
-/*------------------------------------------------------------------------*/
-/* Allocate/Free a Memory Block                                           */
-/*------------------------------------------------------------------------*/
-
-#include <stdlib.h>		/* with POSIX API */
-
-
-void* ff_memalloc (	/* Returns pointer to the allocated memory block (null if not enough core) */
-	UINT msize		/* Number of bytes to allocate */
-)
-{
-	return malloc((size_t)msize);	/* Allocate a new memory block */
-}
-
-
-void ff_memfree (
-	void* mblock	/* Pointer to the memory block to free (no effect if null) */
-)
-{
-	free(mblock);	/* Free the memory block */
-}
-
-#endif
-
-
-
-
 #if FF_FS_REENTRANT	/* Mutal exclusion */
 /*------------------------------------------------------------------------*/
 /* Definitions of Mutex                                                   */
