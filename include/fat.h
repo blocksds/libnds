@@ -47,6 +47,20 @@ bool fatInitDefault(void);
 /// @return It returns true on success, false on error.
 bool fatInit(uint32_t cache_size_pages, bool set_as_default_device);
 
+/// This function returns the default current working directory.
+///
+/// It is extracted from argv[0] if it has been provided by the loader. If the
+/// format of the path provided by the loader is incorrect, or if no argv[0] was
+/// provided, it will default to the root of the filesystem.
+///
+/// The string is allocated with strdup() internally, so the caller of
+/// fatGetDefaultCwd() must use free() to free it.
+///
+/// For example, this function may return "sd:/folder/" or "fat:/".
+///
+/// @return Returns a string with the path.
+char *fatGetDefaultCwd(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <nds/memory.h>
 #include <nds/system.h>
@@ -17,6 +18,10 @@
 
 // Devices: "fat:/", "sd:/", "nitro:/"
 static FATFS fs_info[FF_VOLUMES] = { 0 };
+
+static const char *fat_drive = "fat:/";
+static const char *sd_drive = "sd:/";
+static const char *nitro_drive = "nitro:/";
 
 static bool fat_initialized = false;
 static bool nitrofat_initialized = false;
@@ -78,6 +83,127 @@ int fatfs_error_to_posix(FRESULT error)
     return codes[error];
 }
 
+// It takes a full path to a NDS ROM and it creates a new string with the path
+// to the directory that contains it. It must be freed by the caller of
+// get_dirname().
+//
+//     sd:/test.nds        -> sd:/
+//     sd:/folder/test.nds -> sd:/folder/
+//
+char *get_dirname(const char *full_path)
+{
+    char *path = strdup(full_path);
+
+    if (path == NULL)
+        return NULL;
+
+    // Check that the path is valid
+
+    int len = strlen(path);
+
+    // Find the first ':' and the last '/'
+
+    int first_colon_pos = -1;
+    int last_slash_pos = -1;
+
+    for (int i = 0; i < len; i++)
+    {
+        char c = path[i];
+
+        if (c == ':')
+        {
+            // ':' must come before '/'
+            if (last_slash_pos != -1)
+                goto cleanup;
+
+            if (first_colon_pos == -1)
+                first_colon_pos = i;
+        }
+        else if (c == '/')
+        {
+            last_slash_pos = i;
+        }
+    }
+
+    // A valid argv[0] must contain a drive name and a path to a NDS file:
+    //
+    // Valid:
+    //
+    //     fat:/test.nds
+    //     sd:/folder/test.nds
+    //
+    // Invalid:
+    //
+    //     test.nds             | No drive name
+    //     folder/test.nds      | No drive name
+    //     sd:/                 | No file name
+    //     fat:/folder/         | No file name
+    //     fat/folder:/test.nds | Invalid drive location
+    //     fat/fol:der/test.nds | No drive name
+
+    if ((first_colon_pos == -1) || (last_slash_pos == -1))
+        goto cleanup;
+
+    // Ensure that the path doesn't end in a '/' and it has a file name
+
+    if (last_slash_pos == (len - 1))
+        goto cleanup;
+
+    // Ensure that the ':' is followed by a '/'
+
+    if (path[first_colon_pos + 1] != '/')
+        goto cleanup;
+
+    // Remove the file name from the path
+
+    path[last_slash_pos + 1] = '\0';
+    return path;
+
+cleanup:
+    free(path);
+    return NULL;
+}
+
+// This function returns a pointer allocated that must be freed with free() by
+// the caller.
+char *fatGetDefaultCwd(void)
+{
+    // If argv[0] is provided, try to use it.
+
+    const char *argv0 = NULL;
+    if (__system_argv->argvMagic == ARGV_MAGIC && __system_argv->argc >= 1)
+    {
+        argv0 = __system_argv->argv[0];
+
+        char *dirpath = get_dirname(argv0);
+
+        if (dirpath)
+            return dirpath;
+
+        free(dirpath);
+    }
+
+    // argv[0] wasn't provided, or the path is invalid. Use the root of the SD
+    // or the DLDI device as fallback.
+
+    if (isDSiMode())
+    {
+        // Only default to the DLDI device if it's explicitly used in argv[0].
+        // Under any other condition, default to the internal SD slot.
+        if (argv0)
+        {
+            if (strncmp(argv0, fat_drive, strlen(fat_drive)) == 0)
+                return strdup("fat:/");
+        }
+
+        return strdup("sd:/");
+    }
+    else
+    {
+        return strdup("fat:/");
+    }
+}
+
 bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
 {
     (void)set_as_default_device;
@@ -89,9 +215,15 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
 
     has_been_called = true;
 
-    const char *fat_drive = "fat:/";
-    const char *sd_drive = "sd:/";
     const char *default_drive = NULL;
+
+    // Try to get a default working directory from argv[0]
+    // ---------------------------------------------------
+
+    char *default_cwd = fatGetDefaultCwd();
+
+    // Initialize read cache, shared by all filesystems
+    // ------------------------------------------------
 
     uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
 
@@ -99,8 +231,14 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
     if (ret != 0)
     {
         errno = ENOMEM;
-        return false;
+        goto cleanup;
     }
+
+    // Initialize all possible drives
+    // ------------------------------
+
+    // Fail if any of the required drives has failed to initialize (the required
+    // drive is usually the one that contains the NDS ROM).
 
     FRESULT result;
 
@@ -122,16 +260,13 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         bool require_sd = true;
         default_drive = sd_drive;
 
-        if (__system_argv->argvMagic == ARGV_MAGIC && __system_argv->argc >= 1)
+        if (strncmp(default_cwd, fat_drive, strlen(fat_drive)) == 0)
         {
-            if (strncmp(__system_argv->argv[0], fat_drive, strlen(fat_drive)) == 0)
-            {
-                // This is the unusual case of the ROM being loaded from the
-                // DLDI device instead of the internal SD card.
-                require_fat = true;
-                require_sd = false;
-                default_drive = fat_drive;
-            }
+            // This is the unusual case of the ROM being loaded from the
+            // DLDI device instead of the internal SD card.
+            require_fat = true;
+            require_sd = false;
+            default_drive = fat_drive;
         }
 
         // Try to initialize the internal SD slot
@@ -139,7 +274,7 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         if ((result != FR_OK) && require_sd)
         {
             errno = fatfs_error_to_posix(result);
-            return false;
+            goto cleanup;
         }
 
         // Try to initialize DLDI
@@ -147,7 +282,7 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         if ((result != FR_OK) && require_fat)
         {
             errno = fatfs_error_to_posix(result);
-            return false;
+            goto cleanup;
         }
     }
     else
@@ -157,23 +292,34 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
         if (result != FR_OK)
         {
             errno = fatfs_error_to_posix(result);
-            return false;
+            goto cleanup;
         }
 
         default_drive = fat_drive;
     }
 
-    // Set the selected default drive as current drive
-    result = f_chdrive(default_drive);
-    if (result != FR_OK)
+    // Set the initial drive and path inside the drive
+    // -----------------------------------------------
+
+    // Try to switch to the default location of the NDS file
+    if (chdir(default_cwd) != 0)
     {
-        errno = fatfs_error_to_posix(result);
-        return false;
+        // If it wasn't possible to set the full path of the directory, at least
+        // switch to the right drive.
+        result = f_chdrive(default_drive);
+        if (result != FR_OK)
+        {
+            errno = fatfs_error_to_posix(result);
+            goto cleanup;
+        }
     }
 
     fat_initialized = true;
-
     return true;
+
+cleanup:
+    free(default_cwd);
+    return false;
 }
 
 bool fatInitDefault(void)
@@ -191,8 +337,6 @@ bool nitroFSInit(char **basepath)
     has_been_called = true;
 
     (void)basepath;
-
-    const char *nitro_drive = "nitro:/";
 
     sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
 
