@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
 
 /// This function calls fatInit() with the default cache size (5 pages = 20 KB).
 ///
