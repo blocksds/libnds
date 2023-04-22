@@ -11,6 +11,7 @@
 #include <nds/cpu_asm.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
+#include <nds/system.h>
 
 uint32_t ARMShift(uint32_t value, uint8_t shift)
 {
@@ -255,12 +256,19 @@ void guruMeditationDump(void)
         printf("\x1b[10Cdata abort!\n\n");
         codeAddress = exceptionRegisters[15] - offset;
 
-        // TODO: Fix addresses for DSi
-        bool is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
-        bool is_iwram = codeAddress > (u32)__itcm_start
-                        && codeAddress < (u32)(__itcm_start + 32768);
+        // Check if the address is a region that normally contains code
 
-        if (is_main_ram || is_iwram)
+        // TODO: Support DS debugger regions?
+        bool is_main_ram;
+        if (isDSiMode())
+            is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x03000000;
+        else
+            is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
+
+        bool is_itcm = codeAddress > (u32)__itcm_start
+                     && codeAddress < (u32)(__itcm_start + 32768);
+
+        if (is_main_ram || is_itcm)
             exceptionAddress = getExceptionAddress(codeAddress, thumbState);
         else
             exceptionAddress = codeAddress;
