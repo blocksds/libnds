@@ -75,7 +75,8 @@
 /// @section debug_api Debugging
 /// - @ref console.h "Debug via printf to DS screen or NO$GBA"
 /// - @ref debug.h "Send message to NO$GBA"
-/// - @ref sassert.h "simple assert"
+/// - @ref sassert.h "Simple assert"
+/// - @ref exceptions.h "ARM9 exception handler"
 
 #ifndef LIBNDS_NDS_H__
 #define LIBNDS_NDS_H__

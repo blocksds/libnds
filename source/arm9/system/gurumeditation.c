@@ -8,10 +8,11 @@
 #include <nds/arm9/console.h>
 #include <nds/arm9/exceptions.h>
 #include <nds/arm9/video.h>
+#include <nds/cpu_asm.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 
-unsigned long ARMShift(unsigned long value, unsigned char shift)
+uint32_t ARMShift(uint32_t value, uint8_t shift)
 {
     // No shift at all
     if (shift == 0x0B)
@@ -26,31 +27,28 @@ unsigned long ARMShift(unsigned long value, unsigned char shift)
     else
     {
         // Constant shift index
-        index = ((shift >> 3) & 0x1F);
+        index = (shift >> 3) & 0x1F;
     }
 
-    int i;
     bool isN;
     switch (shift & 0x06)
     {
         case 0x00:
             // Logical left
-            return (value << index);
+            return value << index;
 
         case 0x02:
             // Logical right
-            return (value >> index);
+            return value >> index;
 
         case 0x04:
             // Arithmetic right
-            isN = (value & 0x80000000);
+            isN = value & 0x80000000;
             value = value >> index;
             if (isN)
             {
-                for (i = 31; i > 31 - index; i--)
-                {
+                for (int i = 31; i > 31 - index; i--)
                     value = value | (1 << i);
-                }
             }
             return value;
 
@@ -72,7 +70,7 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
     {
         // Thumb
 
-        unsigned short opcode = *(unsigned short *)opcodeAddress;
+        uint16_t opcode = *(uint16_t *)opcodeAddress;
         // ldr r,[pc,###]           01001ddd ffffffff
         // ldr r,[r,r]              0101xx0f ffbbbddd
         // ldrsh                    0101xx1f ffbbbddd
@@ -137,7 +135,7 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
     else
     {
         // ARM32
-        unsigned long opcode = *(unsigned long *)opcodeAddress;
+        uint32_t opcode = *(uint32_t *)opcodeAddress;
 
         // SWP          xxxx0001 0x00nnnn dddd0000 1001mmmm
         // STR/LDR      xxxx01xx xxxxnnnn ddddffff ffffffff
@@ -161,12 +159,12 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
                 Rm = opcode & 0x0F;
                 if (opcode & 0x01000000)
                 {
-                    unsigned short shift = (unsigned short)((opcode >> 4) & 0xFF);
+                    uint8_t shift = (opcode >> 4) & 0xFF;
                     // pre indexing
-                    long Offset = ARMShift(exceptionRegisters[Rm], shift);
+                    int32_t offset = ARMShift(exceptionRegisters[Rm], shift);
                     // add or sub the offset depending on the U-Bit
                     return exceptionRegisters[Rn]
-                           + ((opcode & 0x00800000) ? Offset : -Offset);
+                           + ((opcode & 0x00800000) ? offset : -offset);
                 }
                 else
                 {
@@ -177,14 +175,14 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
             else
             {
                 // Immediate offset
-                unsigned long Offset = (opcode & 0xFFF);
+                uint32_t offset = (opcode & 0xFFF);
                 if (opcode & 0x01000000)
                 {
                     // Pre indexing
 
                     // Add or sub the offset depending on the U-Bit
                     return exceptionRegisters[Rn]
-                           + ((opcode & 0x00800000) ? Offset : -Offset);
+                           + ((opcode & 0x00800000) ? offset : -offset);
                 }
                 else
                 {
@@ -199,19 +197,19 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
             Rn = (opcode >> 16) & 0x0F;
             Rd = (opcode >> 12) & 0x0F;
             Rm = opcode & 0x0F;
-            unsigned short shift = (unsigned short)((opcode >> 4) & 0xFF);
-            long Offset = ARMShift(exceptionRegisters[Rm], shift);
+            uint8_t shift = (opcode >> 4) & 0xFF;
+            int32_t offset = ARMShift(exceptionRegisters[Rm], shift);
             // Add or sub the offset depending on the U-Bit
-            return exceptionRegisters[Rn] + ((opcode & 0x00800000) ? Offset : -Offset);
+            return exceptionRegisters[Rn] + ((opcode & 0x00800000) ? offset : -offset);
         }
         else if ((opcode & 0x0E400F90) == 0x00400090)
         {
             // LDRH/STRH with immediate offset
             Rn = (opcode >> 16) & 0x0F;
             Rd = (opcode >> 12) & 0x0F;
-            unsigned long Offset = (opcode & 0xF) | ((opcode & 0xF00) >> 8);
+            uint32_t offset = (opcode & 0xF) | ((opcode & 0xF00) >> 8);
             // Add or sub the offset depending on the U-Bit
-            return exceptionRegisters[Rn] + ((opcode & 0x00800000) ? Offset : -Offset);
+            return exceptionRegisters[Rn] + ((opcode & 0x00800000) ? offset : -offset);
         }
         else if ((opcode & 0x0E000000) == 0x08000000)
         {
@@ -234,31 +232,38 @@ void guruMeditationDump(void)
 {
     consoleDemoInit();
 
+    // White text on a red background
     BG_PALETTE_SUB[0] = RGB15(31, 0, 0);
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     printf("\x1b[5CGuru Meditation Error!\n");
-    u32 currentMode = getCPSR() & 0x1f;
-    u32 thumbState = (*(u32 *)0x02FFFD90) & 0x20;
+
+    // The current CPU mode specifies whether the exception was caused by a data
+    // abort or an undefined instruction.
+    u32 currentMode = getCPSR() & CPSR_MODE_MASK;
+
+    // Check the location where the BIOS stored the CPSR state at the moment of
+    // the exception.
+    u32 thumbState = *(EXCEPTION_STACK_TOP - 3) & CPSR_FLAG_T;
 
     u32 codeAddress, exceptionAddress = 0;
 
     int offset = 8;
 
-    if (currentMode == 0x17)
+    if (currentMode == CPSR_MODE_ABORT)
     {
         printf("\x1b[10Cdata abort!\n\n");
         codeAddress = exceptionRegisters[15] - offset;
-        if ((codeAddress > 0x02000000 && codeAddress < 0x02400000)
-            || (codeAddress > (u32)__itcm_start
-                && codeAddress < (u32)(__itcm_start + 32768)))
-        {
+
+        // TODO: Fix addresses for DSi
+        bool is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
+        bool is_iwram = codeAddress > (u32)__itcm_start
+                        && codeAddress < (u32)(__itcm_start + 32768);
+
+        if (is_main_ram || is_iwram)
             exceptionAddress = getExceptionAddress(codeAddress, thumbState);
-        }
         else
-        {
             exceptionAddress = codeAddress;
-        }
     }
     else
     {
