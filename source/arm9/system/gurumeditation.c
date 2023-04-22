@@ -31,7 +31,6 @@ uint32_t ARMShift(uint32_t value, uint8_t shift)
         index = (shift >> 3) & 0x1F;
     }
 
-    bool isN;
     switch (shift & 0x06)
     {
         case 0x00:
@@ -44,14 +43,7 @@ uint32_t ARMShift(uint32_t value, uint8_t shift)
 
         case 0x04:
             // Arithmetic right
-            isN = value & 0x80000000;
-            value = value >> index;
-            if (isN)
-            {
-                for (int i = 31; i > 31 - index; i--)
-                    value = value | (1 << i);
-            }
-            return value;
+            return (int32_t)value >> index;
 
         case 0x06:
             // Rotate right
@@ -72,6 +64,7 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
         // Thumb
 
         uint16_t opcode = *(uint16_t *)opcodeAddress;
+
         // ldr r,[pc,###]           01001ddd ffffffff
         // ldr r,[r,r]              0101xx0f ffbbbddd
         // ldrsh                    0101xx1f ffbbbddd
@@ -227,6 +220,7 @@ static const char *registerNames[] = {
     "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
 };
 
+// Symbol defined in the linkerscript
 extern const char __itcm_start[];
 
 void guruMeditationDump(void)
@@ -254,6 +248,12 @@ void guruMeditationDump(void)
     if (currentMode == CPSR_MODE_ABORT)
     {
         printf("\x1b[10Cdata abort!\n\n");
+
+        // In a data abort, there is an instruction that tried to access an
+        // invalid address, and an invalid address.
+
+        // Get the address where the exception was triggered
+
         codeAddress = exceptionRegisters[15] - offset;
 
         // Check if the address is a region that normally contains code
@@ -268,6 +268,9 @@ void guruMeditationDump(void)
         bool is_itcm = codeAddress > (u32)__itcm_start
                      && codeAddress < (u32)(__itcm_start + 32768);
 
+        // If it's in a code region, try to decode the instruction. This will
+        // let us know exactly which address was trying to be accessed.
+
         if (is_main_ram || is_itcm)
             exceptionAddress = getExceptionAddress(codeAddress, thumbState);
         else
@@ -275,15 +278,24 @@ void guruMeditationDump(void)
     }
     else
     {
+        printf("\x1b[5Cundefined instruction!\n\n");
+
+        // Get the address where the exception was triggered, which is the one
+        // that holds the undefined instruction, so it's the same address as the
+        // exception address.
+
+        // That PC will have advanced one instruction, so the actual location of
+        // the undefined instruction is one instruction before the current PC.
         if (thumbState)
             offset = 2;
         else
             offset = 4;
 
-        printf("\x1b[5Cundefined instruction!\n\n");
         codeAddress = exceptionRegisters[15] - offset;
         exceptionAddress = codeAddress;
     }
+
+    // Finally, print everything to the screen
 
     printf("  pc: %08lX addr: %08lX\n\n", codeAddress, exceptionAddress);
 
