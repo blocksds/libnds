@@ -860,14 +860,13 @@ static inline void glCallList(const u32 *list)
     DC_FlushRange(list, count * 4);
 
     // Wait until *all* DMA channels have stopped. TODO: Is this needed?
-    while ((DMA_CR(0) & DMA_BUSY) || (DMA_CR(1) & DMA_BUSY) ||
-           (DMA_CR(2) & DMA_BUSY) || (DMA_CR(3) & DMA_BUSY));
+    while (dmaBusy(0) || dmaBusy(1) || dmaBusy(2) || dmaBusy(3));
 
     // Send the packed list asynchronously via DMA to the FIFO
-    DMA_SRC(0) = (u32)list;
-    DMA_DEST(0) = 0x4000400;
+    DMA_SRC(0) = (uint32_t)list;
+    DMA_DEST(0) = (uint32_t)&GFX_FIFO;
     DMA_CR(0) = DMA_FIFO | count;
-    while (DMA_CR(0) & DMA_BUSY);
+    while (dmaBusy(0));
 }
 
 /// Set the parameters for polygons rendered on the current frame.
