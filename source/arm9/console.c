@@ -313,10 +313,8 @@ static ssize_t con_write(const char *ptr, size_t len)
     return count;
 }
 
-typedef ssize_t (*fn_write_ptr)(const char *, size_t);
-
-fn_write_ptr libnds_stdout_write = NULL;
-fn_write_ptr libnds_stderr_write = NULL;
+ConsoleOutFn libnds_stdout_write = NULL;
+ConsoleOutFn libnds_stderr_write = NULL;
 
 void consoleLoadFont(PrintConsole *console)
 {
@@ -687,4 +685,20 @@ void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height
 
     console->cursorX = 0;
     console->cursorY = 0;
+}
+
+void consoleSetCustomStdout(ConsoleOutFn fn)
+{
+    if (fn != NULL)
+        libnds_stdout_write = fn;
+    else
+        libnds_stdout_write = con_write;
+}
+
+void consoleSetCustomStderr(ConsoleOutFn fn)
+{
+    if (fn != NULL)
+        libnds_stderr_write = fn;
+    else
+        libnds_stderr_write = con_write;
 }

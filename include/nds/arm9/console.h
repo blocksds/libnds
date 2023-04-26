@@ -37,6 +37,8 @@
 #ifndef LIBNDS_NDS_ARM9_CONSOLE_H__
 #define LIBNDS_NDS_ARM9_CONSOLE_H__
 
+#include <stdio.h>
+
 #include <nds/arm9/background.h>
 #include <nds/ndstypes.h>
 
@@ -44,7 +46,13 @@
 extern "C" {
 #endif
 
+/// Function type used by the PrintConsole struct to send characters to the
+/// console.
 typedef bool (* ConsolePrint)(void* con, char c);
+
+/// Function type used by libnds to redirect characters sent to stdout and
+/// stderr (skipping the call to the ConsolePrint handler).
+typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 
 /// A font struct for the console.
 ///
@@ -224,6 +232,22 @@ void consoleClear(void);
 ///
 /// @param device The debug device (or devices) to output debug print to.
 void consoleDebugInit(DebugDevice device);
+
+/// Sets the function where stdout is sent, bypassing the PrintConsole handler.
+///
+/// To reset it to the libnds console handler, call this function with NULL as
+/// an argument.
+///
+/// @param fn Callback where stdout is sent.
+void consoleSetCustomStdout(ConsoleOutFn fn);
+
+/// Sets the function where stderr is sent, bypassing the PrintConsole handler.
+///
+/// To reset it to the libnds console handler, call this function with NULL as
+/// an argument, or call consoleDebugInit().
+///
+/// @param fn Callback where stderr is sent.
+void consoleSetCustomStderr(ConsoleOutFn fn);
 
 #ifdef __cplusplus
 }

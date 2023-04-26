@@ -28,7 +28,7 @@ static char stderr_buf[OUTPUT_BUFFER_SIZE + 1];
 static uint16_t stdout_buf_len = 0;
 static uint16_t stderr_buf_len = 0;
 
-static int putc_buffered(char c, char *buf, uint16_t *buf_len, fn_write_ptr fn)
+static int putc_buffered(char c, char *buf, uint16_t *buf_len, ConsoleOutFn fn)
 {
     if ((c == 0x1B) || (*buf_len > 0))
     {
