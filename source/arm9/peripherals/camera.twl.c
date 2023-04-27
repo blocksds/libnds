@@ -77,7 +77,7 @@ bool cameraDeinit(void)
     return true;
 }
 
-bool cameraSelect(u8 device)
+bool cameraSelect(CameraDevice device)
 {
     fifoMutexAcquire(FIFO_CAMERA);
     fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SELECT, device));
