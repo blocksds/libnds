@@ -14,7 +14,7 @@
 
 bool image24to16(sImage *img)
 {
-    u16 *temp = malloc(img->height * img->width * 2);
+    u16 *temp = malloc(img->height * img->width * sizeof(u16));
     if (temp == NULL)
         return false;
 
@@ -43,7 +43,7 @@ bool image8to16(sImage *img)
     sassert(img->bpp == 8, "image must be 8 bpp");
     sassert(img->palette != NULL, "image must have a palette set");
 
-    u16 *temp = malloc(img->height * img->width * 2);
+    u16 *temp = malloc(img->height * img->width * sizeof(u16));
     if (temp == NULL)
         return false;
 
@@ -66,7 +66,7 @@ bool image8to16trans(sImage *img, u8 transparentColor)
     sassert(img->bpp == 8, "image must be 8 bpp");
     sassert(img->palette != NULL, "image must have a palette set");
 
-    u16 *temp = malloc(img->height * img->width * 2);
+    u16 *temp = malloc(img->height * img->width * sizeof(u16));
     if (temp == NULL)
         return false;
 
@@ -101,7 +101,7 @@ bool imageTileData(sImage *img)
     int tw = img->width >> 3;
 
     // Buffer to hold data
-    u32 *temp = malloc(img->height * img->width);
+    u32 *temp = malloc(img->height * img->width * sizeof(u32));
     if (temp == NULL)
         return false;
 
