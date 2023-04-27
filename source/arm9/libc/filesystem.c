@@ -458,7 +458,10 @@ int truncate(const char *path, off_t length)
     {
         int ret = ftruncate_internal(fd, length);
         if (ret != 0)
+        {
+            close(fd);
             return -1;
+        }
     }
 
     int ret = close(fd);
