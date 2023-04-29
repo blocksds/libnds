@@ -11,28 +11,26 @@
 /// - @ref console.h "Debug Messages via stdio"
 ///
 /// On the ARM7 stderr is setup to print to the no$gba debug console:
-/// <pre>
+/// ```
 /// fprintf(stderr,"ARM7 %%scanline%%\n");
-/// </pre>
+/// ```
 /// On the ARM9 stderr is directed to the console by default, but it's possible
 /// to direct it to the no$gba debug console:
-/// <pre>
+/// ```
 /// consoleDebugInit(DebugDevice_NOCASH);
 /// fprintf(stderr, "ARM9 %%scanline%%\n");
-/// </pre>
+/// ```
 ///
 /// Messages can be up to 120 characters long. They can also use special
 /// parameters:
 ///
-/// <pre>
-/// r0,r1,r2,...,r15  show register content (displayed as 32bit Hex number)
-/// sp,lr,pc          alias for r13,r14,r15
-/// scanline          show current scanline number
-/// frame             show total number of frames since coldboot
-/// totalclks         show total number of clock cycles since coldboot
-/// lastclks          show number of cycles since previous lastclks (or zeroclks)
-/// zeroclks          resets the 'lastclks' counter
-/// </pre>
+///     r0,r1,r2,...,r15  show register content (displayed as 32bit Hex number)
+///     sp,lr,pc          alias for r13,r14,r15
+///     scanline          show current scanline number
+///     frame             show total number of frames since coldboot
+///     totalclks         show total number of clock cycles since coldboot
+///     lastclks          show number of cycles since previous lastclks (or zeroclks)
+///     zeroclks          resets the 'lastclks' counter
 
 #ifndef LIBNDS_NDS_DEBUG_H__
 #define LIBNDS_NDS_DEBUG_H__

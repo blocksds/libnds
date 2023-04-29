@@ -39,9 +39,9 @@
 /// to the main 2D background engine. A, B, C and D banks are referred to
 /// collectivly as main because they are 128KB and flexible in usage.
 ///
-/// <pre>
+/// ```
 /// vramSetBankA(VRAM_A_MAIN_BG);
-/// </pre>
+/// ```
 ///
 /// The above would map the 128KB of VRAM_A to 0x6000000 for use as main
 /// background graphics and maps. You can offset the mapping as well and the
@@ -447,30 +447,28 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 ///
 /// @brief The allowed video modes of the 2D processors.
 ///
-/// <pre>
-/// Main 2D engine
-/// ______________________________
-/// |Mode | BG0 | BG1 | BG2 |BG3 |   T = Text
-/// |  0  |  T  |  T  |  T  |  T |   R = Rotation
-/// |  1  |  T  |  T  |  T  |  R |   E = Extended Rotation
-/// |  2  |  T  |  T  |  R  |  R |   L = Large Bitmap background
-/// |  3  |  T  |  T  |  T  |  E |
-/// |  4  |  T  |  T  |  R  |  E |
-/// |  5  |  T  |  T  |  E  |  E |
-/// |  6  |     |  L  |     |    |
-/// ------------------------------
+///     Main 2D engine
+///     ______________________________
+///     |Mode | BG0 | BG1 | BG2 |BG3 |   T = Text
+///     |  0  |  T  |  T  |  T  |  T |   R = Rotation
+///     |  1  |  T  |  T  |  T  |  R |   E = Extended Rotation
+///     |  2  |  T  |  T  |  R  |  R |   L = Large Bitmap background
+///     |  3  |  T  |  T  |  T  |  E |
+///     |  4  |  T  |  T  |  R  |  E |
+///     |  5  |  T  |  T  |  E  |  E |
+///     |  6  |     |  L  |     |    |
+///     ------------------------------
 ///
-/// Sub 2D engine
-/// ______________________________
-/// |Mode | BG0 | BG1 | BG2 |BG3 |
-/// |  0  |  T  |  T  |  T  |  T |
-/// |  1  |  T  |  T  |  T  |  R |
-/// |  2  |  T  |  T  |  R  |  R |
-/// |  3  |  T  |  T  |  T  |  E |
-/// |  4  |  T  |  T  |  R  |  E |
-/// |  5  |  T  |  T  |  E  |  E |
-/// ------------------------------
-/// </pre>
+///     Sub 2D engine
+///     ______________________________
+///     |Mode | BG0 | BG1 | BG2 |BG3 |
+///     |  0  |  T  |  T  |  T  |  T |
+///     |  1  |  T  |  T  |  T  |  R |
+///     |  2  |  T  |  T  |  R  |  R |
+///     |  3  |  T  |  T  |  T  |  E |
+///     |  4  |  T  |  T  |  R  |  E |
+///     |  5  |  T  |  T  |  E  |  E |
+///     ------------------------------
 
 typedef enum
 {

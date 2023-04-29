@@ -127,9 +127,9 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
 /// Initializes the keyboard with default options.
 ///
 /// Same as calling:
-/// <pre>
+/// ```
 /// keyboardInit(NULL, 3, BgType_Text4bpp, BgSize_T_256x512, 20, 0, false, true)
-/// </pre>
+/// ```
 ///
 /// @return A pointer to the current keyboard.
 Keyboard* keyboardDemoInit(void);

@@ -15,10 +15,10 @@
 /// results when DMAing data from main memory. The cache must be flushed as
 /// follows when using DMA to ensure proper opertion on the ARM9:
 ///
-/// <pre>
+/// ```
 /// DC_FlushRange(source, sizeof(dataToCopy));
 /// dmaCopy(source, destination, sizeof(dataToCopy));
-/// </pre>
+/// ```
 
 #ifndef LIBNDS_NDS_DMA_H__
 #define LIBNDS_NDS_DMA_H__

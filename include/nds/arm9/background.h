@@ -26,30 +26,28 @@
 ///
 /// The following modes of operation are allowed:
 ///
-/// <pre>
-/// Main 2D engine
-/// ______________________________
-/// |Mode | BG0 | BG1 | BG2 |BG3 |   T = Text
-/// |  0  |  T  |  T  |  T  |  T |   R = Rotation
-/// |  1  |  T  |  T  |  T  |  R |   E = Extended Rotation
-/// |  2  |  T  |  T  |  R  |  R |   L = Large Bitmap background
-/// |  3  |  T  |  T  |  T  |  E |
-/// |  4  |  T  |  T  |  R  |  E |
-/// |  5  |  T  |  T  |  E  |  E |
-/// |  6  |     |  L  |     |    |
-/// -----------------------------
+///     Main 2D engine
+///     ______________________________
+///     |Mode | BG0 | BG1 | BG2 |BG3 |   T = Text
+///     |  0  |  T  |  T  |  T  |  T |   R = Rotation
+///     |  1  |  T  |  T  |  T  |  R |   E = Extended Rotation
+///     |  2  |  T  |  T  |  R  |  R |   L = Large Bitmap background
+///     |  3  |  T  |  T  |  T  |  E |
+///     |  4  |  T  |  T  |  R  |  E |
+///     |  5  |  T  |  T  |  E  |  E |
+///     |  6  |     |  L  |     |    |
+///     ------------------------------
 ///
-/// Sub 2D engine
-/// ______________________________
-/// |Mode | BG0 | BG1 | BG2 |BG3 |
-/// |  0  |  T  |  T  |  T  |  T |
-/// |  1  |  T  |  T  |  T  |  R |
-/// |  2  |  T  |  T  |  R  |  R |
-/// |  3  |  T  |  T  |  T  |  E |
-/// |  4  |  T  |  T  |  R  |  E |
-/// |  5  |  T  |  T  |  E  |  E |
-/// -----------------------------
-/// </pre>
+///     Sub 2D engine
+///     ______________________________
+///     |Mode | BG0 | BG1 | BG2 |BG3 |
+///     |  0  |  T  |  T  |  T  |  T |
+///     |  1  |  T  |  T  |  T  |  R |
+///     |  2  |  T  |  T  |  R  |  R |
+///     |  3  |  T  |  T  |  T  |  E |
+///     |  4  |  T  |  T  |  R  |  E |
+///     |  5  |  T  |  T  |  E  |  E |
+///     ------------------------------
 ///
 /// On the main engine BG0 can be used as a 3D rendering surface.
 ///

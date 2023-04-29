@@ -20,17 +20,17 @@
 /// Debug printing is performed by initializing the debug console via
 /// consoleDebugInit() as follows:
 ///
-/// <pre>
+/// ```
 /// consoleDebugInit(DebugDevice_NOCASH);
 /// fprintf(stderr, "debug message in no$gba window %i", stuff);
-/// </pre>
+/// ```
 ///
 /// OR
 ///
-/// <pre>
+/// ```
 /// consoleDebugInit(DebugDevice_CONSOLE);
 /// fprintf(stderr, "debug message on DS console screen");
-/// </pre>
+/// ```
 ///
 /// The print console must be initialized to use DB_CONSOLE.
 
@@ -74,7 +74,7 @@ typedef struct ConsoleFont
 /// Console structure used to store the state of a console render context.
 ///
 /// Default values from consoleGetDefault();
-/// <pre>
+/// ```
 /// PrintConsole defaultConsole =
 /// {
 ///     // Font:
@@ -108,7 +108,7 @@ typedef struct ConsoleFont
 ///     false,  // Console initialized
 ///     true,   // Load graphics
 /// };
-/// </pre>
+/// ```
 typedef struct PrintConsole
 {
     ConsoleFont font;   ///< Font of the console.

@@ -217,15 +217,13 @@ static inline u32 sqrt64(long long a)
 
 /// 20.12 fixed point cross product.
 ///
-/// <pre>
 /// Cross product:
 ///
-/// result = A x B
+///     result = A x B
 ///
-/// x = Ay * Bz - By * Az
-/// y = Az * Bx - Bz * Ax
-/// z = Ax * By - Bx * Ay
-/// </pre>
+///     x = Ay * Bz - By * Az
+///     y = Az * Bx - Bz * Ax
+///     z = Ax * By - Bx * Ay
 ///
 /// @param a Pointer to fixed 3 dimensions vector.
 /// @param b Pointer to fixed 3 dimensions vector.
@@ -239,11 +237,9 @@ static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 
 /// 20.12 fixed point dot product.
 ///
-/// <pre>
-/// Dot Product
+/// Dot Product:
 ///
-/// Result = Ax * Bx + Ay * By + Az * Bz
-/// </pre>
+///     Result = Ax * Bx + Ay * By + Az * Bz
 ///
 /// @param a Pointer to fixed 3 dimensions vector.
 /// @param b Pointer to fixed 3 dimensions vector.

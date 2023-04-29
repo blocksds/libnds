@@ -25,7 +25,7 @@
 ///
 /// These enums are bits for flipping the sprites.
 ///
-/// You can <b>"|"</b> (or) GL_FLIP_V and GL_FLIP_H to flip both ways.
+/// You can **"|"** (or) GL_FLIP_V and GL_FLIP_H to flip both ways.
 ///
 /// <ul>
 ///   <li> Related functions:
@@ -287,9 +287,9 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 /// @param sizeY The vertical size of the texture; valid sizes are enumerated in
 ///              GL_TEXTURE_TYPE_ENUM (see glTexImage2d()).
 /// @param param Parameters for the texture (see glTexImage2d()).
-/// @param pallette_width Length of the palette. Valid values are <b>4, 16, 32,
-///                       256</b> (if <b>0</b>, then palette is removed from
-///                       currently bound texture).
+/// @param pallette_width Length of the palette. Valid values are 4, 16, 32, 256
+///                       (if 0, the palette is removed from the currently bound
+///                       texture).
 /// @param palette Pointer to the palette data to load (if NULL, then palette is
 ///                emoved from currently bound texture).
 /// @param texture Pointer to the texture data to load.
@@ -315,9 +315,9 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 /// @param sizeY The vertical size of the texture; valid sizes are enumerated in
 ///              GL_TEXTURE_TYPE_ENUM (see glTexImage2d()).
 /// @param param Parameters for the texture (see glTexImage2d()).
-/// @param pallette_width Length of the palette. Valid values are <b>4, 16, 32,
-///                       256</b> (if <b>0</b>, then palette is removed from
-///                       currently bound texture).
+/// @param pallette_width Length of the palette. Valid values are 4, 16, 32, 256
+///                       (if 0, the palette is removed from the currently bound
+///                       texture).
 /// @param palette Pointer to the palette data to load (if NULL, then palette
 ///                 is removed from currently bound texture).
 /// @param texture Pointer to the texture data to load.

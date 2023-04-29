@@ -34,7 +34,7 @@
 ///
 /// @section memory_api Memory
 /// - @ref memory.h "General memory definitions"
-/// - @ref memory.h "nds and gba header structure"
+/// - @ref memory.h "NDS and GBA header structure"
 /// - @ref dma.h "Direct Memory Access"
 /// - @ref ndma.h "DSi New Direct Memory Access"
 ///

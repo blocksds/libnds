@@ -17,15 +17,15 @@
 /// 32767. There are 32768 degrees in the unit circle used by nds. To convert
 /// between standard degrees (360 per circle):
 ///
-/// <pre>
+/// ```
 /// angle = degreesToAngle(angleInDegrees);
-/// </pre>
+/// ```
 ///
 /// or
 ///
-/// <pre>
+/// ```
 /// angle = angleInDegrees * 32768 / 360;
-/// </pre>
+/// ```
 ///
 /// This unit of measure is sometimes refered to as a binary radian (brad) or
 /// binary degree. It allows for more precise representation of angle and faster

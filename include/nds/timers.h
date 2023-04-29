@@ -27,10 +27,10 @@ extern "C" {
 /// Returns a dereferenced pointer to the data register for timer control
 /// register.
 ///
-/// <b>Example Usage:</b>
-/// <pre>
+/// **Example Usage:**
+/// ```
 /// %TIMER_CR(x) = %TIMER_ENABLE | %ClockDivider_64;
-/// </pre>
+/// ```
 ///
 /// Possible bit defines:
 ///
@@ -58,14 +58,14 @@ extern "C" {
 /// the counter rolls over, %TIMER_DATA(0) will return to the latched value.
 /// This allows you to control the frequency of the timer using the following
 /// formula:
-/// <pre>
+/// ```
 /// %TIMER_DATA(x) = -(BUS_CLOCK / (freq * divider));
-/// </pre>
+/// ```
 ///
-/// <b>Example Usage:</b>
-/// <pre>
+/// **Example Usage:**
+/// ```
 /// %TIMER_DATA(0) = value; // 0 to 3. value is 16 bits
-/// </pre>
+/// ```
 #define TIMER_DATA(n)  (*(vu16 *)(0x04000100 + ((n) << 2)))
 
 /// Same as %TIMER_DATA(0).
@@ -112,11 +112,11 @@ typedef enum {
 /// It will calculate the correct value for %TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
-/// <b>Example Usage:</b>
-/// <pre>
+/// **Example Usage:**
+/// ```
 /// // Calls the timerCallBack function 5 times per second.
 /// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
-/// </pre>
+/// ```
 ///
 /// Max frequency is: 33554432 Hz
 /// Min frequency is: 512 Hz
@@ -129,11 +129,11 @@ typedef enum {
 /// It will calculate the correct value for %TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
-/// <b>Example Usage:</b>
-/// <pre>
+/// **Example Usage:**
+/// ```
 /// // Calls the timerCallBack function 5 times per second.
 /// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
-/// </pre>
+/// ```
 ///
 /// Max frequency is: 524288 Hz
 /// Min frequency is: 8 Hz
@@ -146,11 +146,11 @@ typedef enum {
 /// It will calculate the correct value for %TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
-/// <b>Example Usage:</b>
-/// <pre>
+/// **Example Usage:**
+/// ```
 /// // Calls the timerCallBack function 5 times per second.
 /// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
-/// </pre>
+/// ```
 ///
 /// Max frequency is: 131072 Hz
 /// Min frequency is: 2 Hz
@@ -163,11 +163,11 @@ typedef enum {
 /// It wtill calculate the correct value for %TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
-/// <b>Example Usage:</b>
-/// <pre>
+/// **Example Usage:**
+/// ```
 /// // Calls the timerCallBack function 5 times per second.
 /// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
-/// </pre>
+/// ```
 ///
 /// Max frequency is: 32768 Hz
 /// Min frequency is: 0.5 Hz
