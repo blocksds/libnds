@@ -20,6 +20,7 @@
 #define DLDI_SIZE_16KB  0x0e
 #define DLDI_SIZE_8KB   0x0d
 #define DLDI_SIZE_4KB   0x0c
+#define DLDI_SIZE_2KB   0x0b
 #define DLDI_SIZE_1KB   0x0a
 
 #endif // LIBNDS_ARM9_DLDI_ASM_H__
