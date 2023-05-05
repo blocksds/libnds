@@ -31,7 +31,7 @@ void cardPolledTransfer(u32 flags, u32 *destination, u32 length, const u8 *comma
         // Read data if available
         if (REG_ROMCTRL & CARD_DATA_READY)
         {
-            data=REG_CARD_DATA_RD;
+            data = REG_CARD_DATA_RD;
             if (destination != NULL && destination < target)
                 *destination++ = data;
         }
@@ -112,8 +112,9 @@ void cardReset(void)
     const u8 cmdData[8] = { 0, 0, 0, 0, 0, 0, 0, CARD_CMD_DUMMY };
 
     cardWriteCommand(cmdData);
-    REG_ROMCTRL=CARD_ACTIVATE|CARD_nRESET|CARD_CLK_SLOW|CARD_BLK_SIZE(5)|CARD_DELAY2(0x18);
-    u32 read=0;
+    REG_ROMCTRL = CARD_ACTIVATE | CARD_nRESET | CARD_CLK_SLOW | CARD_BLK_SIZE(5)
+                | CARD_DELAY2(0x18);
+    u32 read = 0;
 
     do {
         if (REG_ROMCTRL & CARD_DATA_READY)
