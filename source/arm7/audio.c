@@ -13,7 +13,7 @@ int getFreeChannel(void)
 {
     for (int i = 0; i < 16; i++)
     {
-        if(!(SCHANNEL_CR(i) & SCHANNEL_ENABLE))
+        if (!(SCHANNEL_CR(i) & SCHANNEL_ENABLE))
             return i;
     }
 
