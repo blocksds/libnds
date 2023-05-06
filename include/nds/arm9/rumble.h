@@ -24,16 +24,28 @@ extern "C" {
 #define WARIOWARE_PAK       (*(vuint16 *)0x080000C4)
 #define WARIOWARE_ENABLE    (*(vuint16 *)0x080000C6)
 
+/// Supported rumble cartridges.
 typedef enum {
-   RUMBLE_TYPE_UNKNOWN,
-   RUMBLE_TYPE_NONE,
-   RUMBLE_TYPE_PAK,         // DS Rumble Pak
-   RUMBLE_TYPE_GBA,         // Rumble included as part of GBA game cartridges
-   RUMBLE_TYPE_MAGUKIDDO    // Rumble/sensor cartridge bundled with Magukiddo
+    RUMBLE_TYPE_UNKNOWN,    ///< Rumble detection hasn't run
+    RUMBLE_TYPE_NONE,       ///< No rumble detected
+    RUMBLE_TYPE_PAK,        ///< DS Rumble Pak
+    RUMBLE_TYPE_GBA,        ///< Rumble included as part of GBA game cartridges
+    RUMBLE_TYPE_MAGUKIDDO,  ///< Rumble/sensor cartridge bundled with Magukiddo
 } RUMBLE_TYPE;
 
+/// Initializes any detected supported rumble cart.
 void rumbleInit(void);
+
+/// Returns the type of the detected rumble cart.
+///
+/// @return The type of the rumble cart.
 RUMBLE_TYPE rumbleGetType(void);
+
+/// Forces a specific rumble cart type.
+///
+/// If the cartridge isn't actually present, this won't work.
+///
+/// @param type Rumble type to force.
 void rumbleSetType(RUMBLE_TYPE type);
 
 /// Check for rumble option pak.

@@ -59,17 +59,20 @@ bool isRumbleInserted(void)
 
 void setRumble(bool position)
 {
+    // Ensure that the ARM9 owns the bus (in case the user has changed it)
+    sysSetCartOwner(BUS_OWNER_ARM9);
+
     if (rumbleType == RUMBLE_TYPE_GBA)
     {
-        WARIOWARE_PAK = (position ? 8 : 0);
+        WARIOWARE_PAK = position ? 8 : 0;
     }
     else if (rumbleType == RUMBLE_TYPE_PAK)
     {
-        RUMBLE_PAK = (position ? 2 : 0);
+        RUMBLE_PAK = position ? 2 : 0;
     }
     else if (rumbleType == RUMBLE_TYPE_MAGUKIDDO)
     {
         // TODO: Untested.
-        RUMBLE_PAK = (position ? 256 : 0);
+        RUMBLE_PAK = position ? 256 : 0;
     }
 }
