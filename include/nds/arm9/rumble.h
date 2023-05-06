@@ -31,6 +31,7 @@ typedef enum {
     RUMBLE_TYPE_PAK,        ///< DS Rumble Pak
     RUMBLE_TYPE_GBA,        ///< Rumble included as part of GBA game cartridges
     RUMBLE_TYPE_MAGUKIDDO,  ///< Rumble/sensor cartridge bundled with Magukiddo
+    RUMBLE_TYPE_SC_RUMBLE   ///< Rumble included with some SuperCard models
 } RUMBLE_TYPE;
 
 /// Initializes any detected supported rumble cart.
