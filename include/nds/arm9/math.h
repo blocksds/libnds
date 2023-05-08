@@ -87,7 +87,7 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 #pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
 /// Fixed point sqrt.
 ///
-/// @param a 20.12 value.
+/// @param a 20.12 positive value.
 /// @return 20.12 result.
 static inline int32_t sqrtf32(int32_t a)
 {
@@ -95,7 +95,7 @@ static inline int32_t sqrtf32(int32_t a)
 
     while (REG_SQRTCNT & SQRT_BUSY);
 
-    REG_SQRT_PARAM = ((int64_t)a) << 12;
+    REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
 
     while (REG_SQRTCNT & SQRT_BUSY);
 
@@ -183,9 +183,9 @@ static inline int32_t mod64(int64_t num, int32_t den)
 
 /// Integer sqrt.
 ///
-/// @param a 32 bit integer value.
+/// @param a 32 bit positive integer value.
 /// @return 32 bit integer result.
-static inline u32 sqrt32(int a)
+static inline uint32_t sqrt32(uint32_t a)
 {
     REG_SQRTCNT = SQRT_32;
 
@@ -200,9 +200,9 @@ static inline u32 sqrt32(int a)
 
 /// Integer sqrt.
 ///
-/// @param a 64 bit integer value.
+/// @param a 64 bit positive integer value.
 /// @return 32 bit integer result.
-static inline u32 sqrt64(long long a)
+static inline uint32_t sqrt64(uint64_t a)
 {
     REG_SQRTCNT = SQRT_64;
 
