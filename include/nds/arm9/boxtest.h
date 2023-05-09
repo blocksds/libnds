@@ -47,7 +47,12 @@ int BoxTest(v16 x, v16 y, v16 z, v16 width, v16 height, v16 depth);
 /// @param depth (width, height, depth) describe the size of the box referenced
 ///              from (x, y, z)
 /// @return Non zero if any or all of the box is in the view frustum.
-int BoxTestf(float x, float y, float z, float width, float height, float depth);
+static inline int BoxTestf(float x, float y, float z,
+                           float width, float height, float depth)
+{
+    return BoxTest(floattov16(x), floattov16(y), floattov16(z),
+                   floattov16(width), floattov16(height), floattov16(depth));
+}
 
 /// Performs a test to determine if the provided box is in the view frustum.
 ///
@@ -79,14 +84,24 @@ void BoxTest_Asynch(v16 x, v16 y, v16 z, v16 height, v16 width, v16 depth);
 ///               from (x, y, z)
 /// @param depth (width, height, depth) describe the size of the box referenced
 ///              from (x, y, z)
-void BoxTestf_Asynch(float x, float y, float z, float width, float height, float depth);
+static inline void BoxTestf_Asynch(float x, float y, float z,
+                                   float width, float height, float depth)
+{
+    BoxTest_Asynch(floattov16(x), floattov16(y), floattov16(z),
+                   floattov16(width), floattov16(height), floattov16(depth));
+}
 
 /// Gets the result of the last box test.
 ///
 /// Needed for asynch box test calls.
 ///
 /// @return Non zero if any or all of the box is in the view frustum.
-int BoxTestResult(void);
+static inline int BoxTestResult(void)
+{
+    while (GFX_STATUS & GFX_STATUS_TEST_BUSY);
+
+    return GFX_STATUS & GFX_STATUS_TEST_INSIDE;
+}
 
 #ifdef __cplusplus
 }
