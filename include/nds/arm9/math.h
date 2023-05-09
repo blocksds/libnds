@@ -173,7 +173,7 @@ static inline int32_t div32(int32_t num, int32_t den)
 ///
 /// @param num Numerator.
 /// @param den Denominator.
-static inline void div32_start(int32_t num, int32_t den)
+static inline void div32_asynch(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
 
@@ -216,7 +216,7 @@ static inline int32_t mod32(int32_t num, int32_t den)
 ///
 /// @param num Numerator.
 /// @param den Denominator.
-static inline void mod32_start(int32_t num, int32_t den)
+static inline void mod32_asynch(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
 
