@@ -61,9 +61,6 @@
 static inline int32_t divf32(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER = ((int64_t)num) << 12;
     REG_DIV_DENOM_L = den;
 
@@ -80,9 +77,6 @@ static inline int32_t divf32(int32_t num, int32_t den)
 static inline void divf32_asynch(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER = ((int64_t)num) << 12;
     REG_DIV_DENOM_L = den;
 }
@@ -117,9 +111,6 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 static inline int32_t sqrtf32(int32_t a)
 {
     REG_SQRTCNT = SQRT_64;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
     REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
 
     while (REG_SQRTCNT & SQRT_BUSY);
@@ -134,9 +125,6 @@ static inline int32_t sqrtf32(int32_t a)
 static inline void sqrtf32_asynch(int32_t a)
 {
     REG_SQRTCNT = SQRT_64;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
     REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
 }
 
@@ -158,9 +146,6 @@ static inline int32_t sqrtf32_result(void)
 static inline int32_t div32(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
 
@@ -176,9 +161,6 @@ static inline int32_t div32(int32_t num, int32_t den)
 static inline void div32_asynch(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
 }
@@ -201,9 +183,6 @@ static inline int32_t div32_result(void)
 static inline int32_t mod32(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
 
@@ -219,9 +198,6 @@ static inline int32_t mod32(int32_t num, int32_t den)
 static inline void mod32_asynch(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_32_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
 }
@@ -244,9 +220,6 @@ static inline int32_t mod32_result(void)
 static inline int32_t div64(int64_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
 
@@ -262,9 +235,6 @@ static inline int32_t div64(int64_t num, int32_t den)
 static inline void div64_asynch(int64_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
 }
@@ -287,9 +257,6 @@ static inline int32_t div64_result(void)
 static inline int32_t mod64(int64_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
 
@@ -305,9 +272,6 @@ static inline int32_t mod64(int64_t num, int32_t den)
 static inline void mod64_asynch(int64_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
 }
@@ -329,9 +293,6 @@ static inline int32_t mod64_result(void)
 static inline uint32_t sqrt32(uint32_t a)
 {
     REG_SQRTCNT = SQRT_32;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
     REG_SQRT_PARAM_L = a;
 
     while (REG_SQRTCNT & SQRT_BUSY);
@@ -345,9 +306,6 @@ static inline uint32_t sqrt32(uint32_t a)
 static inline void sqrt32_asynch(uint32_t a)
 {
     REG_SQRTCNT = SQRT_32;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
     REG_SQRT_PARAM_L = a;
 }
 
@@ -368,9 +326,6 @@ static inline uint32_t sqrt32_result(void)
 static inline uint32_t sqrt64(uint64_t a)
 {
     REG_SQRTCNT = SQRT_64;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
     REG_SQRT_PARAM = a;
 
     while (REG_SQRTCNT & SQRT_BUSY);
@@ -384,9 +339,6 @@ static inline uint32_t sqrt64(uint64_t a)
 static inline void sqrt64_asynch(uint64_t a)
 {
     REG_SQRTCNT = SQRT_64;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
     REG_SQRT_PARAM = a;
 }
 
