@@ -53,22 +53,6 @@
 
 // Fixed Point versions
 
-/// Fixed point divide
-///
-/// @param num 20.12 numerator.
-/// @param den 20.12 denominator.
-/// @return returns 20.12 result.
-static inline int32_t divf32(int32_t num, int32_t den)
-{
-    REG_DIVCNT = DIV_64_32;
-    REG_DIV_NUMER = ((int64_t)num) << 12;
-    REG_DIV_DENOM_L = den;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
-    return REG_DIV_RESULT_L;
-}
-
 /// Asynchronous fixed point divide start
 ///
 /// @param num 20.12 numerator.
@@ -91,6 +75,17 @@ static inline int32_t divf32_result(void)
     return REG_DIV_RESULT_L;
 }
 
+/// Fixed point divide
+///
+/// @param num 20.12 numerator.
+/// @param den 20.12 denominator.
+/// @return returns 20.12 result.
+static inline int32_t divf32(int32_t num, int32_t den)
+{
+    divf32_asynch(num, den);
+    return divf32_result();
+}
+
 /// Fixed point multiply.
 ///
 /// @param a 20.12 value.
@@ -101,23 +96,6 @@ static inline int32_t mulf32(int32_t a, int32_t b)
     int64_t result = (int64_t)a * (int64_t)b;
     return (int32_t)(result >> 12);
 }
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
-/// Fixed point sqrt.
-///
-/// @param a 20.12 positive value.
-/// @return 20.12 result.
-static inline int32_t sqrtf32(int32_t a)
-{
-    REG_SQRTCNT = SQRT_64;
-    REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
-    return REG_SQRT_RESULT;
-}
-#pragma GCC diagnostic pop
 
 /// Asynchronous fixed point sqrt start.
 ///
@@ -138,21 +116,18 @@ static inline int32_t sqrtf32_result(void)
     return REG_SQRT_RESULT;
 }
 
-/// Integer divide.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
+/// Fixed point sqrt.
 ///
-/// @param num Numerator.
-/// @param den Denominator.
-/// @return 32 bit integer result.
-static inline int32_t div32(int32_t num, int32_t den)
+/// @param a 20.12 positive value.
+/// @return 20.12 result.
+static inline int32_t sqrtf32(int32_t a)
 {
-    REG_DIVCNT = DIV_32_32;
-    REG_DIV_NUMER_L = num;
-    REG_DIV_DENOM_L = den;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
-    return REG_DIV_RESULT_L;
+    sqrtf32_asynch(a);
+    return sqrtf32_result();
 }
+#pragma GCC diagnostic pop
 
 /// Asynchronous integer divide start.
 ///
@@ -175,20 +150,15 @@ static inline int32_t div32_result(void)
     return REG_DIV_RESULT_L;
 }
 
-/// Integer modulo.
+/// Integer divide.
 ///
 /// @param num Numerator.
 /// @param den Denominator.
-/// @return 32 bit integer remainder.
-static inline int32_t mod32(int32_t num, int32_t den)
+/// @return 32 bit integer result.
+static inline int32_t div32(int32_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_32_32;
-    REG_DIV_NUMER_L = num;
-    REG_DIV_DENOM_L = den;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
-    return REG_DIVREM_RESULT_L;
+    div32_asynch(num, den);
+    return div32_result();
 }
 
 /// Asynchronous integer modulo start.
@@ -212,20 +182,15 @@ static inline int32_t mod32_result(void)
     return REG_DIVREM_RESULT_L;
 }
 
-/// Integer 64 bit divide.
+/// Integer modulo.
 ///
-/// @param num 64 bit numerator.
-/// @param den 32 bit denominator.
-/// @return 32 bit integer result.
-static inline int32_t div64(int64_t num, int32_t den)
+/// @param num Numerator.
+/// @param den Denominator.
+/// @return 32 bit integer remainder.
+static inline int32_t mod32(int32_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_64_32;
-    REG_DIV_NUMER = num;
-    REG_DIV_DENOM_L = den;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
-    return REG_DIV_RESULT_L;
+    mod32_asynch(num, den);
+    return mod32_result();
 }
 
 /// Asynchronous integer 64 bit divide start.
@@ -249,20 +214,15 @@ static inline int32_t div64_result(void)
     return REG_DIV_RESULT_L;
 }
 
-/// Integer 64 bit modulo.
+/// Integer 64 bit divide.
 ///
 /// @param num 64 bit numerator.
 /// @param den 32 bit denominator.
-/// @return returns 32 bit integer remainder.
-static inline int32_t mod64(int64_t num, int32_t den)
+/// @return 32 bit integer result.
+static inline int32_t div64(int64_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_64_32;
-    REG_DIV_NUMER = num;
-    REG_DIV_DENOM_L = den;
-
-    while (REG_DIVCNT & DIV_BUSY);
-
-    return REG_DIVREM_RESULT_L;
+    div64_asynch(num, den);
+    return div64_result();
 }
 
 /// Asynchronous integer 64 bit modulo start.
@@ -286,18 +246,15 @@ static inline int32_t mod64_result(void)
     return REG_DIVREM_RESULT_L;
 }
 
-/// 32-bit integer sqrt.
+/// Integer 64 bit modulo.
 ///
-/// @param a 32 bit positive integer value.
-/// @return 32 bit integer result.
-static inline uint32_t sqrt32(uint32_t a)
+/// @param num 64 bit numerator.
+/// @param den 32 bit denominator.
+/// @return returns 32 bit integer remainder.
+static inline int32_t mod64(int64_t num, int32_t den)
 {
-    REG_SQRTCNT = SQRT_32;
-    REG_SQRT_PARAM_L = a;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
-    return REG_SQRT_RESULT;
+    mod64_asynch(num, den);
+    return mod64_result();
 }
 
 /// Asynchronous 32-bit integer sqrt start.
@@ -319,18 +276,14 @@ static inline uint32_t sqrt32_result(void)
     return REG_SQRT_RESULT;
 }
 
-/// 64-bit integer sqrt.
+/// 32-bit integer sqrt.
 ///
-/// @param a 64 bit positive integer value.
+/// @param a 32 bit positive integer value.
 /// @return 32 bit integer result.
-static inline uint32_t sqrt64(uint64_t a)
+static inline uint32_t sqrt32(uint32_t a)
 {
-    REG_SQRTCNT = SQRT_64;
-    REG_SQRT_PARAM = a;
-
-    while (REG_SQRTCNT & SQRT_BUSY);
-
-    return REG_SQRT_RESULT;
+    sqrt32_asynch(a);
+    return sqrt32_result();
 }
 
 /// Asynchronous 64-bit integer sqrt start.
@@ -350,6 +303,16 @@ static inline uint32_t sqrt64_result(void)
     while (REG_SQRTCNT & SQRT_BUSY);
 
     return REG_SQRT_RESULT;
+}
+
+/// 64-bit integer sqrt.
+///
+/// @param a 64 bit positive integer value.
+/// @return 32 bit integer result.
+static inline uint32_t sqrt64(uint64_t a)
+{
+    sqrt64_asynch(a);
+    return sqrt64_result();
 }
 
 /// 20.12 fixed point cross product.
