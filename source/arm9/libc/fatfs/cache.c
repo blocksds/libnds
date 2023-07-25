@@ -24,6 +24,15 @@ static uint32_t cache_num_sectors;
 
 int cache_init(uint32_t num_sectors)
 {
+    // If this function is called after the first time, clear the cache and
+    // allocate a new one.
+
+    if (cache_entries != NULL)
+        free(cache_entries);
+
+    if (cache_mem != NULL)
+        free(cache_mem);
+
     cache_entries = calloc(num_sectors, sizeof(cache_entry_t));
     if (cache_entries == NULL)
         return -1;

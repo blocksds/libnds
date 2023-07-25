@@ -227,6 +227,9 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
 
     uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
 
+    // TODO: Should we have a cache_end() if the function fails? It may not be
+    // worth it, most games would just stop booting if the filesystem isn't
+    // available.
     int ret = cache_init(cache_size_sectors);
     if (ret != 0)
     {
@@ -339,6 +342,21 @@ bool nitroFSInit(char **basepath)
 
     has_been_called = true;
 
+    // Initialize read cache, shared by all filesystems
+    // ------------------------------------------------
+
+    uint32_t cache_size_pages = DEFAULT_CACHE_PAGES;
+    uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
+
+    // TODO: Should we have a cache_end() if the function fails? It may not be
+    // worth it, most games would just stop booting if the filesystem isn't
+    // available.
+    int ret = cache_init(cache_size_sectors);
+    if (ret != 0)
+    {
+        errno = ENOMEM;
+        return false;
+    }
 
     // TODO: This is wrong, this should set the owner to the right CPU
     sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
