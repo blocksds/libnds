@@ -241,7 +241,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 #ifdef IO_CACHE_IGNORE_LARGE_READS
                 if (count >= IO_CACHE_IGNORE_LARGE_READS)
                 {
-                    if (nitrofat_reader_is_arm9)
+                    if (nitrofat_reader_is_arm9) // TODO: Is the 0 a bug?
                         cardRead(buff, 0, count * FF_MAX_SS);
                     else
                         cardReadArm7(buff, 0, count * FF_MAX_SS);

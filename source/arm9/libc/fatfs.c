@@ -330,6 +330,8 @@ bool fatInitDefault(void)
 
 bool nitroFSInit(char **basepath)
 {
+    (void)basepath;
+
     static bool has_been_called = false;
 
     if (has_been_called == true)
@@ -337,9 +339,12 @@ bool nitroFSInit(char **basepath)
 
     has_been_called = true;
 
-    (void)basepath;
 
+    // TODO: This is wrong, this should set the owner to the right CPU
     sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
+
+    // Try to mount the NitroFAT filesystem. This calls fatInitDefault()
+    // internally if required.
 
     FRESULT result = f_mount(&fs_info[2], nitro_drive, 1);
     if (result != FR_OK)
@@ -362,5 +367,6 @@ bool nitroFSInit(char **basepath)
 
 void nitroFATSetReaderCPU(bool use_arm9)
 {
+    // TODO: Set the bus owner here?
     nitrofat_reader_is_arm9 = use_arm9;
 }
