@@ -331,6 +331,12 @@ bool fatInitDefault(void)
     return fatInit(DEFAULT_CACHE_PAGES, true);
 }
 
+static void nitroFATRefreshBusOwner(void)
+{
+    int bus_owner = nitrofat_reader_is_arm9 ? BUS_OWNER_ARM9 : BUS_OWNER_ARM7;
+    sysSetBusOwners(bus_owner, bus_owner);
+}
+
 bool nitroFSInit(char **basepath)
 {
     (void)basepath;
@@ -358,8 +364,9 @@ bool nitroFSInit(char **basepath)
         return false;
     }
 
-    // TODO: This is wrong, this should set the owner to the right CPU
-    sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
+    // Set the right CPU as owner of the bus
+
+    nitroFATRefreshBusOwner();
 
     // Try to mount the NitroFAT filesystem. This calls fatInitDefault()
     // internally if required.
@@ -385,6 +392,7 @@ bool nitroFSInit(char **basepath)
 
 void nitroFATSetReaderCPU(bool use_arm9)
 {
-    // TODO: Set the bus owner here?
     nitrofat_reader_is_arm9 = use_arm9;
+
+    nitroFATRefreshBusOwner();
 }
