@@ -136,7 +136,7 @@ static void cardReadBlock(void *dest, size_t offset, size_t size)
 {
     const uint32_t flags =
         CARD_DELAY1(0x1FFF) | CARD_DELAY2(0x3F) | CARD_CLK_SLOW |
-        CARD_nRESET | CARD_SEC_CMD | CARD_SEC_DAT | CARD_ACTIVATE |
+        CARD_nRESET | CARD_SEC_CMD | CARD_SEC_DAT | CARD_SEC_EN | CARD_ACTIVATE |
         CARD_BLK_SIZE(1);
 
     cardParamCommand(CARD_CMD_DATA_READ, offset, flags, dest, size);
