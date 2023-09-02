@@ -1525,7 +1525,7 @@ void glGetFixed(const GL_GET_ENUM param, int *f)
             // clip matrix = position matrix
             glLoadIdentity();
             // Wait until the graphics engine has stopped to read matrices
-            while(GFX_BUSY);
+            while (GFX_BUSY);
             // Read out the position matrix
             for (int i = 0; i < 16; i++)
                 f[i] = MATRIX_READ_CLIP[i];
@@ -1545,10 +1545,12 @@ void glGetInt(GL_GET_ENUM param, int *i)
     switch (param)
     {
         case GL_GET_POLYGON_RAM_COUNT:
+            while (GFX_BUSY);
             *i = GFX_POLYGON_RAM_USAGE;
             break;
 
         case GL_GET_VERTEX_RAM_COUNT:
+            while (GFX_BUSY);
             *i = GFX_VERTEX_RAM_USAGE;
             break;
 
