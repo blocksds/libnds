@@ -192,7 +192,21 @@ setregions:
     mcr     CP15_REG2_DATA_CACHE_CONFIG(r0)
     mcr     CP15_REG2_INSTRUCTION_CACHE_CONFIG(r0)
 
-    // Instruction access permission (RW except for region 1, which is RO)
+    // Instruction access permission. All regions are RW except for:
+    // - Region 1: System ROM. It's read-only.
+    // - Region 7: DTCM. The CPU can´t execute code from here.
+    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(0) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(1) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(2) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(3) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(4) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(5) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(6) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(7))
+    mcr     CP15_REG5_INSTRUCTION_ACCESS_PERMISSION(r0)
+
+    // Data access permission. All regions are RW except for:
+    // - Region 1: System ROM. It's read-only.
     ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(0) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(1) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(2) | \
@@ -201,9 +215,6 @@ setregions:
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(5) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(6) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(7))
-    mcr     CP15_REG5_INSTRUCTION_ACCESS_PERMISSION(r0)
-
-    // Data access permission (RW except for region 1, which is RO)
     mcr     CP15_REG5_DATA_ACCESS_PERMISSION(r0)
 
     // Enable instruction and data caches, ITCM and DTCM
