@@ -25,16 +25,16 @@
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   4 | 0x01000000 |  32 KB | All       |  R/W   |   N   | N  | ITCM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   5 | 0x02FF0000 |  16 KB | All       |  R/W   |   N   | N  | DTCM
-// ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   6 | 0x02000000 |  16 MB | DS    [1] |  R/W   |   N   | N  | Non-cacheable main RAM
+//   5 | 0x02000000 |  16 MB | DS    [1] |  R/W   |   N   | N  | Non-cacheable main RAM
 //     | 0x02800000 |   8 MB | DSd       |        |       |    |
 //     | 0x0C000000 |  16 MB | DSI       |        |       |    |
 //     | 0x0C000000 |  32 MB | DSId      |        |       |    | DSi debugger extended IWRAM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   7 | 0x02000000 |   4 MB | DS        |  R/W   |   Y   | Y  | Cacheable main RAM
+//   6 | 0x02000000 |   4 MB | DS        |  R/W   |   Y   | Y  | Cacheable main RAM
 //     | 0x02000000 |   8 MB | DSd   [2] |        |       |    |
 //     | 0x02000000 |  16 MB | DSI, DSId |        |       |    |
+// ----+------------+--------+-----------+--------+-------+----+-----------------------
+//   7 | 0x02FF0000 |  16 KB | All       |  R/W   |   N   | N  | DTCM
 //
 // [1]: The size of the main RAM of the DS is 4 MB. This is mirrored up to
 // 0x03000000 (4 times in total). The last mirror is often used for
@@ -46,6 +46,10 @@
 // This is required because the size of the regions must be a power of two (and
 // 12 MB isn't a power of two), and regions with a higher index have priority
 // over regions with a lower index (so the cacheable region has priority).
+//
+// It also overlaps with the DTCM region, which has a higher priority than both
+// the cacheable and non-cacheable regions. This region is required to disable
+// the data cache in DTCM.
 //
 // [2]: The actual size of the main RAM of the DSi debugger version is 32 MB,
 // but it isn't possible to map everything at 0x02000000 because shared WRAM is
@@ -115,10 +119,10 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     ldr     r0, =(0x00000000 | CP15_REGION_SIZE_4KB | CP15_CONFIG_REGION_ENABLE)
     mcr     CP15_REG6_PROTECTION_REGION(r0, 2)
 
-    // Region 5 - DTCM
+    // Region 7 - DTCM
     ldr     r0, =__dtcm_start
     orr     r0, r0, #(CP15_REGION_SIZE_16KB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, 5)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, 7)
 
     // Region 4 - ITCM
     ldr     r0, =__itcm_start
@@ -172,19 +176,19 @@ setregions:
     // Region 3 - DS Accessory (GBA Cart) / DSi switchable IWRAM
     mcr     CP15_REG6_PROTECTION_REGION(r1, 3)
 
-    // Region 6 - Non-cacheable main RAM
-    mcr     CP15_REG6_PROTECTION_REGION(r2, 6)
+    // Region 5 - Non-cacheable main RAM
+    mcr     CP15_REG6_PROTECTION_REGION(r2, 5)
 
-    // Region 7 - Cacheable main RAM
-    mcr     CP15_REG6_PROTECTION_REGION(r3, 7)
+    // Region 6 - Cacheable main RAM
+    mcr     CP15_REG6_PROTECTION_REGION(r3, 6)
 
-    // Write buffer enable for region 7
-    ldr     r0, =CP15_CONFIG_AREA_IS_BUFFERABLE(7)
+    // Write buffer enable for region 6
+    ldr     r0, =CP15_CONFIG_AREA_IS_BUFFERABLE(6)
     mcr     CP15_REG3_WRITE_BUFFER_CONTROL(r0)
 
-    // Enable data and instruction caches for regions 1 and 7
+    // Enable data and instruction caches for regions 1 and 6
     ldr     r0, =(CP15_CONFIG_AREA_IS_CACHABLE(1) | \
-                  CP15_CONFIG_AREA_IS_CACHABLE(7))
+                  CP15_CONFIG_AREA_IS_CACHABLE(6))
     mcr     CP15_REG2_DATA_CACHE_CONFIG(r0)
     mcr     CP15_REG2_INSTRUCTION_CACHE_CONFIG(r0)
 
