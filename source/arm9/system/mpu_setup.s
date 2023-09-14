@@ -20,14 +20,14 @@
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   2 | 0x00000000 |   4 KB | All       |  R/W   |   N   | N  | Alternate vector base
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   3 | 0x08000000 | 128 MB | DS, DSd   |  R/W   |   N   | N  | DS Accessory (GBA Cart)
+//   3 | 0x02000000 |  16 MB | DS    [1] |  R/W   |   N   | N  | DS non-cacheable main RAM
+//     | 0x02800000 |   8 MB | DSd       |        |       |    |
 //     | 0x03000000 |   8 MB | DSI, DSId |        |       |    | DSi switchable IWRAM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   4 | 0x01000000 |  32 KB | All       |  R/W   |   N   | N  | ITCM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   5 | 0x02000000 |  16 MB | DS    [1] |  R/W   |   N   | N  | Non-cacheable main RAM
-//     | 0x02800000 |   8 MB | DSd       |        |       |    |
-//     | 0x0C000000 |  16 MB | DSI       |        |       |    |
+//   5 | 0x08000000 | 128 MB | DS, DSd   |  R/W   |   N   | N  | DS Accessory (GBA Cart)
+//     | 0x0C000000 |  16 MB | DSI       |        |       |    | DSi non-cacheable main RAM
 //     | 0x0C000000 |  32 MB | DSId      |        |       |    | DSi debugger extended IWRAM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   6 | 0x02000000 |   4 MB | DS        |  R/W   |   Y   | Y  | Cacheable main RAM
@@ -142,12 +142,12 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
 
     swi     0xf0000 // IsDebugger
 
-    ldr     r1, =(0x08000000 | CP15_REGION_SIZE_128MB | CP15_CONFIG_REGION_ENABLE)
+    ldr     r2, =(0x08000000 | CP15_REGION_SIZE_128MB | CP15_CONFIG_REGION_ENABLE)
     cmp     r0, #0
     bne     debug_mode
 
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_4MB | CP15_CONFIG_REGION_ENABLE)
-    ldr     r2, =(0x02000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
+    ldr     r1, =(0x02000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
     mov     r8, #0x02400000
 
     ldr     r9, =dsmasks
@@ -155,7 +155,7 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
 
 debug_mode:
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
-    ldr     r2, =(0x02800000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
+    ldr     r1, =(0x02800000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
     mov     r8, #0x02800000
     ldr     r9, =debugmasks
     b       setregions
@@ -173,10 +173,10 @@ dsi_mode:
 
 setregions:
 
-    // Region 3 - DS Accessory (GBA Cart) / DSi switchable IWRAM
+    // Region 3 - DS non-cacheable main RAM / DSi switchable IWRAM
     mcr     CP15_REG6_PROTECTION_REGION(r1, 3)
 
-    // Region 5 - Non-cacheable main RAM
+    // Region 5 - DS Accessory (GBA Cart) / DSi non-cacheable main RAM
     mcr     CP15_REG6_PROTECTION_REGION(r2, 5)
 
     // Region 6 - Cacheable main RAM
