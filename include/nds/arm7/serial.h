@@ -18,17 +18,13 @@ extern "C" {
 #endif
 
 #include <nds/bios.h>
+#include <nds/input.h>
 
 // 'Networking'
 #define REG_RCNT                (*(vu16 *)0x04000134)
 #define REG_KEYXY               (*(vu16 *)0x04000136)
 #define RTC_CR                  (*(vu16 *)0x04000138)
 #define RTC_CR8                 (*(vu8 *)0x04000138)
-
-#define KEYXY_X                 BIT(0)
-#define KEYXY_Y                 BIT(1)
-#define KEYXY_TOUCH             BIT(6)
-#define KEYXY_LID               BIT(7)
 
 #define REG_SIOCNT              (*(vu16 *)0x04000128)
 

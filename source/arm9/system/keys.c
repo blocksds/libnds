@@ -9,14 +9,29 @@
 
 #include <nds/arm9/input.h>
 #include <nds/ipc.h>
+#include <nds/input.h>
 #include <nds/system.h>
 
 #include "common/libnds_internal.h"
 
-static inline uint16_t keys_cur(void)
+static uint16_t keys_cur(void)
 {
-    return (((~REG_KEYINPUT) & 0x3ff) | (((~__transferRegion()->buttons) & 3) << 10)
-            | (((~__transferRegion()->buttons) << 6) & (KEY_TOUCH | KEY_LID))) ^ KEY_LID;
+    const uint16_t keyinput_mask = KEY_A | KEY_B | KEY_SELECT | KEY_START |
+        KEY_RIGHT | KEY_LEFT | KEY_UP | KEY_DOWN | KEY_R | KEY_L;
+
+    uint16_t keyinput = ~REG_KEYINPUT;
+    uint16_t keyxy = ~__transferRegion()->buttons;
+
+    uint16_t keys_arm9 = keyinput & keyinput_mask;
+
+    // Bits 0 and 1 of REG_KEYXY to bits 10 and 11 of KEYPAD_BITS
+    uint16_t keys_arm7_xy = (keyxy & (KEYXY_X | KEYXY_Y)) << 10;
+
+    // Bits 6 and 7 of REG_KEYXY to bits 12 and 13 of KEYPAD_BITS. KEY_LID needs
+    // to be flipped.
+    uint16_t keys_arm7_touch_lid = ((keyxy << 6) & (KEY_TOUCH | KEY_LID)) ^ KEY_LID;
+
+    return keys_arm9 | keys_arm7_xy | keys_arm7_touch_lid;
 }
 
 static uint16_t keys = 0;

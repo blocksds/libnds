@@ -41,4 +41,9 @@ typedef enum KEYPAD_BITS {
 /// Key input control register.
 #define REG_KEYCNT (*(vuint16 *)0x04000132)
 
+#define KEYXY_X         BIT(0) ///< ARM7: Keypad X button.
+#define KEYXY_Y         BIT(1) ///< ARM7: Keypad Y button.
+#define KEYXY_TOUCH     BIT(6) ///< ARM7: Touchscreen pendown.
+#define KEYXY_LID       BIT(7) ///< ARM7: Lid state.
+
 #endif // LIBNDS_NDS_INPUT_H__
