@@ -29,7 +29,8 @@ typedef enum KEYPAD_BITS {
     KEY_X      = BIT(10), ///< Keypad X button.
     KEY_Y      = BIT(11), ///< Keypad Y button.
     KEY_TOUCH  = BIT(12), ///< Touchscreen pendown.
-    KEY_LID    = BIT(13)  ///< Lid state.
+    KEY_LID    = BIT(13), ///< Lid state.
+    KEY_DEBUG  = BIT(14), ///< Debug button.
 } KEYPAD_BITS;
 
 /// Key input register.
@@ -43,6 +44,7 @@ typedef enum KEYPAD_BITS {
 
 #define KEYXY_X         BIT(0) ///< ARM7: Keypad X button.
 #define KEYXY_Y         BIT(1) ///< ARM7: Keypad Y button.
+#define KEYXY_DEBUG     BIT(3) ///< ARM7: Debug button.
 #define KEYXY_TOUCH     BIT(6) ///< ARM7: Touchscreen pendown.
 #define KEYXY_LID       BIT(7) ///< ARM7: Lid state.
 

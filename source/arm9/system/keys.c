@@ -27,11 +27,14 @@ static uint16_t keys_cur(void)
     // Bits 0 and 1 of REG_KEYXY to bits 10 and 11 of KEYPAD_BITS
     uint16_t keys_arm7_xy = (keyxy & (KEYXY_X | KEYXY_Y)) << 10;
 
+    // Bit 3 of REG_KEYXY to bit 14 of KEYPAD_BITS
+    uint16_t keys_arm7_debug = (keyxy & KEYXY_DEBUG) << 11;
+
     // Bits 6 and 7 of REG_KEYXY to bits 12 and 13 of KEYPAD_BITS. KEY_LID needs
     // to be flipped.
     uint16_t keys_arm7_touch_lid = ((keyxy << 6) & (KEY_TOUCH | KEY_LID)) ^ KEY_LID;
 
-    return keys_arm9 | keys_arm7_xy | keys_arm7_touch_lid;
+    return keys_arm9 | keys_arm7_xy | keys_arm7_debug | keys_arm7_touch_lid;
 }
 
 static uint16_t keys = 0;
