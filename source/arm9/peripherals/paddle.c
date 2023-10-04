@@ -19,6 +19,8 @@ static void paddleSetBus(void)
 
 bool paddleIsInserted(void)
 {
+    // Accessing the slot-2 memory region in DSi mode will cause a MPU
+    // exception, so this code can't run on a DSi at all.
     if (isDSiMode())
         return false;
 

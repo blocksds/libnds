@@ -9,6 +9,7 @@
 #include <nds/arm9/rumble.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
+#include <nds/system.h>
 
 static RUMBLE_TYPE rumbleType = RUMBLE_TYPE_UNKNOWN;
 
@@ -79,6 +80,11 @@ static bool supercard_rumble_detected(void)
 
 void rumbleInit(void)
 {
+    // Accessing the slot-2 memory region in DSi mode will cause a MPU
+    // exception, so this code can't run on a DSi at all.
+    if (isDSiMode())
+        return;
+
     sysSetCartOwner(BUS_OWNER_ARM9);
     rumbleType = RUMBLE_TYPE_NONE;
 
