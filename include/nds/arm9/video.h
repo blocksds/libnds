@@ -195,30 +195,33 @@ typedef enum {
 
 /// Allowed VRAM bank D modes
 typedef enum {
-    VRAM_D_LCD                = 0,                  ///< LCD
-    VRAM_D_MAIN_BG            = 1 | VRAM_OFFSET(3), ///< Main engine background slot 3
-    VRAM_D_MAIN_BG_0x06000000 = 1 | VRAM_OFFSET(0), ///< Main engine background slot 0
-    VRAM_D_MAIN_BG_0x06020000 = 1 | VRAM_OFFSET(1), ///< Main engine background slot 1
-    VRAM_D_MAIN_BG_0x06040000 = 1 | VRAM_OFFSET(2), ///< Main engine background slot 2
-    VRAM_D_MAIN_BG_0x06060000 = 1 | VRAM_OFFSET(3), ///< Main engine background slot 3
-    VRAM_D_ARM7               = 2 | VRAM_OFFSET(1), ///< ARM7 Work RAM slot 1
-    VRAM_D_ARM7_0x06000000    = 2 | VRAM_OFFSET(0), ///< ARM7 Work RAM slot 0
-    VRAM_D_ARM7_0x06020000    = 2 | VRAM_OFFSET(1), ///< ARM7 Work RAM slot 1
-    VRAM_D_SUB_SPRITE         = 4,                  ///< Sub engine sprites slot 0
-    VRAM_D_TEXTURE            = 3 | VRAM_OFFSET(3), ///< 3D texture slot 3
-    VRAM_D_TEXTURE_SLOT0      = 3 | VRAM_OFFSET(0), ///< 3D texture slot 0
-    VRAM_D_TEXTURE_SLOT1      = 3 | VRAM_OFFSET(1), ///< 3D texture slot 1
-    VRAM_D_TEXTURE_SLOT2      = 3 | VRAM_OFFSET(2), ///< 3D texture slot 2
-    VRAM_D_TEXTURE_SLOT3      = 3 | VRAM_OFFSET(3)  ///< 3D texture slot 3
+    VRAM_D_LCD                   = 0,                  ///< LCD
+    VRAM_D_MAIN_BG               = 1 | VRAM_OFFSET(3), ///< Main engine background slot 3
+    VRAM_D_MAIN_BG_0x06000000    = 1 | VRAM_OFFSET(0), ///< Main engine background slot 0
+    VRAM_D_MAIN_BG_0x06020000    = 1 | VRAM_OFFSET(1), ///< Main engine background slot 1
+    VRAM_D_MAIN_BG_0x06040000    = 1 | VRAM_OFFSET(2), ///< Main engine background slot 2
+    VRAM_D_MAIN_BG_0x06060000    = 1 | VRAM_OFFSET(3), ///< Main engine background slot 3
+    VRAM_D_ARM7                  = 2 | VRAM_OFFSET(1), ///< ARM7 Work RAM slot 1
+    VRAM_D_ARM7_0x06000000       = 2 | VRAM_OFFSET(0), ///< ARM7 Work RAM slot 0
+    VRAM_D_ARM7_0x06020000       = 2 | VRAM_OFFSET(1), ///< ARM7 Work RAM slot 1
+    VRAM_D_SUB_SPRITE            = 4,                  ///< Sub engine sprites slot 0
+    VRAM_D_SUB_SPRITE_0x06600000 = 4,                  ///< Sub engine sprites slot 0
+    VRAM_D_TEXTURE               = 3 | VRAM_OFFSET(3), ///< 3D texture slot 3
+    VRAM_D_TEXTURE_SLOT0         = 3 | VRAM_OFFSET(0), ///< 3D texture slot 0
+    VRAM_D_TEXTURE_SLOT1         = 3 | VRAM_OFFSET(1), ///< 3D texture slot 1
+    VRAM_D_TEXTURE_SLOT2         = 3 | VRAM_OFFSET(2), ///< 3D texture slot 2
+    VRAM_D_TEXTURE_SLOT3         = 3 | VRAM_OFFSET(3)  ///< 3D texture slot 3
 } VRAM_D_TYPE;
 
 /// Allowed VRAM bank E modes
 typedef enum {
-    VRAM_E_LCD            = 0, ///< LCD
-    VRAM_E_MAIN_BG        = 1, ///< Main engine background first half of slot 0
-    VRAM_E_MAIN_SPRITE    = 2, ///< Main engine sprites first half of slot 0
-    VRAM_E_TEX_PALETTE    = 3, ///< 3D texture palette slot 0-3
-    VRAM_E_BG_EXT_PALETTE = 4, ///< Main engine background extended palette
+    VRAM_E_LCD                    = 0, ///< LCD
+    VRAM_E_MAIN_BG                = 1, ///< Main engine background first half of slot 0
+    VRAM_E_MAIN_BG_0x06000000     = 1, ///< Main engine background first half of slot 0
+    VRAM_E_MAIN_SPRITE            = 2, ///< Main engine sprites first half of slot 0
+    VRAM_E_MAIN_SPRITE_0x06400000 = 2, ///< Main engine sprites first half of slot 0
+    VRAM_E_TEX_PALETTE            = 3, ///< 3D texture palette slot 0-3
+    VRAM_E_BG_EXT_PALETTE         = 4, ///< Main engine background extended palette
 } VRAM_E_TYPE;
 
 /// Allowed VRAM bank F modes
@@ -273,6 +276,7 @@ typedef enum {
 typedef enum {
     VRAM_H_LCD                = 0, ///< LCD
     VRAM_H_SUB_BG             = 1, ///< Sub engine background first 2 parts of slot 0
+    VRAM_H_SUB_BG_0x06200000  = 1, ///< Sub engine background first 2 parts of slot 0
     VRAM_H_SUB_BG_EXT_PALETTE = 2, ///< Sub engine background extended palette
 } VRAM_H_TYPE;
 
@@ -281,6 +285,7 @@ typedef enum {
     VRAM_I_LCD                    = 0, ///< LCD
     VRAM_I_SUB_BG_0x06208000      = 1, ///< Sub engine background thirth part of slot 0
     VRAM_I_SUB_SPRITE             = 2, ///< Sub engine sprites
+    VRAM_I_SUB_SPRITE_0x06600000  = 2, ///< Sub engine sprites
     VRAM_I_SUB_SPRITE_EXT_PALETTE = 3, ///< Sub engine sprites extended palette
 } VRAM_I_TYPE;
 
