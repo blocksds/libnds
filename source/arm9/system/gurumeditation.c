@@ -317,6 +317,15 @@ void guruMeditationDump(void)
 static void defaultHandler(void)
 {
     guruMeditationDump();
+
+    // We can't make any assumption about what happened before an exception. It
+    // may have happened when dereferencing a NULL pointer before doing any
+    // harm, or it may happen because of a corrupted return address after a
+    // stack overflow.
+    //
+    // In any case, we can't assume that the exit-to-loader code hasn't been
+    // corrupted, so it's a good idea to wait here forever.
+
     while (1)
         ;
 }
