@@ -859,7 +859,9 @@ static inline void glCallList(const u32 *list)
     // Flush the area that we are going to DMA
     DC_FlushRange(list, count * 4);
 
-    // Wait until *all* DMA channels have stopped. TODO: Is this needed?
+    // There is a hardware bug that affects DMA when there are multiple channels
+    // active, under certain conditions. Instead of checking for said
+    // conditions, simply ensure that there are no DMA channels active.
     while (dmaBusy(0) || dmaBusy(1) || dmaBusy(2) || dmaBusy(3));
 
     // Send the packed list asynchronously via DMA to the FIFO
