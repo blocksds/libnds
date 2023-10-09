@@ -21,11 +21,6 @@ u32 vramSetPrimaryBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE
     return vramTemp;
 }
 
-u32 vramSetMainBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE d)
-{
-    return vramSetPrimaryBanks(a, b, c, d);
-}
-
 u32 vramSetBanks_EFG(VRAM_E_TYPE e, VRAM_F_TYPE f, VRAM_G_TYPE g)
 {
     uint32_t vramTemp = VRAM_EFG_CR;
@@ -35,21 +30,6 @@ u32 vramSetBanks_EFG(VRAM_E_TYPE e, VRAM_F_TYPE f, VRAM_G_TYPE g)
     VRAM_G_CR = VRAM_ENABLE | g;
 
     return vramTemp;
-}
-
-void vramRestorePrimaryBanks(u32 vramTemp)
-{
-    VRAM_CR = vramTemp;
-}
-
-void vramRestoreMainBanks(u32 vramTemp)
-{
-    VRAM_CR = vramTemp;
-}
-
-void vramRestoreBanks_EFG(u32 vramTemp)
-{
-    VRAM_EFG_CR = vramTemp;
 }
 
 void setBrightness(int screen, int level)
@@ -73,13 +53,11 @@ void setBrightness(int screen, int level)
 
 u32 __attribute__((weak)) vramDefault(void)
 {
-    // Map all VRAM banks to LCDC mode
-    VRAM_CR = 0x80808080;
-    VRAM_E_CR = 0x80;
-    VRAM_F_CR = 0x80;
-    VRAM_G_CR = 0x80;
-    VRAM_H_CR = 0x80;
-    VRAM_I_CR = 0x80;
+    // Map all VRAM banks to LCDC mode so that the CPU can access it
+    vramSetPrimaryBanks(VRAM_A_LCD, VRAM_B_LCD, VRAM_C_LCD, VRAM_D_LCD);
+    vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
+    vramSetBankH(VRAM_H_LCD);
+    vramSetBankI(VRAM_I_LCD);
 
     dmaFillWords(0, BG_PALETTE, 2 * 1024); // Clear main and sub palette
     dmaFillWords(0, OAM, 2 * 1024);        // Clear main and sub OAM
