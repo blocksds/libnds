@@ -109,7 +109,19 @@ void rtcGetData(uint8_t *data, uint32_t size);
 void BCDToInteger(uint8_t *data, uint32_t length);
 void integerToBCD(uint8_t *data, uint32_t length);
 
+/// Initialize the RTC and setup the RTC IRQ to update the time.
 void initClockIRQ(void);
+
+/// Initialize the RTC and setup a timer IRQ to update the time.
+///
+/// This initialization function is required because some emulators don't
+/// support the RTC interrupt, so initClockIRQ() doesn't update the time.
+/// initClockIRQTimer() uses an additional hardware timer to update the time,
+/// but it works everywhere.
+///
+/// @param timer Timer index to use.
+void initClockIRQTimer(int timer);
+
 void resyncClock(void);
 
 #ifdef __cplusplus
