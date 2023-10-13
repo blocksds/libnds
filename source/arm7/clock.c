@@ -274,6 +274,7 @@ void initClockIRQ(void)
 
 void initClockIRQTimer(int timer)
 {
+    // Setup a timer that triggers an interrupt once per second
     timerStart(timer, ClockDivider_1024, TIMER_FREQ_1024(1), syncRTC);
 
     initClockInternal();
