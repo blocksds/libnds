@@ -25,10 +25,10 @@ typedef enum
 {
     DISP_IN_VBLANK    = BIT(0), ///< The display currently in a vertical blank.
     DISP_IN_HBLANK    = BIT(1), ///< The display currently in a horizontal blank.
-    DISP_YTRIGGERED   = BIT(2), ///< Current scanline and %DISP_Y match.
+    DISP_YTRIGGERED   = BIT(2), ///< Current scanline and DISP_Y match.
     DISP_VBLANK_IRQ   = BIT(3), ///< Interrupt on vertical blank.
     DISP_HBLANK_IRQ   = BIT(4), ///< Interrupt on horizontal blank.
-    DISP_YTRIGGER_IRQ = BIT(5)  ///< Interrupt when current scanline and %DISP_Y match.
+    DISP_YTRIGGER_IRQ = BIT(5)  ///< Interrupt when current scanline and DISP_Y match.
 } DISP_BITS;
 
 /// Current display scanline.
@@ -36,7 +36,7 @@ typedef enum
 
 /// Halt control register.
 ///
-/// Writing 0x40 to HALT_CR activates GBA mode.%HALT_CR can only be accessed via
+/// Writing 0x40 to HALT_CR activates GBA mode. HALT_CR can only be accessed via
 /// the BIOS.
 #define HALT_CR (*(vu16*)0x04000300)
 
@@ -376,7 +376,7 @@ typedef struct tPERSONAL_DATA
     u32 RESERVED4;      // ???
 } PACKED PERSONAL_DATA;
 
-/// Default location for the user's personal data (see %PERSONAL_DATA).
+/// Default location for the user's personal data (see PERSONAL_DATA).
 #define PersonalData ((PERSONAL_DATA *)0x2FFFC80)
 
 /// Struct containing time and day of the real time clock.

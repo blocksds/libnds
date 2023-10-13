@@ -29,7 +29,7 @@ extern "C" {
 ///
 /// **Example Usage:**
 /// ```
-/// %TIMER_CR(x) = %TIMER_ENABLE | %ClockDivider_64;
+/// TIMER_CR(x) = TIMER_ENABLE | ClockDivider_64;
 /// ```
 ///
 /// Possible bit defines:
@@ -40,13 +40,13 @@ extern "C" {
 /// @see ClockDivider
 #define TIMER_CR(n) (*(vu16 *)(0x04000102 + ((n) << 2)))
 
-/// Same as %TIMER_CR(0).
+/// Same as TIMER_CR(0).
 #define TIMER0_CR   (*(vu16 *)0x04000102)
-/// Same as %TIMER_CR(1).
+/// Same as TIMER_CR(1).
 #define TIMER1_CR   (*(vu16 *)0x04000106)
-/// Same as %TIMER_CR(2).
+/// Same as TIMER_CR(2).
 #define TIMER2_CR   (*(vu16 *)0x0400010A)
-/// Same as %TIMER_CR(3).
+/// Same as TIMER_CR(3).
 #define TIMER3_CR   (*(vu16 *)0x0400010E)
 
 /// Returns a dereferenced pointer to the data register for timer number "n".
@@ -54,27 +54,27 @@ extern "C" {
 /// @see TIMER_CR(n)
 /// @see TIMER_FREQ(n)
 ///
-/// %TIMER_DATA(n) when set will latch that value into the counter. Every time
-/// the counter rolls over, %TIMER_DATA(0) will return to the latched value.
+/// TIMER_DATA(n) when set will latch that value into the counter. Every time
+/// the counter rolls over, TIMER_DATA(0) will return to the latched value.
 /// This allows you to control the frequency of the timer using the following
 /// formula:
 /// ```
-/// %TIMER_DATA(x) = -(BUS_CLOCK / (freq * divider));
+/// TIMER_DATA(x) = -(BUS_CLOCK / (freq * divider));
 /// ```
 ///
 /// **Example Usage:**
 /// ```
-/// %TIMER_DATA(0) = value; // 0 to 3. value is 16 bits
+/// TIMER_DATA(0) = value; // 0 to 3. value is 16 bits
 /// ```
 #define TIMER_DATA(n)  (*(vu16 *)(0x04000100 + ((n) << 2)))
 
-/// Same as %TIMER_DATA(0).
+/// Same as TIMER_DATA(0).
 #define TIMER0_DATA    (*(vu16 *)0x04000100)
-/// Same as %TIMER_DATA(1).
+/// Same as TIMER_DATA(1).
 #define TIMER1_DATA    (*(vu16 *)0x04000104)
-/// Same as %TIMER_DATA(2).
+/// Same as TIMER_DATA(2).
 #define TIMER2_DATA    (*(vu16 *)0x04000108)
-/// Same as %TIMER_DATA(3).
+/// Same as TIMER_DATA(3).
 #define TIMER3_DATA    (*(vu16 *)0x0400010C)
 
 /// The speed in which the timer ticks in Hz.
@@ -107,9 +107,9 @@ typedef enum {
 /// Causes the timer to count at (33.514 / 1024) MHz.
 #define TIMER_DIV_1024  (3)
 
-/// A macro that calculates %TIMER_DATA(n) settings for a given frequency of n.
+/// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
-/// It will calculate the correct value for %TIMER_DATA(n) given the frequency
+/// It will calculate the correct value for TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
 /// **Example Usage:**
@@ -124,9 +124,9 @@ typedef enum {
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ(n)    (-BUS_CLOCK / (n))
 
-/// A macro that calculates %TIMER_DATA(n) settings for a given frequency of n.
+/// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
-/// It will calculate the correct value for %TIMER_DATA(n) given the frequency
+/// It will calculate the correct value for TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
 /// **Example Usage:**
@@ -141,9 +141,9 @@ typedef enum {
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ_64(n) (-(BUS_CLOCK >> 6) / (n))
 
-/// A macro that calculates %TIMER_DATA(n) settings for a given frequency of n.
+/// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
-/// It will calculate the correct value for %TIMER_DATA(n) given the frequency
+/// It will calculate the correct value for TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
 /// **Example Usage:**
@@ -158,9 +158,9 @@ typedef enum {
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ_256(n) (-(BUS_CLOCK >> 8) / (n))
 
-/// Macro that calculates %TIMER_DATA(n) settings for a given frequency of n.
+/// Macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
-/// It wtill calculate the correct value for %TIMER_DATA(n) given the frequency
+/// It wtill calculate the correct value for TIMER_DATA(n) given the frequency
 /// in Hz (number of times the timer should overflow per second).
 ///
 /// **Example Usage:**
