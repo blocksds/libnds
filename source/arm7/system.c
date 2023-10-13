@@ -40,7 +40,7 @@ void powerValueHandler(u32 value, void *user_data)
 
     u32 temp;
     u32 ie_save;
-    int battery, backlight, power;
+    int battery, power;
 
     switch (value & 0xFFFF0000)
     {
@@ -103,13 +103,33 @@ void powerValueHandler(u32 value, void *user_data)
         case PM_REQ_BATTERY:
             if (!isDSiMode())
             {
+                // This code reads the DS-specific registers and generates a
+                // byte with values that look like the ones read from the DSi
+                // battery status register.
+
+                // Battery Status. If bit 0 is set, the battery has low charge
+                // (red). In DSi mode we get a value between 0 and 15 instead,
+                // so this code picks 3 as low charge value and 15 as high
+                // charge value as arbitrary values to imitate the behaviour of
+                // the DSi.
                 battery = (readPowerManagement(PM_BATTERY_REG) & 1) ? 3 : 15;
-                backlight = readPowerManagement(PM_BACKLIGHT_LEVEL);
+
+                // DS-Lite and DSi Only - Backlight Levels/Power Source
+                uint32_t backlight = readPowerManagement(PM_BACKLIGHT_LEVEL);
+                // In NDS (and DSi in NDS mode) bit 6 is 1. In DSi in DSi mode
+                // bit 6 is zero.
                 if (backlight & (1 << 6))
+                {
+                    // If bit 3 is set, the console is connected to external
+                    // power. In that case, set bit 7 of the returned value to
+                    // match the bit used in DSi.
                     battery += (backlight & (1 << 3)) << 4;
+                }
             }
             else
             {
+                // Bits 0-3: Battery level
+                // Bit 7: External power connected
                 battery = i2cReadRegister(I2C_PM, I2CREGPM_BATTERY);
             }
 

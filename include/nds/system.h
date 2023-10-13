@@ -153,9 +153,16 @@ static inline void systemShutDown(void)
 void readFirmware(u32 address, void *buffer, u32 length);
 int writeFirmware(u32 address, void *buffer, u32 length);
 
-/// Gets the DS Battery level
+/// Gets the DS battery level
 ///
-/// @return TODO
+/// This returns a value with two fields. Bits 0 to 3 are the battery level,
+/// and bit 7 is set to 1 if an external power source is connected to the DS.
+///
+/// On DSi the battery level is the one reported by the hardware. On DS, the
+/// battery level is only "high" or "low", and libnds returns 15 or 3
+/// respectively as the equivalent DSi battery level.
+///
+/// @return Battery level and external power source status.
 u32 getBatteryLevel(void);
 
 /// Set the arm9 vector base
