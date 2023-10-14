@@ -115,8 +115,11 @@ void soundDataHandler(int bytes, void *user_data)
 void enableSound(void)
 {
     powerOn(POWER_SOUND);
+
+    // DS Power Management Device: Disable mute bit and enable amplifier
     writePowerManagement(PM_CONTROL_REG,
             (readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_MUTE) | PM_SOUND_AMP);
+
     REG_SOUNDCNT = SOUND_ENABLE;
     REG_MASTER_VOLUME = 127;
 }

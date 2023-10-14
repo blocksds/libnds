@@ -125,6 +125,9 @@ static inline void micOff(void)
     micSetAmp(PM_AMP_OFF, 0);
 }
 
+void enableSound(void);
+void disableSound(void);
+
 void installSoundFIFO(void);
 
 #ifdef __cplusplus
