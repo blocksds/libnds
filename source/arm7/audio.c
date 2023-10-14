@@ -4,6 +4,7 @@
 // Copyright (C) 2008-2010 Jason Rogers (Dovoto)
 
 #include <nds/arm7/audio.h>
+#include <nds/dma.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/ipc.h>
@@ -122,6 +123,9 @@ void enableSound(void)
 
     REG_SOUNDCNT = SOUND_ENABLE;
     REG_MASTER_VOLUME = 127;
+
+    // Clear sound registers
+    dmaFillWords(0, (void *)0x04000400, 0x100);
 }
 
 void disableSound(void)
