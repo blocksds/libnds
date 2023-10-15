@@ -2,6 +2,7 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (c) 2023 Antonio Niño Díaz
 
 /// @file dma.h
 ///
@@ -19,6 +20,11 @@
 /// DC_FlushRange(source, sizeof(dataToCopy));
 /// dmaCopy(source, destination, sizeof(dataToCopy));
 /// ```
+///
+/// Very important note: Don't write to the DMA registers directly from the
+/// ARM9, it is unsafe. Enabling and disabling the DMA must not be done from
+/// code in main RAM, and special care is required to disable an enabled DMA
+/// channel. You should use dmaSetParams() and dmaStopSafe() instead.
 
 #ifndef LIBNDS_NDS_DMA_H__
 #define LIBNDS_NDS_DMA_H__
@@ -111,11 +117,8 @@ void dmaStopSafe(uint8_t channel);
 static inline void dmaCopyWords(uint8_t channel, const void *src, void *dest,
                                 uint32_t size)
 {
-    DMA_SRC(channel) = (uint32_t)src;
-    DMA_DEST(channel) = (uint32_t)dest;
-    DMA_CR(channel) = DMA_COPY_WORDS | (size >> 2);
-    while (DMA_CR(channel) & DMA_BUSY)
-        ;
+    dmaSetParams(channel, src, dest, DMA_COPY_WORDS | (size >> 2));
+    while (DMA_CR(channel) & DMA_BUSY);
 }
 
 /// Copies from source to destination on one of the 4 available channels in half
@@ -129,11 +132,8 @@ static inline void dmaCopyWords(uint8_t channel, const void *src, void *dest,
 static inline void dmaCopyHalfWords(uint8_t channel, const void *src, void *dest,
                                     uint32_t size)
 {
-    DMA_SRC(channel) = (uint32_t)src;
-    DMA_DEST(channel) = (uint32_t)dest;
-    DMA_CR(channel) = DMA_COPY_HALFWORDS | (size >> 1);
-    while (DMA_CR(channel) & DMA_BUSY)
-        ;
+    dmaSetParams(channel, src, dest, DMA_COPY_HALFWORDS | (size >> 1));
+    while (DMA_CR(channel) & DMA_BUSY);
 }
 
 /// Copies from source to destination using channel 3 of DMA available channels
@@ -145,11 +145,9 @@ static inline void dmaCopyHalfWords(uint8_t channel, const void *src, void *dest
 ///             nearest half word (2 bytes).
 static inline void dmaCopy(const void *source, void *dest, uint32_t size)
 {
-    DMA_SRC(3) = (uint32_t)source;
-    DMA_DEST(3) = (uint32_t)dest;
-    DMA_CR(3) = DMA_COPY_HALFWORDS | (size >> 1);
-    while (DMA_CR(3) & DMA_BUSY)
-        ;
+
+    dmaSetParams(3, source, dest, DMA_COPY_HALFWORDS | (size >> 1));
+    while (DMA_CR(3) & DMA_BUSY);
 }
 
 /// Copies from source to destination on one of the 4 available channels in
@@ -165,9 +163,7 @@ static inline void dmaCopy(const void *source, void *dest, uint32_t size)
 static inline void dmaCopyWordsAsynch(uint8_t channel, const void *src, void *dest,
                                       uint32_t size)
 {
-    DMA_SRC(channel) = (uint32_t)src;
-    DMA_DEST(channel) = (uint32_t)dest;
-    DMA_CR(channel) = DMA_COPY_WORDS | (size >> 2);
+    dmaSetParams(channel, src, dest, DMA_COPY_WORDS | (size >> 2));
 }
 
 /// Copies from source to destination on one of the 4 available channels in half
@@ -183,9 +179,7 @@ static inline void dmaCopyWordsAsynch(uint8_t channel, const void *src, void *de
 static inline void dmaCopyHalfWordsAsynch(uint8_t channel, const void *src,
                                           void *dest, uint32_t size)
 {
-    DMA_SRC(channel) = (uint32_t)src;
-    DMA_DEST(channel) = (uint32_t)dest;
-    DMA_CR(channel) = DMA_COPY_HALFWORDS | (size >> 1);
+    dmaSetParams(channel, src, dest, DMA_COPY_HALFWORDS | (size >> 1));
 }
 
 /// Copies from source to destination using channel 3 of DMA available channels
@@ -199,9 +193,7 @@ static inline void dmaCopyHalfWordsAsynch(uint8_t channel, const void *src,
 ///             nearest half word (2 bytes)
 static inline void dmaCopyAsynch(const void *source, void *dest, uint32_t size)
 {
-    DMA_SRC(3) = (uint32_t)source;
-    DMA_DEST(3) = (uint32_t)dest;
-    DMA_CR(3) = DMA_COPY_HALFWORDS | (size >> 1);
+    dmaSetParams(3, source, dest, DMA_COPY_HALFWORDS | (size >> 1));
 }
 
 /// Fills the source with the supplied value using DMA channel 3.
@@ -212,18 +204,16 @@ static inline void dmaCopyAsynch(const void *source, void *dest, uint32_t size)
 ///             nearest word (4 bytes).
 static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
 {
+    const void *src;
 #ifdef ARM7
     (*(vu32 *)0x027FFE04) = value;
-    DMA_SRC(3) = 0x027FFE04;
+    src = (const void *)0x027FFE04;
 #else
     DMA_FILL(3) = value;
-    DMA_SRC(3) = (uint32_t)&DMA_FILL(3);
+    src = (const void *)&DMA_FILL(3);
 #endif
-
-    DMA_DEST(3) = (uint32_t)dest;
-    DMA_CR(3) = DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2);
-    while (DMA_CR(3) & DMA_BUSY)
-        ;
+    dmaSetParams(3, src, dest, DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2));
+    while (DMA_CR(3) & DMA_BUSY);
 }
 
 /// Fills the source with the supplied value using DMA channel 3.
@@ -234,18 +224,16 @@ static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
 ///             nearest half word (2 bytes).
 static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
 {
+    const void *src;
 #ifdef ARM7
-    (*(vu32 *)0x027FFE04) = (u32)value;
-    DMA_SRC(3) = 0x027FFE04;
+    (*(vu32 *)0x027FFE04) = value;
+    src = (const void *)0x027FFE04;
 #else
-    DMA_FILL(3) = (uint32_t)value;
-    DMA_SRC(3) = (uint32_t)&DMA_FILL(3);
+    DMA_FILL(3) = value;
+    src = (const void *)&DMA_FILL(3);
 #endif
-
-    DMA_DEST(3) = (uint32_t)dest;
-    DMA_CR(3) = DMA_SRC_FIX | DMA_COPY_HALFWORDS | (size >> 1);
-    while (DMA_CR(3) & DMA_BUSY)
-        ;
+    dmaSetParams(3, src, dest, DMA_SRC_FIX | DMA_COPY_HALFWORDS | (size >> 1));
+    while (DMA_CR(3) & DMA_BUSY);
 }
 
 /// Determines if the specified channel is busy
