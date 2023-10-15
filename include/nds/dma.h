@@ -87,6 +87,19 @@
 #define DMA_COPY_HALFWORDS  (DMA_ENABLE | DMA_16_BIT | DMA_START_NOW)
 #define DMA_FIFO            (DMA_ENABLE | DMA_32_BIT | DMA_DST_FIX | DMA_START_FIFO)
 
+/// Starts a DMA transfer safely from ITCM.
+///
+/// @param channel The DMA channel to use (0 - 3).
+/// @param src The source to copy from.
+/// @param dest The destination to copy to.
+/// @param ctrl Value to write to the control register.
+void dmaSetParams(uint8_t channel, const void *src, void *dest, uint32_t ctrl);
+
+/// Stops a DMA channel safely from ITCM.
+///
+/// @param channel The DMA channel to use (0 - 3).
+void dmaStopSafe(uint8_t channel);
+
 /// Copies from source to destination on one of the 4 available channels in
 /// words.
 ///
