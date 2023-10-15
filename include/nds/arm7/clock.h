@@ -109,15 +109,15 @@ void rtcGetData(uint8_t *data, uint32_t size);
 void BCDToInteger(uint8_t *data, uint32_t length);
 void integerToBCD(uint8_t *data, uint32_t length);
 
-/// Initialize the RTC and setup the RTC IRQ to update the time.
-void initClockIRQ(void);
-
-/// Initialize the RTC and setup a timer IRQ to update the time.
+/// Initialize the RTC and setup the RTC interrupt to update the time.
 ///
-/// This initialization function is required because some emulators don't
-/// support the RTC interrupt, so initClockIRQ() doesn't update the time.
-/// initClockIRQTimer() uses an additional hardware timer to update the time,
-/// but it works everywhere.
+/// @deprecated The RTC interrupt isn't supported by the 3DS in DS or DSi modes.
+/// Any application that uses it will run on DS and DSi consoles, but not on
+/// 3DS. Also, most emulators don't support it either. The alternative is to use
+/// initClockIRQTimer(), which uses a timer interrupt instead.
+__attribute__((deprecated)) void initClockIRQ(void);
+
+/// Initialize the RTC and setup a timer interrupt to update the time.
 ///
 /// @param timer Timer index to use.
 void initClockIRQTimer(int timer);
