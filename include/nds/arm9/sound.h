@@ -136,6 +136,8 @@ void soundSetFreq(int soundId, u16 freq);
 
 /// Starts a microphone recording to a double buffer specified by buffer.
 ///
+/// Note: The microphone uses timer 1 in the ARM7.
+///
 /// @param buffer A pointer to the start of the double buffer.
 /// @param bufferLength The length of the buffer in bytes (both halfs of the
 ///                     double buffer).
