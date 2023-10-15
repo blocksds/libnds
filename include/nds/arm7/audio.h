@@ -100,7 +100,7 @@ u16 micReadData12(void);
 
 // Fill the buffer with data from the microphone. The buffer will be signed
 // sound data at 16kHz. Once the length of the buffer is reached, no more data
-// will be stored. Uses ARM7 timer 0.
+// will be stored. Uses the specified ARM7 timer.
 void micStartRecording(u8 *buffer, int length, int freq, int timer,
                        bool eightBitSample, MIC_BUF_SWAP_CB bufferSwapCallback);
 
