@@ -4,8 +4,10 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
     .arch    armv5te
     .cpu     arm946e-s
+
     .arm
 
 BEGIN_ASM_FUNC setCpuClock itcm

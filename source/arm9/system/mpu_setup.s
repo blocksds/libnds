@@ -71,10 +71,10 @@
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
-    .arch   armv5te
-    .cpu    arm946e-s
+    .syntax  unified
+    .arch    armv5te
+    .cpu     arm946e-s
 
-    .text
     .arm
 
 // This sets r8 to the end address of RAM for this DS model

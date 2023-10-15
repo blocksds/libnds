@@ -6,6 +6,8 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
+
     .text
     .thumb
     .align
@@ -21,21 +23,21 @@ BEGIN_ASM_FUNC nocashMessage
 
     // copy string into buffer
 
-    mov     r1, #120        // max string length == 120 bytes
+    movs    r1, #120        // max string length == 120 bytes
 1:
     push    {r4}
     ldr     r4, =buffer     // get buffer address
-    mov     r2, #0          // r2 = read/write position
+    movs    r2, #0          // r2 = read/write position
 3:
     ldrb    r3, [r0, r2]    // load character
     strb    r3, [r4, r2]    // store character
     cmp     r3, #0          // character == NULL?
     beq     4f              // yes, send message
-    add     r2, #1          // increment read/write position
+    adds    r2, #1          // increment read/write position
     cmp     r2, r1          // max length == 120
     bne     3b              // loop if < 120 characters
 
-    mov     r0, #0
+    movs    r0, #0
     strb    r0, [r4, r2]
 
     // Send message to no$

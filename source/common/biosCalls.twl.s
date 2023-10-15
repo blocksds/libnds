@@ -4,6 +4,7 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
     .text
     .align 4
 

@@ -4,8 +4,11 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
+
+    .arm
+
     .extern irqTable
-    .code   32
 
 #ifdef ARM9
 BEGIN_ASM_FUNC IntrMain itcm

@@ -5,8 +5,12 @@
 
 #include <nds/arm9/dldi_asm.h>
 
+    .syntax  unified
+
     .align  4
+
     .arm
+
     .global _io_dldi_stub
 
 // Total space allocated for user DLDI drivers

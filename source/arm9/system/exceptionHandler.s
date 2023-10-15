@@ -5,7 +5,10 @@
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
-    .text
+    .syntax  unified
+    .arch    armv5te
+    .cpu     arm946e-s
+
     .arm
 
 BEGIN_ASM_FUNC enterException

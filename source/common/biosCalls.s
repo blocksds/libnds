@@ -6,6 +6,8 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
+
     .text
     .align 4
 
@@ -34,7 +36,7 @@ BEGIN_ASM_FUNC swiDivide
 BEGIN_ASM_FUNC swiRemainder
 
     swi     0x09
-    mov     r0, r1
+    movs    r0, r1
     bx      lr
 
 BEGIN_ASM_FUNC swiDivMod
@@ -142,13 +144,13 @@ BEGIN_ASM_FUNC swiGetVolumeTable
 
 BEGIN_ASM_FUNC swiSwitchToGBAMode
 
-    mov     r0, #0x40
+    movs    r0, #0x40
     swi     0x1F
     // Does not return, of course
 
 BEGIN_ASM_FUNC swiSetHaltCR
 
-    mov     r2, r0
+    movs    r2, r0
     swi     0x1F
     bx      lr
 

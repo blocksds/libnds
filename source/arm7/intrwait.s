@@ -4,9 +4,10 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
+    .cpu     arm7tdmi
+
     .arm
-    .cpu arm7tdmi
-    .text
 
 BEGIN_ASM_FUNC swiWaitForVBlank
 

@@ -15,6 +15,7 @@
 // because any code located in main RAM will need to call a veneer to jump to
 // this routine. It's better to place it in regular RAM.
 
+    .syntax  unified
     .thumb
 
 BEGIN_ASM_FUNC __aeabi_read_tp

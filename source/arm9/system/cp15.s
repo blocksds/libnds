@@ -3,10 +3,14 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
-// CP15.S -- CP15 control for the ARM9
+// CP15 control for the ARM9
 
 #include <nds/asminc.h>
 #include <nds/arm9/cp15_asm.h>
+
+    .syntax  unified
+    .arch    armv5te
+    .cpu     arm946e-s
 
     .arm
 

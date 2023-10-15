@@ -5,14 +5,17 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
 #ifdef ARM9
 #include <nds/arm9/cp15_asm.h>
 
-    .arch   armv5te
-    .cpu    arm946e-s
+    .arch    armv5te
+    .cpu     arm946e-s
+#endif
+#ifdef ARM7
+    .cpu     arm7tdmi
 #endif
 
-    .text
     .align 4
     .arm
 

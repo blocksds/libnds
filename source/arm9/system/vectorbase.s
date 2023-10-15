@@ -7,11 +7,15 @@
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
+    .syntax  unified
+    .arch    armv5te
+    .cpu     arm946e-s
+
+    .arm
+
     .section    .vectors,"ax",%progbits
 
     .global     SystemVectors
-
-    .arm
 
     ldr     r15, vec_reset
     ldr     r15, vec_undefined

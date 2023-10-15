@@ -5,10 +5,10 @@
 #include <nds/asminc.h>
 #include <nds/arm9/cp15_asm.h>
 
-    .arch   armv5te
-    .cpu    arm946e-s
+    .syntax  unified
+    .arch    armv5te
+    .cpu     arm946e-s
 
-    .text
     .arm
 
 BEGIN_ASM_FUNC swiWaitForVBlank
