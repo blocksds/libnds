@@ -2,12 +2,16 @@
 //
 // Copyright (C) 2023 Gericom
 
+#include <nds/asminc.h>
+
     .syntax unified
 #ifdef ARM9
     // It is unsafe to start the DMA from main RAM in the ARM9
     .section ".itcm", "ax"
-#else
+#elif defined(ARM7)
     .text
+#else
+#error "ARM9 or ARM7 must be defined."
 #endif
     .arm
 
@@ -15,8 +19,7 @@
     // r1 = src
     // r2 = dst
     // r3 = control
-    .global dmaSetParams
-dmaSetParams:
+BEGIN_ASM_FUNC dmaSetParams
 
     ldr     r12, =0x040000B0
     add     r0, r0, r0, lsl #1 // r0 = r0 * 3
@@ -28,8 +31,7 @@ dmaSetParams:
 
 
     // r0 = DMA number
-    .global dmaStopSafe
-dmaStopSafe:
+BEGIN_ASM_FUNC dmaStopSafe
 
     // Disable IRQs
     mrs     r3, cpsr
