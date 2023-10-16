@@ -5,15 +5,17 @@
 // Support:
 //    __ndsabi_fiq_memcpy4, __ndsabi_fiq_memcpy4x4
 
+#include <nds/asminc.h>
+
 #include "macros.inc"
 
-    .arm
-    .align 2
+    .syntax unified
 
-    .section .text.__ndsabi_fiq_memcpy4, "ax", %progbits
-    .global __ndsabi_fiq_memcpy4
-    .type __ndsabi_fiq_memcpy4, %function
-__ndsabi_fiq_memcpy4:
+    .arm
+
+
+BEGIN_ASM_FUNC __ndsabi_fiq_memcpy4
+
     cmp     r2, #48
     blt     .Lcopy_words
 
@@ -57,10 +59,9 @@ __ndsabi_fiq_memcpy4:
     strmib  r3, [r0]
     bx      lr
 
-    .section .text.__ndsabi_fiq_memcpy4x4, "ax", %progbits
-    .global __ndsabi_fiq_memcpy4x4
-    .type __ndsabi_fiq_memcpy4x4, %function
-__ndsabi_fiq_memcpy4x4:
+
+BEGIN_ASM_FUNC __ndsabi_fiq_memcpy4x4
+
     push    {r4-r10}
     cmp     r2, #48
     blt     .Lcopy_tail_4x4

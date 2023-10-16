@@ -10,31 +10,30 @@
 // Support:
 //    __ndsabi_wordset4, __ndsabi_lwordset4, __ndsabi_memset1
 
+#include <nds/asminc.h>
+
 #include "macros.inc"
 
-    .arm
-    .align 2
+    .syntax unified
 
-    .section .text.__aeabi_memclr, "ax", %progbits
-    .global __aeabi_memclr
-    .type __aeabi_memclr, %function
-__aeabi_memclr:
+    .arm
+
+
+BEGIN_ASM_FUNC __aeabi_memclr
+
     mov     r2, #0
     b       __aeabi_memset
 
-    .global __aeabi_memclr8
-    .type __aeabi_memclr8, %function
-__aeabi_memclr8:
-    .global __aeabi_memclr4
-    .type __aeabi_memclr4, %function
-__aeabi_memclr4:
+
+BEGIN_ASM_FUNC __aeabi_memclr8
+BEGIN_ASM_FUNC __aeabi_memclr4
+
     mov     r2, #0
     b       __ndsabi_wordset4
 
-    .section .text.__aeabi_memset, "ax", %progbits
-    .global __aeabi_memset
-    .type __aeabi_memset, %function
-__aeabi_memset:
+
+BEGIN_ASM_FUNC __aeabi_memset
+
     @ < 8 bytes probably won't be aligned: go byte-by-byte
     cmp     r1, #8
     blt     __ndsabi_memset1
@@ -48,24 +47,22 @@ __aeabi_memset:
     strcsb  r2, [r0], #1
     subcs   r1, r1, #2
 
-    .global __aeabi_memset8
-    .type __aeabi_memset8, %function
-__aeabi_memset8:
-    .global __aeabi_memset4
-    .type __aeabi_memset4, %function
-__aeabi_memset4:
+
+BEGIN_ASM_FUNC __aeabi_memset8
+BEGIN_ASM_FUNC __aeabi_memset4
+
     lsl     r2, r2, #24
     orr     r2, r2, r2, lsr #8
     orr     r2, r2, r2, lsr #16
 
-    .global __ndsabi_wordset4
-    .type __ndsabi_wordset4, %function
-__ndsabi_wordset4:
+
+BEGIN_ASM_FUNC __ndsabi_wordset4
+
     mov     r3, r2
 
-    .global __ndsabi_lwordset4
-    .type __ndsabi_lwordset4, %function
-__ndsabi_lwordset4:
+
+BEGIN_ASM_FUNC __ndsabi_lwordset4
+
     @ 16 words is roughly the threshold when lwordset is slower
     cmp     r1, #64
     blt     .Lset_2_words
@@ -105,18 +102,17 @@ __ndsabi_lwordset4:
     strmib  r2, [r0], #1
     bx      lr
 
-    .global __ndsabi_memset1
-    .type __ndsabi_memset, %function
-__ndsabi_memset1:
+
+BEGIN_ASM_FUNC __ndsabi_memset1
+
     subs    r1, r1, #1
     strgeb  r2, [r0], #1
     bgt     __ndsabi_memset1
     bx      lr
 
-    .section .text.memset, "ax", %progbits
-    .global memset
-    .type memset, %function
-memset:
+
+BEGIN_ASM_FUNC memset
+
     mov     r3, r1
     mov     r1, r2
     mov     r2, r3

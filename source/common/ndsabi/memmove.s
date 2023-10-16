@@ -7,44 +7,37 @@
 // Standard:
 //    memmove
 
-    .arm
-    .align 2
+#include <nds/asminc.h>
 
-    .section .text.__aeabi_memmove, "ax", %progbits
-    .global __aeabi_memmove
-    .type __aeabi_memmove, %function
-__aeabi_memmove:
+    .syntax unified
+
+    .arm
+
+
+BEGIN_ASM_FUNC __aeabi_memmove
+
     cmp     r0, r1
-    .extern __ndsabi_rmemcpy
     bgt     __ndsabi_rmemcpy
-    .extern __aeabi_memcpy
     b       __aeabi_memcpy
 
-    .global __aeabi_memmove8
-    .type __aeabi_memmove8, %function
-__aeabi_memmove8:
-    .global __aeabi_memmove4
-    .type __aeabi_memmove4, %function
-__aeabi_memmove4:
+
+BEGIN_ASM_FUNC __aeabi_memmove8
+BEGIN_ASM_FUNC __aeabi_memmove4
+
     cmp     r0, r1
-    .extern __ndsabi_rmemcpy
     bgt     __ndsabi_rmemcpy
-    .extern __aeabi_memcpy4
     b       __aeabi_memcpy4
 
-    .global __ndsabi_memmove1
-    .type __ndsabi_memmove1, %function
-__ndsabi_memmove1:
+
+BEGIN_ASM_FUNC __ndsabi_memmove1
+
     cmp     r0, r1
-    .extern __ndsabi_rmemcpy1
     bgt     __ndsabi_rmemcpy1
-    .extern __ndsabi_memcpy1
     b       __ndsabi_memcpy1
 
-    .section .text.memmove, "ax", %progbits
-    .global memmove
-    .type memmove, %function
-memmove:
+
+BEGIN_ASM_FUNC memmove
+
     push    {r0, lr}
     bl      __aeabi_memmove
     pop     {r0, lr}

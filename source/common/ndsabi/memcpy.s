@@ -9,15 +9,18 @@
 // Support:
 //    __ndsabi_memcpy2, __ndsabi_memcpy1
 
+#include <nds/asminc.h>
+
 #include "macros.inc"
 
-    .arm
-    .align 2
+    .syntax unified
 
-    .section .text.__aeabi_memcpy, "ax", %progbits
-    .global __aeabi_memcpy
-    .type __aeabi_memcpy, %function
-__aeabi_memcpy:
+    .arm
+
+
+
+BEGIN_ASM_FUNC __aeabi_memcpy
+
     @ >6-bytes is roughly the threshold when byte-by-byte copy is slower
     cmp     r2, #6
     ble     __ndsabi_memcpy1
@@ -40,12 +43,10 @@ __aeabi_memcpy:
     subcs   r2, r2, #2
     @ r0, r1 are now word aligned
 
-    .global __aeabi_memcpy8
-    .type __aeabi_memcpy8, %function
-__aeabi_memcpy8:
-    .global __aeabi_memcpy4
-    .type __aeabi_memcpy4, %function
-__aeabi_memcpy4:
+
+BEGIN_ASM_FUNC __aeabi_memcpy8
+BEGIN_ASM_FUNC __aeabi_memcpy4
+
     cmp     r2, #32
     blt     .Lcopy_words
 
@@ -91,9 +92,9 @@ __aeabi_memcpy4:
     subne   r2, r2, #1
     @ r0, r1 are now half aligned
 
-    .global __ndsabi_memcpy2
-    .type __ndsabi_memcpy2, %function
-__ndsabi_memcpy2:
+
+BEGIN_ASM_FUNC __ndsabi_memcpy2
+
     subs    r2, r2, #2
     ldrgeh  r3, [r1], #2
     strgeh  r3, [r0], #2
@@ -106,19 +107,18 @@ __ndsabi_memcpy2:
     strneb  r3, [r0]
     bx      lr
 
-    .global __ndsabi_memcpy1
-    .type __ndsabi_memcpy1, %function
-__ndsabi_memcpy1:
+
+BEGIN_ASM_FUNC __ndsabi_memcpy1
+
     subs    r2, r2, #1
     ldrgeb  r3, [r1], #1
     strgeb  r3, [r0], #1
     bgt     __ndsabi_memcpy1
     bx      lr
 
-    .section .text.memcpy, "ax", %progbits
-    .global memcpy
-    .type memcpy, %function
-memcpy:
+
+BEGIN_ASM_FUNC memcpy
+
     push    {r0, lr}
     bl      __aeabi_memcpy
     pop     {r0, lr}

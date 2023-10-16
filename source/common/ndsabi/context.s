@@ -5,6 +5,10 @@
 // POSIX:
 //    getcontext, setcontext, swapcontext
 
+#include <nds/asminc.h>
+
+    .syntax unified
+
 .set OFF_MCONTEXT,  16
 .set OFF_REG_R0,    OFF_MCONTEXT + 0
 .set OFF_REG_R1,    OFF_MCONTEXT + 4
@@ -15,12 +19,10 @@
 .set OFF_REG_CPSR,  OFF_MCONTEXT + 64
 
     .arm
-    .align 2
 
-    .section .text.getcontext, "ax", %progbits
-    .global getcontext
-    .type getcontext, %function
-getcontext:
+
+BEGIN_ASM_FUNC getcontext
+
     @ Save r0
     str     r0, [r0, #OFF_REG_R0]
 
@@ -46,10 +48,9 @@ getcontext:
 .Lbx_lr:
     bx      lr
 
-    .section .text.setcontext, "ax", %progbits
-    .global setcontext
-    .type setcontext, %function
-setcontext:
+
+BEGIN_ASM_FUNC setcontext
+
     @ Enter target mode (IRQ disabled, ARM mode forced)
     ldr     r2, [r0, #OFF_REG_CPSR]
     orr     r1, r2, #0x80
@@ -80,10 +81,9 @@ setcontext:
     @ pc = undef lr, cpsr = undef spsr
     movs    pc, lr
 
-    .section .text.swapcontext, "ax", %progbits
-    .global swapcontext
-    .type swapcontext, %function
-swapcontext:
+
+BEGIN_ASM_FUNC swapcontext
+
     push    {r0-r1, lr}
     bl      getcontext
     pop     {r0-r1, lr}

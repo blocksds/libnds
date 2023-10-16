@@ -5,15 +5,17 @@
 // Support:
 //    __ndsabi_rmemcpy, __ndsabi_rmemcpy1
 
+#include <nds/asminc.h>
+
 #include "macros.inc"
 
-    .arm
-    .align 2
+    .syntax unified
 
-    .section .text.__ndsabi_rmemcpy, "ax", %progbits
-    .global __ndsabi_rmemcpy
-    .type __ndsabi_rmemcpy, %function
-__ndsabi_rmemcpy:
+    .arm
+
+
+BEGIN_ASM_FUNC __ndsabi_rmemcpy
+
     @ >6-bytes is roughly the threshold when byte-by-byte copy is slower
     cmp     r2, #6
     ble     __ndsabi_rmemcpy1
@@ -93,9 +95,9 @@ __ndsabi_rmemcpy:
     strb    r3, [r0]
     bx      lr
 
-    .global __ndsabi_rmemcpy1
-    .type __ndsabi_rmemcpy1, %function
-__ndsabi_rmemcpy1:
+
+BEGIN_ASM_FUNC __ndsabi_rmemcpy1
+
     subs    r2, r2, #1
     ldrgeb  r3, [r1, r2]
     strgeb  r3, [r0, r2]

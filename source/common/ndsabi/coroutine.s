@@ -5,13 +5,15 @@
 // Support:
 //    __ndsabi_coro_resume, __ndsabi_coro_yield, __ndsabi_coro_pop
 
-    .arm
-    .align 2
+#include <nds/asminc.h>
 
-    .section .text.__ndsabi_coro_resume, "ax", %progbits
-    .global __ndsabi_coro_resume
-    .type __ndsabi_coro_resume, %function
-__ndsabi_coro_resume:
+    .syntax unified
+
+    .arm
+
+
+BEGIN_ASM_FUNC __ndsabi_coro_resume
+
     push    {r4-r11, lr}
     mov     r1, sp
 
@@ -21,10 +23,9 @@ __ndsabi_coro_resume:
 
     bx      lr
 
-    .section .text.__ndsabi_coro_yield, "ax", %progbits
-    .global __ndsabi_coro_yield
-    .type __ndsabi_coro_yield, %function
-__ndsabi_coro_yield:
+
+BEGIN_ASM_FUNC __ndsabi_coro_yield
+
     push    {r4-r11, lr}
     mov     r2, sp
 
@@ -36,10 +37,9 @@ __ndsabi_coro_yield:
     mov     r0, r1
     bx      lr
 
-    .section .text.__ndsabi_coro_pop, "ax", %progbits
-    .global __ndsabi_coro_pop
-    .type __ndsabi_coro_pop, %function
-__ndsabi_coro_pop:
+
+BEGIN_ASM_FUNC __ndsabi_coro_pop
+
     ldr     r1, [r0, #4] // Load argument
 
     ldr     r2, [sp, #4] // Load entrypoint
@@ -65,10 +65,9 @@ __ndsabi_coro_pop:
 
     bx      lr
 
-    .section .text.__ndsabi_coro_pop_noctx, "ax", %progbits
-    .global __ndsabi_coro_pop_noctx
-    .type __ndsabi_coro_pop_noctx, %function
-__ndsabi_coro_pop_noctx:
+
+BEGIN_ASM_FUNC __ndsabi_coro_pop_noctx
+
     ldr     r0, [r0, #4] // Load argument
 
     ldr     r2, [sp, #4] // Load entrypoint
