@@ -10,7 +10,7 @@
 
     .text
     .thumb
-    .align
+
 
 // no$gba debug output function
 // params = { string, length }
