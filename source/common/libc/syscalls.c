@@ -61,8 +61,13 @@ int gettimeofday(struct timeval *tp, void *tz)
 
     if (tp != NULL)
     {
+#ifdef ARM9
         tp->tv_sec = *punixTime;
         tp->tv_usec = 0;
+#else
+        tp->tv_sec = __transferRegion()->unixTime;
+        tp->tv_usec = 0;
+#endif
     }
 
     return 0;

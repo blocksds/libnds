@@ -23,10 +23,14 @@ void *sbrk(int incr)
 
     if (heap_start == 0)
     {
+#ifdef ARM9
         if (fake_heap_start == NULL)
             heap_start = end;
         else
             heap_start = (uintptr_t)fake_heap_start;
+#else
+        heap_start = end;
+#endif
     }
 
     // Current limit
