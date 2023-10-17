@@ -237,8 +237,11 @@ void resyncClock(void)
     __transferRegion()->unixTime = __mktime(&dstime);
 }
 
-static void initClockInternal(void)
+void initClockIRQ(void)
 {
+    REG_RCNT = 0x8100;
+    irqSet(IRQ_RTC, syncRTC);
+
     // Reset the clock if needed
     rtcReset();
 
@@ -264,18 +267,14 @@ static void initClockInternal(void)
     resyncClock();
 }
 
-void initClockIRQ(void)
-{
-    REG_RCNT = 0x8100;
-    irqSet(IRQ_RTC, syncRTC);
-
-    initClockInternal();
-}
-
 void initClockIRQTimer(int timer)
 {
+    // Reset the clock if needed
+    rtcReset();
+
+    // Read all time settings on first start
+    resyncClock();
+
     // Setup a timer that triggers an interrupt once per second
     timerStart(timer, ClockDivider_1024, TIMER_FREQ_1024(1), syncRTC);
-
-    initClockInternal();
 }
