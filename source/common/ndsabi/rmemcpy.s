@@ -28,14 +28,14 @@ BEGIN_ASM_FUNC __ndsabi_rmemcpy
 
     @ Copy byte tail to align
     submi   r2, r2, #1
-    ldrmib  r3, [r1, r2]
-    strmib  r3, [r0, r2]
+    ldrbmi  r3, [r1, r2]
+    strbmi  r3, [r0, r2]
     @ r2 is now half aligned
 
     @ Copy half tail to align
     subcs   r2, r2, #2
-    ldrcsh  r3, [r1, r2]
-    strcsh  r3, [r0, r2]
+    ldrhcs  r3, [r1, r2]
+    strhcs  r3, [r0, r2]
     @ r2 is now word aligned
 
     cmp     r2, #32
@@ -47,8 +47,8 @@ BEGIN_ASM_FUNC __ndsabi_rmemcpy
     add     r1, r1, r2
 .Lloop_32:
     subs    r2, r2, #32
-    ldmgedb r1!, {r3-r10}
-    stmgedb r0!, {r3-r10}
+    ldmdbge r1!, {r3-r10}
+    stmdbge r0!, {r3-r10}
     bgt     .Lloop_32
     pop     {r0-r1, r4-r10}
     bxeq    lr
@@ -67,11 +67,11 @@ BEGIN_ASM_FUNC __ndsabi_rmemcpy
     joaobapt_test_into r3, r2
     @ Copy half
     addcs   r2, r2, #2
-    ldrcsh  r3, [r1, r2]
-    strcsh  r3, [r0, r2]
+    ldrhcs  r3, [r1, r2]
+    strhcs  r3, [r0, r2]
     @ Copy byte
-    ldrmib  r3, [r1]
-    strmib  r3, [r0]
+    ldrbmi  r3, [r1]
+    strbmi  r3, [r0]
     bx      lr
 
 .Lcopy_halves:
@@ -79,14 +79,14 @@ BEGIN_ASM_FUNC __ndsabi_rmemcpy
     add     r3, r0, r2
     tst     r3, #1
     subne   r2, r2, #1
-    ldrneb  r3, [r1, r2]
-    strneb  r3, [r0, r2]
+    ldrbne  r3, [r1, r2]
+    strbne  r3, [r0, r2]
     @ r2 is now half aligned
 
 .Lloop_2:
     subs    r2, r2, #2
-    ldrgeh  r3, [r1, r2]
-    strgeh  r3, [r0, r2]
+    ldrhge  r3, [r1, r2]
+    strhge  r3, [r0, r2]
     bgt     .Lloop_2
     bxeq    lr
 
@@ -99,7 +99,7 @@ BEGIN_ASM_FUNC __ndsabi_rmemcpy
 BEGIN_ASM_FUNC __ndsabi_rmemcpy1
 
     subs    r2, r2, #1
-    ldrgeb  r3, [r1, r2]
-    strgeb  r3, [r0, r2]
+    ldrbge  r3, [r1, r2]
+    strbge  r3, [r0, r2]
     bgt     __ndsabi_rmemcpy1
     bx      lr
