@@ -370,7 +370,7 @@ void resyncClock(void)
     __transferRegion()->unixTime = __mktime(&dstime);
 }
 
-void initClockIRQ(void)
+__attribute__((deprecated)) void initClockIRQ(void)
 {
     REG_RCNT = 0x8100;
     irqSet(IRQ_RTC, syncRTC);
