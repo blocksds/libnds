@@ -104,8 +104,6 @@ void rtcSetTime(uint8_t *time);
 void rtcGetTimeAndDate(uint8_t *time);
 void rtcSetTimeAndDate(uint8_t *time);
 
-void rtcGetData(uint8_t *data, uint32_t size);
-
 void BCDToInteger(uint8_t *data, uint32_t length);
 void integerToBCD(uint8_t *data, uint32_t length);
 
