@@ -229,6 +229,139 @@ static time_t __mktime(RTCtime *dstime)
                     + (unsigned long)(60 * minutes + seconds));
 }
 
+static bool __is_valid_time_date(rtcTimeAndDate *rtc)
+{
+    if (rtc->year > 99)
+        return false;
+
+    if ((rtc->month < 1) || (rtc->month > 12))
+        return false;
+
+    const uint8_t numdays[12] = {
+        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
+    uint32_t days = numdays[rtc->month - 1];
+
+    if ((rtc->month == 2) && leap(2000 + (uint32_t)rtc->year))
+        days++;
+
+    if ((rtc->day < 1) || (rtc->day > days))
+        return false;
+
+    // TODO: Check weekday? Is this even used by the firmware or games?
+
+    if (rtc->hours > 23)
+        return false;
+
+    if (rtc->minutes > 59)
+        return false;
+
+    if (rtc->seconds > 59)
+        return false;
+
+    return true;
+}
+
+static bool __is_valid_time(rtcTime *rtc)
+{
+    if (rtc->hours > 23)
+        return false;
+
+    if (rtc->minutes > 59)
+        return false;
+
+    if (rtc->seconds > 59)
+        return false;
+
+    return true;
+}
+
+void rtcTimeGet(rtcTime *rtc)
+{
+    uint8_t command, status, response[3];
+
+    command = READ_TIME;
+    rtcTransaction(&command, 1, response, 3);
+
+    command = READ_STATUS_REG1;
+    rtcTransaction(&command, 1, &status, 1);
+
+    if (status & STATUS_24HRS)
+        response[0] &= 0x3f;
+
+    BCDToInteger(response, 3);
+
+    rtc->hours = response[0];
+    rtc->minutes = response[1];
+    rtc->seconds = response[2];
+}
+
+int rtcTimeSet(rtcTime *rtc)
+{
+    if (!__is_valid_time(rtc))
+        return -1;
+
+    uint8_t command[4] = {
+        WRITE_TIME,
+        rtc->hours,
+        rtc->minutes,
+        rtc->seconds
+    };
+
+    integerToBCD(&command[1], 3);
+
+    rtcTransaction(command, 4, 0, 0);
+
+    return 0;
+}
+
+void rtcTimeAndDateGet(rtcTimeAndDate *rtc)
+{
+    uint8_t command, status, response[7];
+
+    command = READ_TIME_AND_DATE;
+    rtcTransaction(&command, 1, response, 7);
+
+    command = READ_STATUS_REG1;
+    rtcTransaction(&command, 1, &status, 1);
+
+    if (status & STATUS_24HRS)
+        response[4] &= 0x3f;
+
+    BCDToInteger(response, 7);
+
+    rtc->year = response[0];
+    rtc->month = response[1];
+    rtc->day = response[2];
+    rtc->weekday = response[3];
+    rtc->hours = response[4];
+    rtc->minutes = response[5];
+    rtc->seconds = response[6];
+}
+
+int rtcTimeAndDateSet(rtcTimeAndDate *rtc)
+{
+    if (!__is_valid_time_date(rtc))
+        return -1;
+
+    uint8_t command[8] = {
+        WRITE_TIME_AND_DATE,
+        rtc->year,
+        rtc->month,
+        rtc->day,
+        rtc->weekday,
+        rtc->hours,
+        rtc->minutes,
+        rtc->seconds
+    };
+
+    integerToBCD(&command[1], 7);
+
+    rtcTransaction(command, 8, 0, 0);
+
+    return 0;
+}
+
 void resyncClock(void)
 {
     RTCtime dstime;

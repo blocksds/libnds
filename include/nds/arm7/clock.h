@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 #include <nds/arm7/serial.h>
+#include <nds/system.h>
 
 // RTC registers
 #define WRITE_STATUS_REG1   0x60
@@ -120,6 +121,37 @@ __attribute__((deprecated)) void initClockIRQ(void);
 /// @param timer Timer index to use.
 void initClockIRQTimer(int timer);
 
+/// Fills the provided rtcTime structure with the current time.
+///
+/// @param rtc Pointer to the rtcTime struct to fill.
+void rtcTimeGet(rtcTime *rtc);
+
+/// Sets the current time to the provided rtcTime structure.
+///
+/// A returned value of 0 doesn't mean that the RTC registers were updated
+/// correctly, only that the checks previous to writing the RTC registers
+/// passed.
+///
+/// @param rtc Pointer to the rtcTime struct with the new time.
+/// @return If the provided values were valid, it returns 0, else -1.
+int rtcTimeSet(rtcTime *rtc);
+
+/// Fills the provided rtcTimeAndDate structure with the current time and date.
+///
+/// @param rtc Pointer to the rtcTimeAndDate struct to fill.
+void rtcTimeAndDateGet(rtcTimeAndDate *rtc);
+
+/// Saves the current time and date to the provided rtcTimeAndDate structure.
+///
+/// A returned value of 0 doesn't mean that the RTC registers were updated
+/// correctly, only that the checks previous to writing the RTC registers
+/// passed.
+///
+/// @param rtc Pointer to the rtcTimeAndDate struct with the new time and date.
+/// @return If the provided values were valid, it returns 0, else -1.
+int rtcTimeAndDateSet(rtcTimeAndDate *rtc);
+
+/// Reads RTC registers and updates the internal time of libnds.
 void resyncClock(void);
 
 #ifdef __cplusplus
