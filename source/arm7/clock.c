@@ -208,7 +208,7 @@ static const short ydays[] = {
 /* Length of month `m' (0 .. 11) */
 #define monthlen(m, y) (ydays[(m) + 1] - ydays[m] + leapday(m, y))
 
-static time_t __mktime(RTCtime *dstime)
+static time_t __mktime(rtcTimeAndDate *dstime)
 {
     int years, months, days, hours, minutes, seconds;
 
@@ -364,8 +364,8 @@ int rtcTimeAndDateSet(rtcTimeAndDate *rtc)
 
 void resyncClock(void)
 {
-    RTCtime dstime;
-    rtcGetTimeAndDate((uint8_t *)&dstime);
+    rtcTimeAndDate dstime;
+    rtcTimeAndDateGet(&dstime);
 
     __transferRegion()->unixTime = __mktime(&dstime);
 }
