@@ -24,18 +24,18 @@ typedef struct aes_keyslot {
 #define AES_WRFIFO_FLUSH        (1 << 10)
 #define AES_RDFIFO_FLUSH        (1 << 11)
 
-#define AES_CNT_DMA_WRITE_SIZE(size) ((size & 3) << 12)
-#define AES_CNT_DMA_READ_SIZE(size)  ((size & 3) << 14)
+#define AES_CNT_DMA_WRITE_SIZE(size) (((size) & 3) << 12)
+#define AES_CNT_DMA_READ_SIZE(size)  (((size) & 3) << 14)
 
-#define AES_CNT_CCM_SIZE(size)       ((size & 3) << 16)
+#define AES_CNT_CCM_SIZE(size)       (((size) & 3) << 16)
 
 #define AES_CCM_PASSTRHOUGH     (1 << 19)
 
 #define AES_CNT_KEY_APPLY       (1 << 24)
 
-#define AES_CNT_KEYSLOT(slot)   ((slot & 3) << 26)
+#define AES_CNT_KEYSLOT(slot)   (((slot) & 3) << 26)
 
-#define AES_CNT_MODE(mode)      ((mode & 3) << 28)
+#define AES_CNT_MODE(mode)      (((mode) & 3) << 28)
 
 #define AES_CNT_IRQ             (1 << 30)
 
