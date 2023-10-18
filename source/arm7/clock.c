@@ -186,7 +186,7 @@ void rtcSetTime(uint8_t *time)
     rtcTransaction(command, 4, 0, 0);
 }
 
-void syncRTC(void)
+static void syncRTC(void)
 {
     __transferRegion()->unixTime++;
 }
