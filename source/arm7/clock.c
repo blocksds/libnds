@@ -3,6 +3,7 @@
 // Copyright (C) 2005 Michael Noland (Joat)
 // Copyright (C) 2005 Jason Rogers (Dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #include <time.h>
 

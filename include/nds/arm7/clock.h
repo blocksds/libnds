@@ -3,8 +3,7 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
-
-// ARM7 realtime clock
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_ARM7_CLOCK_H__
 #define LIBNDS_NDS_ARM7_CLOCK_H__
