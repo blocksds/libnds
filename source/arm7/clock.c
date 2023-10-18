@@ -129,7 +129,7 @@ void rtcReset(void)
     }
 }
 
-void rtcGetTimeAndDate(uint8_t *time)
+__attribute__((deprecated)) void rtcGetTimeAndDate(uint8_t *time)
 {
     uint8_t command, status;
 
@@ -145,7 +145,7 @@ void rtcGetTimeAndDate(uint8_t *time)
     BCDToInteger(time, 7);
 }
 
-void rtcSetTimeAndDate(uint8_t *time)
+__attribute__((deprecated)) void rtcSetTimeAndDate(uint8_t *time)
 {
     uint8_t command[8];
 
@@ -158,7 +158,7 @@ void rtcSetTimeAndDate(uint8_t *time)
     rtcTransaction(command, 8, 0, 0);
 }
 
-void rtcGetTime(uint8_t *time)
+__attribute__((deprecated)) void rtcGetTime(uint8_t *time)
 {
     uint8_t command, status;
 
@@ -173,7 +173,7 @@ void rtcGetTime(uint8_t *time)
     BCDToInteger(time, 3);
 }
 
-void rtcSetTime(uint8_t *time)
+__attribute__((deprecated)) void rtcSetTime(uint8_t *time)
 {
     uint8_t command[4];
 
