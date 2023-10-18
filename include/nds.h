@@ -72,6 +72,10 @@
 /// - @ref nds/arm9/ndsmotion.h "DS Motion Pack"
 /// - @ref nds/arm9/piano.h "DS Easy Piano Controller"
 ///
+/// @section arm7 ARM7 modules
+/// - @ref nds/arm7/clock.h "RTC utilities"
+/// - @ref nds/arm7/input.h "Keypad and touch pad ARM7 helpers"
+///
 /// @section debug_api Debugging
 /// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"
 /// - @ref nds/debug.h "Send message to NO$GBA"
