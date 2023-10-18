@@ -9,9 +9,7 @@
 #ifndef LIBNDS_NDS_ARM9_TRIG_LUT_H__
 #define LIBNDS_NDS_ARM9_TRIG_LUT_H__
 
-#include <nds/ndstypes.h>
-
-/// @file trig_lut.h
+/// @file nds/arm9/trig_lut.h
 ///
 /// @brief Fixed point trig functions. Angle can be in the range of -32768 to
 /// 32767. There are 32768 degrees in the unit circle used by nds. To convert
@@ -30,6 +28,8 @@
 /// This unit of measure is sometimes refered to as a binary radian (brad) or
 /// binary degree. It allows for more precise representation of angle and faster
 /// calculation as the DS has no floating point processor.
+
+#include <nds/ndstypes.h>
 
 #ifdef __cplusplus
 extern "C" {

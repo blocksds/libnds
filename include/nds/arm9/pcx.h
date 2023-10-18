@@ -3,7 +3,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file pcx.h
+/// @file nds/arm9/pcx.h
 ///
 /// @brief A simple 256 color pcx file loader.
 

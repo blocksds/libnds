@@ -7,7 +7,7 @@
 #ifndef LIBNDS_NDS_CARD_H__
 #define LIBNDS_NDS_CARD_H__
 
-/// @file card.h
+/// @file nds/card.h
 ///
 /// @brief Slot-1 card commands.
 

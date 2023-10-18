@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2016 Dave Murphy (WinterMute)
 
-/// @file cache.h
+/// @file nds/arm9/cache.h
 ///
 /// @brief ARM9 cache defines.
 

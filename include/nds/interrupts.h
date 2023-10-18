@@ -5,7 +5,7 @@
 
 // Interrupt registers and vector pointers
 
-/// @file interrupts.h
+/// @file nds/interrupts.h
 ///
 /// @brief nds interrupt support.
 

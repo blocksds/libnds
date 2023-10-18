@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2007 Gabe Ghearing (gabebear)
 
-/// @file postest.h
+/// @file nds/arm9/postest.h
 ///
 /// @brief Position Test Functions.
 ///

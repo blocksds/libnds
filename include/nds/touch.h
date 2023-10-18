@@ -9,7 +9,7 @@
 
 #include <nds/ndstypes.h>
 
-/// @file touch.h
+/// @file nds/touch.h
 ///
 /// @brief Contains a struct with touch screen data.
 

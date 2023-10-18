@@ -4,7 +4,7 @@
 
 // A simple linked list data structure
 
-/// @file
+/// @file nds/arm9/linkedlist.h
 ///
 /// @brief A simple doubly linked, unsorted list implementation.
 

@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
-/// @file decompress.h
+/// @file nds/arm9/decompress.h
 ///
 /// @brief Wraps the bios decompress functionality into something a bit easier
 /// to use.

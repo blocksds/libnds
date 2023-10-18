@@ -4,7 +4,7 @@
 // Copyright (C) 2013 Jason Rogers (dovoto)
 // Copyright (C) 2013 Dave Murphy (WinterMute)
 
-/// @file sassert.h
+/// @file nds/arm9/sassert.h
 ///
 /// @brief Simple assertion with a message that disappears if NDEBUG is defined.
 

@@ -3,7 +3,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file image.h
+/// @file nds/arm9/image.h
 ///
 /// @brief An image abstraction for working with image data.
 ///

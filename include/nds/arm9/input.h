@@ -8,7 +8,7 @@
 #ifndef LIBNDS_NDS_ARM9_INPUT_H__
 #define LIBNDS_NDS_ARM9_INPUT_H__
 
-/// @file
+/// @file nds/arm9/input.h
 ///
 /// @brief NDS button and touchscreen input support.
 ///

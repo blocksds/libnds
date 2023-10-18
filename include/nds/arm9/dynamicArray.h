@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
-/// @file dynamicArray.h
+/// @file nds/arm9/dynamicArray.h
 ///
 /// @brief A dynamically resizing array for general use.
 

@@ -9,7 +9,7 @@
 #ifndef LIBNDS_NDS_BIOS_H__
 #define LIBNDS_NDS_BIOS_H__
 
-/// @file bios.h
+/// @file nds/bios.h
 ///
 /// @brief Nintendo DS BIOS functions
 ///

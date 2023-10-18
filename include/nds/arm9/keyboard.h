@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2007 Jason Rogers (dovoto)
 
-/// @file keyboard.h
+/// @file nds/arm9/keyboard.h
 ///
 /// @brief Integration of stdin with a simple keyboard.
 ///

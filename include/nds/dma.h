@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (c) 2023 Antonio Niño Díaz
 
-/// @file dma.h
+/// @file nds/dma.h
 ///
 /// @brief Wrapper functions for direct memory access hardware.
 ///

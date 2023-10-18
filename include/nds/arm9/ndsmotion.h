@@ -5,7 +5,7 @@
 // Copyright (C) 2007 Dave Murphy (WinterMute)
 // Copyright (C) 2007 Keith Epstein (KeithE)
 
-/// @file ndsmotion.h
+/// @file nds/arm9/ndsmotion.h
 ///
 /// @brief DS Motion Card/DS Motion Pak functionality
 ///

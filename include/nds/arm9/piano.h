@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2011 Tobias Weyand (0xtob)
 
-/// @file piano.h
+/// @file nds/arm9/piano.h
 ///
 /// @brief NDS Easy Piano option pack support.
 

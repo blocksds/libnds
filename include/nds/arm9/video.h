@@ -4,7 +4,7 @@
 // Copyright (C) 2005-2011 Jason Rogers (Dovoto)
 // Copyright (C) 2005-2011 Dave Murphy (WinterMute)
 
-/// @file video.h
+/// @file nds/arm9/video.h
 ///
 /// @brief Contains the basic defnitions for controlling the video hardware.
 ///

@@ -3,7 +3,7 @@
 // Copyright (C) 2011 zeromus
 // Copyright (C) 2011 Dave Murphy (WinterMute)
 
-/// @file guitarGrip.h
+/// @file nds/arm9/guitarGrip.h
 ///
 /// @brief guitar grip device slot-2 addon support.
 

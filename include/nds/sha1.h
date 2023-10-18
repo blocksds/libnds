@@ -4,7 +4,7 @@
 
 // DSi sha1 functions
 
-/// @file sha1.h
+/// @file nds/sha1.h
 ///
 /// @brief DSi SHA1 functions.
 

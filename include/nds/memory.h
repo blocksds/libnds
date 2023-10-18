@@ -5,7 +5,7 @@
 
 // Declaration of memory regions
 
-/// @file memory.h
+/// @file nds/memory.h
 ///
 /// @brief Defines for many of the regions of memory on the DS as well as a few
 /// control functions for memory bus access.

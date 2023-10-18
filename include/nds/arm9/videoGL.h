@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file videoGL.h
+/// @file nds/arm9/videoGL.h
 ///
 /// @brief Video API vaguely similar to OpenGL
 ///

@@ -5,7 +5,7 @@
 #ifndef LIBNDS_NDS_ARM9_SOUND_H__
 #define LIBNDS_NDS_ARM9_SOUND_H__
 
-/// @file sound.h
+/// @file nds/arm9/sound.h
 ///
 /// @brief A simple sound playback library for the DS.
 ///

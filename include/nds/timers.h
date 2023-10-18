@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file timers.h
+/// @file nds/timers.h
 ///
 /// @brief Contains defines, macros and functions for ARM7 and ARM9 timer
 /// operation.

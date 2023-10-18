@@ -6,7 +6,7 @@
 #ifndef LIBNDS_NDS_ARM9_WINDOW_H__
 #define LIBNDS_NDS_ARM9_WINDOW_H__
 
-/// @file window.h
+/// @file nds/arm9/window.h
 ///
 /// @brief Definitions for object and background windowing.
 

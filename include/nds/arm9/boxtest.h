@@ -13,7 +13,7 @@
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
 
-/// @file boxtest.h
+/// @file nds/arm9/boxtest.h
 ///
 /// @brief 3D box test dunctions.
 

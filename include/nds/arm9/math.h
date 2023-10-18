@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file math.h
+/// @file nds/arm9/math.h
 ///
 /// @brief hardware coprocessor math instructions.
 

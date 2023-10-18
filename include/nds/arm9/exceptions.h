@@ -5,15 +5,15 @@
 #ifndef LIBNDS_NDS_ARM9_EXCEPTIONS_H__
 #define LIBNDS_NDS_ARM9_EXCEPTIONS_H__
 
-#include <nds/cpu.h>
-#include <nds/ndstypes.h>
-
-/// @file exceptions.h
+/// @file nds/arm9/exceptions.h
 ///
 /// @brief Functions to handle hardware exceptions.
 ///
 /// Check https://www.problemkaputt.de/gbatek.htm#biosramusage for more
 /// information.
+
+#include <nds/cpu.h>
+#include <nds/ndstypes.h>
 
 /// NDS9 BIOS debug exception vector, or 0 for no handler (mirror)
 #define EXCEPTION_VECTOR    (*(VoidFn *)(0x2FFFD9C))

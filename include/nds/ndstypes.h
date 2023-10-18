@@ -7,7 +7,7 @@
 
 // Common types (and a few useful macros)
 
-/// @file ndstypes.h
+/// @file nds/ndstypes.h
 ///
 /// @brief Custom types employed by libnds
 

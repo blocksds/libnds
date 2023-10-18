@@ -7,7 +7,7 @@
 #ifndef LIBNDS_NDS_NDMA_H__
 #define LIBNDS_NDS_NDMA_H__
 
-/// @file ndma.h
+/// @file nds/ndma.h
 ///
 /// @brief NDMA helpers.
 

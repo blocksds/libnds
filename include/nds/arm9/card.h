@@ -5,7 +5,7 @@
 #ifndef LIBNDS_NDS_ARM9_CARD_H__
 #define LIBNDS_NDS_ARM9_CARD_H__
 
-/// @file card.h
+/// @file nds/arm9/card.h
 ///
 /// @brief Slot-1 read functions.
 

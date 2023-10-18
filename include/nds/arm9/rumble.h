@@ -5,7 +5,7 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2005 Mike Parks (BigRedPimp)
 
-/// @file rumble.h
+/// @file nds/arm9/rumble.h
 ///
 /// @brief NDS rumble option pak support.
 

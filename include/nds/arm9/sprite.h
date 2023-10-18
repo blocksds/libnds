@@ -3,7 +3,7 @@
 // Copyright (C) 2007 Liran Nuna (LiraNuna)
 // Copyright (C) 2007 Dave Murphy (WinterMute)
 
-/// @file sprite.h
+/// @file nds/arm9/sprite.h
 ///
 /// @brief NDS sprite helpers.
 

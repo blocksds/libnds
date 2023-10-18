@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file paddle.h
+/// @file nds/arm9/paddle.h
 ///
 /// @brief Paddle device slot-2 addon support.
 

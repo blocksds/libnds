@@ -5,7 +5,7 @@
 
 // Power control, keys, and HV clock registers
 
-/// @file system.h
+/// @file nds/system.h
 ///
 /// @brief NDS hardware definitions.
 ///

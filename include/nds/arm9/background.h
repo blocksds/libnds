@@ -3,7 +3,7 @@
 // Copyright (C) 2007 Jason Rogers (dovoto)
 // Copyright (C) 2007 Dave Murphy (WinterMute)
 
-/// @file background.h
+/// @file nds/arm9/background.h
 ///
 /// @brief NDS background defines and functionality.
 ///

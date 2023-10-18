@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-/// @file cache.h
+/// @file nds/arm9/cache.h
 ///
 /// @brief ARM9 cache control functions.
 

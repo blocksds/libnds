@@ -14,7 +14,7 @@ extern "C" {
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 
-/// @file fifocommon.h
+/// @file nds/fifocommon.h
 ///
 /// @brief Low level FIFO API.
 

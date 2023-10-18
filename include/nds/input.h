@@ -8,7 +8,7 @@
 
 #include <nds/ndstypes.h>
 
-/// @file input.h
+/// @file nds/input.h
 ///
 /// @brief common values for keypad input.
 ///

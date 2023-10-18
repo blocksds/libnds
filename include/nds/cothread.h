@@ -5,7 +5,7 @@
 #ifndef LIBNDS_NDS_COTHREAD_H__
 #define LIBNDS_NDS_COTHREAD_H__
 
-/// @file cothread.h
+/// @file nds/cothread.h
 ///
 /// @brief Cooperative multithreading system
 ///

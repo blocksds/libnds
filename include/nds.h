@@ -14,69 +14,69 @@
 /// Welcome to the libnds reference documentation.
 ///
 /// @section video_2D_api 2D engine API
-/// - @ref video.h "General video"
-/// - @ref background.h "2D Background Layers"
-/// - @ref sprite.h "2D Sprites"
+/// - @ref nds/arm9/video.h "General video"
+/// - @ref nds/arm9/background.h "2D Background Layers"
+/// - @ref nds/arm9/sprite.h "2D Sprites"
 ///
 /// @section video_3D_api 3D engine API
-/// - @ref videoGL.h "OpenGL (ish)"
-/// - @ref boxtest.h "Box Test"
-/// - @ref postest.h "Position test"
+/// - @ref nds/arm9/videoGL.h "OpenGL (ish)"
+/// - @ref nds/arm9/boxtest.h "Box Test"
+/// - @ref nds/arm9/postest.h "Position test"
 /// - @ref gl2d.h "Simple DS 2D rendering using the 3d core"
 ///
 /// @section audio_api Audio API
-/// - @ref sound.h "Simple Sound Engine"
+/// - @ref nds/arm9/sound.h "Simple Sound Engine"
 /// - <a href="https://maxmod.devkitpro.org/ref">Maxmod</a>
 ///
 /// @section math_api Math
-/// - @ref math.h "Hardware Assisted Math"
-/// - @ref trig_lut.h "Fixed point trigenometry functions"
+/// - @ref nds/arm9/math.h "Hardware Assisted Math"
+/// - @ref nds/arm9/trig_lut.h "Fixed point trigenometry functions"
 ///
 /// @section memory_api Memory
-/// - @ref memory.h "General memory definitions"
-/// - @ref memory.h "NDS and GBA header structure"
-/// - @ref dma.h "Direct Memory Access"
-/// - @ref ndma.h "DSi New Direct Memory Access"
+/// - @ref nds/memory.h "General memory definitions"
+/// - @ref nds/memory.h "NDS and GBA header structure"
+/// - @ref nds/dma.h "Direct Memory Access"
+/// - @ref nds/ndma.h "DSi New Direct Memory Access"
 ///
 /// @section filesystem_api Storage Access
-/// - @ref card.h "Slot-1 access functions"
+/// - @ref nds/card.h "Slot-1 access functions"
 /// - @ref fat.h "Simple replacement of libfat"
 /// - @ref filesystem.h "NitroFAT, filesystem embedded in a NDS ROM"
 ///
 /// @section system_api System
-/// - @ref ndstypes.h "Custom DS types"
-/// - @ref system.h "Hardware Initilization"
-/// - @ref bios.h "Bios"
-/// - @ref cache.h "ARM 9 Cache"
-/// - @ref interrupts.h "Interrupts"
-/// - @ref fifocommon.h "FIFO"
-/// - @ref timers.h "Timers"
+/// - @ref nds/ndstypes.h "Custom DS types"
+/// - @ref nds/system.h "Hardware Initilization"
+/// - @ref nds/bios.h "Bios"
+/// - @ref nds/arm9/cache.h "ARM9 Cache"
+/// - @ref nds/interrupts.h "Interrupts"
+/// - @ref nds/fifocommon.h "FIFO"
+/// - @ref nds/timers.h "Timers"
 ///
 /// @section multithreading_api Multithreading
-/// - @ref cothread.h "Cooperative multithreading"
+/// - @ref nds/cothread.h "Cooperative multithreading"
 ///
 /// @section user_io_api User Input/ouput
-/// - @ref arm9/input.h "Keypad and Touch pad"
-/// - @ref keyboard.h "Keyboard"
-/// - @ref console.h "Console and Debug Printing"
+/// - @ref nds/arm9/input.h "Keypad and touch pad"
+/// - @ref nds/arm9/keyboard.h "Keyboard"
+/// - @ref nds/arm9/console.h "Console and Debug Printing"
 ///
 /// @section utility_api Utility
-/// - @ref decompress.h "Decompression"
-/// - @ref image.h "Image Manipulation"
-/// - @ref pcx.h "PCX file loader"
-/// - @ref dynamicArray.h "General Purpose dynamic array implementation"
-/// - @ref linkedlist.h "General purpose linked list implementation"
+/// - @ref nds/arm9/decompress.h "Decompression"
+/// - @ref nds/arm9/image.h "Image Manipulation"
+/// - @ref nds/arm9/pcx.h "PCX file loader"
+/// - @ref nds/arm9/dynamicArray.h "General Purpose dynamic array implementation"
+/// - @ref nds/arm9/linkedlist.h "General purpose linked list implementation"
 ///
 /// @section peripheral_api Custom Peripherals
-/// - @ref rumble.h "Rumble Pack"
-/// - @ref ndsmotion.h "DS Motion Pack"
-/// - @ref piano.h "DS Easy Piano Controller"
+/// - @ref nds/arm9/rumble.h "Rumble Pack"
+/// - @ref nds/arm9/ndsmotion.h "DS Motion Pack"
+/// - @ref nds/arm9/piano.h "DS Easy Piano Controller"
 ///
 /// @section debug_api Debugging
-/// - @ref console.h "Debug via printf to DS screen or NO$GBA"
-/// - @ref debug.h "Send message to NO$GBA"
-/// - @ref sassert.h "Simple assert"
-/// - @ref exceptions.h "ARM9 exception handler"
+/// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"
+/// - @ref nds/debug.h "Send message to NO$GBA"
+/// - @ref nds/arm9/sassert.h "Simple assert"
+/// - @ref nds/arm9/exceptions.h "ARM9 exception handler"
 
 #ifndef LIBNDS_NDS_H__
 #define LIBNDS_NDS_H__

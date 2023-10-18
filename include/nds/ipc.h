@@ -11,7 +11,7 @@
 
 #include <nds/ndstypes.h>
 
-/// Synchronization register
+// Synchronization register
 #define REG_IPC_SYNC (*(vuint16 *)0x04000180)
 
 enum IPC_SYNC_BITS {
