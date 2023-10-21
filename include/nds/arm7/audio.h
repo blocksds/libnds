@@ -3,11 +3,16 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (c) 2023 Antonio Niño Díaz
 
 // ARM7 audio control
 
 #ifndef LIBNDS_NDS_ARM7_AUDIO_H__
 #define LIBNDS_NDS_ARM7_AUDIO_H__
+
+/// @file nds/arm7/audio.h
+///
+/// @brief Functions to use the audio channels and microphone from the ARM7.
 
 #ifndef ARM7
 #error Audio is only available on the ARM7
@@ -86,48 +91,65 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 #define MICCNT_ENABLE_IRQ2      BIT(14)
 #define MICCNT_ENABLE           BIT(15)
 
-// Microphone code based on neimod's microphone example.
-//
-// See: http://neimod.com/dstek/
-// Chris Double (chris.double@double.co.nz)
-// http://www.double.co.nz/nintendo_ds
-
-// Read a byte from the microphone
-
+/// Read a 8-bit value from the microphone.
+///
+/// @return The 8 bit value.
 u8 micReadData8(void);
+
+/// Read a 12-bit value from the microphone.
+///
+/// @return The 12 bit value.
 u16 micReadData12(void);
 
-
-// Fill the buffer with data from the microphone. The buffer will be signed
-// sound data at 16kHz. Once the length of the buffer is reached, no more data
-// will be stored. Uses the specified ARM7 timer.
+/// Start recording data from the microphone.
+///
+/// Fills the buffer with data from the microphone. The buffer will be signed
+/// sound data at 16 kHz. Once the length of the buffer is reached, no more
+/// data will be stored. It uses the specified ARM7 timer.
+///
+/// @param buffer Destination buffer.
+/// @param length Destination buffer length in bytes.a
+/// @param freq Frequency of the recording.
+/// @param timer Hardware timer to use to get samples from the microphone.
+/// @param eightBitSample Set to true to record 8 bit samples instead of 12 bit.
+/// @param bufferSwapCallback Callback called whenver the buffer is filled.
 void micStartRecording(u8 *buffer, int length, int freq, int timer,
                        bool eightBitSample, MIC_BUF_SWAP_CB bufferSwapCallback);
 
-
-// Stop recording data, and return the length of data recorded.
+/// Stop recording data, and return the length of data recorded.
+///
+/// @return Returns the length in bytes.
 int micStopRecording(void);
 
-// This must be called during IRQ_TIMER0
+/// Routine that must be called from a timer interrupt to get samples from the
+/// microphone.
 void micTimerHandler(void);
 
+/// Turn amplifier on or off and set the gain in db.
+///
+/// @param control Use PM_AMP_ON or PM_AMP_OFF.
+/// @param gain Use one of PM_GAIN_20, PM_GAIN_40, PM_GAIN_80 or PM_GAIN_160.
 void micSetAmp(u8 control, u8 gain);
 
-// Turn the microphone ON
+/// Turn the microphone ON.
 static inline void micOn(void)
 {
     micSetAmp(PM_AMP_ON, PM_GAIN_160);
 }
 
-// Turn the microphone OFF
+/// Turn the microphone OFF.
 static inline void micOff(void)
 {
     micSetAmp(PM_AMP_OFF, 0);
 }
 
+/// Enable sound hardware and clear sound registers.
 void enableSound(void);
+
+/// Disable sound hardware.
 void disableSound(void);
 
+/// Install the libnds sound FIFO handler.
 void installSoundFIFO(void);
 
 #ifdef __cplusplus

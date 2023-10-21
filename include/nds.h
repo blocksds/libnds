@@ -3,6 +3,7 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (c) 2023 Antonio Niño Díaz
 
 /// @file nds.h
 ///
@@ -75,6 +76,7 @@
 /// @section arm7 ARM7 modules
 /// - @ref nds/arm7/clock.h "RTC utilities"
 /// - @ref nds/arm7/input.h "Keypad and touch pad ARM7 helpers"
+/// - @ref nds/arm7/audio.h "Audio and microphone helpers"
 ///
 /// @section debug_api Debugging
 /// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"

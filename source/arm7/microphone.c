@@ -11,6 +11,12 @@
 #include <nds/interrupts.h>
 #include <nds/timers.h>
 
+// Microphone code based on neimod's microphone example.
+//
+// See: http://neimod.com/dstek/
+// Chris Double (chris.double@double.co.nz)
+// http://www.double.co.nz/nintendo_ds
+
 void micSetAmp_TWL(u8 control, u8 gain);
 u16 micReadData16_TWL(void);
 
