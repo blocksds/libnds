@@ -457,11 +457,49 @@ void resetARM9(u32 address);
 
 // DSi SCFG registers
 
-#define REG_SCFG_ROM            *(vu16 *)0x4004000
-#define REG_SCFG_CLK            *(vu16 *)0x4004004
-#define REG_SCFG_RST            *(vu16 *)0x4004006
-#define REG_SCFG_EXT            *(vu32 *)0x4004008
-#define REG_SCFG_MC             *(vu16 *)0x4004010
+// SCFG_xxROM
+// ==========
+
+#define REG_SCFG_ROM            (*(vu16 *)0x4004000)
+
+#ifdef ARM7
+#define REG_SCFG_A9ROM          (*(vu8 *)0x4004000)
+#define REG_SCFG_A7ROM          (*(vu8 *)0x4004001)
+#endif // ARM7
+
+// SCFG_CLK
+// ========
+
+#define REG_SCFG_CLK            (*(vu16 *)0x4004004)
+
+#ifdef ARM9
+#define SCFG_CLK_ARM9_TWL       BIT(0)
+#define SCFG_CLK_DSP            BIT(1)
+#define SCFG_CLK_CAMERA_IF      BIT(2)
+#define SCFG_CLK_NWRAM          BIT(7) // Read only, set by ARM7
+#define SCFG_CLK_CAMERA_EXT     BIT(8)
+#endif // ARM9
+
+#ifdef ARM7
+#define SCFG_CLK_SDMMC          BIT(0)
+#define SCFG_CLK_NWRAM          BIT(7)
+#define SCFG_CLK_TOUCH          BIT(8)
+#endif // ARM7
+
+// SCFG_RST
+// ========
+
+#define REG_SCFG_RST            (*(vu16 *)0x4004006)
+
+#ifdef ARM9
+#define SCFG_RST_DSP_APPLY      (0 << 0)
+#define SCFG_RST_DSP_RELEASE    (1 << 0)
+#endif // ARM9
+
+// SCFG_MC
+// =======
+
+#define REG_SCFG_MC             (*(vu16 *)0x4004010)
 
 #define SCFG_MC_EJECTED         0x01
 #define SCFG_MC_PWR_MASK        0x0C
@@ -470,14 +508,31 @@ void resetARM9(u32 address);
 #define SCFG_MC_PWR_ON          0x08
 #define SCFG_MC_PWR_REQUEST_OFF 0x0C
 
+// SCFG_EXT
+// ========
+
+#define REG_SCFG_EXT            (*(vu32 *)0x4004008)
+
+#ifdef ARM9
+#define SCFG_EXT_DMA            BIT(0)
+#define SCFG_EXT_GEOMETRY       BIT(1)
+#define SCFG_EXT_RENDERER       BIT(2)
+#define SCFG_EXT_2D             BIT(3)
+#define SCFG_EXT_DIVIDER        BIT(4)
+#define SCFG_EXT_CARD           BIT(7)
+#define SCFG_EXT_INTERRUPT      BIT(8)
+#define SCFG_EXT_LCD            BIT(12)
+#define SCFG_EXT_VRAM           BIT(13)
+#define SCFG_EXT_RAM_DEBUG      BIT(14)
+#define SCFG_EXT_RAM_TWL        BIT(15)
+#define SCFG_EXT_NDMA           BIT(16)
+#define SCFG_EXT_CAMERA         BIT(17)
+#define SCFG_EXT_DSP            BIT(18)
+#define SCFG_EXT_MBK_RAM        BIT(25)
+#define SCFG_EXT_SCFG_MBK_REG   BIT(31)
+#endif // ARM9
+
 #ifdef ARM7
-#define REG_SCFG_A9ROM          *(vu8 *)0x4004000
-#define REG_SCFG_A7ROM          *(vu8 *)0x4004001
-
-#define SCFG_CLK_SDMMC          BIT(0)
-#define SCFG_CLK_MBK_RAM        BIT(7)
-#define SCFG_CLK_TOUCH          BIT(8)
-
 #define SCFG_EXT_DMA            BIT(0)
 #define SCFG_EXT_SOUND_DMA      BIT(1)
 #define SCFG_EXT_SOUND          BIT(2)
@@ -500,32 +555,5 @@ void resetARM9(u32 address);
 #define SCFG_EXT_MBK_RAM        BIT(25)
 #define SCFG_EXT_SCFG_MBK_REG   BIT(31)
 #endif // ARM7
-
-#ifdef ARM9
-#define SCFG_CLK_ARM9_TWL       BIT(0)
-#define SCFG_CLK_DSP            BIT(1)
-#define SCFG_CLK_CAMERA_IF      BIT(2)
-#define SCFG_CLK_MBK_RAM        BIT(7)
-#define SCFG_CLK_CAMERA_EXT     BIT(8)
-
-#define SCFG_RST_DSP            BIT(0)
-
-#define SCFG_EXT_DMA            BIT(0)
-#define SCFG_EXT_GEOMETRY       BIT(1)
-#define SCFG_EXT_RENDERER       BIT(2)
-#define SCFG_EXT_2D             BIT(3)
-#define SCFG_EXT_DIVIDER        BIT(4)
-#define SCFG_EXT_CARD           BIT(7)
-#define SCFG_EXT_INTERRUPT      BIT(8)
-#define SCFG_EXT_LCD            BIT(12)
-#define SCFG_EXT_VRAM           BIT(13)
-#define SCFG_EXT_RAM_DEBUG      BIT(14)
-#define SCFG_EXT_RAM_TWL        BIT(15)
-#define SCFG_EXT_NDMA           BIT(16)
-#define SCFG_EXT_CAMERA         BIT(17)
-#define SCFG_EXT_DSP            BIT(18)
-#define SCFG_EXT_MBK_RAM        BIT(25)
-#define SCFG_EXT_SCFG_MBK_REG   BIT(31)
-#endif // ARM9
 
 #endif // LIBNDS_NDS_SYSTEM_H__
