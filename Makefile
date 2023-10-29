@@ -31,9 +31,9 @@ endif
 # Targets
 # -------
 
-.PHONY: all arm7 arm9 clean docs install
+.PHONY: all arm7 arm9 teak clean docs install
 
-all: $(VERSION_HEADER) arm9 arm7
+all: $(VERSION_HEADER) arm9 arm7 teak
 
 $(VERSION_HEADER): Makefile
 	@echo "#ifndef LIBNDS_NDS_LIBVERSION_H__" > $@
@@ -54,6 +54,10 @@ arm9:
 arm7:
 	@+$(MAKE) -f Makefile.arm7 --no-print-directory
 	@+$(MAKE) -f Makefile.arm7 --no-print-directory DEBUG=1
+
+teak:
+	@+$(MAKE) -f Makefile.teak --no-print-directory
+	@+$(MAKE) -f Makefile.teak --no-print-directory DEBUG=1
 
 clean:
 	@echo "  CLEAN"
