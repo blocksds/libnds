@@ -57,7 +57,6 @@
 ///
 /// @param num 20.12 numerator.
 /// @param den 20.12 denominator.
-/// @return returns 20.12 result.
 static inline void divf32_asynch(int32_t num, int32_t den)
 {
     REG_DIVCNT = DIV_64_32;

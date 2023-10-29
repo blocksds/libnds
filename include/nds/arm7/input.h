@@ -21,7 +21,7 @@ extern "C" {
 ///
 /// Setting this value to 0 will suppress system sleep on lid closing.
 ///
-/// @Param frames The number of frames.
+/// @param frames The number of frames.
 void inputSetLidSleepDuration(u16 frames);
 
 /// Send ARM7-side input information (X, Y, touch, lid) to ARM9 via FIFO.
