@@ -38,6 +38,7 @@
 /// - @ref nds/memory.h "NDS and GBA header structure"
 /// - @ref nds/dma.h "Direct Memory Access"
 /// - @ref nds/ndma.h "DSi New Direct Memory Access"
+/// - @ref nds/nwram.h "DSi New WRAM"
 ///
 /// @section filesystem_api Storage Access
 /// - @ref nds/card.h "Slot-1 access functions"
@@ -112,6 +113,7 @@ extern "C" {
 #include <nds/memory.h>
 #include <nds/ndma.h>
 #include <nds/ndstypes.h>
+#include <nds/nwram.h>
 #include <nds/sha1.h>
 #include <nds/system.h>
 #include <nds/timers.h>

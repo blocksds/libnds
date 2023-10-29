@@ -49,15 +49,33 @@
 #define ARM7_OWNS_CARD                      EXMEMCNT_CARD_ARM7
 #define ARM7_OWNS_ROM                       EXMEMCNT_CART_ARM7
 
-#define REG_MBK1    ((vu8 *)0x04004040) // WRAM_A 0..3
-#define REG_MBK2    ((vu8 *)0x04004044) // WRAM_B 0..3
-#define REG_MBK3    ((vu8 *)0x04004048) // WRAM_B 4..7
-#define REG_MBK4    ((vu8 *)0x0400404C) // WRAM_C 0..3
-#define REG_MBK5    ((vu8 *)0x04004050) // WRAM_C 4..7
-#define REG_MBK6    (*(vu32 *)0x04004054)
-#define REG_MBK7    (*(vu32 *)0x04004058)
-#define REG_MBK8    (*(vu32 *)0x0400405C)
-#define REG_MBK9    (*(vu32 *)0x04004060)
+#define REG_MBK1                    ((vu8 *)0x04004040) // WRAM_A 0..3
+#define REG_MBK2                    ((vu8 *)0x04004044) // WRAM_B 0..3
+#define REG_MBK3                    ((vu8 *)0x04004048) // WRAM_B 4..7
+#define REG_MBK4                    ((vu8 *)0x0400404C) // WRAM_C 0..3
+#define REG_MBK5                    ((vu8 *)0x04004050) // WRAM_C 4..7
+#define REG_MBK6                    (*(vu32 *)0x04004054)
+
+#define MBK6_START_ADDR_MASK        0x00000FF0
+#define MBK6_START_ADDR_SHIFT       4
+#define MBK6_IMAGE_SIZE_SHIFT       12
+#define MBK6_END_ADDR_SHIFT         20
+
+#define REG_MBK7                    (*(vu32 *)0x04004058)
+
+#define MBK7_START_ADDR_MASK        0x00000FF8
+#define MBK7_START_ADDR_SHIFT       3
+#define MBK7_IMAGE_SIZE_SHIFT       12
+#define MBK7_END_ADDR_SHIFT         19
+
+#define REG_MBK8                    (*(vu32 *)0x0400405C)
+
+#define MBK8_START_ADDR_MASK        0x00000FF8
+#define MBK8_START_ADDR_SHIFT       3
+#define MBK8_IMAGE_SIZE_SHIFT       12
+#define MBK8_END_ADDR_SHIFT         19
+
+#define REG_MBK9                    (*(vu32 *)0x04004060)
 
 // Protection register (write-once sadly)
 #ifdef ARM7
