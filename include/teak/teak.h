@@ -6,8 +6,10 @@
 #ifndef LIBTEAK_TEAK_H__
 #define LIBTEAK_TEAK_H__
 
+#include <teak/ahbm.h>
 #include <teak/apbp.h>
 #include <teak/cpu.h>
+#include <teak/dma.h>
 #include <teak/icu.h>
 #include <teak/types.h>
 
