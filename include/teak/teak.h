@@ -11,4 +11,6 @@
 #include <teak/icu.h>
 #include <teak/types.h>
 
+void teakInit(void);
+
 #endif // LIBTEAK_TEAK_H__
