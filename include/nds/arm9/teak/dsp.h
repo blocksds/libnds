@@ -33,17 +33,16 @@
 
 #define DSP_PCFG_AUTOINC        (1 << 1)
 
-typedef enum
-{
-    DSP_PCFG_RLEN_1 = 0,
-    DSP_PCFG_RLEN_8 = 1,
-    DSP_PCFG_RLEN_16 = 2,
-    DSP_PCFG_RLEN_FREE = 3
-} DSP_PCFG_RLEN;
-
 #define DSP_PCFG_RLEN_SHIFT     2
 #define DSP_PCFG_RLEN_MASK      (3 << DSP_PCFG_RLEN_SHIFT)
-#define DSP_PCFG_RLEN(x)        ((x) << DSP_PCFG_RLEN_SHIFT)
+
+typedef enum
+{
+    DSP_PCFG_RLEN_1 = 0 << DSP_PCFG_RLEN_SHIFT,
+    DSP_PCFG_RLEN_8 = 1 << DSP_PCFG_RLEN_SHIFT,
+    DSP_PCFG_RLEN_16 = 2 << DSP_PCFG_RLEN_SHIFT,
+    DSP_PCFG_RLEN_FREE = 3 << DSP_PCFG_RLEN_SHIFT
+} DSP_PCFG_RLEN;
 
 #define DSP_PCFG_RSTART         (1 << 4)
 
@@ -53,16 +52,15 @@ typedef enum
 #define DSP_PCFG_IE_REP1        (1 << (DSP_PCFG_IE_REP_SHIFT + 1))
 #define DSP_PCFG_IE_REP2        (1 << (DSP_PCFG_IE_REP_SHIFT + 2))
 
-typedef enum
-{
-    DSP_PCFG_MEMSEL_DATA = 0,
-    DSP_PCFG_MEMSEL_MMIO = 1,
-    DSP_PCFG_MEMSEL_PROG = 5
-} DSP_PCFG_MEMSEL;
-
 #define DSP_PCFG_MEMSEL_SHIFT   12
 #define DSP_PCFG_MEMSEL_MASK    (0xF << DSP_PCFG_MEMSEL_SHIFT)
-#define DSP_PCFG_MEMSEL(x)      ((x) << DSP_PCFG_MEMSEL_SHIFT)
+
+typedef enum
+{
+    DSP_PCFG_MEMSEL_DATA = 0 << DSP_PCFG_MEMSEL_SHIFT,
+    DSP_PCFG_MEMSEL_MMIO = 1 << DSP_PCFG_MEMSEL_SHIFT,
+    DSP_PCFG_MEMSEL_PROG = 5 << DSP_PCFG_MEMSEL_SHIFT
+} DSP_PCFG_MEMSEL;
 
 /// DSP Status (R)
 #define REG_DSP_PSTS            (*(vu16 *)0x400430C)

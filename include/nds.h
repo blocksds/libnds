@@ -64,6 +64,7 @@
 ///
 /// @section dsp_api DSi Teak DSP Utilities
 /// - @ref nds/arm9/teak/dsp.h "DSP general utilities"
+/// - @ref nds/arm9/teak/fifo.h "DSP <-> ARM9 FIFO transfer utilities"
 /// - @ref nds/arm9/teak/tlf.h "TLF format description"
 ///
 /// @section utility_api Utility
@@ -151,6 +152,7 @@ extern "C" {
 #    include <nds/arm9/videoGL.h>
 #    include <nds/arm9/window.h>
 #    include <nds/arm9/teak/dsp.h>
+#    include <nds/arm9/teak/fifo.h>
 #    include <nds/arm9/teak/tlf.h>
 #endif // ARM9
 
