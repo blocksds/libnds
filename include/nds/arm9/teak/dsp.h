@@ -126,11 +126,22 @@ void dspPowerOff(void);
 ///
 /// The user must allocate NWRAM to the ARM9 before calling this function by
 /// using nwramSetBlockMapping(). Remember that the default MPU setup only
-/// allows mapping it to the range 0x03000000 - 0x03800000.
+/// allows mapping it to the range 0x03000000 - 0x03800000. If you prefer to use
+/// a sensible default mapping without doing it manually, use
+/// dspExecuteDefaultTLF() instead.
 ///
 /// @param tlf Pointer to the TLF data in RAM.
 /// @return true on success.
 bool dspExecuteTLF(const void *tlf);
+
+/// This sets up NWRAM, powers on the DSP, loads a TLF file and executes it.
+///
+/// This function uses a sensible default NWRAM mapping. If you prefer to define
+/// it manually, use dspExecuteTLF() instead.
+///
+/// @param tlf Pointer to the TLF data in RAM.
+/// @return true on success.
+bool dspExecuteDefaultTLF(const void *tlf);
 
 /// Sends data using one of the CMD registers.
 ///
