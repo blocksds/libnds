@@ -10,6 +10,7 @@
 
 #ifndef _SYS_DIRENT_H
 #define _SYS_DIRENT_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,6 +40,8 @@ struct dirent {
 typedef struct {
     // Private pointer to internal state of the directory.
     void    *dp;
+    // Type of the private pointer.
+    int     dptype;
     // Index of the current entry (for telldir() and seekdir()).
     int     index;
     // Allow one readdir for each opendir, and store the data here.

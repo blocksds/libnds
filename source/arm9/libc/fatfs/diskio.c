@@ -32,9 +32,7 @@
 #include <time.h>
 
 #include <nds/arm9/cache.h>
-#include <nds/arm9/card.h>
 #include <nds/arm9/dldi.h>
-#include <nds/card.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -45,9 +43,8 @@
 #include "cache.h"
 
 // Definitions of physical drive number for each drive
-#define DEV_DLDI    0 // DLDI driver (flashcard)
-#define DEV_SD      1 // SD slot of the DSi
-#define DEV_NITRO   2 // Filesystem included in NDS ROM
+#define DEV_DLDI    0x00 // DLDI driver (flashcard)
+#define DEV_SD      0x01 // SD slot of the DSi
 
 // Disk I/O behaviour configuration
 #define IO_CACHE_IGNORE_LARGE_READS 2
@@ -57,9 +54,6 @@
 
 static bool fs_initialized[FF_VOLUMES];
 static const DISC_INTERFACE *fs_io[FF_VOLUMES];
-
-static FILE *nitro_file;
-static uint32_t nitro_fat_offset;
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "This file assumes that the sector size is always the same".
@@ -76,7 +70,6 @@ DSTATUS disk_status(BYTE pdrv)
     {
         case DEV_DLDI:
         case DEV_SD:
-        case DEV_NITRO:
             return fs_initialized[pdrv] ? 0 : STA_NOINIT;
 
         default:
@@ -123,36 +116,6 @@ DSTATUS disk_initialize(BYTE pdrv)
                 return STA_NODISK;
 
             fs_io[pdrv] = io;
-            fs_initialized[pdrv] = true;
-
-            return 0;
-        }
-        case DEV_NITRO:
-        {
-            if (__NDSHeader->fatSize == 0)
-                return STA_NODISK;
-
-            nitro_fat_offset = __NDSHeader->fatOffset;
-
-            int argc = __system_argv->argc;
-            char **argv = __system_argv->argv;
-
-            // NitroFAT checks if the path of the NDS ROM has been passed in
-            // argv[0]. If not, it defaults to Slot-1 card commands.
-            //
-            // Out of all emulators I've tried only DeSmuMe fills the argv info
-
-            nitro_file = NULL; // Use card commands
-
-            if (argc > 0)
-            {
-                if (strlen(argv[0]) > 0)
-                {
-                    fatInitDefault();
-                    nitro_file = fopen(argv[0], "rb");
-                }
-            }
-
             fs_initialized[pdrv] = true;
 
             return 0;
@@ -217,66 +180,6 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 
             return RES_OK;
         }
-        case DEV_NITRO:
-        {
-            uint32_t offset = nitro_fat_offset + sector * FF_MAX_SS;
-            uint32_t size = count * FF_MAX_SS;
-
-            if (nitro_file != NULL)
-            {
-                // Only use the cache if NitroFAT is reading directly from the
-                // cartridge with card read commands. When reading from the
-                // filesystem, it is already cached in the other devices.
-
-                if (fseek(nitro_file, offset, SEEK_SET) != 0)
-                    return RES_ERROR;
-
-                if (fread(buff, 1, size, nitro_file) != size)
-                    return RES_ERROR;
-            }
-            else
-            {
-                extern bool nitrofat_reader_is_arm9;
-
-#ifdef IO_CACHE_IGNORE_LARGE_READS
-                if (count >= IO_CACHE_IGNORE_LARGE_READS)
-                {
-                    if (nitrofat_reader_is_arm9) // TODO: Is the 0 a bug?
-                        cardRead(buff, 0, count * FF_MAX_SS);
-                    else
-                        cardReadArm7(buff, 0, count * FF_MAX_SS);
-
-                    return RES_OK;
-                }
-#endif
-                while (count > 0)
-                {
-                    void *cache = cache_sector_get(pdrv, sector);
-                    if (cache != NULL)
-                    {
-                        memcpy(buff, cache, FF_MAX_SS);
-                    }
-                    else
-                    {
-                        void *cache = cache_sector_add(pdrv, sector);
-
-                        if (nitrofat_reader_is_arm9)
-                            cardRead(cache, offset, FF_MAX_SS);
-                        else
-                            cardReadArm7(cache, offset, FF_MAX_SS);
-
-                        memcpy(buff, cache, FF_MAX_SS);
-                    }
-
-                    count--;
-                    sector++;
-                    offset += FF_MAX_SS;
-                    buff += FF_MAX_SS;
-                }
-            }
-
-            return RES_OK;
-        }
     }
 
     return RES_PARERR;
@@ -335,11 +238,6 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 
             return RES_OK;
         }
-        case DEV_NITRO:
-        {
-            // This filesystem is read-only
-            return RES_WRPRT;
-        }
     }
 
     return RES_PARERR;
@@ -371,7 +269,6 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
     {
         case DEV_DLDI:
         case DEV_SD:
-        case DEV_NITRO:
             // This command flushes the cache, but there is no cache right now
             if (cmd == CTRL_SYNC)
                 return RES_OK;

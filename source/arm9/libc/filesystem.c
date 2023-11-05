@@ -3,6 +3,7 @@
 // Copyright (c) 2023 Antonio Niño Díaz
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/fcntl.h>
@@ -14,6 +15,10 @@
 
 #include "fatfs/ff.h"
 #include "fatfs_internal.h"
+#include "filesystem_internal.h"
+#include "nitrofs_internal.h"
+
+bool current_drive_is_nitrofs = false;
 
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib and picolibc:
@@ -67,6 +72,16 @@ int open(const char *path, int flags, ...)
         default:
             errno = EINVAL;
             return -1;
+    }
+
+    if (nitrofs_use_for_path(path))
+    {
+        if (can_write)
+        {
+            errno = EACCES;
+            return -1;
+        }
+        return nitrofs_open(path);
     }
 
     if (can_write)
@@ -124,6 +139,9 @@ ssize_t read(int fd, void *ptr, size_t len)
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
 
+    if (FD_IS_NITRO(fd))
+        return nitrofs_read(fd, ptr, len);
+
     FIL *fp = (FIL *)fd;
     UINT bytes_read = 0;
 
@@ -141,6 +159,12 @@ ssize_t write(int fd, const void *ptr, size_t len)
     // This isn't handled here
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
+
+    if (FD_IS_NITRO(fd))
+    {
+        errno = EINVAL;
+        return -1;
+    }
 
     FIL *fp = (FIL *)fd;
     UINT bytes_written = 0;
@@ -160,6 +184,9 @@ int close(int fd)
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
 
+    if (FD_IS_NITRO(fd))
+        return nitrofs_close(fd);
+
     FIL *fp = (FIL *)fd;
 
     FRESULT result = f_close(fp);
@@ -178,6 +205,9 @@ off_t lseek(int fd, off_t offset, int whence)
     // This isn't handled here
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
+
+    if (FD_IS_NITRO(fd))
+        return nitrofs_lseek(fd, offset, whence);
 
     FIL *fp = (FIL *)fd;
 
@@ -241,6 +271,9 @@ int rmdir(const char *name)
 
 int stat(const char *path, struct stat *st)
 {
+    if (nitrofs_use_for_path(path))
+        return nitrofs_stat(path, st);
+
     FILINFO fno = { 0 };
     FRESULT result = f_stat(path, &fno);
 
@@ -290,6 +323,9 @@ int fstat(int fd, struct stat *st)
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
 
+    if (FD_IS_NITRO(fd))
+        return nitrofs_fstat(fd, st);
+
     FIL *fp = (FIL *)fd;
 
     st->st_size = fp->obj.objsize;
@@ -300,14 +336,12 @@ int fstat(int fd, struct stat *st)
     st->st_blksize = FF_MAX_SS;
     st->st_blocks = (fp->obj.objsize + FF_MAX_SS - 1) / FF_MAX_SS;
 
-    st->st_mode = (fp->obj.attr & AM_DIR) ?
-                   S_IFDIR : // Directory
-                   S_IFREG;  // Regular file
+    // An open file will never be anything but a regular file.
+    st->st_mode = S_IFREG;
 
     // TODO: FatFS does not allow running f_stat() on an open file. While some
     // information can be gathered from the open file structure, the timestamp
     // is not among them, so it is not available via fstat().
-
     time_t time = 0;
     st->st_atim.tv_sec = time; // Time of last access
     st->st_mtim.tv_sec = time; // Time of last modification
@@ -554,6 +588,16 @@ int fchownat(int dir_fd, const char *path, uid_t owner, gid_t group, int flags)
 
 int access(const char *path, int amode)
 {
+    if (nitrofs_use_for_path(path))
+    {
+        if ((amode & W_OK) || (nitrofs_path_resolve(path) < 0))
+        {
+            errno = EACCES;
+            return -1;
+        }
+        return 0;
+    }
+
     FILINFO fno = { 0 };
     FRESULT result = f_stat(path, &fno);
     if (result != FR_OK)
