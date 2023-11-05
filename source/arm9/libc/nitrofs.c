@@ -133,6 +133,7 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
 
     nitrofs_read_internal(&fnt_entry, nitrofs_local.fnt_offset + ((dir - 0xF000) * 8), sizeof(fnt_entry));
     state->offset = nitrofs_local.fnt_offset + fnt_entry.offset;
+    state->sector_offset = 0;
     state->position = 0;
     state->file_index = fnt_entry.first_file;
     state->dir_opened = dir;
@@ -160,12 +161,13 @@ static bool nitrofs_dir_state_next(nitrofs_dir_state_t *state)
     if (type)
     {
         length = (type & 0x7F) + (type & 0x80 ? 3 : 1);
-        if ((state->position + length) >= 512)
+        if ((state->position - state->sector_offset + length) >= 512)
         {
             uint32_t shift = state->position & ~3;
-            uint32_t next_sector_offset = 512 - shift;
+            uint32_t next_sector_offset = (512 + state->sector_offset) - shift;
             memcpy(state->buffer, state->buffer + shift, next_sector_offset);
             state->offset += 512;
+            state->sector_offset = next_sector_offset;
             nitrofs_read_internal(state->buffer + next_sector_offset, state->offset, 512);
             state->position &= 3;
         }

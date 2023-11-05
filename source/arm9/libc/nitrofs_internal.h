@@ -36,7 +36,9 @@ typedef struct
     // card offset
     uint32_t offset;
     // buffer position
-    uint32_t position;
+    uint16_t position;
+    // offset of last read sector
+    uint16_t sector_offset;
     // file index
     uint16_t file_index;
     // dir opened
