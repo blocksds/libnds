@@ -557,9 +557,11 @@ bool nitroFSInit(const char *basepath)
             basepath = NULL;
     }
 
-    // Read FNT/FAT offset from file
-    // (this may be a different file than the loaded .nds)
+    // Read FNT/FAT offset
+    memset(nitrofs_info, 0, sizeof(nitrofs_info));
     nitrofs_read_internal(nitrofs_info, 0x40, sizeof(nitrofs_info));
+    if (!(nitrofs_info[0] >= 0x200 && nitrofs_info[2] >= 0x200))
+        return false;
     nitrofs_local.fnt_offset = nitrofs_info[0];
     nitrofs_local.fat_offset = nitrofs_info[2];
     
