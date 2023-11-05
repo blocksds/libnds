@@ -456,6 +456,7 @@ static int nitrofs_open_by_id(nitrofs_file_t *fp, uint16_t id)
     }
     nitrofs_read_internal(fp, nitrofs_local.fat_offset + (id * 8), 8);
     fp->position = fp->offset;
+    fp->file_index = id;
     return 0;
 }
 
@@ -485,6 +486,7 @@ int nitrofs_open(const char *name)
 
 static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 {
+    st->st_ino = fp->file_index;
     st->st_size = fp->endofs - fp->offset;
     st->st_blksize = NDS_CARD_BLOCK_SIZE;
     st->st_blocks = (st->st_size + NDS_CARD_BLOCK_SIZE - 1) / NDS_CARD_BLOCK_SIZE;
@@ -504,6 +506,7 @@ int nitrofs_stat(const char *name, struct stat *st)
     }
     else if (res >= 0xF000)
     {
+        st->st_ino = res;
         st->st_size = 0;
         st->st_mode = S_IFDIR;
         return 0;

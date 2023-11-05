@@ -27,6 +27,7 @@ typedef struct {
     uint32_t offset;
     uint32_t endofs;
     uint32_t position;
+    uint16_t file_index;
 } nitrofs_file_t;
 
 typedef struct
