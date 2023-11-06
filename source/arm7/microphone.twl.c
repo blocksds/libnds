@@ -10,6 +10,8 @@
 #include <nds/fifocommon.h>
 #include <nds/timers.h>
 
+#define MIC_READ_TIMEOUT 200
+
 void micSetAmp_TWL(u8 control, u8 gain)
 {
     static const u8 gaintbl[] = { 0x1F, 0x2B, 0x37, 0x43 };
@@ -35,17 +37,17 @@ void micSetAmp_TWL(u8 control, u8 gain)
     }
 }
 
-u16 micReadData16_TWL(void)
+s16 micReadData16_TWL(void)
 {
-    u16 data = 0x8000;
+    s16 data = 0;
     int timeout = 0;
 
     REG_MICCNT &= ~MICCNT_ENABLE;
-    REG_MICCNT &= ~((3 << 13) | 0xF);
+    REG_MICCNT &= ~(MICCNT_ENABLE_IRQ | MICCNT_ENABLE_IRQ2 | MICCNT_FORMAT_MASK | MICCNT_FREQ_DIV_MASK);
     REG_MICCNT |= MICCNT_CLEAR_FIFO | MICCNT_FORMAT(2);
     REG_MICCNT |= MICCNT_ENABLE;
 
-    while (timeout++ < 200)
+    while (timeout++ < MIC_READ_TIMEOUT)
     {
         if (!(REG_MICCNT & MICCNT_EMPTY))
         {
@@ -54,5 +56,5 @@ u16 micReadData16_TWL(void)
         }
     }
 
-    return data ^ 0x8000; // convert to unsigned
+    return data;
 }

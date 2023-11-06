@@ -80,8 +80,10 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 #define SNDEXTCNT_ENABLE        BIT(15)
 
 #define MICCNT_FORMAT(n)        ((n) & 3) // Unknown, always set to '2'
+#define MICCNT_FORMAT_MASK      (3)
 // F / (n + 1) where F is SNDEXTCNT output freq
 #define MICCNT_FREQ_DIV(n)      (((n) & 3) << 2)
+#define MICCNT_FREQ_DIV_MASK    (3 << 2)
 #define MICCNT_EMPTY            BIT(8)
 #define MICCNT_NOT_EMPTY        BIT(9)
 #define MICCNT_MORE_DATA        BIT(10)
@@ -91,15 +93,20 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 #define MICCNT_ENABLE_IRQ2      BIT(14)
 #define MICCNT_ENABLE           BIT(15)
 
-/// Read a 8-bit value from the microphone.
+/// Read a 8-bit unsigned value from the microphone.
 ///
-/// @return The 8 bit value.
+/// @return The 8 bit unsigned value.
 u8 micReadData8(void);
 
-/// Read a 12-bit value from the microphone.
+/// Read a 12-bit unsigned value from the microphone.
 ///
 /// @return The 12 bit value.
 u16 micReadData12(void);
+
+/// Read a 16-bit signed value from the microphone.
+///
+/// @return The 16 bit signed value.
+s16 micReadData16(void);
 
 /// Start recording data from the microphone.
 ///
@@ -108,7 +115,7 @@ u16 micReadData12(void);
 /// data will be stored. It uses the specified ARM7 timer.
 ///
 /// @param buffer Destination buffer.
-/// @param length Destination buffer length in bytes.a
+/// @param length Destination buffer length in bytes.
 /// @param freq Frequency of the recording.
 /// @param timer Hardware timer to use to get samples from the microphone.
 /// @param eightBitSample Set to true to record 8 bit samples instead of 12 bit.
