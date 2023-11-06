@@ -20,9 +20,19 @@ extern "C" {
 #define REG_I2CDATA     (*(vu8 *)0x4004500)
 #define REG_I2CCNT      (*(vu8 *)0x4004501)
 
+#define I2CCNT_STOP       BIT(0)
+#define I2CCNT_START      BIT(1)
+#define I2CCNT_ERROR      BIT(2)
+#define I2CCNT_ACK        BIT(4)
+#define I2CCNT_WRITE      (0)
+#define I2CCNT_READ       BIT(5)
+#define I2CCNT_ENABLE_IRQ BIT(6)
+#define I2CCNT_ENABLE     BIT(7)
+#define I2CCNT_BUSY       BIT(7)
+
 static inline void i2cWaitBusy(void)
 {
-    while (REG_I2CCNT & 0x80);
+    while (REG_I2CCNT & I2CCNT_BUSY);
 }
 
 enum i2cDevices {

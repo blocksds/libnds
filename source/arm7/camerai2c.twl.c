@@ -30,7 +30,7 @@ enum i2cFlags
 
 u8 aptGetData(u8 flags)
 {
-    REG_I2CCNT = 0xC0 | flags;
+    REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | flags;
     i2cWaitBusy();
     return REG_I2CDATA;
 }
@@ -38,7 +38,7 @@ u8 aptGetData(u8 flags)
 u8 aptSetData(u8 data, u8 flags)
 {
     REG_I2CDATA = data;
-    REG_I2CCNT = 0xC0 | flags;
+    REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | flags;
     return i2cGetResult();
 }
 
@@ -46,7 +46,7 @@ u8 aptSelectDevice(u8 device, u8 flags)
 {
     i2cWaitBusy();
     REG_I2CDATA = device;
-    REG_I2CCNT = 0xC0 | flags;
+    REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | flags;
     return i2cGetResult();
 }
 
@@ -54,7 +54,7 @@ u8 aptSelectRegister(u8 reg, u8 flags)
 {
     i2cDelay();
     REG_I2CDATA = reg;
-    REG_I2CCNT = 0xC0 | flags;
+    REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | flags;
     return i2cGetResult();
 }
 
@@ -71,7 +71,7 @@ u8 aptI2cWrite(u8 device, u16 reg, u16 data)
             if (aptSetData(data >> 8, I2C_NONE) && aptSetData(data & 0xFF, I2C_STOP))
                 return 1;
         }
-        REG_I2CCNT = 0xC5;
+        REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_ERROR | I2CCNT_STOP;
     }
 
     return 0;
@@ -94,7 +94,7 @@ u16 aptI2cRead(u8 device, u16 reg)
             }
         }
 
-        REG_I2CCNT = 0xC5;
+        REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_ERROR | I2CCNT_STOP;
     }
 
     return 0xFFFF;

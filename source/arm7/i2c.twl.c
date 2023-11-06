@@ -19,13 +19,13 @@ void i2cStop(u8 arg0)
 {
     if (i2cCurrentDelay)
     {
-        REG_I2CCNT = (arg0 << 5) | 0xC0;
+        REG_I2CCNT = arg0 | I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ;
         i2cDelay();
-        REG_I2CCNT = 0xC5;
+        REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_ERROR | I2CCNT_STOP;
     }
     else
     {
-        REG_I2CCNT = (arg0 << 5) | 0xC1;
+        REG_I2CCNT = arg0 | I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_STOP;
     }
 }
 
@@ -53,7 +53,7 @@ u8 i2cSelectDevice(u8 device)
 {
     i2cWaitBusy();
     REG_I2CDATA = device;
-    REG_I2CCNT = 0xC2;
+    REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_START;
     return i2cGetResult();
 }
 
@@ -61,7 +61,7 @@ u8 i2cSelectRegister(u8 reg)
 {
     i2cDelay();
     REG_I2CDATA = reg;
-    REG_I2CCNT = 0xC0;
+    REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ;
     return i2cGetResult();
 }
 
@@ -75,11 +75,11 @@ u8 i2cWriteRegister(u8 device, u8 reg, u8 data)
         {
             i2cDelay();
             REG_I2CDATA = data;
-            i2cStop(0);
+            i2cStop(I2CCNT_WRITE);
             if (i2cGetResult() != 0)
                 return 1;
         }
-        REG_I2CCNT = 0xC5;
+        REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_STOP | I2CCNT_ERROR;
     }
 
     return 0;
@@ -97,12 +97,12 @@ u8 i2cReadRegister(u8 device, u8 reg)
             if (i2cSelectDevice(device | 1))
             {
                 i2cDelay();
-                i2cStop(1);
+                i2cStop(I2CCNT_READ);
                 return i2cGetData();
             }
         }
 
-        REG_I2CCNT = 0xC5;
+        REG_I2CCNT = I2CCNT_ENABLE | I2CCNT_ENABLE_IRQ | I2CCNT_STOP | I2CCNT_ERROR;
     }
 
     return 0xff;
