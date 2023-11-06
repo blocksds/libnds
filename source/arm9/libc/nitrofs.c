@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 
 #include <fat.h>
-#include <nds/arm9/card.h>
 #include <nds/card.h>
 #include <nds/memory.h>
 #include <nds/system.h>
@@ -35,7 +34,6 @@
 
 static bool nitrofs_initialized = false;
 static nitrofs_t nitrofs_local;
-bool nitrofs_reader_is_arm9 = false;
 
 #define MAX_NESTED_SUBDIRS 128
 
@@ -49,67 +47,6 @@ bool nitrofs_use_for_path(const char *path)
         return current_drive_is_nitrofs;
 }
 
-static void nitroFSRefreshBusOwner(void)
-{
-    int bus_owner = nitrofs_reader_is_arm9 ? BUS_OWNER_ARM9 : BUS_OWNER_ARM7;
-    sysSetBusOwners(bus_owner, bus_owner);
-}
-
-#define NDS_CARD_BLOCK_SIZE 0x200 // CARD_BLK_SIZE(1)
-
-void cardReadUnaligned(void *dest, size_t offset, size_t len)
-{
-    uint8_t buffer[NDS_CARD_BLOCK_SIZE] __attribute__((aligned(4)));
-    uint8_t *pc = dest;
-
-    while (len)
-    {
-        // are both the read offset and the destination buffer word-aligned?
-        if (!(offset & 3) && !(((uint32_t) pc) & 3) && len >= 4)
-        {
-            // fast direct read
-            if (nitrofs_reader_is_arm9)
-                cardRead(pc, offset, len & (~3));
-            else
-                cardReadArm7(pc, offset, len & (~3));
-            
-            pc += (len & (~3));
-            len &= 3;
-
-            if (!len) break;
-        }
-
-        // slow buffered read
-        size_t block_offset = (offset & 3); // offset from word alignment
-        size_t block_len = len;
-
-        // adjust offset to have word alignment
-        if (block_offset)
-        {
-            block_len += 4 - block_offset;
-            offset -= block_offset;
-        }
-
-        // adjust block_len to have word alignment
-        if (block_len > NDS_CARD_BLOCK_SIZE)
-            block_len = NDS_CARD_BLOCK_SIZE;
-        size_t block_len_aligned = (block_len + 3) & ~3;
-
-        // the length of data actually written to dest
-        size_t dest_block_len = block_len - block_offset;
-
-        if (nitrofs_reader_is_arm9)
-            cardRead(buffer, offset, block_len_aligned);
-        else
-            cardReadArm7(buffer, offset, block_len_aligned);
-
-        memcpy(pc, buffer + block_offset, dest_block_len);
-        offset += block_len;
-        pc += dest_block_len;
-        len -= dest_block_len;
-    }
-}
-
 static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
 {
     if (nitrofs_local.file)
@@ -119,8 +56,8 @@ static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
     }
     else
     {
-        nitroFSRefreshBusOwner();
-        cardReadUnaligned(ptr, offset, len);
+        sysSetCardOwner(true);
+        cardRead(ptr, offset, len);
         return len;
     }
 }
@@ -138,6 +75,13 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
     state->file_index = fnt_entry.first_file;
     state->dir_opened = dir;
     state->buffer[0] = 0;
+
+    if (nitrofs_local.file == NULL) {
+        // Card reads benefit from word-aligning table accesses.
+        state->position = state->offset & 3;
+        state->offset -= state->position;
+    }
+
     nitrofs_read_internal(state->buffer, state->offset, 512);
     return state->buffer[0] != 0;
 }
@@ -488,8 +432,8 @@ static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 {
     st->st_ino = fp->file_index;
     st->st_size = fp->endofs - fp->offset;
-    st->st_blksize = NDS_CARD_BLOCK_SIZE;
-    st->st_blocks = (st->st_size + NDS_CARD_BLOCK_SIZE - 1) / NDS_CARD_BLOCK_SIZE;
+    st->st_blksize = 0x200;
+    st->st_blocks = (st->st_size + 0x200 - 1) / 0x200;
     st->st_mode = S_IFREG;
 
     return 0;
@@ -541,8 +485,6 @@ void nitroFSExit(void)
 
 bool nitroFSInit(const char *basepath)
 {
-    uint32_t nitrofs_info[4];
-
     if (nitrofs_initialized)
         nitroFSExit();
 
@@ -563,12 +505,10 @@ bool nitroFSInit(const char *basepath)
     }
 
     // Read FNT/FAT offset
-    memset(nitrofs_info, 0, sizeof(nitrofs_info));
-    nitrofs_read_internal(nitrofs_info, 0x40, sizeof(nitrofs_info));
-    if (!(nitrofs_info[0] >= 0x200 && nitrofs_info[2] >= 0x200))
+    nitrofs_local.fnt_offset = __NDSHeader->filenameOffset;
+    nitrofs_local.fat_offset = __NDSHeader->fatOffset;
+    if (!(nitrofs_local.fnt_offset >= 0x200 && nitrofs_local.fat_offset >= 0x200))
         return false;
-    nitrofs_local.fnt_offset = nitrofs_info[0];
-    nitrofs_local.fat_offset = nitrofs_info[2];
     
     // Set "nitro:/" as default path
     current_drive_is_nitrofs = true;
@@ -577,11 +517,4 @@ bool nitroFSInit(const char *basepath)
     nitrofs_initialized = true;
 
     return true;
-}
-
-void nitroFSSetReaderCPU(bool use_arm9)
-{
-    nitrofs_reader_is_arm9 = use_arm9;
-
-    nitroFSRefreshBusOwner();
 }
