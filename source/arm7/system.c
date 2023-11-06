@@ -61,7 +61,7 @@ void powerValueHandler(u32 value, void *user_data)
             ie_save = REG_IE;
 
             // Turn the speaker down.
-            if (REG_POWERCNT & 1)
+            if (REG_POWERCNT & PM_SOUND_AMP)
                 swiChangeSoundBias(0, 0x400);
 
             // Save current power state.
@@ -86,7 +86,7 @@ void powerValueHandler(u32 value, void *user_data)
             writePowerManagement(PM_CONTROL_REG, power);
 
             // Turn the speaker up.
-            if (REG_POWERCNT & 1)
+            if (REG_POWERCNT & PM_SOUND_AMP)
                 swiChangeSoundBias(1, 0x400);
 
             // update clock tracking
