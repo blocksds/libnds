@@ -18,7 +18,7 @@
 // http://www.double.co.nz/nintendo_ds
 
 void micSetAmp_TWL(u8 control, u8 gain);
-u16 micReadData16_TWL(void);
+s16 micReadData16_TWL(void);
 
 // Turn on the Microphone Amp. Code based on neimod's example.
 void micSetAmp_NTR(u8 control, u8 gain)
@@ -118,7 +118,7 @@ u8 micReadData8(void)
     int oldIME = enterCriticalSection();
 
     if (cdcIsAvailable())
-        smp = micReadData16_TWL() >> 8;
+        smp = (micReadData16_TWL() >> 8) ^ 0x80;
     else
         smp = micReadData8_NTR();
 
@@ -132,9 +132,23 @@ u16 micReadData12(void)
     int oldIME = enterCriticalSection();
 
     if (cdcIsAvailable())
-        smp = micReadData16_TWL() >> 4;
+        smp = (micReadData16_TWL() ^ 0x8000) >> 4;
     else
         smp = micReadData12_NTR();
+
+    leaveCriticalSection(oldIME);
+    return smp;
+}
+
+s16 micReadData16(void)
+{
+    s16 smp;
+    int oldIME = enterCriticalSection();
+
+    if (cdcIsAvailable())
+        smp = micReadData16_TWL();
+    else
+        smp = (micReadData12_NTR() << 4) ^ 0x8000;
 
     leaveCriticalSection(oldIME);
     return smp;
@@ -160,18 +174,12 @@ void micStartRecording(u8 *buffer, int length, int freq, int timer,
     eightBit = eightBitSample;
     micOn();
 
-    irqSet(BIT(3 + timer), micTimerHandler);
-    irqEnable(BIT(3 + timer));
+    irqSet(IRQ_TIMER(timer), micTimerHandler);
+    irqEnable(IRQ_TIMER(timer));
 
     // Setup a timer
     TIMER_DATA(timer) = TIMER_FREQ(freq);
     TIMER_CR(timer) = TIMER_ENABLE |TIMER_IRQ_REQ;
-    //irqSet(IRQ_TIMER2, micTimerHandler);
-    //irqEnable(IRQ_TIMER2);
-
-    //// Setup a timer
-    //TIMER_DATA(2) = TIMER_FREQ(freq);
-    //TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_1 | TIMER_IRQ_REQ;
 }
 
 int micStopRecording(void)
@@ -200,8 +208,7 @@ void micTimerHandler(void)
     }
     else
     {
-        *(u16*)(microphone_back_buffer + sampleCount * 2) =
-                (micReadData12() - 2048) << 4; // ^ 0x8000;
+        *(s16*)(microphone_back_buffer + sampleCount * 2) = micReadData16();
     }
 
     sampleCount++;
