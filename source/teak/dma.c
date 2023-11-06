@@ -27,6 +27,8 @@
 //
 // This only affects addresses on the ARM9 side, not the DSP side.
 
+#define PAGE_SIZE 1024
+
 void dmaInit(void)
 {
     const u16 dma_channel = 0;
@@ -90,22 +92,29 @@ static void dmaTransferArm9ToDspUnsafe(u16 dma_channel, u32 src, u16 dst, u16 le
 
 s16 dmaTransferArm9ToDsp(u16 dma_channel, u32 src, void *dst, u16 len)
 {
+    // It isn't safe to start a copy of size 0, it will still copy one word
     if (len == 0)
         return -1;
 
-    // Protect channel used for FIFO transfers
-    if (dma_channel == 0)
+    // This function can't copy more than 1 KB of data
+    if (len > (PAGE_SIZE / 2))
         return -2;
 
-    const u16 page_mask = ~(1024 - 1);
+    // Protect channel used for FIFO transfers
+    if (dma_channel == 0)
+        return -3;
 
-    u32 end = src + (len << 1) - 1;
+    const u16 page_mask = ~(PAGE_SIZE - 1);
 
-    u32 page_base = src & page_mask;
-    u32 page_end = end & page_mask;
+    // This function can't copy more than one page in one call, so it is okay to
+    // clamp the ARM9 address to 16 bit.
+    u16 end = src + (len << 1) - 1;
+
+    u16 page_base = src & page_mask;
+    u16 page_end = end & page_mask;
 
     if (page_base != page_end)
-        return -3;
+        return -4;
 
     // TODO: Is this needed? What if there are two AHBM channels set up at the
     // same time?
@@ -139,8 +148,8 @@ static void dmaTransferDspToArm9Unsafe(u16 dma_channel, const void *src, u32 dst
     REG_DMA_CH_DIM2_SRC_STEP = 1;
 
     REG_DMA_CH_DIM0_DST_STEP = 2;
-    REG_DMA_CH_DIM1_DST_STEP = 2;
-    REG_DMA_CH_DIM2_DST_STEP = 2;
+    REG_DMA_CH_DIM1_DST_STEP = 1;
+    REG_DMA_CH_DIM2_DST_STEP = 1;
 
     REG_DMA_CH_XFER_CONFIG = DMA_CH_XFER_CONFIG_SRC_DSP_DATA
                            | DMA_CH_XFER_CONFIG_DST_ARM_AHBM
@@ -163,22 +172,29 @@ static void dmaTransferDspToArm9Unsafe(u16 dma_channel, const void *src, u32 dst
 
 s16 dmaTransferDspToArm9(u16 dma_channel, const void *src, u32 dst, u16 len)
 {
+    // It isn't safe to start a copy of size 0, it will still copy one word
     if (len == 0)
         return -1;
 
-    // Protect channel used for FIFO transfers
-    if (dma_channel == 0)
+    // This function can't copy more than 1 KB of data
+    if (len > (PAGE_SIZE / 2))
         return -2;
 
-    const u16 page_mask = ~(1024 - 1);
+    // Protect channel used for FIFO transfers
+    if (dma_channel == 0)
+        return -3;
 
-    u32 end = dst + (len << 1) - 1;
+    const u16 page_mask = ~(PAGE_SIZE - 1);
 
-    u32 page_base = dst & page_mask;
-    u32 page_end = end & page_mask;
+    // This function can't copy more than one page in one call, so it is okay to
+    // clamp the ARM9 address to 16 bit.
+    u16 end = dst + (len << 1) - 1;
+
+    u16 page_base = dst & page_mask;
+    u16 page_end = end & page_mask;
 
     if (page_base != page_end)
-        return -3;
+        return -4;
 
     // TODO: Is this needed? What if there are two AHBM channels set up at the
     // same time?
@@ -251,22 +267,29 @@ static void dmaTransferArm9ToDspAsyncUnsafe(u16 dma_channel, u32 src, void *dst,
 
 s16 dmaTransferArm9ToDspAsync(u16 dma_channel, u32 src, void *dst, u16 len)
 {
+    // It isn't safe to start a copy of size 0, it will still copy one word
     if (len == 0)
         return -1;
 
-    // Protect channel used for FIFO transfers
-    if (dma_channel == 0)
+    // This function can't copy more than 1 KB of data
+    if (len > (PAGE_SIZE / 2))
         return -2;
 
-    const u16 page_mask = ~(1024 - 1);
+    // Protect channel used for FIFO transfers
+    if (dma_channel == 0)
+        return -3;
 
-    u32 end = src + (len << 1) - 1;
+    const u16 page_mask = ~(PAGE_SIZE - 1);
 
-    u32 page_base = src & page_mask;
-    u32 page_end = end & page_mask;
+    // This function can't copy more than one page in one call, so it is okay to
+    // clamp the ARM9 address to 16 bit.
+    u16 end = src + (len << 1) - 1;
+
+    u16 page_base = src & page_mask;
+    u16 page_end = end & page_mask;
 
     if (page_base != page_end)
-        return -3;
+        return -4;
 
     // TODO: Is this needed? What if there are two AHBM channels set up at the
     // same time?
