@@ -482,6 +482,7 @@ void resetARM9(u32 address);
 
 #ifdef ARM7
 #define SCFG_CLK_SDMMC          BIT(0)
+#define SCFG_CLK_AES            BIT(2)
 #define SCFG_CLK_NWRAM          BIT(7)
 #define SCFG_CLK_TOUCH          BIT(8)
 #endif // ARM7
