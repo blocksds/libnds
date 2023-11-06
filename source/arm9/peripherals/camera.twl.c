@@ -28,7 +28,7 @@ bool cameraInit(void)
     swiDelay(30);
     REG_SCFG_CLK |= SCFG_CLK_CAMERA_EXT;
     swiDelay(30);
-    REG_CAM_MCNT |= BIT(1) | BIT(5);
+    REG_CAM_MCNT |= CAM_MCNT_RESET_DISABLE | CAM_MCNT_PWR_18V_IO;
     swiDelay(8200);
     REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_EXT;
     REG_CAM_CNT &= ~CAM_CNT_TRANSFER_ENABLE;
@@ -54,7 +54,7 @@ bool cameraInit(void)
 
 bool cameraDeinit(void)
 {
-    if (REG_CAM_MCNT & BIT(5))
+    if (REG_CAM_MCNT & CAM_MCNT_PWR_18V_IO)
     {
         fifoMutexAcquire(FIFO_CAMERA);
         fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_DEINIT, 0));
