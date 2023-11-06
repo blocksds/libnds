@@ -75,6 +75,7 @@ typedef struct UnpackStruct
 } PACKED TUnpackStruct, * PUnpackStruct;
 
 /// Resets the DS.
+__attribute__((always_inline))
 static inline void swiSoftReset(void)
 {
     asm volatile inline ("swi 0x0 << ((1f - . == 4) * -16); 1:");
@@ -93,6 +94,7 @@ static inline void swiSoftReset(void)
 ///
 /// @param duration Length of delay.
 /// @note Duration should be 1 or more, a duration of 0 is a huge delay.
+__attribute__((always_inline))
 static inline void swiDelay(uint32_t duration)
 {
     register uint32_t r0 asm("r0") = duration;
@@ -104,6 +106,7 @@ static inline void swiDelay(uint32_t duration)
 /// @param numerator Signed integer to divide.
 /// @param divisor Signed integer to divide by.
 /// @return Numerator / divisor
+__attribute__((always_inline))
 static inline int swiDivide(int numerator, int divisor)
 {
     register int r0 asm("r0") = numerator;
@@ -117,6 +120,7 @@ static inline int swiDivide(int numerator, int divisor)
 /// @param numerator Signed integer to divide
 /// @param divisor Signed integer to divide by
 /// @return Numerator % divisor
+__attribute__((always_inline))
 static inline int swiRemainder(int numerator, int divisor)
 {
     register int r0 asm("r0") = numerator;
@@ -131,6 +135,7 @@ static inline int swiRemainder(int numerator, int divisor)
 /// @param divisor Signed integer to divide by.
 /// @param result Pointer to integer set to numerator / divisor.
 /// @param remainder Pointer to integer set to numerator % divisor.
+__attribute__((always_inline))
 static inline void swiDivMod(int numerator, int divisor, int *result, int *remainder)
 {
     register int r0 asm("r0") = numerator;
@@ -156,6 +161,7 @@ static inline void swiDivMod(int numerator, int divisor, int *result, int *remai
 /// @param dest Pointer to transfer destination.
 /// @param flags bits(0-20): size of data to copy/fill in words, or'd with the
 ///              copy mode size (word or halfword) and type (copy or fill).
+__attribute__((always_inline))
 static inline void swiCopy(const void *source, void *dest, int flags)
 {
     register const void *r0 asm("r0") = source;
@@ -174,6 +180,7 @@ static inline void swiCopy(const void *source, void *dest, int flags)
 /// @param flags bits(0-20): size of data to copy/fill in words, or'd with the
 ///              type (copy or fill).
 /// @note Transfers more quickly than swiCopy, but has higher interrupt latency.
+__attribute__((always_inline))
 static inline void swiFastCopy(const void *source, void *dest, int flags)
 {
     register const void *r0 asm("r0") = source;
@@ -187,6 +194,7 @@ static inline void swiFastCopy(const void *source, void *dest, int flags)
 /// @param value The value to calculate.
 /// @return The square root of the value as an integer.
 /// @note Use fixed point math if you want more accuracy.
+__attribute__((always_inline))
 static inline int swiSqrt(int value)
 {
     register int r0 asm("r0") = value;
@@ -200,6 +208,7 @@ static inline int swiSqrt(int value)
 /// @param data Pointer to data (processed nibble by nibble)
 /// @param size Size in bytes.
 /// @return The CRC-16 after the data has been processed.
+__attribute__((always_inline))
 static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 {
     register uint32_t r0 asm("r0") = crc;
@@ -214,6 +223,7 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 ///
 /// @return 0 if running on a debugger (8 MB of RAM instead of 4 MB), else some
 ///         other number.
+__attribute__((always_inline))
 static inline int swiIsDebugger(void)
 {
     register int i asm("r0");
@@ -228,6 +238,7 @@ static inline int swiIsDebugger(void)
 /// @param source Source address.
 /// @param destination Destination address (word aligned).
 /// @param params Pointer to an UnpackStruct.
+__attribute__((always_inline))
 static inline void swiUnpackBits(const uint8_t *source, uint32_t *destination, PUnpackStruct params)
 {
     register const uint8_t* r0 asm("r0") = source;
@@ -244,6 +255,7 @@ static inline void swiUnpackBits(const uint8_t *source, uint32_t *destination, P
 /// @param destination Destination address.
 /// @note Writes data a byte at a time.
 /// @see decompress.h
+__attribute__((always_inline))
 static inline void swiDecompressLZSSWram(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -266,6 +278,7 @@ static inline void swiDecompressLZSSWram(const void *source, void *destination)
 int swiDecompressLZSSVram(const void *source, void *destination, uint32_t toGetSize,
                           TDecompressionStream *stream);
 
+__attribute__((always_inline))
 static inline int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream)
 {
@@ -277,6 +290,7 @@ static inline int swiDecompressLZSSVramNTR(const void *source, void *destination
     return r0;
 }
 
+__attribute__((always_inline))
 static inline int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream)
 {
@@ -299,6 +313,7 @@ static inline int swiDecompressLZSSVramTWL(const void *source, void *destination
 /// @return The length of the decompressed data, or a signed errorcode from the
 ///         Open/Close functions.
 /// @see decompress.h
+__attribute__((always_inline))
 static inline int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream)
 {
@@ -325,6 +340,7 @@ static inline int swiDecompressHuffman(const void *source, void *destination, ui
 /// @param destination Destination address.
 /// @note Writes data a byte at a time.
 /// @see decompress.h
+__attribute__((always_inline))
 static inline void swiDecompressRLEWram(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -351,6 +367,7 @@ static inline void swiDecompressRLEWram(const void *source, void *destination)
 ///         Open/Close functions.
 /// @note Writes data a halfword at a time.
 /// @see decompress.h
+__attribute__((always_inline))
 static inline int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream)
 {
@@ -367,6 +384,7 @@ static inline int swiDecompressRLEVram(const void *source, void *destination, ui
 /// Wait for any interrupt.
 ///
 /// @note ARM9 exclusive.
+__attribute__((always_inline))
 static inline void swiWaitForIRQ(void)
 {
     asm volatile inline ("swi 0x6 << ((1f - . == 4) * -16); 1:");
@@ -386,6 +404,7 @@ void swiSetHaltCR(uint32_t data);
 /// @param destination Destination address.
 /// @note Writes data a byte at a time.
 /// @note ARM9 exclusive.
+__attribute__((always_inline))
 static inline void swiDecodeDelta8(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -401,6 +420,7 @@ static inline void swiDecodeDelta8(const void *source, void *destination)
 /// @param destination Destination address.
 /// @note Writes data a halfword at a time.
 /// @note ARM9 exclusive.
+__attribute__((always_inline))
 static inline void swiDecodeDelta16(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -421,6 +441,7 @@ void swiSetHaltCR(uint8_t data);
 /// Halts the CPU until an interupt occures.
 ///
 /// @note ARM7 exclusive.
+__attribute__((always_inline))
 static inline void swiHalt(void)
 {
     asm volatile inline ("swi 0x6 << ((1f - . == 4) * -16); 1:");
@@ -429,6 +450,7 @@ static inline void swiHalt(void)
 /// Halts the CPU and most of the hardware untill an interupt occures.
 ///
 /// @note ARM7 exclusive.
+__attribute__((always_inline))
 static inline void swiSleep(void)
 {
     asm volatile inline ("swi 0x7 << ((1f - . == 4) * -16); 1:");
@@ -444,6 +466,7 @@ void swiSwitchToGBAMode(void);
 /// @param index The index of the sine table (0 - 63).
 /// @return The entry.
 /// @note ARM7 exclusive.
+__attribute__((always_inline))
 static inline uint16_t swiGetSineTable(int index)
 {
     register int r0 asm("r0") = index;
@@ -456,6 +479,7 @@ static inline uint16_t swiGetSineTable(int index)
 /// @param index The index of the pitch table (0 - 767).
 /// @return The entry.
 /// @note ARM7 exclusive.
+__attribute__((always_inline))
 static inline uint16_t swiGetPitchTable(int index)
 {
     register int r0 asm("r0") = index;
@@ -468,6 +492,7 @@ static inline uint16_t swiGetPitchTable(int index)
 /// @param index The index of the volume table (0 - 723).
 /// @return The entry.
 /// @note ARM7 exclusive.
+__attribute__((always_inline))
 static inline uint8_t swiGetVolumeTable(int index)
 {
     register int r0 asm("r0") = index;
@@ -481,6 +506,7 @@ static inline uint8_t swiGetVolumeTable(int index)
 ///                increment it until it reaches 0x200.
 /// @param delay Is in the same units of time as swiDelay.
 /// @note ARM7 exclusive.
+__attribute__((always_inline))
 static inline void swiChangeSoundBias(int enabled, int delay)
 {
     register int r0 asm("r0") = enabled;
