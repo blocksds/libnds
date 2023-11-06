@@ -4798,12 +4798,17 @@ FRESULT f_stat (
 		if (res == FR_OK) {				/* Follow completed */
 			/* BlocksDS - support origin directory stat() */
 			if (fno) {
-				get_fileinfo(&dj, fno);
 				if (dj.fn[NSFLAG] & NS_NONAME) {	/* It is origin directory */
 					fno->fname[0] = 0;
 #ifdef FF_USE_LFN
 					fno->altname[0] = 0;
 #endif
+					fno->fsize = 0;
+					fno->fdate = 0;
+					fno->ftime = 0;
+					fno->fattrib = AM_DIR;
+				} else {				
+					get_fileinfo(&dj, fno);
 				}
 			}
 		}
