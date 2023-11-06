@@ -57,7 +57,7 @@ static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
     else
     {
         sysSetCardOwner(true);
-        cardRead(ptr, offset, len);
+        cardRead(ptr, offset, len, __NDSHeader->cardControl13);
         return len;
     }
 }

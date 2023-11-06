@@ -135,17 +135,13 @@ void cardReset(void)
 #define NDS_CARD_BLOCK_SIZE 0x200 // CARD_BLK_SIZE(1)
 #define NDS_CARD_PAGE_ALIGN_MASK (~0xFFF)
 
-static inline void cardReadInternal(void *dest, size_t offset, size_t len)
+static inline void cardReadInternal(void *dest, size_t offset, size_t len, uint32_t flags)
 {
-    const uint32_t flags =
-        CARD_DELAY1(0x1FFF) | CARD_DELAY2(0x3F) | CARD_CLK_SLOW |
-        CARD_nRESET | CARD_SEC_CMD | CARD_SEC_DAT | CARD_SEC_EN | CARD_ACTIVATE |
-        CARD_BLK_SIZE(1);
-
-    cardParamCommand(CARD_CMD_DATA_READ, offset, flags, dest, len >> 2);
+    cardParamCommand(CARD_CMD_DATA_READ, offset, flags | CARD_nRESET | CARD_ACTIVATE | CARD_BLK_SIZE(1),
+                     dest, len >> 2);
 }
 
-void cardRead(void *dest, size_t offset, size_t len)
+void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
 {
     uint8_t buffer[NDS_CARD_BLOCK_SIZE] __attribute__((aligned(4)));
     uint8_t *pc = dest;
@@ -165,7 +161,7 @@ void cardRead(void *dest, size_t offset, size_t len)
                 len_aligned = len_masked;
 
             // fast direct read
-            cardReadInternal(pc, offset, len_aligned);
+            cardReadInternal(pc, offset, len_aligned, flags);
 
             pc += len_aligned;
             offset += len_aligned;
@@ -197,7 +193,7 @@ void cardRead(void *dest, size_t offset, size_t len)
         // the length of data actually written to dest
         size_t dest_block_len = block_len - block_offset;
 
-        cardReadInternal(buffer, offset, block_len_aligned);
+        cardReadInternal(buffer, offset, block_len_aligned, flags);
 
         memcpy(pc, buffer + block_offset, dest_block_len);
         offset += block_len;

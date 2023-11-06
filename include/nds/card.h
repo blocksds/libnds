@@ -160,8 +160,9 @@ void cardReset(void);
  * @param dest The destination buffer.
  * @param offset The offset to read from, in bytes.
  * @param len The number of bytes to read.
+ * @param flags The read flags.
  */
-void cardRead(void *dest, size_t offset, size_t len);
+void cardRead(void *dest, size_t offset, size_t len, uint32_t flags);
 
 static inline void eepromWaitBusy(void)
 {
