@@ -247,6 +247,7 @@ typedef enum {
 } ARM7_power;
 
 /// PM control register bits - LED control
+#define PM_LED_CONTROL_MASK (3 << 4)
 #define PM_LED_CONTROL(m)   ((m) << 4)
 
 // Install the FIFO power handler.
@@ -482,6 +483,7 @@ void resetARM9(u32 address);
 
 #ifdef ARM7
 #define SCFG_CLK_SDMMC          BIT(0)
+#define SCFG_CLK_AES            BIT(2)
 #define SCFG_CLK_NWRAM          BIT(7)
 #define SCFG_CLK_TOUCH          BIT(8)
 #endif // ARM7

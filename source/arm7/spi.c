@@ -35,7 +35,7 @@ int writePowerManagement(int reg, int command)
 void ledBlink(int value)
 {
     u32 temp = readPowerManagement(PM_CONTROL_REG);
-    temp &= ~(3 << 4); // Clear LED bits
-    temp |= ((value & 3) << 4);
+    temp &= ~PM_LED_CONTROL_MASK;
+    temp |= PM_LED_CONTROL(value & 3);
     writePowerManagement(PM_CONTROL_REG, temp);
 }
