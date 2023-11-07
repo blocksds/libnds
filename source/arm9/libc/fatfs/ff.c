@@ -4799,6 +4799,11 @@ FRESULT f_stat (
 			/* BlocksDS - support origin directory stat(), write device/cluster information */
 			if (fno) {
 				fno->fpdrv = dj.obj.fs->pdrv;
+#if FF_FS_EXFAT
+				if (fs->fs_type == FS_EXFAT) {
+					fno->fclust = 0; /* FIXME */
+				} else
+#endif
 				fno->fclust = ld_clust(dj.obj.fs, dj.dir);
 				if (dj.fn[NSFLAG] & NS_NONAME) {	/* It is origin directory */
 					fno->fname[0] = 0;
