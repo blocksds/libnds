@@ -16,17 +16,13 @@
 #define DEFAULT_CACHE_PAGES         5
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
-// Devices: "fat:/", "sd:/", "nitro:/"
+// Devices: "fat:/", "sd:/"
 static FATFS fs_info[FF_VOLUMES] = { 0 };
 
 static const char *fat_drive = "fat:/";
 static const char *sd_drive = "sd:/";
-static const char *nitro_drive = "nitro:/";
 
 static bool fat_initialized = false;
-static bool nitrofat_initialized = false;
-
-bool nitrofat_reader_is_arm9 = false;
 
 int fatfs_error_to_posix(FRESULT error)
 {
@@ -329,70 +325,4 @@ cleanup:
 bool fatInitDefault(void)
 {
     return fatInit(DEFAULT_CACHE_PAGES, true);
-}
-
-static void nitroFATRefreshBusOwner(void)
-{
-    int bus_owner = nitrofat_reader_is_arm9 ? BUS_OWNER_ARM9 : BUS_OWNER_ARM7;
-    sysSetBusOwners(bus_owner, bus_owner);
-}
-
-bool nitroFSInit(char **basepath)
-{
-    (void)basepath;
-
-    static bool has_been_called = false;
-
-    if (has_been_called == true)
-        return nitrofat_initialized;
-
-    has_been_called = true;
-
-    // Initialize read cache, shared by all filesystems
-    // ------------------------------------------------
-
-    uint32_t cache_size_pages = DEFAULT_CACHE_PAGES;
-    uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
-
-    // TODO: Should we have a cache_end() if the function fails? It may not be
-    // worth it, most games would just stop booting if the filesystem isn't
-    // available.
-    int ret = cache_init(cache_size_sectors);
-    if (ret != 0)
-    {
-        errno = ENOMEM;
-        return false;
-    }
-
-    // Set the right CPU as owner of the bus
-
-    nitroFATRefreshBusOwner();
-
-    // Try to mount the NitroFAT filesystem. This calls fatInitDefault()
-    // internally if required.
-
-    FRESULT result = f_mount(&fs_info[2], nitro_drive, 1);
-    if (result != FR_OK)
-    {
-        errno = fatfs_error_to_posix(result);
-        return false;
-    }
-
-    // Set "nitro:/" as default path
-    if (chdir(nitro_drive) != 0)
-    {
-        errno = fatfs_error_to_posix(result);
-        return false;
-    }
-
-    nitrofat_initialized = true;
-
-    return true;
-}
-
-void nitroFATSetReaderCPU(bool use_arm9)
-{
-    nitrofat_reader_is_arm9 = use_arm9;
-
-    nitroFATRefreshBusOwner();
 }

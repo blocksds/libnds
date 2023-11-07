@@ -4,21 +4,25 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fatfs/ff.h"
 #include "fatfs_internal.h"
+#include "filesystem_internal.h"
+#include "nitrofs_internal.h"
 
 int chdir(const char *path)
 {
     char *divide = strstr(path, ":/");
+    FRESULT result;
 
     if (divide == NULL)
     {
         // This path doesn't include a drive name
 
-        FRESULT result = f_chdir(path);
+        result = current_drive_is_nitrofs ? nitrofs_chdir(path) : f_chdir(path);
         if (result != FR_OK)
         {
             errno = fatfs_error_to_posix(result);
@@ -45,11 +49,16 @@ int chdir(const char *path)
         memcpy(drive, path, size);
         drive[size - 1] = '\0';
 
-        FRESULT result = f_chdrive(drive);
-        if (result != FR_OK)
-        {
-            errno = fatfs_error_to_posix(result);
-            return -1;
+        if (!strcmp("nitro:", drive)) {
+            current_drive_is_nitrofs = true;
+        } else {
+            current_drive_is_nitrofs = false;
+            result = f_chdrive(drive);
+            if (result != FR_OK)
+            {
+                errno = fatfs_error_to_posix(result);
+                return -1;
+            }
         }
 
         // Get directory without its path
@@ -60,7 +69,7 @@ int chdir(const char *path)
             return -1;
         }
 
-        result = f_chdir(dir);
+        result = current_drive_is_nitrofs ? nitrofs_chdir(dir) : f_chdir(dir);
 
         free(dir);
 
@@ -99,14 +108,12 @@ char *getcwd(char *buf, size_t size)
             return NULL;
         }
 
-        FRESULT result = f_getcwd(buf, size - 1);
-        if (result != FR_OK)
+        char *result = getcwd(buf, size);
+        if (result == NULL)
         {
-            free(buf);
-            errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
+            // errno has already been set
             return NULL;
         }
-        buf[size - 1] = '\0';
 
         if (optimize_mem)
         {
@@ -129,11 +136,19 @@ char *getcwd(char *buf, size_t size)
             return NULL;
         }
 
-        FRESULT result = f_getcwd(buf, size - 1);
-        if (result != FR_OK)
+        if (current_drive_is_nitrofs)
         {
-            errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
-            return NULL;
+            if (nitrofs_getcwd(buf, size - 1))
+                return NULL;
+        }
+        else
+        {
+            FRESULT result = f_getcwd(buf, size - 1);
+            if (result != FR_OK)
+            {
+                errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
+                return NULL;
+            }
         }
         buf[size - 1] = '\0';
 

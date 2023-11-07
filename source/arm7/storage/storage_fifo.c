@@ -57,12 +57,6 @@ void storageMsgHandler(int bytes, void *user_data)
                                             msg.sdParams.buffer);
             }
             break;
-        case SLOT1_CARD_READ:
-            cardRead(msg.cardParams.buffer,
-                     msg.cardParams.offset,
-                     msg.cardParams.size);
-            retval = 1;
-            break;
     }
 
     leaveCriticalSection(oldIME);
