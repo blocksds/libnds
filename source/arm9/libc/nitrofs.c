@@ -232,7 +232,7 @@ int32_t nitrofs_path_resolve(const char *path)
     }
 
     char *sep = (char*) path;
-    while (*sep)
+    while (sep)
     {
         sep = strchr(path, '/');
         if (sep)
