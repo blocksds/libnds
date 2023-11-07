@@ -76,7 +76,8 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
     state->dir_opened = dir;
     state->buffer[0] = 0;
 
-    if (nitrofs_local.file == NULL) {
+    if (nitrofs_local.file == NULL)
+    {
         // Card reads benefit from word-aligning table accesses.
         state->position = state->offset & 3;
         state->offset -= state->position;
@@ -485,6 +486,7 @@ void nitroFSExit(void)
 
 bool nitroFSInit(const char *basepath)
 {
+    uint32_t nitrofs_offsets[4];
     if (nitrofs_initialized)
         nitroFSExit();
 
@@ -504,11 +506,16 @@ bool nitroFSInit(const char *basepath)
             basepath = NULL;
     }
 
-    // Read FNT/FAT offset
-    nitrofs_local.fnt_offset = __NDSHeader->filenameOffset;
-    nitrofs_local.fat_offset = __NDSHeader->fatOffset;
-    if (!(nitrofs_local.fnt_offset >= 0x200 && nitrofs_local.fat_offset >= 0x200))
+    // Read FNT/FAT offset/size information.
+    if (nitrofs_local.file)
+        nitrofs_read_internal(nitrofs_offsets, 0x40, 4 * sizeof(uint32_t));
+    else
+        memcpy(nitrofs_offsets, &(__NDSHeader->filenameOffset), 4 * sizeof(uint32_t));
+
+    if (!(nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0 && nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0))
         return false;
+    nitrofs_local.fnt_offset = nitrofs_offsets[0];
+    nitrofs_local.fat_offset = nitrofs_offsets[2];
     
     // Set "nitro:/" as default path
     current_drive_is_nitrofs = true;
