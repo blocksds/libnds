@@ -247,12 +247,14 @@ typedef struct {
 	WORD	fdate;			/* Modified date */
 	WORD	ftime;			/* Modified time */
 	BYTE	fattrib;		/* File attribute */
+	BYTE    fpdrv;          /* BlocksDS: Physical drive ID. */
 #if FF_USE_LFN
 	TCHAR	altname[FF_SFN_BUF + 1];/* Alternative file name */
 	TCHAR	fname[FF_LFN_BUF + 1];	/* Primary file name */
 #else
 	TCHAR	fname[12 + 1];	/* File name */
 #endif
+	DWORD   fclust;         /* BlocksDS: File cluster. */
 } FILINFO;
 
 

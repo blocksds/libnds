@@ -283,6 +283,8 @@ int stat(const char *path, struct stat *st)
         return -1;
     }
 
+    st->st_dev = fno.fpdrv;
+    st->st_ino = fno.fclust;
     st->st_size = fno.fsize;
 
 #if FF_MAX_SS != FF_MIN_SS
@@ -328,6 +330,8 @@ int fstat(int fd, struct stat *st)
 
     FIL *fp = (FIL *)fd;
 
+    st->st_dev = fp->obj.fs->pdrv;
+    st->st_ino = fp->obj.sclust;
     st->st_size = fp->obj.objsize;
 
 #if FF_MAX_SS != FF_MIN_SS

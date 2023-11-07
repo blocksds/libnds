@@ -4796,8 +4796,10 @@ FRESULT f_stat (
 		INIT_NAMBUF(dj.obj.fs);
 		res = follow_path(&dj, path);	/* Follow the file path */
 		if (res == FR_OK) {				/* Follow completed */
-			/* BlocksDS - support origin directory stat() */
+			/* BlocksDS - support origin directory stat(), write device/cluster information */
 			if (fno) {
+				fno->fpdrv = dj.obj.fs->pdrv;
+				fno->fclust = ld_clust(dj.obj.fs, dj.dir);
 				if (dj.fn[NSFLAG] & NS_NONAME) {	/* It is origin directory */
 					fno->fname[0] = 0;
 #ifdef FF_USE_LFN

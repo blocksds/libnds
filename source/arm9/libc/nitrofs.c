@@ -431,6 +431,7 @@ int nitrofs_open(const char *name)
 
 static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 {
+    st->st_dev = 2;
     st->st_ino = fp->file_index;
     st->st_size = fp->endofs - fp->offset;
     st->st_blksize = 0x200;
