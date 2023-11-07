@@ -13,6 +13,7 @@ typedef struct {
     uint32_t fnt_offset;
     uint32_t fat_offset;
     uint16_t current_dir;
+    bool use_slot2;
 } nitrofs_t;
 
 typedef struct {
