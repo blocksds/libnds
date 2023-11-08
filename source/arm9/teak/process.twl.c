@@ -81,6 +81,7 @@ bool dspExecuteTLF(const void *tlf)
     _codeSegs = 0xFF;
     _dataSegs = 0xFF;
 
+    // Zero all memory mapped to the DSP
     for (int i = 0; i < NWRAM_BC_SLOT_COUNT; i++)
     {
         _codeSlots[i] = i;
@@ -103,6 +104,7 @@ bool dspExecuteTLF(const void *tlf)
             *slot++ = 0;
     }
 
+    // Copy code and data sections to previously zeroed memory
     for (int i = 0; i < header->num_sections; i++)
     {
         const tlf_section_header *section = &(header->section[i]);
