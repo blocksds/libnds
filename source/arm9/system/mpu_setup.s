@@ -140,7 +140,9 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     tst     r0, #0x8000
     bne     dsi_mode
 
-    swi     0xf0000 // IsDebugger
+    // DS mode: The debugger model is detected using swiIsDebugger()
+
+    swi     0xf0000 // swiIsDebugger (only available in DS mode, not DSi mode)
 
     ldr     r1, =(0x08000000 | CP15_REGION_SIZE_128MB | CP15_CONFIG_REGION_ENABLE)
     cmp     r0, #0
@@ -159,6 +161,8 @@ debug_mode:
     mov     r8, #0x02800000
     ldr     r9, =debugmasks
     b       setregions
+
+    // DSi mode: The debugger model is detected by checking the RAM size.
 
 dsi_mode:
     tst     r0, #0x4000
