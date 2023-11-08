@@ -126,12 +126,12 @@ typedef enum {
 ///
 /// **Example Usage:**
 /// ```
-/// // Calls the timerCallBack function 5 times per second.
-/// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
+/// // Calls the timerCallBack function 5000 times per second.
+/// timerStart(0, ClockDivider_1, TIMER_FREQ(5000), timerCallBack);
 /// ```
 ///
-/// Max frequency is: 33554432 Hz
-/// Min frequency is: 512 Hz
+/// Max frequency is: 33513982 Hz
+/// Min frequency is: ~511 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ(n)    TIMER_FREQ_SHIFT(n, 0)
@@ -143,11 +143,11 @@ typedef enum {
 ///
 /// **Example Usage:**
 /// ```
-/// // Calls the timerCallBack function 5 times per second.
-/// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
+/// // Calls the timerCallBack function 500 times per second.
+/// timerStart(0, ClockDivider_64, TIMER_FREQ_64(500), timerCallBack);
 /// ```
 ///
-/// Max frequency is: 524288 Hz
+/// Max frequency is: ~523656 Hz
 /// Min frequency is: 8 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
@@ -160,12 +160,12 @@ typedef enum {
 ///
 /// **Example Usage:**
 /// ```
-/// // Calls the timerCallBack function 5 times per second.
-/// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
+/// // Calls the timerCallBack function 50 times per second.
+/// timerStart(0, ClockDivider_256, TIMER_FREQ_256(50), timerCallBack);
 /// ```
 ///
-/// Max frequency is: 131072 Hz
-/// Min frequency is: 2 Hz
+/// Max frequency is: ~130914 Hz
+/// Min frequency is: ~2 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ_256(n) TIMER_FREQ_SHIFT(n, 8)
@@ -181,11 +181,25 @@ typedef enum {
 /// timerStart(0, ClockDivider_1024, TIMER_FREQ_1024(5), timerCallBack);
 /// ```
 ///
-/// Max frequency is: 32768 Hz
-/// Min frequency is: 0.5 Hz
+/// Max frequency is: ~32728 Hz
+/// Min frequency is: ~0.5 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ_1024(n) TIMER_FREQ_SHIFT(n, 10)
+
+/// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
+///
+/// It will calculate the correct value for TIMER_DATA(n) given the frequency
+/// in Hz (number of times the timer should overflow per second).
+///
+/// This macro works like TIMER_FREQ(n), except it emits values which will
+/// be synchronized to the frequency of SOUND_FREQ(n) for any given n.
+///
+/// Max frequency is: 16756991 Hz
+/// Min frequency is: ~512 Hz
+///
+/// @note Use the appropriate macro depending on the used clock divider.
+#define TIMER_FREQ_SOUND(n) (TIMER_FREQ_SHIFT(n, 1) << 1)
 
 /// Start a hardware timer.
 ///
