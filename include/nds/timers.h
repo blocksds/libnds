@@ -107,6 +107,17 @@ typedef enum {
 /// Causes the timer to count at (33.514 / 1024) MHz.
 #define TIMER_DIV_1024  (3)
 
+/// A macro that calculates TIMER_DATA(n) settings for a given frequency of n
+/// and shift. Correctly rounds the timer to the closest available frequency.
+///
+/// Shift values:
+/// - ClockDivider_1    = 0
+/// - ClockDivider_64   = 6
+/// - ClockDivider_256  = 8
+/// - ClockDivider_1024 = 10
+/// - ARM7 sound timer  = 1
+#define TIMER_FREQ_SHIFT(n, shift) (-((BUS_CLOCK >> (shift)) + (((n - 1)) >> 1)) / (n))
+
 /// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
 /// It will calculate the correct value for TIMER_DATA(n) given the frequency
@@ -122,7 +133,7 @@ typedef enum {
 /// Min frequency is: 512 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
-#define TIMER_FREQ(n)    (-BUS_CLOCK / (n))
+#define TIMER_FREQ(n)    TIMER_FREQ_SHIFT(n, 0)
 
 /// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
@@ -139,7 +150,7 @@ typedef enum {
 /// Min frequency is: 8 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
-#define TIMER_FREQ_64(n) (-(BUS_CLOCK >> 6) / (n))
+#define TIMER_FREQ_64(n) TIMER_FREQ_SHIFT(n, 6)
 
 /// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
@@ -156,7 +167,7 @@ typedef enum {
 /// Min frequency is: 2 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
-#define TIMER_FREQ_256(n) (-(BUS_CLOCK >> 8) / (n))
+#define TIMER_FREQ_256(n) TIMER_FREQ_SHIFT(n, 8)
 
 /// Macro that calculates TIMER_DATA(n) settings for a given frequency of n.
 ///
@@ -173,7 +184,7 @@ typedef enum {
 /// Min frequency is: 0.5 Hz
 ///
 /// @note Use the appropriate macro depending on the used clock divider.
-#define TIMER_FREQ_1024(n) (-(BUS_CLOCK >> 10) / (n))
+#define TIMER_FREQ_1024(n) TIMER_FREQ_SHIFT(n, 10)
 
 /// Start a hardware timer.
 ///
