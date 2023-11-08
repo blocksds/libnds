@@ -43,8 +43,12 @@ BEGIN_ASM_FUNC __ndsabi_coro_pop
     ldr     r1, [r0, #4] // Load argument
 
     ldr     r2, [sp, #4] // Load entrypoint
+#ifdef ARM9
+    blx     r2
+#else
     mov     lr, pc       // Load return address (current + 8)
     bx      r2           // Jump to entrypoint
+#endif
 
     ldr     r1, [sp]
     @ r0 contains return value
@@ -71,8 +75,12 @@ BEGIN_ASM_FUNC __ndsabi_coro_pop_noctx
     ldr     r0, [r0, #4] // Load argument
 
     ldr     r2, [sp, #4] // Load entrypoint
+#ifdef ARM9
+    blx     r2
+#else
     mov     lr, pc       // Load return address (current + 8)
     bx      r2           // Jump to entrypoint
+#endif
 
     ldr     r1, [sp]
     @ r0 contains return value
