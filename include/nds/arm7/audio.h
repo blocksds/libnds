@@ -25,9 +25,10 @@ extern "C" {
 
 #include <nds/arm7/serial.h>
 #include <nds/system.h>
+#include <nds/timers.h>
 
 #define SOUND_VOL(n)        (n)
-#define SOUND_FREQ(n)       ((-0x1000000 / (n)))
+#define SOUND_FREQ(n)       TIMER_FREQ_SHIFT(n, 1)
 #define SOUND_ENABLE        BIT(15)
 
 #define SOUND_REPEAT        BIT(27)
