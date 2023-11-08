@@ -54,9 +54,15 @@ static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
         fseek(nitrofs_local.file, offset, SEEK_SET);
         return fread(ptr, 1, len, nitrofs_local.file);
     }
+    else if (nitrofs_local.use_slot2)
+    {
+        sysSetCartOwner(BUS_OWNER_ARM9);
+        memcpy(ptr, (void*) (0x08000000 + offset), len);
+        return len;
+    }
     else
     {
-        sysSetCardOwner(true);
+        sysSetCardOwner(BUS_OWNER_ARM9);
         cardRead(ptr, offset, len, __NDSHeader->cardControl13);
         return len;
     }
@@ -512,7 +518,14 @@ bool nitroFSInit(const char *basepath)
     if (nitrofs_local.file)
         nitrofs_read_internal(nitrofs_offsets, 0x40, 4 * sizeof(uint32_t));
     else
+    {
         memcpy(nitrofs_offsets, &(__NDSHeader->filenameOffset), 4 * sizeof(uint32_t));
+
+        // If not reading from DLDI, we could still be reading from Slot-2.
+        // Figure this out by comparing NitroFS header data between the two.
+        sysSetCartOwner(BUS_OWNER_ARM9);
+        nitrofs_local.use_slot2 = !memcmp(((uint16_t*) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
+    }
 
     if (!(nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0 && nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0))
         return false;
