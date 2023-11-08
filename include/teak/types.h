@@ -9,6 +9,9 @@
 
 #define BIT(n) (1 << (n))
 
+/// Aligns struct, arrays, etc, to "m".
+#define ALIGN(m) __attribute__((aligned (m)))
+
 /// 8 bit volatile unsigned integer.
 typedef volatile uint8_t vuint8;
 /// 16 bit volatile unsigned integer.
