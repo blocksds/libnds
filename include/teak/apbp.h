@@ -100,8 +100,22 @@ static inline uint16_t apbpGetSemaphore(void)
     return REG_APBP_SEM;
 }
 
+/// Sends data using the REG_APBP_CMDx registers.
+///
+/// If there is alredy a value in that register it will wait until the ARM9 has
+/// read it.
+///
+/// @param id 0 to 2 for REG_APBP_CMD0 to REG_APBP_CMD2.
+/// @param data Data to write.
 void apbpSendData(uint16_t id, uint16_t data);
 
+/// Reads data preent in one of the REG_APBP_REPx registers.
+///
+/// If there isn't any value in the register it will wait until the ARM9 has
+/// sent any value.
+///
+/// @param id 0 to 2 for REG_APBP_REP0 to REG_APBP_REP2.
+/// @return Returns the data in that register.
 uint16_t apbpReceiveData(uint16_t id);
 
 #endif // LIBTEAK_APBP_H__
