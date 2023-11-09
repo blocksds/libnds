@@ -78,10 +78,15 @@
 #define CARD_CMD_DATA_CHIPID    0xB8
 
 //REG_AUXSPICNT
-#define CARD_ENABLE     (1 << 15)
-#define CARD_SPI_ENABLE (1 << 13)
-#define CARD_SPI_BUSY   (1 << 7)
-#define CARD_SPI_HOLD   (1 << 6)
+#define CARD_ENABLE     BIT(15)
+#define CARD_IRQ        BIT(14)
+#define CARD_SPI_ENABLE BIT(13)
+#define CARD_SPI_BUSY   BIT(7)
+#define CARD_SPI_HOLD   BIT(6)
+#define CARD_SPI_BAUD_4MHz   0
+#define CARD_SPI_BAUD_2MHz   1
+#define CARD_SPI_BAUD_1MHz   2
+#define CARD_SPI_BAUD_512KHz 3
 
 #define CARD_SPICNTH_ENABLE  (1 << 7) // In byte 1, i.e. 0x8000
 #define CARD_SPICNTH_IRQ     (1 << 6) // In byte 1, i.e. 0x4000
