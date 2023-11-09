@@ -8,6 +8,8 @@
 
 #include <teak/types.h>
 
+// TODO: Document
+
 #define ICU_IRQ_MASK_SWI(n)             BIT(n) // 0 to 8
 #define ICU_IRQ_MASK_TMR1               BIT(9)
 #define ICU_IRQ_MASK_TMR0               BIT(10)

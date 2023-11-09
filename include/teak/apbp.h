@@ -6,9 +6,11 @@
 #ifndef LIBTEAK_APBP_H__
 #define LIBTEAK_APBP_H__
 
-#include <teak/types.h>
+/// @file teak/apbp.h
+///
+/// @brief Host Port Interface (APBP aka HPI)
 
-// Host Port Interface (APBP aka HPI)
+#include <teak/types.h>
 
 /// APBP DSP-to-ARM Reply 0 (R/W)
 #define REG_APBP_REP0                   (*(vu16 *)0x80C0)

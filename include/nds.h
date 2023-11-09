@@ -89,6 +89,13 @@
 /// - @ref nds/debug.h "Send message to NO$GBA"
 /// - @ref nds/arm9/sassert.h "Simple assert"
 /// - @ref nds/arm9/exceptions.h "ARM9 exception handler"
+///
+/// @section libteak libteak: Library for DSP programs
+/// - @ref teak/teak.h "General utilities"
+/// - @ref teak/ahbm.h "AHBM (ARM AMBA AHB bus) utilities"
+/// - @ref teak/apbp.h "Host Port Interface (APBP aka HPI)"
+/// - @ref teak/dma.h "DMA helpers"
+/// - @ref teak/timer.h "Timer utilities"
 
 #ifndef LIBNDS_NDS_H__
 #define LIBNDS_NDS_H__

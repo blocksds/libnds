@@ -6,6 +6,13 @@
 #ifndef LIBTEAK_DMA_H__
 #define LIBTEAK_DMA_H__
 
+/// @file teak/dma.h
+///
+/// @brief DMA helpers.
+///
+/// The DMA registers don't seem to be understood well enough, the functions may
+/// be unstable.
+
 /// DMA Channel Start Flags (R/W)
 #define REG_DMA_START               (*(vu16 *)0x8184)
 /// DMA Channel Pause Flags (R/W)

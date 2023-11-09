@@ -6,6 +6,10 @@
 #ifndef LIBTEAK_TIMER_H__
 #define LIBTEAK_TIMER_H__
 
+/// @file teak/timer.h
+///
+/// @brief Timer utilities.
+
 #include <teak/types.h>
 
 #define TMR_REG_BASE                0x8020

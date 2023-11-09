@@ -5,6 +5,8 @@
 #ifndef LIBTEAK_CPU_H__
 #define LIBTEAK_CPU_H__
 
+// TODO: Document
+
 void cpuDisableIrqs(void);
 void cpuEnableIrqs(void);
 

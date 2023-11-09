@@ -6,11 +6,15 @@
 #ifndef LIBTEAK_AHBM_H__
 #define LIBTEAK_AHBM_H__
 
-#include <teak/types.h>
+/// @file teak/ahbm.h
+///
+/// @brief AHBM (ARM AMBA AHB bus) utilities
+///
+/// For more information about the meaning of all of the concepts in this file,
+/// check the document "AMBA AHB Protocol Specification" from ARM: "ARM IHI
+/// 0033C (ID090921)".
 
-// For more information about the meaning of all of the concepts in this file,
-// check the document "AMBA AHB Protocol Specification" from ARM: "ARM IHI 0033C
-// (ID090921)".
+#include <teak/types.h>
 
 /// AHBM Status (R)
 #define REG_AHBM_STATUS                     (*(vu16 *)0x80E0)
