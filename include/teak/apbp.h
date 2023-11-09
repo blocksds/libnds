@@ -86,7 +86,17 @@
 /// @param mask Bits to set on top of the currently set bits.
 static inline void apbpSetSemaphore(uint16_t mask)
 {
+    // Note that if we simply write the mask we will clear any semaphore that
+    // has been set before. The bits set to one aren't sticky.
     REG_APBP_PSEM |= mask;
+}
+
+/// Clears semaphore flags to be seen by the ARM9 in REG_DSP_SEM.
+///
+/// @param mask Bits to clear.
+static inline void apbpClearSemaphore(uint16_t mask)
+{
+    REG_APBP_PSEM &= ~mask;
 }
 
 /// Masks interrupts caused by ARM-to-DSP semaphores.
