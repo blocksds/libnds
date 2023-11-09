@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (C) 2020 Gericom
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #ifndef LIBTEAK_APBP_H__
 #define LIBTEAK_APBP_H__
@@ -80,21 +81,33 @@
 #define APBP_ARM_STAT_CMD1_UNREAD       (1 << (APBP_ARM_STAT_CMD_UNREAD_SHIFT + 1))
 #define APBP_ARM_STAT_CMD2_UNREAD       (1 << (APBP_ARM_STAT_CMD_UNREAD_SHIFT + 2))
 
+/// Sets semaphore flags to be seen by the ARM9 in REG_DSP_SEM.
+///
+/// @param mask Bits to set on top of the currently set bits.
 static inline void apbpSetSemaphore(uint16_t mask)
 {
-    REG_APBP_PSEM = mask;
+    REG_APBP_PSEM |= mask;
 }
 
-static inline void apbpSetSemaphoreMask(uint16_t mask)
+/// Masks interrupts caused by ARM-to-DSP semaphores.
+///
+/// @param mask Bits set to 1 will disable interrupts for that semaphore.
+static inline void apbpSetSemaphoreIrqMask(uint16_t mask)
 {
     REG_APBP_PMASK = mask;
 }
 
-static inline void apbpClearSemaphore(uint16_t mask)
+/// Clears semaphore bits that the ARM9 has set in REG_DSP_PSEM.
+///
+/// @param mask Bits to clear.
+static inline void apbpAckSemaphore(uint16_t mask)
 {
     REG_APBP_PCLEAR = mask;
 }
 
+/// Gets semaphore bits that the ARM9 has set in REG_DSP_PSEM.
+///
+/// @return Bits set by the ARM9 to 1.
 static inline uint16_t apbpGetSemaphore(void)
 {
     return REG_APBP_SEM;

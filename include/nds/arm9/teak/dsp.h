@@ -72,6 +72,7 @@ typedef enum
 #define DSP_PSTS_RD_FIFO_READY  (1 << 6)
 #define DSP_PSTS_WR_FIFO_FULL   (1 << 7)
 #define DSP_PSTS_WR_FIFO_EMPTY  (1 << 8)
+#define DSP_PSTS_SEM_FLAG       (1 << 9)
 
 #define DSP_PSTS_REP_NEW_SHIFT  10
 
@@ -169,21 +170,33 @@ u16 dspReceiveData(int id);
 /// @return true if there is data to be read.
 bool dspReceiveDataReady(int id);
 
+/// Sets semaphore flags to be seen by the DSP in REG_APBP_SEM.
+///
+/// @param mask Bits to set on top of the currently set bits.
 static inline void dspSetSemaphore(u16 mask)
 {
-    REG_DSP_PSEM = mask;
+    REG_DSP_PSEM |= mask;
 }
 
+/// Masks interrupts caused by DSP-to-ARM semaphores.
+///
+/// @param mask Bits set to 1 will disable interrupts for that semaphore.
 static inline void dspSetSemaphoreMask(u16 mask)
 {
     REG_DSP_PMASK = mask;
 }
 
-static inline void dspClearSemaphore(u16 mask)
+/// Clears semaphore bits that the DSP has set in REG_APBP_PSEM.
+///
+/// @param mask Bits to clear.
+static inline void dspAckSemaphore(u16 mask)
 {
     REG_DSP_PCLEAR = mask;
 }
 
+/// Gets semaphore bits that the DSP has set in REG_APBP_PSEM.
+///
+/// @return Bits set by the DSP to 1.
 static inline u16 dspGetSemaphore(void)
 {
     dspSpinWait();
