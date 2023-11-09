@@ -12,24 +12,6 @@
 /// Aligns struct, arrays, etc, to "m".
 #define ALIGN(m) __attribute__((aligned (m)))
 
-/// 8 bit volatile unsigned integer.
-typedef volatile uint8_t vuint8;
-/// 16 bit volatile unsigned integer.
-typedef volatile uint16_t vuint16;
-/// 32 bit volatile unsigned integer.
-typedef volatile uint32_t vuint32;
-/// 64 bit volatile unsigned integer.
-typedef volatile uint64_t vuint64;
-
-/// 8 bit volatile signed integer.
-typedef volatile int8_t vint8;
-/// 16 bit volatile signed integer.
-typedef volatile int16_t vint16;
-/// 32 bit volatile signed integer.
-typedef volatile int32_t vint32;
-/// 64 bit volatile signed integer.
-typedef volatile int64_t vint64;
-
 /// 8 bit unsigned integer.
 typedef uint8_t u8;
 /// 16 bit unsigned integer.
