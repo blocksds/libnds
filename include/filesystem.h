@@ -26,7 +26,7 @@ extern "C" {
 bool nitroFSInit(const char *basepath);
 
 /// Exits NitroFS.
-bool nitroFSExit(void);
+void nitroFSExit(void);
 
 #ifdef __cplusplus
 }
