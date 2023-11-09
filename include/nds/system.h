@@ -348,7 +348,6 @@ typedef struct tPERSONAL_DATA
 
     u8 alarmHour;       ///< What hour the alarm clock is set to (0-23).
     u8 alarmMinute;     ///< What minute the alarm clock is set to (0-59).
-    // 0x02FFFCD3  alarm minute
 
     u8 RESERVED2[4];    // ??? 0x02FFFCD4  ??
 
@@ -372,7 +371,8 @@ typedef struct tPERSONAL_DATA
         u32 RESERVED6         : 6; // ???
     } PACKED;
 
-    u16 RESERVED3;      // ???
+    u8 year;            ///< Year (0 = 2000 .. 255 = 2255)
+    u8 rtcClockAdjust;  ///< Real Time Clock adjustment register value.
     u32 rtcOffset;      ///< Real Time Clock offset.
     u32 RESERVED4;      // ???
 } PACKED PERSONAL_DATA;
