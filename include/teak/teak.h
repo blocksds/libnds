@@ -11,6 +11,7 @@
 #include <teak/cpu.h>
 #include <teak/dma.h>
 #include <teak/icu.h>
+#include <teak/timer.h>
 #include <teak/types.h>
 
 void teakInit(void);
