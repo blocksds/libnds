@@ -28,7 +28,7 @@ extern "C" {
 #include <nds/timers.h>
 
 #define SOUND_VOL(n)        (n)
-#define SOUND_FREQ(n)       TIMER_FREQ_SHIFT(n, 1)
+#define SOUND_FREQ(n)       TIMER_FREQ_SHIFT(n, 1, 1)
 #define SOUND_ENABLE        BIT(15)
 
 #define SOUND_REPEAT        BIT(27)
