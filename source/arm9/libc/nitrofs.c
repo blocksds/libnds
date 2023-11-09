@@ -180,6 +180,12 @@ static int32_t nitrofs_dir_step(uint16_t dir, const char *name)
 
 int nitrofs_opendir(nitrofs_dir_state_t *state, const char *name)
 {
+    if (!nitrofs_initialized)
+    {
+        errno = ENODEV;
+        return -1;
+    }
+
     int32_t res = nitrofs_path_resolve(name);
     if (res < 0)
     {
@@ -340,6 +346,9 @@ int nitrofs_getcwd(char *buf, size_t size)
 
 int nitrofs_chdir(const char *path)
 {
+    if (!nitrofs_initialized)
+        return FR_NO_FILESYSTEM;
+    
     int32_t res = nitrofs_path_resolve((char*) path);
     if (res < 0) return FR_NO_PATH;
     nitrofs_local.current_dir = res;
@@ -350,9 +359,6 @@ int nitrofs_chdir(const char *path)
 
 ssize_t nitrofs_read(int fd, void *ptr, size_t len)
 {
-    if (!nitrofs_initialized)
-        return 0;
-
     nitrofs_file_t *fp = (nitrofs_file_t*) FD_DESC(fd);
     size_t remaining = fp->endofs - fp->position;
     if (len > remaining)
@@ -413,6 +419,12 @@ static int nitrofs_open_by_id(nitrofs_file_t *fp, uint16_t id)
 
 int nitrofs_open(const char *name)
 {
+    if (!nitrofs_initialized)
+    {
+        errno = ENODEV;
+        return -1;
+    }
+
     int32_t res = nitrofs_path_resolve(name);
     if (res < 0)
     {
@@ -450,6 +462,12 @@ static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 
 int nitrofs_stat(const char *name, struct stat *st)
 {
+    if (!nitrofs_initialized)
+    {
+        errno = ENODEV;
+        return -1;
+    }
+
     nitrofs_file_t fp;
     int32_t res = nitrofs_path_resolve(name);
     if (res < 0)
