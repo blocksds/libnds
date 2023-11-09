@@ -1,5 +1,4 @@
 build
-include/nds/libversion.h
 lib
 docs
 warn.log
