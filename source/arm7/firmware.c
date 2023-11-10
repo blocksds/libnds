@@ -39,6 +39,24 @@ void readFirmware(u32 address, void *destination, u32 size)
     leaveCriticalSection(oldIME);
 }
 
+int readJEDEC(u8 *destination, u32 size) {
+    if (destination == NULL)
+        return -1;
+
+    // JEDEC is always 3 bytes.
+    if (size < 3)
+        return -2;
+
+    int oldIME = enterCriticalSection();
+    REG_SPICNT = SPI_ENABLE | SPI_BYTE_MODE | SPI_CONTINUOUS | SPI_DEVICE_FIRMWARE;
+    readwriteSPI(FIRMWARE_RDID); // get JEDEC
+    for (int i = 0; i < 3; i++) {
+        destination[i] = readwriteSPI(0);
+    }
+    REG_SPICNT = 0;
+    leaveCriticalSection(oldIME);
+}
+
 static int writeFirmwarePage(u32 address, u8 *buffer)
 {
     u8 pagebuffer[256];
