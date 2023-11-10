@@ -13,12 +13,7 @@
     .section .\section\().\name\(), "ax", %progbits
     .global \name
     .type \name, %function
-    .align 2
 \name:
 .endm
-
-#define ICACHE_SIZE     0x2000
-#define DCACHE_SIZE     0x1000
-#define CACHE_LINE_SIZE 32
 
 #endif // LIBNDS_ASMINC_H__
