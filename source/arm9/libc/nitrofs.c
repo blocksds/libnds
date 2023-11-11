@@ -549,10 +549,9 @@ bool nitroFSInit(const char *basepath)
         return false;
     nitrofs_local.fnt_offset = nitrofs_offsets[0];
     nitrofs_local.fat_offset = nitrofs_offsets[2];
-    
+
     // Set "nitro:/" as default path
     current_drive_is_nitrofs = true;
-    nitrofs_local.current_dir = 0;
 
     nitrofs_initialized = true;
 
