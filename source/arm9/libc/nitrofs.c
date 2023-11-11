@@ -80,7 +80,6 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
     state->position = 0;
     state->file_index = fnt_entry.first_file;
     state->dir_opened = dir;
-    state->buffer[0] = 0;
 
     if (nitrofs_local.file == NULL)
     {
@@ -89,8 +88,9 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
         state->offset -= state->position;
     }
 
+    state->buffer[state->position] = 0;
     nitrofs_read_internal(state->buffer, state->offset, 512);
-    return state->buffer[0] != 0;
+    return state->buffer[state->position] != 0;
 }
 
 static bool nitrofs_dir_state_next(nitrofs_dir_state_t *state)
