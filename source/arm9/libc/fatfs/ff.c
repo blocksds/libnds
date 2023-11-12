@@ -1089,8 +1089,7 @@ static FRESULT move_window (	/* Returns FR_OK or FR_DISK_ERR */
 		res = sync_window(fs);		/* Flush the window */
 #endif
 		if (res == FR_OK) {			/* Fill sector window with new data */
-			// BlocksDS: use 0x80 to mark cacheable read
-			if (disk_read(0x80 | fs->pdrv, fs->win, sect, 1) != RES_OK) {
+			if (disk_read(fs->pdrv, fs->win, sect, 1) != RES_OK) {
 				sect = (LBA_t)0 - 1;	/* Invalidate window if read data is not valid */
 				res = FR_DISK_ERR;
 			}
