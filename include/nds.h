@@ -173,6 +173,7 @@ extern "C" {
 #    include <nds/arm7/input.h>
 #    include <nds/arm7/sdmmc.h>
 #    include <nds/arm7/serial.h>
+#    include <nds/arm7/tmio.h>
 #    include <nds/arm7/touch.h>
 #endif // ARM7
 
