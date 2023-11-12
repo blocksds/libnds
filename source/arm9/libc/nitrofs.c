@@ -546,7 +546,11 @@ bool nitroFSInit(const char *basepath)
     }
 
     if (!(nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0 && nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0))
+    {
+        if (nitrofs_local.file)
+            fclose(nitrofs_local.file);
         return false;
+    }
     nitrofs_local.fnt_offset = nitrofs_offsets[0];
     nitrofs_local.fat_offset = nitrofs_offsets[2];
 
