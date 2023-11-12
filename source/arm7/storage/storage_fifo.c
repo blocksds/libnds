@@ -16,6 +16,20 @@ static const DISC_INTERFACE *dldi_io = NULL;
 int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg);
 int sdmmcValueHandler(u32 value, void *user_data);
 
+static void fifoIrqDisable(void)
+{
+    int oldIME = enterCriticalSection();
+    REG_IE &= ~(IRQ_FIFO_NOT_EMPTY | IRQ_FIFO_EMPTY);
+    leaveCriticalSection(oldIME);
+}
+
+static void fifoIrqEnable(void)
+{
+    int oldIME = enterCriticalSection();
+    REG_IE |= (IRQ_FIFO_NOT_EMPTY | IRQ_FIFO_EMPTY);
+    leaveCriticalSection(oldIME);
+}
+
 void storageMsgHandler(int bytes, void *user_data)
 {
     FifoMessage msg;
@@ -23,7 +37,8 @@ void storageMsgHandler(int bytes, void *user_data)
 
     fifoGetDatamsg(FIFO_STORAGE, bytes, (u8*)&msg);
 
-    int oldIME = enterCriticalSection();
+    fifoIrqDisable();
+
     switch (msg.type)
     {
         case SDMMC_SD_READ_SECTORS:
@@ -59,7 +74,7 @@ void storageMsgHandler(int bytes, void *user_data)
             break;
     }
 
-    leaveCriticalSection(oldIME);
+    fifoIrqEnable();
 
     fifoSendValue32(FIFO_STORAGE, retval);
 }
@@ -67,15 +82,18 @@ void storageMsgHandler(int bytes, void *user_data)
 void storageValueHandler(u32 value, void *user_data)
 {
     int result = 0;
-    int oldIME = enterCriticalSection();
+
+    fifoIrqDisable();
 
     switch (value)
     {
-        case SDMMC_HAVE_SD:
         case SDMMC_SD_START:
-        case SDMMC_NAND_START:
-        case SDMMC_SD_IS_INSERTED:
         case SDMMC_SD_STOP:
+        case SDMMC_SD_STATUS:
+        case SDMMC_SD_SIZE:
+        case SDMMC_NAND_START:
+        case SDMMC_NAND_STOP:
+        case SDMMC_NAND_STATUS:
         case SDMMC_NAND_SIZE:
             if (isDSiMode())
                 result = sdmmcValueHandler(value, user_data);
@@ -97,7 +115,7 @@ void storageValueHandler(u32 value, void *user_data)
             break;
     }
 
-    leaveCriticalSection(oldIME);
+    fifoIrqEnable();
 
     fifoSendValue32(FIFO_STORAGE, result);
 }

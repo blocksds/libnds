@@ -146,12 +146,12 @@ extern "C" {
 #    include <nds/arm9/keyboard.h>
 #    include <nds/arm9/linkedlist.h>
 #    include <nds/arm9/math.h>
-#    include <nds/arm9/nand.h>
 #    include <nds/arm9/paddle.h>
 #    include <nds/arm9/pcx.h>
 #    include <nds/arm9/piano.h>
 #    include <nds/arm9/rumble.h>
 #    include <nds/arm9/sassert.h>
+#    include <nds/arm9/sdmmc.h>
 #    include <nds/arm9/sound.h>
 #    include <nds/arm9/sprite.h>
 #    include <nds/arm9/trig_lut.h>

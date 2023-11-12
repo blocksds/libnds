@@ -33,6 +33,7 @@
 
 #include <nds/arm9/cache.h>
 #include <nds/arm9/dldi.h>
+#include <nds/arm9/sdmmc.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -66,15 +67,22 @@ static const DISC_INTERFACE *fs_io[FF_VOLUMES];
 // pdrv: Physical drive nmuber to identify the drive
 DSTATUS disk_status(BYTE pdrv)
 {
+    DSTATUS result = 0;
+
     switch (pdrv)
     {
-        case DEV_DLDI:
         case DEV_SD:
-            return fs_initialized[pdrv] ? 0 : STA_NOINIT;
-
+            result = sdmmc_GetDiskStatus();
+            // fall through
+        case DEV_DLDI:
+            result |= fs_initialized[pdrv] ? 0 : STA_NOINIT;
+            break;
         default:
-            return STA_NOINIT;
+            result = STA_NOINIT;
+            break;
     }
+    
+    return result;
 }
 
 //-----------------------------------------------------------------------
@@ -91,23 +99,9 @@ DSTATUS disk_initialize(BYTE pdrv)
     switch (pdrv)
     {
         case DEV_DLDI:
-        {
-            const DISC_INTERFACE *io = dldiGetInternal();
-
-            if (!io->startup())
-                return STA_NOINIT;
-
-            if (!io->isInserted())
-                return STA_NODISK;
-
-            fs_io[pdrv] = io;
-            fs_initialized[pdrv] = true;
-
-            return 0;
-        }
         case DEV_SD:
         {
-            const DISC_INTERFACE *io = get_io_dsisd();
+            const DISC_INTERFACE *io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
 
             if (!io->startup())
                 return STA_NOINIT;

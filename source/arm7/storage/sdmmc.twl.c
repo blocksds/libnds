@@ -597,27 +597,22 @@ u32 SDMMC_getCid(const u8 devNum, u32 cidOut[4])
 	return SDMMC_ERR_NONE;
 }
 
-/*#include "fatfs/ff.h"     // Needed for the "byte" type used in diskio.h.
-#include "fatfs/diskio.h"
 u8 SDMMC_getDiskStatus(const u8 devNum)
 {
-	if(devNum > SDMMC_MAX_DEV_NUM) return STA_NODISK | STA_NOINIT;
+	if(devNum > SDMMC_MAX_DEV_NUM) return SDMMC_STATUS_NODISK | SDMMC_STATUS_NOINIT;
 
 	u8 status = 0;
-	if(devNum == SDMMC_DEV_CARD)
-		status = (TMIO_cardDetected() == true ? 0 : STA_NODISK | STA_NOINIT);
+	if(devNum == SDMMC_DEV_CARD && !TMIO_cardDetected())
+		return SDMMC_STATUS_NODISK | SDMMC_STATUS_NOINIT;
 
 	const SdmmcDev *const dev = &g_devs[devNum];
-	status |= (dev->prot != 0 ? STA_PROTECT : 0);
 	if(dev->type == DEV_TYPE_NONE)
-		status |= STA_NOINIT;*/
-
-	// "Not valid if STA_NODISK is set."
-	/*if(status & STA_NODISK)
-		status &= ~STA_PROTECT;*/
-
-//	return status;
-//}
+		status |= SDMMC_STATUS_NOINIT;
+	else if(!(status & SDMMC_STATUS_NODISK) && dev->prot)
+		status |= SDMMC_STATUS_PROTECT;
+	
+	return status;
+}
 
 u32 SDMMC_getSectors(const u8 devNum)
 {

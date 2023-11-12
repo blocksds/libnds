@@ -92,6 +92,10 @@ typedef struct
 #define SDMMC_LK_ERASE    (1u<<3) // Force erase a locked (e)MMC/SD card.
 #define SDMMC_LK_COP      (1u<<4) // SD cards only. Card Ownership Protection operation.
 
+// These values should be synchronized with <fatfs/diskio.h>.
+#define SDMMC_STATUS_NOINIT		0x01	/* Drive not initialized */
+#define SDMMC_STATUS_NODISK		0x02	/* No medium in the drive */
+#define SDMMC_STATUS_PROTECT    0x04	/* Write protected */
 
 
 /**
@@ -181,13 +185,13 @@ u32 SDMMC_getDevInfo(const u8 devNum, SdmmcInfo *const infoOut);
 u32 SDMMC_getCid(const u8 devNum, u32 cidOut[4]);
 
 /**
- * @brief      Returns the DSTATUS bits of a (e)MMC/SD card device. See FatFs diskio.h.
+ * @brief      Returns the SDMMC_STATUS bits of a (e)MMC/SD card device.
  *
  * @param[in]  devNum  The device.
  *
- * @return     Returns the DSTATUS bits or STA_NODISK | STA_NOINIT on failure.
+ * @return     Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK | SDMMC_STATUS_NOINIT on failure.
  */
-//u8 SDMMC_getDiskStatus(const u8 devNum);
+u8 SDMMC_getDiskStatus(const u8 devNum);
 
 /**
  * @brief      Outputs the number of sectors for a (e)MMC/SD card device.

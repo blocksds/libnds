@@ -5,8 +5,45 @@
 #include <stddef.h>
 
 #include <nds.h>
+#include <nds/ndma.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
+
+#define NDMA_CHANNEL 1
+
+static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count) {
+#ifdef NDMA_CHANNEL
+    if (!(((uintptr_t) buf) & 0x3)) {
+        NDMA_SRC(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
+        NDMA_DEST(NDMA_CHANNEL) = (u32) buf;
+        NDMA_BLENGTH(NDMA_CHANNEL) = 512 / 4;
+        NDMA_BDELAY(NDMA_CHANNEL) = NDMA_BDELAY_DIV_1 | NDMA_BDELAY_CYCLES(0);
+        NDMA_CR(NDMA_CHANNEL) = NDMA_ENABLE | NDMA_REPEAT | NDMA_BLOCK_SCALER(4)
+                                | NDMA_SRC_FIX | NDMA_DST_INC | NDMA_START_SDMMC;
+        u32 result = SDMMC_readSectors(devNum, sect, NULL, count);
+        NDMA_CR(NDMA_CHANNEL) = 0;
+        return result;
+    } else
+#endif
+    return SDMMC_readSectors(devNum, sect, buf, count);
+}
+
+static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count) {
+#ifdef NDMA_CHANNEL
+    if (!(((uintptr_t) buf) & 0x3)) {
+        NDMA_SRC(NDMA_CHANNEL) = (u32) buf;
+        NDMA_DEST(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
+        NDMA_BLENGTH(NDMA_CHANNEL) = 512 / 4;
+        NDMA_BDELAY(NDMA_CHANNEL) = NDMA_BDELAY_DIV_1 | NDMA_BDELAY_CYCLES(0);
+        NDMA_CR(NDMA_CHANNEL) = NDMA_ENABLE | NDMA_REPEAT | NDMA_BLOCK_SCALER(4)
+                                | NDMA_SRC_INC | NDMA_DST_FIX | NDMA_START_SDMMC;
+        u32 result = SDMMC_writeSectors(devNum, sect, NULL, count);
+        NDMA_CR(NDMA_CHANNEL) = 0;
+        return result;
+    } else
+#endif
+    return SDMMC_writeSectors(devNum, sect, buf, count);
+}
 
 int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg)
 {
@@ -18,19 +55,19 @@ int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg)
     switch (msg->type)
     {
         case SDMMC_SD_READ_SECTORS:
-			retval = SDMMC_readSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
+			retval = sdmmcReadSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
                                        msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
         case SDMMC_SD_WRITE_SECTORS:
-			retval = SDMMC_writeSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
+			retval = sdmmcWriteSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
                                        msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
         case SDMMC_NAND_READ_SECTORS:
-			retval = SDMMC_readSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
+			retval = sdmmcReadSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
                                        msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
         case SDMMC_NAND_WRITE_SECTORS:
-			retval = SDMMC_writeSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
+			retval = sdmmcWriteSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
                                        msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
     }
@@ -46,9 +83,12 @@ int sdmmcValueHandler(u32 value, void *user_data)
 
     switch(value)
     {
-        case SDMMC_HAVE_SD:
-		case SDMMC_SD_IS_INSERTED:
-            result = TMIO_cardDetected();
+		case SDMMC_SD_STATUS:
+            result = SDMMC_getDiskStatus(SDMMC_DEV_CARD);
+            break;
+
+		case SDMMC_NAND_STATUS:
+            result = SDMMC_getDiskStatus(SDMMC_DEV_eMMC);
             break;
 
         case SDMMC_SD_START:
@@ -61,6 +101,13 @@ int sdmmcValueHandler(u32 value, void *user_data)
 
         case SDMMC_SD_STOP:
 			result = SDMMC_deinit(SDMMC_DEV_CARD);
+            break;
+
+        case SDMMC_NAND_STOP:
+			break;
+
+        case SDMMC_SD_SIZE:
+            result = SDMMC_getSectors(SDMMC_DEV_CARD);
             break;
 
         case SDMMC_NAND_SIZE:
