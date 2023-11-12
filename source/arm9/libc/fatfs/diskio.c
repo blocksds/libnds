@@ -213,7 +213,10 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
                 {
                     memcpy(align_buffer, buff, FF_MAX_SS);
                     if (!io->writeSectors(sector, 1, align_buffer))
+                    {
+                        free(align_buffer);
                         return RES_ERROR;
+                    }
 
                     count--;
                     sector++;
