@@ -26,6 +26,7 @@
 // storage control modules to the FatFs module with a defined API.
 //-----------------------------------------------------------------------
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,9 +47,6 @@
 // Definitions of physical drive number for each drive
 #define DEV_DLDI    0x00 // DLDI driver (flashcard)
 #define DEV_SD      0x01 // SD slot of the DSi
-
-// Disk I/O behaviour configuration
-#define IO_CACHE_IGNORE_LARGE_READS 2
 
 // NOTE: The clearStatus() function of DISC_INTERFACE isn't used in libfat, so
 // it isn't needed here either.
@@ -130,6 +128,9 @@ DSTATUS disk_initialize(BYTE pdrv)
 // count:  Number of sectors to read
 DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 {
+    bool cacheable = (pdrv & 0x80);
+    pdrv &= 0x7F;
+
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
 
@@ -139,19 +140,15 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
         case DEV_SD:
         {
             const DISC_INTERFACE *io = fs_io[pdrv];
-#ifdef IO_CACHE_IGNORE_LARGE_READS
-            if (count >= IO_CACHE_IGNORE_LARGE_READS)
-            {
-                // Is the target in main RAM?
-                if (MAIN_RAM_ALIGNED(buff))
-                {
-                    if (!io->readSectors(sector, count, buff))
-                        return RES_ERROR;
 
-                    return RES_OK;
-                }
+            if (!cacheable && MAIN_RAM_ALIGNED(buff))
+            {
+                if (!io->readSectors(sector, count, buff))
+                    return RES_ERROR;
+
+                return RES_OK;
             }
-#endif
+
             while (count > 0)
             {
                 void *cache = cache_sector_get(pdrv, sector);
