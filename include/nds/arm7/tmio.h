@@ -103,51 +103,51 @@ __attribute__((always_inline)) static inline vu32* getTmioFifo(Tmio *const regs)
 #define CMD_SEC_SDIO             (1u<<14)       // Security/SDIO command.
 
 // REG_SD_PORTSEL
-#define PORTSEL_P0               (0u) // Controller port 0.
-#define PORTSEL_P1               (1u) // Controller port 1.
-#define PORTSEL_P2               (2u) // Controller port 2.
-#define PORTSEL_P3               (3u) // Controller port 3.
-#define PORTSEL_MASK             (PORTSEL_P3)
+#define SD_PORTSEL_P0               (0u) // Controller port 0.
+#define SD_PORTSEL_P1               (1u) // Controller port 1.
+#define SD_PORTSEL_P2               (2u) // Controller port 2.
+#define SD_PORTSEL_P3               (3u) // Controller port 3.
+#define SD_PORTSEL_MASK             (SD_PORTSEL_P3)
 // Bit 8-9 number of supported ports?
-#define PORTSEL_UNK10            (1u<<10) // Unknown writable bit 10?
+#define SD_PORTSEL_UNK10            (1u<<10) // Unknown writable bit 10?
 
 // REG_SD_STOP
-#define STOP_STOP                (1u)    // Abort data transfer and send STOP_TRANSMISSION CMD.
-#define STOP_AUTO_STOP           (1u<<8) // Automatically send STOP_TRANSMISSION on multi-block transfer end.
+#define SD_STOP_STOP                (1u)    // Abort data transfer and send STOP_TRANSMISSION CMD.
+#define SD_STOP_AUTO_STOP           (1u<<8) // Automatically send STOP_TRANSMISSION on multi-block transfer end.
 
 // REG_SD_STATUS1/2       Write 0 to acknowledge a bit.
 // REG_SD_STATUS1/2_MASK  (M) = Maskable bit. 1 = disabled.
 // Unmaskable bits act as status only, don't trigger IRQs and can't be acknowledged.
-#define STATUS_RESP_END          (1u)     // (M) Response end.
-#define STATUS_DATA_END          (1u<<2)  // (M) Data transfer end (triggers after last block).
-#define STATUS_REMOVE            (1u<<3)  // (M) Card got removed.
-#define STATUS_INSERT            (1u<<4)  // (M) Card got inserted. Set at the same time as DETECT.
-#define STATUS_DETECT            (1u<<5)  // Card detect status (SD_OPTION detection timer). 1 = inserted.
-#define STATUS_NO_WRPROT         (1u<<7)  // Write protection slider unlocked (low).
-#define STATUS_DAT3_REMOVE       (1u<<8)  // (M) Card DAT3 got removed (low).
-#define STATUS_DAT3_INSERT       (1u<<9)  // (M) Card DAT3 got inserted (high).
-#define STATUS_DAT3_DETECT       (1u<<10) // Card DAT3 status. 1 = inserted.
-#define STATUS_ERR_CMD_IDX       (1u<<16) // (M) Bad CMD index in response.
-#define STATUS_ERR_CRC           (1u<<17) // (M) Bad CRC in response.
-#define STATUS_ERR_STOP_BIT      (1u<<18) // (M) Stop bit error. Failed to recognize response frame end?
-#define STATUS_ERR_DATA_TIMEOUT  (1u<<19) // (M) Response data timeout.
-#define STATUS_ERR_RX_OVERF      (1u<<20) // (M) Receive FIFO overflow.
-#define STATUS_ERR_TX_UNDERF     (1u<<21) // (M) Send FIFO underflow.
-#define STATUS_ERR_CMD_TIMEOUT   (1u<<22) // (M) Response start bit timeout.
-#define STATUS_SD_BUSY           (1u<<23) // SD card signals busy if this bit is 0 (DAT0 held low).
-#define STATUS_RX_RDY            (1u<<24) // (M) FIFO ready for read.
-#define STATUS_TX_REQ            (1u<<25) // (M) FIFO write request.
+#define SD_STATUS_RESP_END          (1u)     // (M) Response end.
+#define SD_STATUS_DATA_END          (1u<<2)  // (M) Data transfer end (triggers after last block).
+#define SD_STATUS_REMOVE            (1u<<3)  // (M) Card got removed.
+#define SD_STATUS_INSERT            (1u<<4)  // (M) Card got inserted. Set at the same time as DETECT.
+#define SD_STATUS_DETECT            (1u<<5)  // Card detect status (SD_OPTION detection timer). 1 = inserted.
+#define SD_STATUS_NO_WRPROT         (1u<<7)  // Write protection slider unlocked (low).
+#define SD_STATUS_DAT3_REMOVE       (1u<<8)  // (M) Card DAT3 got removed (low).
+#define SD_STATUS_DAT3_INSERT       (1u<<9)  // (M) Card DAT3 got inserted (high).
+#define SD_STATUS_DAT3_DETECT       (1u<<10) // Card DAT3 status. 1 = inserted.
+#define SD_STATUS_ERR_CMD_IDX       (1u<<16) // (M) Bad CMD index in response.
+#define SD_STATUS_ERR_CRC           (1u<<17) // (M) Bad CRC in response.
+#define SD_STATUS_ERR_STOP_BIT      (1u<<18) // (M) Stop bit error. Failed to recognize response frame end?
+#define SD_STATUS_ERR_DATA_TIMEOUT  (1u<<19) // (M) Response data timeout.
+#define SD_STATUS_ERR_RX_OVERF      (1u<<20) // (M) Receive FIFO overflow.
+#define SD_STATUS_ERR_TX_UNDERF     (1u<<21) // (M) Send FIFO underflow.
+#define SD_STATUS_ERR_CMD_TIMEOUT   (1u<<22) // (M) Response start bit timeout.
+#define SD_STATUS_SD_BUSY           (1u<<23) // SD card signals busy if this bit is 0 (DAT0 held low).
+#define SD_STATUS_RX_RDY            (1u<<24) // (M) FIFO ready for read.
+#define SD_STATUS_TX_REQ            (1u<<25) // (M) FIFO write request.
 // Bit 27 is maskable. Purpose unknown.
 // Bit 29 exists (not maskable). Signals when clock divider changes are allowed?
-#define STATUS_CMD_BUSY          (1u<<30) // Command register busy.
-#define STATUS_ERR_ILL_ACC       (1u<<31) // (M) Illegal access error. TODO: What does that mean?
+#define SD_STATUS_CMD_BUSY          (1u<<30) // Command register busy.
+#define SD_STATUS_ERR_ILL_ACC       (1u<<31) // (M) Illegal access error. TODO: What does that mean?
 
-#define STATUS_MASK_ALL          (0xFFFFFFFFu)
-#define STATUS_MASK_DEFAULT      ((1u<<27) | STATUS_TX_REQ | STATUS_RX_RDY | \
-                                  STATUS_DAT3_INSERT | STATUS_DAT3_REMOVE)
-#define STATUS_MASK_ERR          (STATUS_ERR_ILL_ACC | STATUS_ERR_CMD_TIMEOUT | STATUS_ERR_TX_UNDERF | \
-                                  STATUS_ERR_RX_OVERF | STATUS_ERR_DATA_TIMEOUT | STATUS_ERR_STOP_BIT | \
-                                  STATUS_ERR_CRC | STATUS_ERR_CMD_IDX)
+#define SD_STATUS_MASK_ALL          (0xFFFFFFFFu)
+#define SD_STATUS_MASK_DEFAULT      ((1u<<27) | SD_STATUS_TX_REQ | SD_STATUS_RX_RDY | \
+                                    SD_STATUS_DAT3_INSERT | SD_STATUS_DAT3_REMOVE)
+#define SD_STATUS_MASK_ERR          (SD_STATUS_ERR_ILL_ACC | SD_STATUS_ERR_CMD_TIMEOUT | SD_STATUS_ERR_TX_UNDERF | \
+                                    SD_STATUS_ERR_RX_OVERF | SD_STATUS_ERR_DATA_TIMEOUT | SD_STATUS_ERR_STOP_BIT | \
+                                    SD_STATUS_ERR_CRC | SD_STATUS_ERR_CMD_IDX)
 
 // REG_SD_CLK_CTRL
 #define SD_CLK_DIV_2             (0u)    // Clock divider 2.
@@ -165,8 +165,7 @@ __attribute__((always_inline)) static inline vu32* getTmioFifo(Tmio *const regs)
 
 // Outputs the matching divider for clk.
 // Shift the output right by 2 to get the value for REG_SD_CLK_CTRL.
-__attribute__((always_inline))
-static inline u32 TMIO_CLK2DIV(u32 clk) {
+__attribute__((always_inline)) static inline u32 TMIO_CLK2DIV(u32 clk) {
 	u32 __shift = 1;                             
 	while(clk < TMIO_HCLK>>__shift) ++__shift;
 	return 1u<<__shift;                                
@@ -183,29 +182,29 @@ static inline u32 TMIO_CLK2DIV(u32 clk) {
 //
 // Bit 0-3 card detect timer 0x400<<x HCLKs. 0xF timer test (0x100 HCLKs).
 // Bit 4-7 data timeout 0x2000<<x SDCLKs. 0xF timeout test (0x100 SDCLKs).
-#define OPTION_UNK14             (1u<<14) // "no C2 module" What the fuck is a C2 module?
-#define OPTION_BUS_WIDTH4        (0u)     // 4 bit bus width.
-#define OPTION_BUS_WIDTH1        (1u<<15) // 1 bit bus width.
+#define SD_OPTION_UNK14             (1u<<14) // "no C2 module" What the fuck is a C2 module?
+#define SD_OPTION_BUS_WIDTH4        (0u)     // 4 bit bus width.
+#define SD_OPTION_BUS_WIDTH1        (1u<<15) // 1 bit bus width.
 
 // Card detect time: 0x400<<8 / 33513982 = 0.007821929 seconds.
 // Data timeout:     0x2000<<11 / (33513982 / 2) = 1.001206959 seconds.
-#define OPTION_DEFAULT_TIMINGS   (11u<<4 | 8u)
+#define SD_OPTION_DEFAULT_TIMINGS   (11u<<4 | 8u)
 
 // REG_SD_ERR_STATUS1/2  Write 0 to acknowledge a bit.
 // TODO: Are all of these actually supported on this controller?
-#define ERR_RESP_CMD_IDX         (1u)     // Manual command index error in response.
-#define ERR_RESP_CMD12_IDX       (1u<<1)  // Auto command index error in response.
-#define ERR_RESP_STOP_BIT        (1u<<2)  // Manual command response stop bit error.
-#define ERR_RESP_STOP_BIT_CMD12  (1u<<3)  // Auto command response stop bit error.
-#define ERR_STOP_BIT_DATA_READ   (1u<<4)  // Stop bit error in read data.
-#define ERR_STOP_BIT_WR_CRC      (1u<<5)  // Stop bit error for write CRC status. What the hell does that mean?
-#define ERR_CMD_RESP_CRC         (1u<<8)  // Manual command response CRC error.
-#define ERR_CMD12_RESP_CRC       (1u<<9)  // Auto command response CRC error.
-#define ERR_DATA_READ_CRC        (1u<<10) // CRC error for read data.
-#define ERR_WR_CRC_STAT          (1u<<11) // "CRC error for Write CRC status for a write command". What the hell does that mean?
+#define SD_ERR_RESP_CMD_IDX         (1u)     // Manual command index error in response.
+#define SD_ERR_RESP_CMD12_IDX       (1u<<1)  // Auto command index error in response.
+#define SD_ERR_RESP_STOP_BIT        (1u<<2)  // Manual command response stop bit error.
+#define SD_ERR_RESP_STOP_BIT_CMD12  (1u<<3)  // Auto command response stop bit error.
+#define SD_ERR_STOP_BIT_DATA_READ   (1u<<4)  // Stop bit error in read data.
+#define SD_ERR_STOP_BIT_WR_CRC      (1u<<5)  // Stop bit error for write CRC status. What the hell does that mean?
+#define SD_ERR_CMD_RESP_CRC         (1u<<8)  // Manual command response CRC error.
+#define SD_ERR_CMD12_RESP_CRC       (1u<<9)  // Auto command response CRC error.
+#define SD_ERR_DATA_READ_CRC        (1u<<10) // CRC error for read data.
+#define SD_ERR_WR_CRC_STAT          (1u<<11) // "CRC error for Write CRC status for a write command". What the hell does that mean?
 // Bit 13 always 1.
-#define ERR_CMD_RESP_TMOUT       (1u<<16) // Manual command response timeout.
-#define ERR_CMD12_RESP_TMOUT     (1u<<17) // Auto command response timeout.
+#define SD_ERR_CMD_RESP_TMOUT       (1u<<16) // Manual command response timeout.
+#define SD_ERR_CMD12_RESP_TMOUT     (1u<<17) // Auto command response timeout.
 // TODO: Add the correct remaining ones.
 
 // REG_SDIO_MODE
@@ -224,14 +223,14 @@ static inline u32 TMIO_CLK2DIV(u32 clk) {
 
 #define SDIO_STATUS_MASK_ALL     (0xFFFFu)
 
-// REG_DMA_EXT_MODE
-#define DMA_EXT_CPU_MODE         (0u)    // Disables DMA requests. Actually also turns off the 32 bit FIFO.
-#define DMA_EXT_DMA_MODE         (1u<<1) // Enables DMA requests.
-#define DMA_EXT_UNK5             (1u<<5) // "Buffer status mode"?
+// REG_TMIO_DMA_EXT_MODE
+#define TMIO_DMA_EXT_CPU_MODE         (0u)    // Disables DMA requests. Actually also turns off the 32 bit FIFO.
+#define TMIO_DMA_EXT_DMA_MODE         (1u<<1) // Enables DMA requests.
+#define TMIO_DMA_EXT_UNK5             (1u<<5) // "Buffer status mode"?
 
 // REG_SOFT_RST
-#define SOFT_RST_RST             (0u) // Reset.
-#define SOFT_RST_NORST           (1u) // No reset.
+#define TMIO_SOFT_RST_RST             (0u) // Reset.
+#define TMIO_SOFT_RST_NORST           (1u) // No reset.
 
 // REG_EXT_SDIO_IRQ
 #define EXT_SDIO_IRQ_P1          (1u)     // Port 1 SDIO IRQ (DAT1 low). Write 0 to acknowledge.
@@ -281,12 +280,12 @@ static inline u32 TMIO_CLK2DIV(u32 clk) {
 
 // REG_SD_FIFO32_CNT
 // Bit 0 unknown, non-writable.
-#define FIFO32_EN                (1u<<1)  // Enables the 32 bit FIFO.
-#define FIFO32_FULL              (1u<<8)  // FIFO is full.
-#define FIFO32_NOT_EMPTY         (1u<<9)  // FIFO is not empty. Inverted bit. 0 means empty.
-#define FIFO32_CLEAR             (1u<<10) // Clears the FIFO.
-#define FIFO32_FULL_IE           (1u<<11) // FIFO full IRQ enable.
-#define FIFO32_NOT_EMPTY_IE      (1u<<12) // FIFO not empty IRQ enable.
+#define SD_FIFO32_EN                (1u<<1)  // Enables the 32 bit FIFO.
+#define SD_FIFO32_FULL              (1u<<8)  // FIFO is full.
+#define SD_FIFO32_NOT_EMPTY         (1u<<9)  // FIFO is not empty. Inverted bit. 0 means empty.
+#define SD_FIFO32_CLEAR             (1u<<10) // Clears the FIFO.
+#define SD_FIFO32_FULL_IE           (1u<<11) // FIFO full IRQ enable.
+#define SD_FIFO32_NOT_EMPTY_IE      (1u<<12) // FIFO not empty IRQ enable.
 
 
 
@@ -385,8 +384,8 @@ __attribute__((always_inline)) static inline void TMIO_setBlockLen(TmioPort *con
  */
 __attribute__((always_inline)) static inline void TMIO_setBusWidth(TmioPort *const port, const u8 width)
 {
-	port->sd_option = (width == 4 ? OPTION_BUS_WIDTH4 : OPTION_BUS_WIDTH1) |
-	                  OPTION_UNK14 | OPTION_DEFAULT_TIMINGS;
+	port->sd_option = (width == 4 ? SD_OPTION_BUS_WIDTH4 : SD_OPTION_BUS_WIDTH1) |
+	                  SD_OPTION_UNK14 | SD_OPTION_DEFAULT_TIMINGS;
 }
 
 /**

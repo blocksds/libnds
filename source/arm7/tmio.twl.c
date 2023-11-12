@@ -29,7 +29,7 @@ static void tmio1Isr(void) // SD/eMMC.
 {
 	Tmio *const regs = getTmioRegs(0);
 	g_status[0] |= regs->sd_status;
-	regs->sd_status = STATUS_CMD_BUSY; // Never acknowledge STATUS_CMD_BUSY.
+	regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 
 	// TODO: Some kind of event to notify the main loop for remove/insert.
 }
@@ -38,7 +38,7 @@ static void tmio2Isr(void) // WiFi SDIO.
 {
 	Tmio *const regs = getTmioRegs(1);
 	g_status[1] |= regs->sd_status;
-	regs->sd_status = STATUS_CMD_BUSY; // Never acknowledge STATUS_CMD_BUSY.
+	regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 }
 
 void TMIO_init(void)
@@ -53,24 +53,24 @@ void TMIO_init(void)
 	{
 		// Setup 32 bit FIFO.
 		Tmio *const regs = getTmioRegs(i);
-		regs->sd_fifo32_cnt   = FIFO32_CLEAR | FIFO32_EN;
+		regs->sd_fifo32_cnt   = SD_FIFO32_CLEAR | SD_FIFO32_EN;
 		regs->sd_blocklen32   = 512;
 		regs->sd_blockcount32 = 1;
-		regs->dma_ext_mode    = DMA_EXT_DMA_MODE;
+		regs->dma_ext_mode    = TMIO_DMA_EXT_DMA_MODE;
 
 		// Reset. Unlike similar controllers no delay is needed.
 		// Resets the following regs:
 		// REG_SD_STOP, REG_SD_RESP0-7, REG_SD_STATUS1-2, REG_SD_ERR_STATUS1-2,
 		// REG_SD_CLK_CTRL, REG_SD_OPTION, REG_SDIO_STATUS.
-		regs->soft_rst = SOFT_RST_RST;
-		regs->soft_rst = SOFT_RST_NORST;
+		regs->soft_rst = TMIO_SOFT_RST_RST;
+		regs->soft_rst = TMIO_SOFT_RST_NORST;
 
-		regs->sd_portsel         = PORTSEL_P0;
+		regs->sd_portsel         = SD_PORTSEL_P0;
 		regs->sd_blockcount      = 1;
-		regs->sd_status_mask     = STATUS_MASK_DEFAULT;
+		regs->sd_status_mask     = SD_STATUS_MASK_DEFAULT;
 		regs->sd_clk_ctrl        = SD_CLK_DEFAULT;
 		regs->sd_blocklen        = 512;
-		regs->sd_option          = OPTION_BUS_WIDTH1 | OPTION_UNK14 | OPTION_DEFAULT_TIMINGS;
+		regs->sd_option          = SD_OPTION_BUS_WIDTH1 | SD_OPTION_UNK14 | SD_OPTION_DEFAULT_TIMINGS;
 		regs->ext_cdet_mask      = EXT_CDET_MASK_ALL;
 		regs->ext_cdet_dat3_mask = EXT_CDET_DAT3_MASK_ALL;
 
@@ -94,7 +94,7 @@ void TMIO_deinit(void)
 		regs->sd_fifo32_cnt = 0; // FIFO and all IRQs disabled/masked.
 
 		// Regular IRQs.
-		regs->sd_status_mask = STATUS_MASK_ALL;
+		regs->sd_status_mask = SD_STATUS_MASK_ALL;
 
 		// SDIO IRQs.
 		regs->sdio_status_mask = SDIO_STATUS_MASK_ALL;
@@ -107,7 +107,7 @@ void TMIO_initPort(TmioPort *const port, const u8 portNum)
 	port->portNum     = portNum;
 	port->sd_clk_ctrl = SD_CLK_DEFAULT;
 	port->sd_blocklen = 512;
-	port->sd_option   = OPTION_BUS_WIDTH1 | OPTION_UNK14 | OPTION_DEFAULT_TIMINGS;
+	port->sd_option   = SD_OPTION_BUS_WIDTH1 | SD_OPTION_UNK14 | SD_OPTION_DEFAULT_TIMINGS;
 }
 
 // TODO: What if we get rid of setPort() and only use one port per controller?
@@ -125,12 +125,12 @@ static void setPort(Tmio *const regs, const TmioPort *const port)
 
 bool TMIO_cardDetected(void)
 {
-	return getTmioRegs(0)->sd_status & STATUS_DETECT;
+	return getTmioRegs(0)->sd_status & SD_STATUS_DETECT;
 }
 
 bool TMIO_cardWritable(void)
 {
-	return getTmioRegs(0)->sd_status & STATUS_NO_WRPROT;
+	return getTmioRegs(0)->sd_status & SD_STATUS_NO_WRPROT;
 }
 
 void TMIO_powerupSequence(TmioPort *const port)
@@ -159,8 +159,8 @@ static void getResponse(const Tmio *const regs, TmioPort *const port, const u16 
 	}
 }
 
-// Note: Using STATUS_DATA_END to detect transfer end doesn't work reliably
-//       because STATUS_DATA_END fires before we even read anything from FIFO
+// Note: Using SD_STATUS_DATA_END to detect transfer end doesn't work reliably
+//       because SD_STATUS_DATA_END fires before we even read anything from FIFO
 //       on single block read transfer.
 static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf, const u32 *const statusPtr)
 {
@@ -169,9 +169,9 @@ static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf, const u32 *c
 	vu32 *const fifo = getTmioFifo(regs);
 	if(cmd & CMD_DATA_R)
 	{
-		while((GET_STATUS(statusPtr) & STATUS_MASK_ERR) == 0 && blockCount > 0)
+		while((GET_STATUS(statusPtr) & SD_STATUS_MASK_ERR) == 0 && blockCount > 0)
 		{
-			if(regs->sd_fifo32_cnt & FIFO32_FULL) // RX ready.
+			if(regs->sd_fifo32_cnt & SD_FIFO32_FULL) // RX ready.
 			{
 				const u8 *const blockEnd = buf + blockLen;
 				if (!(((uintptr_t) buf) & 3))
@@ -203,9 +203,9 @@ static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf, const u32 *c
 	{
 		// TODO: Write first block ahead of time?
 		// gbatek Command/Param/Response/Data at bottom of page.
-		while((GET_STATUS(statusPtr) & STATUS_MASK_ERR) == 0 && blockCount > 0)
+		while((GET_STATUS(statusPtr) & SD_STATUS_MASK_ERR) == 0 && blockCount > 0)
 		{
-			if(!(regs->sd_fifo32_cnt & FIFO32_NOT_EMPTY)) // TX request.
+			if(!(regs->sd_fifo32_cnt & SD_FIFO32_NOT_EMPTY)) // TX request.
 			{
 				const u8 *const blockEnd = buf + blockLen;
 				if (!(((uintptr_t) buf) & 3))
@@ -248,13 +248,13 @@ u32 TMIO_sendCommand(TmioPort *const port, const u16 cmd, const u32 arg)
 	setPort(regs, port);
 	const u16 blocks = port->blocks;
 	regs->sd_blockcount = blocks;         // sd_blockcount32 doesn't need to be set.
-	regs->sd_stop       = STOP_AUTO_STOP; // Auto STOP_TRANSMISSION (CMD12) on multi-block transfer.
+	regs->sd_stop       = SD_STOP_AUTO_STOP; // Auto STOP_TRANSMISSION (CMD12) on multi-block transfer.
 	regs->sd_arg        = arg;
 
 	// We don't need FIFO IRQs when using DMA. buf = NULL means DMA.
 	u8 *buf = port->buf;
-	u16 f32Cnt = FIFO32_CLEAR | FIFO32_EN;
-	if(buf != NULL) f32Cnt |= (cmd & CMD_DATA_R ? FIFO32_FULL_IE : FIFO32_NOT_EMPTY_IE);
+	u16 f32Cnt = SD_FIFO32_CLEAR | SD_FIFO32_EN;
+	if(buf != NULL) f32Cnt |= (cmd & CMD_DATA_R ? SD_FIFO32_FULL_IE : SD_FIFO32_NOT_EMPTY_IE);
 	regs->sd_fifo32_cnt = f32Cnt;
 	regs->sd_cmd        = (blocks > 1 ? CMD_MULTI_DATA | cmd : cmd); // Start.
 
@@ -262,7 +262,7 @@ u32 TMIO_sendCommand(TmioPort *const port, const u16 cmd, const u32 arg)
 	// Response end comes immediately after the
 	// command so we need to check before __wfi().
 	// On error response end still fires.
-	while((GET_STATUS(statusPtr) & STATUS_RESP_END) == 0) swiHalt();
+	while((GET_STATUS(statusPtr) & SD_STATUS_RESP_END) == 0) swiHalt();
 	getResponse(regs, port, cmd);
 
 	if((cmd & CMD_DATA_EN) != 0)
@@ -272,10 +272,10 @@ u32 TMIO_sendCommand(TmioPort *const port, const u16 cmd, const u32 arg)
 
 		// Wait for data end if needed.
 		// On error data end still fires.
-		while((GET_STATUS(statusPtr) & STATUS_DATA_END) == 0) swiHalt();
+		while((GET_STATUS(statusPtr) & SD_STATUS_DATA_END) == 0) swiHalt();
 	}
 
-	// STATUS_CMD_BUSY is no longer set at this point.
+	// SD_STATUS_CMD_BUSY is no longer set at this point.
 
-	return GET_STATUS(statusPtr) & STATUS_MASK_ERR;
+	return GET_STATUS(statusPtr) & SD_STATUS_MASK_ERR;
 }

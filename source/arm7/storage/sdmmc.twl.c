@@ -105,14 +105,14 @@ static u32 initIdleState(TmioPort *const port, u8 *const devTypeOut)
 		// the whole response at once.
 		if(port->resp[0] != SD_IF_COND_ARG) return SDMMC_ERR_IF_COND_RESP;
 	}
-	else if(res != STATUS_ERR_CMD_TIMEOUT) return SDMMC_ERR_SEND_IF_COND; // Card responded but an error occured.
+	else if(res != SD_STATUS_ERR_CMD_TIMEOUT) return SDMMC_ERR_SEND_IF_COND; // Card responded but an error occured.
 
 	// Send the first app CMD. If this times out it's (e)MMC.
 	// If SEND_IF_COND timed out tell the SD card we are a v1 host.
 	const u32 opCondArg = SD_OP_COND_ARG | (res<<8 ^ SD_ACMD41_HCS); // Caution! Controller specific hack.
 	u8 devType = DEV_TYPE_SDSC;
 	res = sendAppCmd(port, SD_APP_SD_SEND_OP_COND, opCondArg, 0);
-	if(res == STATUS_ERR_CMD_TIMEOUT) devType = DEV_TYPE_MMC;        // Continue with (e)MMC init.
+	if(res == SD_STATUS_ERR_CMD_TIMEOUT) devType = DEV_TYPE_MMC;        // Continue with (e)MMC init.
 	else if(res != 0)                 return SDMMC_ERR_SEND_OP_COND; // Unknown error.
 
 	if(devType == DEV_TYPE_MMC) // (e)MMC.
@@ -583,7 +583,7 @@ u32 SDMMC_getDevInfo(const u8 devNum, SdmmcInfo *const infoOut)
 
 	memcpy(infoOut->cid, dev->cid, 16);
 	infoOut->ccc      = dev->ccc;
-	infoOut->busWidth = (port->sd_option & OPTION_BUS_WIDTH1 ? 1 : 4);
+	infoOut->busWidth = (port->sd_option & SD_OPTION_BUS_WIDTH1 ? 1 : 4);
 
 	return SDMMC_ERR_NONE;
 }
