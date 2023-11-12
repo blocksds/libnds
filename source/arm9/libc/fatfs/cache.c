@@ -143,7 +143,7 @@ void *cache_sector_add(uint8_t pdrv, uint32_t sector)
     return cache_mem + (selected_entry * FF_MAX_SS);
 }
 
-void cache_sector_invalidate(uint8_t pdrv, uint32_t sector)
+void cache_sector_invalidate(uint8_t pdrv, uint32_t sector_from, uint32_t sector_to)
 {
     for (uint32_t i = 0; i < cache_num_sectors; i++)
     {
@@ -152,7 +152,7 @@ void cache_sector_invalidate(uint8_t pdrv, uint32_t sector)
         if (entry->valid == 0)
             continue;
 
-        if ((entry->pdrv != pdrv) || (entry->sector != sector))
+        if ((entry->pdrv != pdrv) || (entry->sector < sector_from) || (entry->sector > sector_to))
             continue;
 
         entry->valid = 0;
