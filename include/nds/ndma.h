@@ -78,7 +78,7 @@
 
 #define NDMA_DST_INC            (0)
 #define NDMA_DST_DEC            (1 << 10)
-#define NDMA_DST_FIX            (2 << 13)
+#define NDMA_DST_FIX            (2 << 10)
 
 #define NDMA_START_NOW          (1 << 28)
 #define NDMA_START_TIMER0       (0)

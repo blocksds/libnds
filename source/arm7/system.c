@@ -7,6 +7,7 @@
 #include <nds/arm7/clock.h>
 #include <nds/arm7/i2c.h>
 #include <nds/arm7/sdmmc.h>
+#include <nds/arm7/tmio.h>
 #include <nds/bios.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>

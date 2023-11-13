@@ -66,12 +66,13 @@ typedef enum {
 } FifoSystemCommands;
 
 typedef enum {
-    SDMMC_HAVE_SD,
     SDMMC_SD_START,
-    SDMMC_SD_IS_INSERTED,
     SDMMC_SD_STOP,
+    SDMMC_SD_STATUS,
+    SDMMC_SD_SIZE,
     SDMMC_NAND_START,
     SDMMC_NAND_STOP,
+    SDMMC_NAND_STATUS,
     SDMMC_NAND_SIZE,
     DLDI_STARTUP,
     DLDI_IS_INSERTED,

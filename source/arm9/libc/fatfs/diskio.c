@@ -33,6 +33,7 @@
 
 #include <nds/arm9/cache.h>
 #include <nds/arm9/dldi.h>
+#include <nds/arm9/sdmmc.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -66,15 +67,22 @@ static const DISC_INTERFACE *fs_io[FF_VOLUMES];
 // pdrv: Physical drive nmuber to identify the drive
 DSTATUS disk_status(BYTE pdrv)
 {
+    DSTATUS result = 0;
+
     switch (pdrv)
     {
-        case DEV_DLDI:
         case DEV_SD:
-            return fs_initialized[pdrv] ? 0 : STA_NOINIT;
-
+            result = sdmmc_GetDiskStatus();
+            // fall through
+        case DEV_DLDI:
+            result |= fs_initialized[pdrv] ? 0 : STA_NOINIT;
+            break;
         default:
-            return STA_NOINIT;
+            result = STA_NOINIT;
+            break;
     }
+    
+    return result;
 }
 
 //-----------------------------------------------------------------------
@@ -91,23 +99,9 @@ DSTATUS disk_initialize(BYTE pdrv)
     switch (pdrv)
     {
         case DEV_DLDI:
-        {
-            const DISC_INTERFACE *io = dldiGetInternal();
-
-            if (!io->startup())
-                return STA_NOINIT;
-
-            if (!io->isInserted())
-                return STA_NODISK;
-
-            fs_io[pdrv] = io;
-            fs_initialized[pdrv] = true;
-
-            return 0;
-        }
         case DEV_SD:
         {
-            const DISC_INTERFACE *io = get_io_dsisd();
+            const DISC_INTERFACE *io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
 
             if (!io->startup())
                 return STA_NOINIT;
@@ -123,6 +117,8 @@ DSTATUS disk_initialize(BYTE pdrv)
     }
     return STA_NOINIT;
 }
+
+#define MAIN_RAM_ALIGNED(buff) (((uintptr_t) (buff)) >> 24 == 0x02 && !(((uintptr_t) (buff)) & 0x03))
 
 //-----------------------------------------------------------------------
 // Read Sector(s)
@@ -147,7 +143,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
             if (count >= IO_CACHE_IGNORE_LARGE_READS)
             {
                 // Is the target in main RAM?
-                if (((uint32_t) buff) >> 24 == 0x02 && !(((uint32_t) buff) & 0x03))
+                if (MAIN_RAM_ALIGNED(buff))
                 {
                     if (!io->readSectors(sector, count, buff))
                         return RES_ERROR;
@@ -206,11 +202,10 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
         case DEV_DLDI:
         case DEV_SD:
         {
-            for (uint32_t i = 0; i < count; i++)
-                cache_sector_invalidate(pdrv, sector + i);
+            cache_sector_invalidate(pdrv, sector, sector + count - 1);
 
             const DISC_INTERFACE *io = fs_io[pdrv];
-            if (((uint32_t) buff) & 0x03)
+            if (!MAIN_RAM_ALIGNED(buff))
             {
                 // DLDI drivers expect a 4-byte aligned buffer.
                 align_buffer = malloc(FF_MAX_SS);
@@ -221,7 +216,10 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
                 {
                     memcpy(align_buffer, buff, FF_MAX_SS);
                     if (!io->writeSectors(sector, 1, align_buffer))
+                    {
+                        free(align_buffer);
                         return RES_ERROR;
+                    }
 
                     count--;
                     sector++;

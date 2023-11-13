@@ -4,6 +4,7 @@
 
 #ifdef ARM7
 #include <nds/arm7/i2c.h>
+#include <nds/arm7/tmio.h>
 #endif
 #include <nds/interrupts.h>
 #include <nds/ipc.h>
@@ -141,6 +142,7 @@ void irqInit(void)
         irqInitAUX();
         irqSetAUX(IRQ_I2C, i2cIRQHandler);
         irqEnableAUX(IRQ_I2C);
+        TMIO_init();
     }
 #endif
     REG_IME = 1; // Enable interrupts
