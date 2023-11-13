@@ -539,14 +539,25 @@ bool nitroFSInit(const char *basepath)
     {
         memcpy(nitrofs_offsets, &(__NDSHeader->filenameOffset), 4 * sizeof(uint32_t));
 
-        // If not reading from DLDI, we could still be reading from Slot-2.
-        // Figure this out by comparing NitroFS header data between the two.
-        sysSetCartOwner(BUS_OWNER_ARM9);
-        nitrofs_local.use_slot2 = !memcmp(((uint16_t*) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
+        if (!isDSiMode())
+        {
+            // If not reading from DLDI, we could still be reading from Slot-2.
+            // Figure this out by comparing NitroFS header data between the two.
+            sysSetCartOwner(BUS_OWNER_ARM9);
+            nitrofs_local.use_slot2 = !memcmp(((uint16_t*) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
+        }
+        else
+        {
+            nitrofs_local.use_slot2 = false;
+        }
     }
 
     if (!(nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0 && nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0))
+    {
+        if (nitrofs_local.file)
+            fclose(nitrofs_local.file);
         return false;
+    }
     nitrofs_local.fnt_offset = nitrofs_offsets[0];
     nitrofs_local.fat_offset = nitrofs_offsets[2];
 
