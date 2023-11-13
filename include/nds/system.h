@@ -281,7 +281,7 @@ static inline void powerOff(uint32_t bits)
     REG_POWERCNT &= ~bits;
 }
 
-void readUserSettings(void);
+bool readUserSettings(void);
 void systemShutDown(void);
 
 #endif // ARM7

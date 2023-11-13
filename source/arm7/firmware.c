@@ -39,7 +39,7 @@ void readFirmware(u32 address, void *destination, u32 size)
     leaveCriticalSection(oldIME);
 }
 
-int readJEDEC(u8 *destination, u32 size)
+int readFirmwareJEDEC(u8 *destination, u32 size)
 {
     if (destination == NULL)
         return -1;
