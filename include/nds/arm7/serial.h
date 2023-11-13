@@ -94,7 +94,7 @@ static inline void SerialWaitBusy(void)
 void readFirmware(u32 address, void *destination, u32 size);
 
 // Read internal flash JEDEC values
-int readJEDEC(u8 *destination, u32 size);
+int readFirmwareJEDEC(u8 *destination, u32 size);
 
 #ifdef __cplusplus
 }
