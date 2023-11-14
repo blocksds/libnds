@@ -191,6 +191,8 @@ int close(int fd)
 
     FRESULT result = f_close(fp);
 
+    if (fp->cltbl != NULL)
+        free(fp->cltbl);
     free(fp);
 
     if (result == FR_OK)

@@ -15,6 +15,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /// This function calls fatInit() with the default cache size (5 pages = 20 KB).
 ///
@@ -61,6 +62,30 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device);
 ///
 /// @return Returns a string with the path.
 char *fatGetDefaultCwd(void);
+
+/// This function initializes a lookup cache on a given FAT file.
+/// For NitroFS, use @see nitrofsInitLookupCache instead.
+///
+/// This lookup cache allows avoiding expensive SD card lookups for large and/or
+/// backwards lookups, at the expensive of RAM usage.
+///
+/// Note that, if the file is opened for writing, using this function will
+/// prevent the file's size from being expanded.
+///
+/// @param fd The file descriptor to initialize. Use fileno(file) for FILE *
+///           inputs.
+/// @param max_buffer_size The maximum buffer size, in bytes.
+///
+/// @return 0 if the initialization was successful, a non-zero value on error.
+int fatInitLookupCache(int fd, uint32_t max_buffer_size);
+
+static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size) {
+    return fatInitLookupCache(fileno(file), max_buffer_size);
+}
+
+#define FAT_INIT_LOOKUP_CACHE_NOT_SUPPORTED     -1
+#define FAT_INIT_LOOKUP_CACHE_OUT_OF_MEMORY     -2
+#define FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED -3
 
 #ifdef __cplusplus
 }
