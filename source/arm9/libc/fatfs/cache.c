@@ -22,6 +22,7 @@ typedef struct {
 static cache_entry_t *cache_entries;
 static uint8_t *cache_mem;
 static uint32_t cache_num_sectors;
+static uint32_t dldi_stub_space_sectors;
 
 extern uint8_t* dldiGetStubDataEnd(void);
 extern uint8_t* dldiGetStubEnd(void);
@@ -34,10 +35,13 @@ int cache_init(int32_t num_sectors)
     if (cache_entries != NULL)
         free(cache_entries);
 
-    if (cache_mem != NULL && (uintptr_t)cache_mem > (uintptr_t)dldiGetStubEnd())
+    if (cache_mem != NULL)
         free(cache_mem);
 
     int32_t stub_space_sectors = (dldiGetStubEnd() - dldiGetStubDataEnd()) >> 9;
+    dldi_stub_space_sectors = stub_space_sectors < 0 ? 0 : stub_space_sectors;
+
+    // If num_sectors is negative, use the DLDI stub space.
     if (num_sectors < 0) {
         num_sectors = stub_space_sectors;
     }
@@ -51,14 +55,17 @@ int cache_init(int32_t num_sectors)
 #error "Set the block size to the right value"
 #endif
 
-        // If sufficient, use the space at the end of the DLDI stub
-        cache_mem = num_sectors <= stub_space_sectors
-            ? dldiGetStubEnd() - (num_sectors << 9)
-            : malloc(num_sectors * FF_MAX_SS);
-        if (cache_mem == NULL)
+        // cache_mem is only used to store the excess number of sectors
+        // that does not otherwise fit in the unused DLDI stub space.
+        cache_mem = NULL;
+        if (num_sectors > (int32_t)dldi_stub_space_sectors)
         {
-            free(cache_entries);
-            return -1;
+            cache_mem = malloc((num_sectors - dldi_stub_space_sectors) * FF_MAX_SS);
+            if (cache_mem == NULL)
+            {
+                free(cache_entries);
+                return -1;
+            }
         }
 
         cache_num_sectors = num_sectors;
@@ -67,6 +74,14 @@ int cache_init(int32_t num_sectors)
     }
 
     return 0;
+}
+
+static void *cache_sector_address(uint32_t i)
+{
+    if (i < dldi_stub_space_sectors)
+        return dldiGetStubEnd() - (i + 1) * FF_MAX_SS;
+    else
+        return cache_mem + ((i - dldi_stub_space_sectors) * FF_MAX_SS);
 }
 
 void *cache_sector_get(uint8_t pdrv, uint32_t sector)
@@ -84,7 +99,7 @@ void *cache_sector_get(uint8_t pdrv, uint32_t sector)
         if (entry->usage_count < cache_num_sectors)
             entry->usage_count++;
 
-        return cache_mem + (i * FF_MAX_SS);
+        return cache_sector_address(i);
     }
 
     return NULL;
@@ -156,7 +171,7 @@ void *cache_sector_add(uint8_t pdrv, uint32_t sector)
     entry->sector = sector;
     entry->usage_count = 1;
 
-    return cache_mem + (selected_entry * FF_MAX_SS);
+    return cache_sector_address(selected_entry);
 }
 
 void cache_sector_invalidate(uint8_t pdrv, uint32_t sector_from, uint32_t sector_to)

@@ -48,6 +48,8 @@
 #define DEV_DLDI    0x00 // DLDI driver (flashcard)
 #define DEV_SD      0x01 // SD slot of the DSi
 
+// #define DISABLE_UNCACHED_READS
+
 // NOTE: The clearStatus() function of DISC_INTERFACE isn't used in libfat, so
 // it isn't needed here either.
 
@@ -141,6 +143,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
         {
             const DISC_INTERFACE *io = fs_io[pdrv];
 
+#ifndef DISABLE_UNCACHED_READS
             if (!cacheable && MAIN_RAM_ALIGNED(buff))
             {
                 if (!io->readSectors(sector, count, buff))
@@ -148,6 +151,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 
                 return RES_OK;
             }
+#endif
 
             while (count > 0)
             {
