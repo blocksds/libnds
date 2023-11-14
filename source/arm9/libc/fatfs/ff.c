@@ -3969,7 +3969,7 @@ FRESULT f_read (
 					prevclst = nextclst;
 #if FF_USE_FASTSEEK
 					if (fp->cltbl) {
-						nextclst = clmt_clust(fp, fp->fptr + contiguous_cluster_size);	/* Get cluster# from the CLMT */
+						nextclst = clmt_clust(fp, fp->fptr + (contiguous_cluster_size * SS(fs)));	/* Get cluster# from the CLMT */
 					} else
 #endif
 					{
@@ -4103,7 +4103,7 @@ FRESULT f_write (
 					prevclst = nextclst;
 #if FF_USE_FASTSEEK
 					if (fp->cltbl) {
-						nextclst = clmt_clust(fp, fp->fptr + contiguous_cluster_size);	/* Get cluster# from the CLMT */
+						nextclst = clmt_clust(fp, fp->fptr + (contiguous_cluster_size * SS(fs)));	/* Get cluster# from the CLMT */
 					} else
 #endif
 					{
