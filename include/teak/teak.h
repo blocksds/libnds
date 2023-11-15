@@ -12,6 +12,7 @@
 
 #include <teak/ahbm.h>
 #include <teak/apbp.h>
+#include <teak/btdmp.h>
 #include <teak/cpu.h>
 #include <teak/dma.h>
 #include <teak/icu.h>
