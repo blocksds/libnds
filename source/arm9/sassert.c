@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2013 Jason Rogers (Dovoto)
 // Copyright (C) 2013 Michael Theall (mtheall)

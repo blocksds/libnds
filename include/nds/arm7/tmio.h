@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version ( https://github.com/profi200/dsi_sdmmc )
 //
 // Copyright (c) 2023 profi200
-// Modified from the original version ( https://github.com/profi200/dsi_sdmmc )
 
 #ifndef LIBNDS_NDS_ARM7_TMIO_H__
 #define LIBNDS_NDS_ARM7_TMIO_H__

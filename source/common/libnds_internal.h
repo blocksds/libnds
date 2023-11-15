@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005-2008 Dave Murphy (WinterMute)
 // Copyright (c) 2023 Antonio Niño Díaz
