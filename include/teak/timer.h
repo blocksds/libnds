@@ -49,6 +49,7 @@
 
 #define TMR_CONTROL_RESTART             (1 << 10)
 
+/// Cause a trap when the timer reaches 0. Remember to enable autoclear.
 #define TMR_CONTROL_BREAKPOINT          (1 << 11)
 
 #define TMR_CONTROL_CLOCK_INTERNAL      (0 << 12)
