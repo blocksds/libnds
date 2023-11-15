@@ -7,9 +7,14 @@
 #ifndef LIBTEAK_ICU_H__
 #define LIBTEAK_ICU_H__
 
-#include <teak/types.h>
+/// @file teak/icu.h
+///
+/// @brief ICU helpers.
+///
+/// The ICU helpers allow the developer to route peripheral interrupts (APBP,
+/// DMA, etc) to CPU interrupts 0 to 2.
 
-// TODO: Document
+#include <teak/types.h>
 
 #define ICU_IRQ_MASK_SWI(n)             BIT(n) // 0 to 8
 #define ICU_IRQ_MASK_TMR1               BIT(9)
@@ -52,6 +57,20 @@
 /// ICU Interrupt Master Disable (R/W)
 #define REG_ICU_IRQ_DISABLE             (*(vu16 *)0x8252)
 
+/// Initialize ICU unit and disable all interrupts.
 void icuInit(void);
+
+/// Route a peripheral IRQ to a CPU IRQ.
+///
+/// The interrupt is setup as edge-triggered and normal polarity.
+///
+/// @param mask Interrupt mask. For example, ICU_IRQ_MASK_APBP.
+/// @param index CPU interrupt to be triggered for the specified mask (0 to 2).
+void icuIrqSetup(u16 mask, int index);
+
+/// Disable a peripheral IRQ.
+///
+/// @param mask Interrupt mask. For example, ICU_IRQ_MASK_APBP.
+void icuIrqDisable(u16 mask);
 
 #endif // LIBTEAK_ICU_H__

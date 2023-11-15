@@ -96,6 +96,7 @@
 /// - @ref teak/ahbm.h "AHBM (ARM AMBA AHB bus) utilities"
 /// - @ref teak/apbp.h "Host Port Interface (APBP aka HPI)"
 /// - @ref teak/dma.h "DMA helpers"
+/// - @ref teak/icu.h "ICU helpers"
 /// - @ref teak/timer.h "Timer utilities"
 
 #ifndef LIBNDS_NDS_H__
