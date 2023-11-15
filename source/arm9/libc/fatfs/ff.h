@@ -139,6 +139,7 @@ typedef struct {
 	WORD	id;				/* Volume mount ID */
 	WORD	n_rootdir;		/* Number of root directory entries (FAT12/16) */
 	WORD	csize;			/* Cluster size [sectors] */
+	WORD	cshift;			/* BlocksDS: (Optimization) Cluster shift */
 #if FF_MAX_SS != FF_MIN_SS
 	WORD	ssize;			/* Sector size (512, 1024, 2048 or 4096) */
 #endif
@@ -247,14 +248,14 @@ typedef struct {
 	WORD	fdate;			/* Modified date */
 	WORD	ftime;			/* Modified time */
 	BYTE	fattrib;		/* File attribute */
-	BYTE    fpdrv;          /* BlocksDS: Physical drive ID. */
+	BYTE    fpdrv;          /* BlocksDS: (Feature) Physical drive ID. */
 #if FF_USE_LFN
 	TCHAR	altname[FF_SFN_BUF + 1];/* Alternative file name */
 	TCHAR	fname[FF_LFN_BUF + 1];	/* Primary file name */
 #else
 	TCHAR	fname[12 + 1];	/* File name */
 #endif
-	DWORD   fclust;         /* BlocksDS: File cluster. */
+	DWORD   fclust;         /* BlocksDS: (Feature) File cluster. */
 } FILINFO;
 
 
