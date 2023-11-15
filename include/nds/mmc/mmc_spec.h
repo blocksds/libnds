@@ -234,4 +234,4 @@
 #define EXT_CSD_HPI_FEATURES                 (503u) //  1,                      R, HPI features.
 #define EXT_CSD_S_CMD_SET                    (504u) //  1,                      R, Supported Command Sets.
 
-#endif
+#endif // LIBNDS_NDS_MMC_MMC_SPEC_H__

@@ -191,4 +191,4 @@
 // acc:    Function group 1 Access mode.
 #define SD_SWITCH_FUNC_ARG(mode, pwr, driver, cmd, acc)  ((mode)<<31 | 0xFFu<<16 | ((pwr)&0xFu)<<12 | ((driver)&0xFu)<<8 | ((cmd)&0xFu)<<4 | ((acc)&0xFu))
 
-#endif
+#endif // LIBNDS_NDS_MMC_SD_SPEC_H__
