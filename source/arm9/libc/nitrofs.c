@@ -568,3 +568,9 @@ bool nitroFSInit(const char *basepath)
 
     return true;
 }
+
+int nitroFSInitLookupCache(uint32_t max_buffer_size) {
+    if (!nitrofs_initialized || !nitrofs_local.file)
+        return 0;
+    return fatInitLookupCacheFile(nitrofs_local.file, max_buffer_size);
+}

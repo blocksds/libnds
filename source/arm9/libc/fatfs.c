@@ -10,8 +10,10 @@
 #include <nds/memory.h>
 #include <nds/system.h>
 
+#include "fat.h"
 #include "fatfs/cache.h"
 #include "fatfs/ff.h"
+#include "filesystem_internal.h"
 
 #define DEFAULT_CACHE_PAGES         5
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
@@ -325,4 +327,30 @@ cleanup:
 bool fatInitDefault(void)
 {
     return fatInit(DEFAULT_CACHE_PAGES, true);
+}
+
+int fatInitLookupCache(int fd, uint32_t max_buffer_size)
+{
+    if (FD_IS_NITRO(fd))
+        return FAT_INIT_LOOKUP_CACHE_NOT_SUPPORTED;
+    
+    FIL *fp = (FIL *) fd;
+    if (fp->cltbl != NULL)
+        return FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED;
+    
+    fp->cltbl = malloc(max_buffer_size);
+    if (fp->cltbl == NULL)
+        return FAT_INIT_LOOKUP_CACHE_OUT_OF_MEMORY;
+    fp->cltbl[0] = max_buffer_size / sizeof(DWORD);
+
+    FRESULT ret = f_lseek(fp, CREATE_LINKMAP);
+    if (ret == FR_NOT_ENOUGH_CORE) {
+        return fp->cltbl[0];
+    }
+
+    DWORD* new_cltbl = realloc(fp->cltbl, fp->cltbl[0] * sizeof(DWORD));
+    if (new_cltbl != NULL)
+        fp->cltbl = new_cltbl;
+
+    return 0;
 }

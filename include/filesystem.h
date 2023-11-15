@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
 
 /// Initializes NitroFS.
 ///
@@ -27,6 +28,19 @@ bool nitroFSInit(const char *basepath);
 
 /// Exits NitroFS.
 void nitroFSExit(void);
+
+/// This function initializes a NitroFS lookup cache.
+///
+/// This lookup cache allows avoiding expensive SD card lookups for large
+/// and/or backwards seeks, at the expensive of RAM usage.
+///
+/// This function will return 0 on non-DLDI/SD NitroFS accesses, as lookup
+/// caches are unnecessary in these situations.
+///
+/// @param max_buffer_size The maximum buffer size, in bytes.
+///
+/// @return 0 if the initialization was successful, a non-zero value on error.
+int nitroFSInitLookupCache(uint32_t max_buffer_size);
 
 #ifdef __cplusplus
 }
