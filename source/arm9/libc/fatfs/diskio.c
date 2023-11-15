@@ -26,6 +26,7 @@
 // storage control modules to the FatFs module with a defined API.
 //-----------------------------------------------------------------------
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,8 +48,7 @@
 #define DEV_DLDI    0x00 // DLDI driver (flashcard)
 #define DEV_SD      0x01 // SD slot of the DSi
 
-// Disk I/O behaviour configuration
-#define IO_CACHE_IGNORE_LARGE_READS 2
+// #define DISABLE_UNCACHED_READS
 
 // NOTE: The clearStatus() function of DISC_INTERFACE isn't used in libfat, so
 // it isn't needed here either.
@@ -118,7 +118,8 @@ DSTATUS disk_initialize(BYTE pdrv)
     return STA_NOINIT;
 }
 
-#define MAIN_RAM_ALIGNED(buff) (((uintptr_t) (buff)) >> 24 == 0x02 && !(((uintptr_t) (buff)) & 0x03))
+#define IS_MAIN_RAM(buff) (((uintptr_t) (buff)) >> 24 == 0x02)
+#define IS_WORD_ALIGNED(buff) (!(((uintptr_t) (buff)) & 0x03))
 
 //-----------------------------------------------------------------------
 // Read Sector(s)
@@ -130,6 +131,9 @@ DSTATUS disk_initialize(BYTE pdrv)
 // count:  Number of sectors to read
 DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 {
+    bool cacheable = (pdrv & 0x80);
+    pdrv &= 0x7F;
+
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
 
@@ -139,19 +143,19 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
         case DEV_SD:
         {
             const DISC_INTERFACE *io = fs_io[pdrv];
-#ifdef IO_CACHE_IGNORE_LARGE_READS
-            if (count >= IO_CACHE_IGNORE_LARGE_READS)
-            {
-                // Is the target in main RAM?
-                if (MAIN_RAM_ALIGNED(buff))
-                {
-                    if (!io->readSectors(sector, count, buff))
-                        return RES_ERROR;
 
-                    return RES_OK;
-                }
+#ifndef DISABLE_UNCACHED_READS
+            // The DSi SD driver supports unaligned buffers; we cannot make
+            // the same guarantee for DLDI in practice.
+            if (!cacheable && IS_MAIN_RAM(buff) && (pdrv == DEV_SD || IS_WORD_ALIGNED(buff)))
+            {
+                if (!io->readSectors(sector, count, buff))
+                    return RES_ERROR;
+
+                return RES_OK;
             }
 #endif
+
             while (count > 0)
             {
                 void *cache = cache_sector_get(pdrv, sector);
@@ -205,7 +209,9 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
             cache_sector_invalidate(pdrv, sector, sector + count - 1);
 
             const DISC_INTERFACE *io = fs_io[pdrv];
-            if (!MAIN_RAM_ALIGNED(buff))
+            // The DSi SD driver supports unaligned buffers; we cannot make
+            // the same guarantee for DLDI in practice.
+            if (!IS_MAIN_RAM(buff) || (pdrv == DEV_DLDI && !IS_WORD_ALIGNED(buff)))
             {
                 // DLDI drivers expect a 4-byte aligned buffer.
                 align_buffer = malloc(FF_MAX_SS);

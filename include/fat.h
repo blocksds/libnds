@@ -44,10 +44,12 @@ bool fatInitDefault(void);
 ///
 /// @param cache_size_pages The desired size in pages. One page is made of 8
 ///                         sectors (512 bytes each, 4KB in total).
+///                         Values < 0 leave the cache size decision to the
+///                         FAT filesystem implementation.
 ///
 /// @param set_as_default_device Ignored, kept for compatibility with libfat.
 /// @return It returns true on success, false on error.
-bool fatInit(uint32_t cache_size_pages, bool set_as_default_device);
+bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 
 /// This function returns the default current working directory.
 ///

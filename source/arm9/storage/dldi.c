@@ -26,6 +26,7 @@ const char DLDI_MAGIC_STRING_BACKWARDS[DLDI_MAGIC_STRING_LEN] = {
 
 // The only built in driver
 extern DLDI_INTERFACE _io_dldi_stub;
+extern char __dldi_end;
 
 const DLDI_INTERFACE *io_dldi_data = &_io_dldi_stub;
 
@@ -217,6 +218,19 @@ bool dldiIsValid(const DLDI_INTERFACE *io)
     return true;
 }
 
+void* dldiGetStubDataEnd(void)
+{
+    // Filter out invalid BSS pointers.
+    return ((uintptr_t)_io_dldi_stub.bssEnd) < 0x10000000 && _io_dldi_stub.bssEnd > _io_dldi_stub.dldiEnd
+        ? _io_dldi_stub.bssEnd
+        : _io_dldi_stub.dldiEnd;
+}
+
+void* dldiGetStubEnd(void)
+{
+    return &__dldi_end;
+}
+
 void dldiFixDriverAddresses(DLDI_INTERFACE *io)
 {
     u32 offset;
@@ -325,8 +339,8 @@ DLDI_INTERFACE *dldiLoadFromFile(const char *path)
     // Calculate actual size of DLDI
 
     // Although the file may only go to the dldiEnd, the BSS section can extend
-    // past that
-    if (device->dldiEnd > device->bssEnd)
+    // past that. Many DLDI files which don't use BSS set the value to 0.
+    if (device->bssEnd && device->dldiEnd > device->bssEnd)
         dldiSize = (char *)device->dldiEnd - (char *)device->dldiStart;
     else
         dldiSize = (char *)device->bssEnd - (char *)device->dldiStart;

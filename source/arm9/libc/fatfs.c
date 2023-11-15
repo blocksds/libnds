@@ -15,7 +15,6 @@
 #include "fatfs/ff.h"
 #include "filesystem_internal.h"
 
-#define DEFAULT_CACHE_PAGES         5
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
 // Devices: "fat:/", "sd:/"
@@ -202,7 +201,7 @@ char *fatGetDefaultCwd(void)
     }
 }
 
-bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
+bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 {
     (void)set_as_default_device;
 
@@ -223,7 +222,7 @@ bool fatInit(uint32_t cache_size_pages, bool set_as_default_device)
     // Initialize read cache, shared by all filesystems
     // ------------------------------------------------
 
-    uint32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
+    int32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
 
     // TODO: Should we have a cache_end() if the function fails? It may not be
     // worth it, most games would just stop booting if the filesystem isn't
@@ -326,7 +325,7 @@ cleanup:
 
 bool fatInitDefault(void)
 {
-    return fatInit(DEFAULT_CACHE_PAGES, true);
+    return fatInit(-1, true);
 }
 
 int fatInitLookupCache(int fd, uint32_t max_buffer_size)
