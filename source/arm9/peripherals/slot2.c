@@ -359,7 +359,7 @@ static slot2_definition_t definitions[] = {
     {
         0,
         SLOT2_PERIPHERAL_PADDLE,
-        EXMEMCNT_ROM_TIME1_10_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES | EXMEMCNT_PHI_CLOCK_4MHZ,
+        SLOT2_EXMEMCNT_4_2 | EXMEMCNT_PHI_CLOCK_4MHZ,
         0,
         paddleIsInserted,
         none_unlock
@@ -440,7 +440,7 @@ static slot2_definition_t definitions[] = {
     {
         0x4a50484b, // "KHPJ"
         SLOT2_PERIPHERAL_TILT,
-        SLOT2_EXMEMCNT_3_1,
+        SLOT2_EXMEMCNT_3_1 | EXMEMCNT_PHI_CLOCK_4MHZ,
         0,
         none_detect,
         none_unlock
@@ -449,7 +449,7 @@ static slot2_definition_t definitions[] = {
     {
         0x0047594b, // "KYG_"
         SLOT2_PERIPHERAL_TILT,
-        SLOT2_EXMEMCNT_3_1,
+        SLOT2_EXMEMCNT_3_1 | EXMEMCNT_PHI_CLOCK_4MHZ,
         0,
         none_detect,
         none_unlock

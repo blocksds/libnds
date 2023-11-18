@@ -162,6 +162,7 @@ extern "C" {
 #    include <nds/arm9/window.h>
 #    include <nds/arm9/peripherals/slot2.h>
 #    include <nds/arm9/peripherals/slot2solar.h>
+#    include <nds/arm9/peripherals/slot2tilt.h>
 #    include <nds/arm9/teak/dsp.h>
 #    include <nds/arm9/teak/fifo.h>
 #    include <nds/arm9/teak/tlf.h>
