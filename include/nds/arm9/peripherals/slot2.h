@@ -69,7 +69,8 @@ uint32_t peripheralSlot2GetSupportMask(void);
 /// (for example, external RAM and rumble in a conflicting address space).
 ///
 /// @param The peripheral mask to unlock.
-void peripheralSlot2Open(uint32_t peripheral_mask);
+/// @return True on success, false on failure (no peripheral of type present).
+bool peripheralSlot2Open(uint32_t peripheral_mask);
  
 /// Close (lock) the detected Slot-2 peripheral.
 void peripheralSlot2Close(void);

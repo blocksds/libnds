@@ -395,7 +395,7 @@ static slot2_definition_t definitions[] = {
     {
         0x00575a52, // "RZW_"
         SLOT2_PERIPHERAL_RUMBLE_GPIO | SLOT2_PERIPHERAL_GYRO_GPIO,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         gpio_unlock
@@ -404,7 +404,7 @@ static slot2_definition_t definitions[] = {
     {
         0x00393456, // "V49_"
         SLOT2_PERIPHERAL_RUMBLE_GPIO,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         gpio_unlock
@@ -413,7 +413,7 @@ static slot2_definition_t definitions[] = {
     {
         0x00313355, // "U31_"
         SLOT2_PERIPHERAL_SOLAR_GPIO,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         gpio_unlock
@@ -422,7 +422,7 @@ static slot2_definition_t definitions[] = {
     {
         0x00323355, // "U32_"
         SLOT2_PERIPHERAL_SOLAR_GPIO,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         gpio_unlock
@@ -431,7 +431,7 @@ static slot2_definition_t definitions[] = {
     {
         0x00333355, // "U33_"
         SLOT2_PERIPHERAL_SOLAR_GPIO,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         gpio_unlock
@@ -440,7 +440,7 @@ static slot2_definition_t definitions[] = {
     {
         0x4a50484b, // "KHPJ"
         SLOT2_PERIPHERAL_TILT,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         none_unlock
@@ -449,7 +449,7 @@ static slot2_definition_t definitions[] = {
     {
         0x0047594b, // "KYG_"
         SLOT2_PERIPHERAL_TILT,
-        SLOT2_EXMEMCNT_4_2,
+        SLOT2_EXMEMCNT_3_1,
         0,
         none_detect,
         none_unlock
@@ -498,11 +498,14 @@ uint32_t peripheralSlot2GetSupportMask(void) {
     return slot2_device_id == 0xFFFF ? 0 : definitions[slot2_device_id].peripheral_mask;
 }
 
-void peripheralSlot2Open(uint32_t peripheral_mask) {
-    if (slot2_device_id != 0xFFFF) {
-        sysSetCartOwner(BUS_OWNER_ARM9);
-        definitions[slot2_device_id].unlock(peripheral_mask & definitions[slot2_device_id].peripheral_mask);
-    }
+bool peripheralSlot2Open(uint32_t peripheral_mask) {
+    if (slot2_device_id == 0xFFFF)
+        return false;
+    if (!(definitions[slot2_device_id].peripheral_mask & peripheral_mask))
+        return false;
+    sysSetCartOwner(BUS_OWNER_ARM9);
+    definitions[slot2_device_id].unlock(peripheral_mask & definitions[slot2_device_id].peripheral_mask);
+    return true;
 }
 
 void peripheralSlot2Close(void) {
