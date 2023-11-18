@@ -35,6 +35,8 @@ extern "C" {
 
 /// Initialize a Slot-2 peripheral.
 ///
+/// Note that this method can take up to a few blocking frames to complete.
+///
 /// @param peripheral_mask The peripheral mask to use. This allows narrowing
 /// the cartridge search query down to specific cartridges for faster detection
 /// and minimizing false positives.

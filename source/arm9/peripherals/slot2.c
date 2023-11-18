@@ -69,42 +69,57 @@ static bool __extram_detect(uint32_t max_banks) {
     slot2_extram_size = 0;
     slot2_extram_banks = 0;
 
-    uint32_t previous_size = 65536;
-    uint32_t proposed_size = 131072;
+    uint32_t previous_size = 2048;
+    uint32_t proposed_size = 4096;
     bool searching = true;
     while ((((uintptr_t) slot2_extram_start) + proposed_size) <= 0xA000000) {
-        // ptr1 = old size final memory cell
-        vu16 *ptr1 = ((vu16*) (((uintptr_t) slot2_extram_start) + previous_size - 2));
+        // ptr1 = new size first memory cell
+        vu16 *ptr1 = ((vu16*) (((uintptr_t) slot2_extram_start) + previous_size));
         // ptr2 = new size final memory cell
         vu16 *ptr2 = ((vu16*) (((uintptr_t) slot2_extram_start) + proposed_size - 2));
+
+        // Check if RAM has up to proposed_size bytes
         u16 ptr2v = *ptr2;
         // Check if ptr2 can be written to
-        *ptr2 ^= 0xFFFF;
-        if ((*ptr2 ^ 0xFFFF) != ptr2v)
-            searching = false;
-        // Check if ptr2 mirrors ptr1
-        if (*ptr1 != 0xAAAA) {
-            *ptr2 = 0xAAAA;
-            if (*ptr1 == 0xAAAA)
-                searching = false;
-        }
-        if (*ptr1 != 0x5555) {
-            *ptr2 = 0x5555;
-            if (*ptr1 == 0x5555)
-                searching = false;
-        }
-        // Restore ptr2 value
+        ptr2v ^= 0xFFFF;
         *ptr2 = ptr2v;
+        if (*ptr2 != ptr2v)
+            searching = false;
+        // Restore ptr2 value
+        ptr2v ^= 0xFFFF;
+        *ptr2 = ptr2v;
+
+        // Check if RAM has up to proposed_size bytes
+        u16 ptr1v = *ptr1;
+        // Check if ptr1 can be written to
+        ptr1v ^= 0xFFFF;
+        *ptr1 = ptr1v;
+        if (*ptr1 != ptr1v)
+            searching = false;
+        // Check if ptr1 affects first memory cell
+        if (*slot2_extram_start != 0x0000)
+        {
+            *ptr1 = 0x0000;
+            if (*slot2_extram_start == 0x0000)
+                searching = false;
+        }
+        else if (*slot2_extram_start != 0xFFFF)
+        {
+            *ptr1 = 0xFFFF;
+            if (*slot2_extram_start == 0xFFFF)
+                searching = false;
+        }
+        // Restore ptr1 value
+        ptr1v ^= 0xFFFF;
+        *ptr1 = ptr1v;
+
         // Check if end of memory found
         if (!searching) break;
         // Update size
         slot2_extram_size = proposed_size;
         previous_size = proposed_size;
-        // 128KB, 256KB, 512KB, 1MB, 1.5MB, 2MB, 2.5MB, ...
-        if (proposed_size >= 524288)
-            proposed_size += 524288;
-        else
-            proposed_size <<= 1;
+        // Next size to check
+        proposed_size += 2048;
     }
     if (!slot2_extram_size)
         return false;
