@@ -76,9 +76,13 @@
 /// - @ref nds/arm9/linkedlist.h "General purpose linked list implementation"
 ///
 /// @section peripheral_api Custom Peripherals
-/// - @ref nds/arm9/rumble.h "Rumble Pack"
-/// - @ref nds/arm9/ndsmotion.h "DS Motion Pack"
-/// - @ref nds/arm9/piano.h "DS Easy Piano Controller"
+/// - @ref nds/arm9/peripherals/slot2.h "Slot-2 peripheral detection, external RAM"
+/// - @ref nds/arm9/peripherals/slot2gyro.h "Slot-2 gyro sensor"
+/// - @ref nds/arm9/peripherals/slot2solar.h "Slot-2 solar sensor"
+/// - @ref nds/arm9/peripherals/slot2tilt.h "Slot-2 tilt sensor"
+/// - @ref nds/arm9/rumble.h "Slot-2 Rumble"
+/// - @ref nds/arm9/ndsmotion.h "DS Motion Card/Pak"
+/// - @ref nds/arm9/piano.h "DS Easy Piano"
 ///
 /// @section arm7 ARM7 modules
 /// - @ref nds/arm7/clock.h "RTC utilities"
@@ -161,6 +165,7 @@ extern "C" {
 #    include <nds/arm9/videoGL.h>
 #    include <nds/arm9/window.h>
 #    include <nds/arm9/peripherals/slot2.h>
+#    include <nds/arm9/peripherals/slot2gyro.h>
 #    include <nds/arm9/peripherals/slot2solar.h>
 #    include <nds/arm9/peripherals/slot2tilt.h>
 #    include <nds/arm9/teak/dsp.h>
