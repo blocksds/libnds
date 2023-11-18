@@ -160,6 +160,7 @@ extern "C" {
 #    include <nds/arm9/video.h>
 #    include <nds/arm9/videoGL.h>
 #    include <nds/arm9/window.h>
+#    include <nds/arm9/peripherals/slot2.h>
 #    include <nds/arm9/teak/dsp.h>
 #    include <nds/arm9/teak/fifo.h>
 #    include <nds/arm9/teak/tlf.h>
