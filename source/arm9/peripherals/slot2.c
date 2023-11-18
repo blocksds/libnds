@@ -37,8 +37,22 @@ typedef struct {
 uint16_t *slot2_extram_start;
 uint32_t slot2_extram_size = 0;
 uint16_t slot2_device_id = SLOT2_DEVICE_NONE;
+uint16_t slot2_extram_banks = 0;
 
 // Unlocking/locking/detection functions
+
+#define EZ_CMD_SET_PSRAM_PAGE 0x9860000
+#define EZ_CMD_SET_ROM_PAGE   0x9880000
+#define EZ_CMD_SET_NOR_WRITE  0x9C40000
+
+void slot2EzCommand(uint32_t address, uint16_t value) {
+    *((vu16*)0x9FE0000) = 0xD200;
+    *((vu16*)0x8000000) = 0x1500;
+    *((vu16*)0x8020000) = 0xD200;
+    *((vu16*)0x8040000) = 0x1500;
+    *((vu16*)address) = value;
+    *((vu16*)0x9FC0000) = 0x1500;
+}
 
 static void none_unlock(uint32_t unused) {
     (void)unused;
@@ -51,8 +65,10 @@ static bool none_detect(void) {
     return true;
 }
 
-static bool extram_detect(void) {
+static bool __extram_detect(uint32_t max_banks) {
     slot2_extram_size = 0;
+    slot2_extram_banks = 0;
+
     uint32_t previous_size = 65536;
     uint32_t proposed_size = 131072;
     bool searching = true;
@@ -61,7 +77,7 @@ static bool extram_detect(void) {
         vu16 *ptr1 = ((vu16*) (((uintptr_t) slot2_extram_start) + previous_size - 2));
         // ptr2 = new size final memory cell
         vu16 *ptr2 = ((vu16*) (((uintptr_t) slot2_extram_start) + proposed_size - 2));
-        vu16 ptr2v = *ptr2;
+        u16 ptr2v = *ptr2;
         // Check if ptr2 can be written to
         *ptr2 ^= 0xFFFF;
         if ((*ptr2 ^ 0xFFFF) != ptr2v)
@@ -90,7 +106,36 @@ static bool extram_detect(void) {
         else
             proposed_size <<= 1;
     }
-    return slot2_extram_size > 0;
+    if (!slot2_extram_size)
+        return false;
+    slot2_extram_banks = 1;
+    if (max_banks > 1) {
+        slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
+        // Currently, only the EZO/EZODE support more than one bank.
+        // This will need to be refactored if that changes.
+        while (slot2_extram_banks < max_banks) {
+            u16 old_value_bank0 = *slot2_extram_start;
+            *slot2_extram_start = 0x0000;
+            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, slot2_extram_banks << 12);
+            u16 old_value_bank1 = *slot2_extram_start;
+            *slot2_extram_start = 0xFFFF;
+            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
+            bool result = *slot2_extram_start == 0x0000;
+            *slot2_extram_start = old_value_bank0;
+            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, slot2_extram_banks << 12);
+            *slot2_extram_start = old_value_bank1;
+            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
+            if (result)
+                slot2_extram_banks++;
+            else
+                break;
+        }
+    }
+    return true;
+}
+
+static bool extram_detect(void) {
+    return __extram_detect(1);
 }
 
 static bool pak_rumble_detect(void) {
@@ -192,38 +237,29 @@ extern bool guitarGripIsInserted(void);
 
 // EZ-Flash
 
-void slot2EzCommand(uint32_t address, uint16_t value) {
-    *((vu16*)0x9FE0000) = 0xD200;
-    *((vu16*)0x8000000) = 0x1500;
-    *((vu16*)0x8020000) = 0xD200;
-    *((vu16*)0x8040000) = 0x1500;
-    *((vu16*)address) = value;
-    *((vu16*)0x9FC0000) = 0x1500;
-}
-
 static bool ezf_detect(void) {
     slot2_extram_start = (uint16_t*) 0x8400000;
-    if (extram_detect()) return true;
+    if (__extram_detect(1)) return true;
     slot2_extram_start = (uint16_t*) 0x8800000;
-    if (extram_detect()) return true;
+    if (__extram_detect(4)) return true;
     return false;
 }
 
 static void ezf_unlock(uint32_t type) {
     if (type & SLOT2_PERIPHERAL_LOCK) {
-        slot2EzCommand(0x9C40000, 0xD200); // Disable writing
+        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
     } else {
-        slot2EzCommand(0x9880000, 0x8000); // Enable OS mode
-        slot2EzCommand(0x9C40000, 0x1500); // Enable writing
+        slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x8000); // Enable OS mode
+        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
     }
 }
 
 static void ez3in1_unlock(uint32_t type) {
     if (type & SLOT2_PERIPHERAL_LOCK) {
-        slot2EzCommand(0x9C40000, 0xD200); // Disable writing
+        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
     } else {
-        slot2EzCommand(0x9880000, 0x0160); // Map PSRAM
-        slot2EzCommand(0x9C40000, 0x1500); // Enable writing
+        slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x0160); // Map PSRAM
+        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
     }
 }
 
@@ -366,7 +402,7 @@ static slot2_definition_t definitions[] = {
     },
     // Drill Dozer (GPIO Rumble)
     {
-        0x00393459, // "Y49_"
+        0x00393456, // "V49_"
         SLOT2_PERIPHERAL_RUMBLE_GPIO,
         SLOT2_EXMEMCNT_4_2,
         0,
@@ -428,7 +464,7 @@ static const char *definition_names[] = {
     "EZ-Flash III/IV/Omega",
     "EZ-Flash 3in1",
     "EverDrive GBA",
-    "DS Memory Pak",
+    "DS Memory Expansion Pak",
     "Paddle Controller",
     "Easy Piano",
     "DS Rumble Pak",
@@ -463,8 +499,10 @@ uint32_t peripheralSlot2GetSupportMask(void) {
 }
 
 void peripheralSlot2Open(uint32_t peripheral_mask) {
-    if (slot2_device_id != 0xFFFF)
+    if (slot2_device_id != 0xFFFF) {
+        sysSetCartOwner(BUS_OWNER_ARM9);
         definitions[slot2_device_id].unlock(peripheral_mask & definitions[slot2_device_id].peripheral_mask);
+    }
 }
 
 void peripheralSlot2Close(void) {
@@ -475,6 +513,7 @@ void peripheralSlot2Close(void) {
 void peripheralSlot2Exit(void) {
     slot2_device_id = 0xFFFF;
     slot2_extram_size = 0;
+    slot2_extram_banks = 0;
 }
 
 extern bool slot2DetectTWLDebugRam(void);
@@ -511,7 +550,7 @@ bool peripheralSlot2Init(uint32_t peripheral_mask) {
                     continue;
             } else {
                 // 3-byte check (ignore last character)
-                if (*((uint32_t*) GBA_HEADER.gamecode) != def->gamecode)
+                if ((*((uint32_t*) GBA_HEADER.gamecode) & 0x00FFFFFF) != (def->gamecode & 0x00FFFFFF))
                     continue;
             }
         }
@@ -546,3 +585,14 @@ uint32_t peripheralSlot2RamSize(void) {
     return slot2_extram_size;
 }
 
+uint32_t peripheralSlot2RamBanks(void) {
+    return slot2_extram_banks;
+}
+
+void peripheralSlot2RamSetBank(uint32_t bank) {
+    if (slot2_extram_banks > 1) {
+        // Currently, only the EZO/EZODE supports more than one bank.
+        // This will need to be refactored if that changes.
+        slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, bank << 12);
+    }
+}

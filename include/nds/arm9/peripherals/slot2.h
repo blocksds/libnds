@@ -80,6 +80,12 @@ uint16_t *peripheralSlot2RamStart(void);
 /// Return the size, in bytes, of Slot-2 RAM space; 0 if not detected.
 uint32_t peripheralSlot2RamSize(void);
 
+/// Return the number of Slot-2 RAM banks; 0 if not detected.
+uint32_t peripheralSlot2RamBanks(void);
+
+/// Switch to a different Slot-2 RAM bank.
+void peripheralSlot2RamSetBank(uint32_t bank);
+
 #ifdef __cplusplus
 }
 #endif
