@@ -173,15 +173,13 @@ static bool pak_rumble_detect(void) {
 #define SC_ENABLE_WRITE     (1 << 2) // To be used with SC_ENABLE_RAM
 #define SC_ENABLE_RUMBLE    (1 << 3)
 
-#define SC_ENABLE_FIRMWARE  (0)
-
 static void supercard_unlock(uint32_t type) {
     SC_REG_ENABLE = SC_ENABLE_MAGIC;
     SC_REG_ENABLE = SC_ENABLE_MAGIC;
 
     uint32_t mode;
     if (type & SLOT2_PERIPHERAL_LOCK)
-        mode = SC_ENABLE_FIRMWARE;
+        mode = 0;
     else if (type & SLOT2_PERIPHERAL_RUMBLE_ANY)
         mode = SC_ENABLE_RUMBLE;
     else
@@ -315,7 +313,7 @@ static void gpio_unlock(uint32_t type) {
 static slot2_definition_t definitions[] = {
     // SuperCard
     {
-        0x53534150, // "PASS"
+        0,
         SLOT2_PERIPHERAL_EXTRAM | SLOT2_PERIPHERAL_RUMBLE_GPIO,
         SLOT2_EXMEMCNT_4_2,
         0,
@@ -535,6 +533,8 @@ void peripheralSlot2Close(void) {
 }
 
 void peripheralSlot2Exit(void) {
+    peripheralSlot2Close();
+
     slot2_device_id = 0xFFFF;
     slot2_extram_size = 0;
     slot2_extram_banks = 0;
