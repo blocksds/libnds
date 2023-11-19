@@ -12,7 +12,6 @@
 
 // Types
 
-#define SLOT2_PERIPHERAL_LOCK 0x8000
 #define SLOT2_EXMEMCNT_4_2 (EXMEMCNT_ROM_TIME1_10_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
 #define SLOT2_EXMEMCNT_3_1 (EXMEMCNT_ROM_TIME1_8_CYCLES | EXMEMCNT_ROM_TIME2_4_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
 #define SLOT2_EXMEMCNT_2_1 (EXMEMCNT_ROM_TIME1_6_CYCLES | EXMEMCNT_ROM_TIME2_4_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
@@ -88,6 +87,8 @@ static bool __extram_detect(uint32_t max_banks, uint32_t max_address) {
         // Restore ptr2 value
         ptr2v ^= 0xFFFF;
         *ptr2 = ptr2v;
+        // Check if end of memory found
+        if (!searching) break;
 
         // Check if RAM has up to proposed_size bytes
         u16 ptr1v = *ptr1;
@@ -112,9 +113,9 @@ static bool __extram_detect(uint32_t max_banks, uint32_t max_address) {
         // Restore ptr1 value
         ptr1v ^= 0xFFFF;
         *ptr1 = ptr1v;
-
         // Check if end of memory found
         if (!searching) break;
+        
         // Update size
         slot2_extram_size = proposed_size;
         previous_size = proposed_size;
@@ -178,7 +179,7 @@ static void supercard_unlock(uint32_t type) {
     SC_REG_ENABLE = SC_ENABLE_MAGIC;
 
     uint32_t mode;
-    if (type & SLOT2_PERIPHERAL_LOCK)
+    if (!type)
         mode = 0;
     else if (type & SLOT2_PERIPHERAL_RUMBLE_ANY)
         mode = SC_ENABLE_RUMBLE;
@@ -207,7 +208,7 @@ static void m3_unlock(uint32_t type) {
     *((vu16*) 0x08800612);
     *((vu16*) 0x08000000);
     *((vu16*) 0x08801B66);
-    *((vu16*) 0x08000000 + ((type & SLOT2_PERIPHERAL_LOCK ? 0x400003 : 0x400006) << 1));
+    *((vu16*) 0x08000000 + ((type == 0 ? 0x400003 : 0x400006) << 1));
     *((vu16*) 0x0800080E);
     *((vu16*) 0x08000000);
     *((vu16*) 0x080001E4);
@@ -230,7 +231,7 @@ static void g6_unlock(uint32_t type) {
     *((vu16*) 0x09FFFF4A);
     *((vu16*) 0x09FFFF4A);
     *((vu16*) 0x09FFFF4A);
-    *((vu16*) 0x09200000 + ((type & SLOT2_PERIPHERAL_LOCK ? 0x3 : 0x6) << 1));
+    *((vu16*) 0x09200000 + ((type == 0 ? 0x3 : 0x6) << 1));
     *((vu16*) 0x09FFFFF0);
     *((vu16*) 0x09FFFFE8);
 }
@@ -238,7 +239,7 @@ static void g6_unlock(uint32_t type) {
 // Opera
 
 static void opera_unlock(uint32_t type) {
-    *((vu16*) 0x08240000) = (type & SLOT2_PERIPHERAL_LOCK) ? 0 : 1;
+    *((vu16*) 0x08240000) = (type != 0) ? 1 : 0;
 }
 
 static bool opera_detect(void) {
@@ -261,20 +262,20 @@ static bool ezf_detect(void) {
 }
 
 static void ezf_unlock(uint32_t type) {
-    if (type & SLOT2_PERIPHERAL_LOCK) {
-        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
-    } else {
+    if (type) {
         slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x8000); // Enable OS mode
         slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
+    } else {
+        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
     }
 }
 
 static void ez3in1_unlock(uint32_t type) {
-    if (type & SLOT2_PERIPHERAL_LOCK) {
-        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
-    } else {
+    if (type) {
         slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x0160); // Map PSRAM
         slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
+    } else {
+        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
     }
 }
 
@@ -282,7 +283,7 @@ static void ez3in1_unlock(uint32_t type) {
 
 static void edgba_unlock(uint32_t type) {
     *((vu16*)0x9FC00B4) = 0x00A5;
-    *((vu16*)0x9FC0000) = (type & SLOT2_PERIPHERAL_LOCK) ? 0x0 : 0x6;
+    *((vu16*)0x9FC0000) = type ? 0x6 : 0x0;
 }
 
 static bool edgba_detect(void) {
@@ -295,7 +296,7 @@ static bool edgba_detect(void) {
 #define GPIO_CONTROL   (*(vuint16 *)0x080000C8)
 
 static void gpio_unlock(uint32_t type) {
-    if (type & SLOT2_PERIPHERAL_LOCK) {
+    if (type == 0) {
         GPIO_CONTROL = 0;
         GPIO_DIRECTION = 0;
     } else if (type & SLOT2_PERIPHERAL_GYRO_GPIO) {
@@ -522,14 +523,14 @@ bool peripheralSlot2Open(uint32_t peripheral_mask) {
         return false;
     if (!(definitions[slot2_device_id].peripheral_mask & peripheral_mask))
         return false;
-    sysSetCartOwner(BUS_OWNER_ARM9);
+    REG_EXMEMCNT = (REG_EXMEMCNT & ~0xFF) | definitions[slot2_device_id].exmemcnt;
     definitions[slot2_device_id].unlock(peripheral_mask & definitions[slot2_device_id].peripheral_mask);
     return true;
 }
 
 void peripheralSlot2Close(void) {
     if (slot2_device_id != 0xFFFF)
-        definitions[slot2_device_id].unlock(SLOT2_PERIPHERAL_LOCK);
+        definitions[slot2_device_id].unlock(0);
 }
 
 void peripheralSlot2Exit(void) {
@@ -586,12 +587,12 @@ bool peripheralSlot2Init(uint32_t peripheral_mask) {
             slot2_device_id = i;
             // Open for the user-requested peripheral mask.
             if ((def->peripheral_mask & peripheral_mask) != def->peripheral_mask) {
-                def->unlock(SLOT2_PERIPHERAL_LOCK);
-                peripheralSlot2Open(peripheral_mask);
+                def->unlock(0);
+                def->unlock(def->peripheral_mask & peripheral_mask);
             }
             return true;
         }
-        def->unlock(SLOT2_PERIPHERAL_LOCK);
+        def->unlock(0);
     }
 
     return false;
