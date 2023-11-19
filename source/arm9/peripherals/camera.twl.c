@@ -11,17 +11,37 @@
 
 // High-level functions
 
-static u8 activeDevice = CAMERA_NONE;
+extern u8 cameraActiveDevice;
 
-u8 cameraGetActive(void)
+bool cameraDeinitTWL(void)
 {
-    return activeDevice;
+    if (REG_CAM_MCNT & CAM_MCNT_PWR_18V_IO)
+    {
+        fifoMutexAcquire(FIFO_CAMERA);
+        fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_DEINIT, 0));
+        fifoWaitValue32(FIFO_CAMERA);
+        fifoGetValue32(FIFO_CAMERA);
+        fifoMutexRelease(FIFO_CAMERA);
+    }
+
+    if (!(REG_CAM_MCNT || (REG_SCFG_CLK & (SCFG_CLK_CAMERA_IF | SCFG_CLK_CAMERA_EXT))))
+        return false;
+
+    REG_CAM_CNT &= ~0x8F00;
+    REG_CAM_CNT |= CAM_CNT_TRANSFER_FLUSH;
+    REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_EXT;
+    swiDelay(30);
+    REG_CAM_MCNT = 0;
+    REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_IF;
+    swiDelay(30);
+
+    return true;
 }
 
-bool cameraInit(void)
+bool cameraInitTWL(void)
 {
     if (REG_CAM_MCNT || (REG_SCFG_CLK & (SCFG_CLK_CAMERA_IF | SCFG_CLK_CAMERA_EXT)))
-        cameraDeinit();
+        cameraDeinitTWL();
 
     REG_SCFG_CLK |= SCFG_CLK_CAMERA_IF;
     REG_CAM_MCNT = 0;
@@ -52,32 +72,7 @@ bool cameraInit(void)
     return result == I2CREG_APT_CHIP_VERSION_MT9V113;
 }
 
-bool cameraDeinit(void)
-{
-    if (REG_CAM_MCNT & CAM_MCNT_PWR_18V_IO)
-    {
-        fifoMutexAcquire(FIFO_CAMERA);
-        fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_DEINIT, 0));
-        fifoWaitValue32(FIFO_CAMERA);
-        fifoGetValue32(FIFO_CAMERA);
-        fifoMutexRelease(FIFO_CAMERA);
-    }
-
-    if (!(REG_CAM_MCNT || (REG_SCFG_CLK & (SCFG_CLK_CAMERA_IF | SCFG_CLK_CAMERA_EXT))))
-        return false;
-
-    REG_CAM_CNT &= ~0x8F00;
-    REG_CAM_CNT |= CAM_CNT_TRANSFER_FLUSH;
-    REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_EXT;
-    swiDelay(30);
-    REG_CAM_MCNT = 0;
-    REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_IF;
-    swiDelay(30);
-
-    return true;
-}
-
-bool cameraSelect(CameraDevice device)
+bool cameraSelectTWL(CameraDevice device)
 {
     fifoMutexAcquire(FIFO_CAMERA);
     fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SELECT, device));
@@ -87,7 +82,7 @@ bool cameraSelect(CameraDevice device)
 
     if (result)
     {
-        activeDevice = device;
+        cameraActiveDevice = device;
         return true;
     }
     else
@@ -96,7 +91,7 @@ bool cameraSelect(CameraDevice device)
     }
 }
 
-bool cameraStartTransfer(u16 *buffer, u8 captureMode, u8 ndmaId)
+bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
 {
     bool preview = captureMode == MCUREG_APT_SEQ_CMD_PREVIEW;
     if (!preview && captureMode != MCUREG_APT_SEQ_CMD_CAPTURE)
@@ -149,22 +144,22 @@ static u16 cameraLLCall(int type, u8 device, u16 reg, u16 value)
     return result;
 }
 
-u16 cameraI2cRead(u8 device, u16 reg)
+u16 cameraI2cReadTWL(u8 device, u16 reg)
 {
     return cameraLLCall(CAMERA_APT_READ_I2C, device, reg, 0);
 }
 
-u16 cameraI2cWrite(u8 device, u16 reg, u16 value)
+u16 cameraI2cWriteTWL(u8 device, u16 reg, u16 value)
 {
     return cameraLLCall(CAMERA_APT_WRITE_I2C, device, reg, value);
 }
 
-u16 cameraMcuRead(u8 device, u16 reg)
+u16 cameraMcuReadTWL(u8 device, u16 reg)
 {
     return cameraLLCall(CAMERA_APT_READ_MCU, device, reg, 0);
 }
 
-u16 cameraMcuWrite(u8 device, u16 reg, u16 value)
+u16 cameraMcuWriteTWL(u8 device, u16 reg, u16 value)
 {
     return cameraLLCall(CAMERA_APT_WRITE_MCU, device, reg, value);
 }
