@@ -1,14 +1,6 @@
 // SPDX-License-Identifier: Zlib
-// SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (C) 2005 Michael Noland (joat)
-// Copyright (C) 2005 Jason Rogers (dovoto)
-// Copyright (C) 2005 Dave Murphy (WinterMute)
-// Copyright (C) 2005 Mike Parks (BigRedPimp)
-
-/// @file nds/arm9/rumble.h
-///
-/// @brief NDS rumble option pak support.
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #ifndef LIBNDS_NDS_ARM9_RUMBLE_H__
 #define LIBNDS_NDS_ARM9_RUMBLE_H__
@@ -18,47 +10,51 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <nds/arm9/peripherals/slot2.h>
 
-#include <nds/ndstypes.h>
-
-#define RUMBLE_PAK          (*(vuint16 *)0x08000000)
-#define WARIOWARE_PAK       (*(vuint16 *)0x080000C4)
-#define WARIOWARE_ENABLE    (*(vuint16 *)0x080000C6)
-
-/// Supported rumble cartridges.
-typedef enum {
-    RUMBLE_TYPE_UNKNOWN,    ///< Rumble detection hasn't run
-    RUMBLE_TYPE_NONE,       ///< No rumble detected
-    RUMBLE_TYPE_PAK,        ///< DS Rumble Pak
-    RUMBLE_TYPE_GBA,        ///< Rumble included as part of GBA game cartridges
-    RUMBLE_TYPE_MAGUKIDDO,  ///< Rumble/sensor cartridge bundled with Magukiddo
-    RUMBLE_TYPE_SC_RUMBLE   ///< Rumble included with some SuperCard models
-} RUMBLE_TYPE;
-
-/// Initializes any detected supported rumble cart.
-void rumbleInit(void);
-
-/// Returns the type of the detected rumble cart.
+/// Initialize the rumble device.
 ///
-/// @return The type of the rumble cart.
-RUMBLE_TYPE rumbleGetType(void);
+/// @deprecated Use of peripheralSlot2Init() is recommended instead.
+static inline void rumbleInit(void) {
+    peripheralSlot2InitDefault();
+}
 
-/// Forces a specific rumble cart type.
+/// Check if a rumble device has been inserted.
 ///
-/// If the cartridge isn't actually present, this won't work.
-///
-/// @param type Rumble type to force.
-void rumbleSetType(RUMBLE_TYPE type);
-
-/// Check for rumble option pak.
-///
-/// @return Returns true if the cart in the GBA slot is a Rumble option pak.
+/// @return True if a rumble device has been inserted, false otherwise.
 bool isRumbleInserted(void);
 
-/// Fires the rumble actuator.
+/// Check if a rumble device is edge-activated.
 ///
-/// @param position Alternates position of the actuator in the pak (ON/OFF).
-void setRumble(bool position);
+/// An edge-activated rumble device triggers its actuator when calling
+/// setRumble(1) if setRumble(0) was called prior.
+///
+/// A non-edge-activated rumble device triggers its motor starting from
+/// when setRumble(1) was called, until setRumble(0) is called.
+bool rumbleIsEdgeActivated(void);
+
+/// Get the maximum rumble strength.
+///
+/// @return The maximum rumble strength for this device.
+uint8_t rumbleGetMaxRawStrength(void);
+
+/// Set the rumble device enable/disable pin.
+///
+/// Note that rumbleEnable() and rumbleDisable() are more user-friendly.
+///
+/// @param rawStrength The raw rumble strength (rumbleGetMaxRawStrength()).
+/// @see rumbleIsEdgeActivated
+void setRumble(uint8_t rawStrength);
+#define RUMBLE_STRENGTH_HIGHEST 0xFF
+
+/// Emit a single, fast rumble tick.
+///
+/// @param rawStrength The raw rumble strength (rumbleGetMaxRawStrength()).
+static inline void rumbleTick(uint8_t rawStrength) {
+    setRumble(rawStrength);
+    setRumble(0);
+}
 
 #ifdef __cplusplus
 }
