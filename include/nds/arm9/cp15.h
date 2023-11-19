@@ -102,11 +102,11 @@ void CP15_SetITCM(uint32_t data);
 
 // Helper functions
 
-void CP15_CleanAndFlushDcacheRange(const void *base, size_t size);
-void CP15_FlushDcacheRange(const void *base, size_t size);
-void CP15_CleanAndFlushDcache(void);
+void CP15_CleanAndFlushDCacheRange(const void *base, size_t size);
+void CP15_FlushDCacheRange(const void *base, size_t size);
+void CP15_CleanAndFlushDCache(void);
 
-void CP15_FlushIcacheRange(const void *base, size_t size);
+void CP15_FlushICacheRange(const void *base, size_t size);
 
 #ifdef __cplusplus
 }

@@ -24,7 +24,7 @@ uintptr_t align_down(const void *address, size_t size)
 // - Align end to the cache line size too, but round up to include the end.
 
 ITCM_CODE ARM_CODE
-void CP15_CleanAndFlushDcacheRange(const void *base, size_t size)
+void CP15_CleanAndFlushDCacheRange(const void *base, size_t size)
 {
     uintptr_t address = align_down(base, CACHE_LINE_SIZE);
     uintptr_t end = align_up((const char *)base + size, CACHE_LINE_SIZE);
@@ -41,7 +41,7 @@ void CP15_CleanAndFlushDcacheRange(const void *base, size_t size)
 }
 
 ITCM_CODE ARM_CODE
-void CP15_FlushDcacheRange(const void *base, size_t size)
+void CP15_FlushDCacheRange(const void *base, size_t size)
 {
     uintptr_t address = align_down(base, CACHE_LINE_SIZE);
     uintptr_t end = align_up((const char *)base + size, CACHE_LINE_SIZE);
@@ -54,7 +54,7 @@ void CP15_FlushDcacheRange(const void *base, size_t size)
 }
 
 ITCM_CODE ARM_CODE
-void CP15_FlushIcacheRange(const void *base, size_t size)
+void CP15_FlushICacheRange(const void *base, size_t size)
 {
     uintptr_t address = align_down(base, CACHE_LINE_SIZE);
     uintptr_t end = align_up((const char *)base + size, CACHE_LINE_SIZE);

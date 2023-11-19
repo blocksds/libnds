@@ -275,7 +275,7 @@ BEGIN_ASM_FUNC CP15_SetITCM
 //////////////////////////////////////////////////////////////////////
 // Routine obtained from page 3-11 of ARM DDI 0201D
 //////////////////////////////////////////////////////////////////////
-BEGIN_ASM_FUNC CP15_CleanAndFlushDcache
+BEGIN_ASM_FUNC CP15_CleanAndFlushDCache
 
     // Loop in all 4 segments
     mov     r1, #0
@@ -298,6 +298,6 @@ inner_loop:
     mov     r0, #0
     mcr     CP15_REG7_DRAIN_WRITE_BUFFER
 
-    bx lr
+    bx      lr
 
     .end

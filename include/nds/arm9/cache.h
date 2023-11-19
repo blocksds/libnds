@@ -31,13 +31,13 @@ static inline void IC_InvalidateAll(void)
 /// @param size Size of the region.
 static inline void IC_InvalidateRange(const void *base, u32 size)
 {
-    CP15_FlushIcacheRange(base, size);
+    CP15_FlushICacheRange(base, size);
 }
 
 /// Flush the entire data cache to memory.
 static inline void DC_FlushAll(void)
 {
-    CP15_CleanAndFlushDcache();
+    CP15_CleanAndFlushDCache();
 }
 
 /// Flush the data cache of a range of addresses to memory.
@@ -46,7 +46,7 @@ static inline void DC_FlushAll(void)
 /// @param size Size of the region.
 static inline void DC_FlushRange(const void *base, u32 size)
 {
-    CP15_CleanAndFlushDcacheRange(base, size);
+    CP15_CleanAndFlushDCacheRange(base, size);
 }
 
 /// Invalidate the entire data cache.
@@ -61,7 +61,7 @@ static inline void DC_InvalidateAll(void)
 /// @param size size of the region to invalidate.
 static inline void DC_InvalidateRange(const void *base, u32 size)
 {
-    CP15_FlushDcacheRange(base, size);
+    CP15_FlushDCacheRange(base, size);
 }
 
 #ifdef __cplusplus
