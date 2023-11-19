@@ -65,7 +65,7 @@ static bool none_detect(void) {
     return true;
 }
 
-static bool __extram_detect(uint32_t max_banks) {
+static bool __extram_detect(uint32_t max_banks, uint32_t max_address) {
     slot2_extram_size = 0;
     slot2_extram_banks = 0;
 
@@ -123,6 +123,8 @@ static bool __extram_detect(uint32_t max_banks) {
     }
     if (!slot2_extram_size)
         return false;
+    if (slot2_extram_size > (max_address - 0x08000000))
+        slot2_extram_size = max_address - 0x08000000;
     slot2_extram_banks = 1;
     if (max_banks > 1) {
         slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
@@ -150,7 +152,7 @@ static bool __extram_detect(uint32_t max_banks) {
 }
 
 static bool extram_detect(void) {
-    return __extram_detect(1);
+    return __extram_detect(1, 0xA000000);
 }
 
 static bool pak_rumble_detect(void) {
@@ -191,7 +193,7 @@ static void supercard_unlock(uint32_t type) {
 
 static bool supercard_detect(void) {
     supercard_unlock(SLOT2_PERIPHERAL_EXTRAM);
-    if (extram_detect()) return true;
+    if (__extram_detect(1, 0x9FFFFFE)) return true;
     supercard_unlock(SLOT2_PERIPHERAL_RUMBLE_ANY);
     if (pak_rumble_detect()) return true;
     return false;
@@ -254,9 +256,9 @@ extern bool guitarGripIsInserted(void);
 
 static bool ezf_detect(void) {
     slot2_extram_start = (uint16_t*) 0x8400000;
-    if (__extram_detect(1)) return true;
+    if (__extram_detect(1, 0xA000000)) return true;
     slot2_extram_start = (uint16_t*) 0x8800000;
-    if (__extram_detect(4)) return true;
+    if (__extram_detect(4, 0xA000000)) return true;
     return false;
 }
 
@@ -283,6 +285,10 @@ static void ez3in1_unlock(uint32_t type) {
 static void edgba_unlock(uint32_t type) {
     *((vu16*)0x9FC00B4) = 0x00A5;
     *((vu16*)0x9FC0000) = (type & SLOT2_PERIPHERAL_LOCK) ? 0x0 : 0x6;
+}
+
+static bool edgba_detect(void) {
+    return __extram_detect(1, 0x9FC0000);
 }
 
 // GPIO
@@ -358,7 +364,7 @@ static slot2_definition_t definitions[] = {
         SLOT2_PERIPHERAL_EXTRAM,
         SLOT2_EXMEMCNT_2_1,
         0,
-        extram_detect,
+        edgba_detect,
         edgba_unlock
     },
     // Opera
