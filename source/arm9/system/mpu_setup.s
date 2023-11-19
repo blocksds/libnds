@@ -259,6 +259,70 @@ BEGIN_ASM_FUNC memUncached
     orr     r0, r0, r2
     bx      lr
 
+// In DS mode, MPU region 3 is the slot-2 memory region
+#define SLOT_2_MEMORY_REGION_NUMBER    3
+
+// Enables data cache for the DS slot-2 memory region
+BEGIN_ASM_FUNC peripheralSlot2EnableCache
+
+    # When running in DSi mode there is no slot-2 memory region, just return
+    ldr     r1, =0x4004008 // SCFG_EXT9
+    ldr     r1, [r1]
+    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
+    tst     r1, #0x8000
+    bxne    lr
+
+    // TODO: Unify DSi detection code (use _dsi_mode?)
+
+    // Enable data cache for this region
+    mrc     CP15_REG2_DATA_CACHE_CONFIG(r1)
+    orr     r1, CP15_CONFIG_AREA_IS_CACHABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    mcr     CP15_REG2_DATA_CACHE_CONFIG(r1)
+
+    // If write-through is requested there is nothing else to do
+    tst     r0, r0
+    bxeq    lr
+
+    // Write buffer enable if requested (write-back instead of write-through)
+    mrc     CP15_REG3_WRITE_BUFFER_CONTROL(r1)
+    orr     r1, CP15_CONFIG_AREA_IS_BUFFERABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    mcr     CP15_REG3_WRITE_BUFFER_CONTROL(r1)
+
+    bx      lr
+
+// Disable data cache for the DS slot-2 memory region
+BEGIN_ASM_FUNC peripheralSlot2DisableCache
+
+    # When running in DSi mode there is no slot-2 memory region, just return
+    ldr     r0, =0x4004008 // SCFG_EXT9
+    ldr     r0, [r0]
+    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
+    tst     r0, #0x8000
+    bxne    lr
+
+    // TODO: Unify DSi detection code (use _dsi_mode?)
+
+    // If write-back is enabled, flush all data cache before disabling it for
+    // this region
+    mrc     CP15_REG3_WRITE_BUFFER_CONTROL(r0)
+    tst     r0, CP15_CONFIG_AREA_IS_BUFFERABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    beq     .write_through
+
+    // Disable write buffer
+    bic     r0, CP15_CONFIG_AREA_IS_BUFFERABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    mcr     CP15_REG3_WRITE_BUFFER_CONTROL(r0)
+
+    push    {lr}
+    bl      CP15_CleanAndFlushDCache
+    pop     {lr}
+.write_through:
+
+    // Disable data cache
+    mrc     CP15_REG2_DATA_CACHE_CONFIG(r0)
+    bic     r0, CP15_CONFIG_AREA_IS_CACHABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    mcr     CP15_REG2_DATA_CACHE_CONFIG(r0)
+    bx      lr
+
     .data
     .align    2
 

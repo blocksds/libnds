@@ -450,6 +450,24 @@ void *memCached(void *address);
 /// @return a pointer to the uncached mirror of that address.
 void *memUncached(void *address);
 
+/// Enable data cache for the DS slot-2 memory region.
+///
+/// Note that this is not safe to enable if you're using Slot-2 memory for
+/// purposes other than external RAM, such as rumble or other I/O.
+///
+/// @param write_back Set as write-back. This allows writes to skip
+/// the slow Slot-2 bus, at the expense of requiring a full memory flush
+/// when calling peripheralSlot2DisableCache().
+void peripheralSlot2EnableCache(bool write_back);
+
+/// Disable data cache for the DS slot-2 memory region.
+/// If write-back was enabled, additionally clear and flush the data cache.
+///
+/// Note that flushing the data cache may still be required to remove stale
+/// "read" pages, such as if you write to external RAM uncached and then
+/// re-enable cache.
+void peripheralSlot2DisableCache(void);
+
 void resetARM7(u32 address);
 #endif
 
