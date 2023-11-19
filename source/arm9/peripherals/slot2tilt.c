@@ -17,20 +17,18 @@
 #define TILT_Y_LOW   (*(vuint8 *)0x0A008400)
 #define TILT_Y_HIGH  (*(vuint8 *)0x0A008500)
 
-uint16_t peripheralSlot2TiltGetX(void) {
-    return TILT_X_LOW | ((TILT_X_HIGH & 0x0F) << 8);
-}
-
-uint16_t peripheralSlot2TiltGetY(void) {
-    return TILT_Y_LOW | ((TILT_Y_HIGH & 0x0F) << 8);
-}
-
-bool peripheralSlot2TiltUpdate(void) {
+bool peripheralSlot2TiltUpdate(slot2TiltPosition *data) {
     if (!peripheralSlot2Open(SLOT2_PERIPHERAL_TILT))
         return false;
 
     if (!(TILT_X_HIGH & 0x80))
         return false;
+
+    if (data)
+    {
+        data->x = TILT_X_LOW | ((TILT_X_HIGH & 0x0F) << 8);
+        data->y = TILT_Y_LOW | ((TILT_Y_HIGH & 0x0F) << 8);
+    }
 
     TILT_SAMPLE1 = 0x55;
     TILT_SAMPLE2 = 0xAA;

@@ -12,17 +12,17 @@
 extern "C" {
 #endif
 
-/// Read the X axis value of the tilt sensor.
-uint16_t peripheralSlot2TiltGetX(void);
-
-/// Read the Y axis value of the tilt sensor.
-uint16_t peripheralSlot2TiltGetY(void);
+typedef struct slot2TiltPosition {
+    u16 x;   ///< Raw X value
+    u16 y;   ///< Raw Y value
+} slot2TiltPosition;
 
 /// Update the tilt sensor values.
 /// It is recommended to run this function once per VBlank.
 ///
+/// @param data Tilt sensor position data.
 /// @return True if new values are available.
-bool peripheralSlot2TiltUpdate(void);
+bool peripheralSlot2TiltUpdate(slot2TiltPosition *data);
 
 #ifdef __cplusplus
 }
