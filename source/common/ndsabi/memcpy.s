@@ -45,8 +45,8 @@ BEGIN_ASM_FUNC __aeabi_memcpy
     @ r0, r1 are now word aligned
 
 
-BEGIN_ASM_FUNC __aeabi_memcpy8
-BEGIN_ASM_FUNC __aeabi_memcpy4
+BEGIN_ASM_FUNC_NO_SECTION __aeabi_memcpy8
+BEGIN_ASM_FUNC_NO_SECTION __aeabi_memcpy4
 
     cmp     r2, #32
     blt     .Lcopy_words
@@ -94,7 +94,7 @@ BEGIN_ASM_FUNC __aeabi_memcpy4
     @ r0, r1 are now half aligned
 
 
-BEGIN_ASM_FUNC __ndsabi_memcpy2
+BEGIN_ASM_FUNC_NO_SECTION __ndsabi_memcpy2
 
     subs    r2, r2, #2
     ldrhge  r3, [r1], #2
@@ -109,7 +109,7 @@ BEGIN_ASM_FUNC __ndsabi_memcpy2
     bx      lr
 
 
-BEGIN_ASM_FUNC __ndsabi_memcpy1
+BEGIN_ASM_FUNC_NO_SECTION __ndsabi_memcpy1
 
     subs    r2, r2, #1
     ldrbge  r3, [r1], #1

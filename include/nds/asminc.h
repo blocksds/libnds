@@ -18,6 +18,13 @@
 \name:
 .endm
 
+.macro BEGIN_ASM_FUNC_NO_SECTION name
+    .global \name
+    .type \name, %function
+    .align 2
+\name:
+.endm
+
 #define ICACHE_SIZE     0x2000
 #define DCACHE_SIZE     0x1000
 #define CACHE_LINE_SIZE 32
