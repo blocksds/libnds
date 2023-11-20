@@ -78,6 +78,15 @@
 
     .arm
 
+// This macro sets the zero flag to 1 if DSi extended RAM is detected; it sets
+// it to 0 otherwise.
+.macro HAS_DSI_MAIN_RAM reg
+    ldr     \reg, =0x4004008 // SCFG_EXT9
+    ldr     \reg, [\reg]
+    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
+    tst     \reg, #0x8000
+.endm
+
 // This sets r8 to the end address of RAM for this DS model
 BEGIN_ASM_FUNC __libnds_mpu_setup
 
@@ -135,10 +144,8 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     orr     r0, r0, #(CP15_REGION_SIZE_32KB | CP15_CONFIG_REGION_ENABLE)
     mcr     CP15_REG6_PROTECTION_REGION(r0, 4)
 
-    ldr     r0, =0x4004008 // SCFG_EXT9
-    ldr     r0, [r0]
-    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
-    tst     r0, #0x8000
+    // If DSi extended RAM is detected, load DSi code/data sections
+    HAS_DSI_MAIN_RAM r0
     bne     dsi_mode
 
     // DS mode: The debugger model is detected using swiIsDebugger()
@@ -266,13 +273,8 @@ BEGIN_ASM_FUNC memUncached
 BEGIN_ASM_FUNC peripheralSlot2EnableCache
 
     # When running in DSi mode there is no slot-2 memory region, just return
-    ldr     r1, =0x4004008 // SCFG_EXT9
-    ldr     r1, [r1]
-    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
-    tst     r1, #0x8000
+    HAS_DSI_MAIN_RAM r1
     bxne    lr
-
-    // TODO: Unify DSi detection code (use _dsi_mode?)
 
     // Enable data cache for this region
     mrc     CP15_REG2_DATA_CACHE_CONFIG(r1)
@@ -294,13 +296,8 @@ BEGIN_ASM_FUNC peripheralSlot2EnableCache
 BEGIN_ASM_FUNC peripheralSlot2DisableCache
 
     # When running in DSi mode there is no slot-2 memory region, just return
-    ldr     r0, =0x4004008 // SCFG_EXT9
-    ldr     r0, [r0]
-    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
-    tst     r0, #0x8000
+    HAS_DSI_MAIN_RAM r1
     bxne    lr
-
-    // TODO: Unify DSi detection code (use _dsi_mode?)
 
     // If write-back is enabled, flush all data cache before disabling it for
     // this region
