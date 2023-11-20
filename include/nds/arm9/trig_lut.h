@@ -10,6 +10,10 @@
 #ifndef LIBNDS_NDS_ARM9_TRIG_LUT_H__
 #define LIBNDS_NDS_ARM9_TRIG_LUT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm9/trig_lut.h
 ///
 /// @brief Fixed point trig functions. Angle can be in the range of -32768 to
@@ -31,10 +35,6 @@
 /// calculation as the DS has no floating point processor.
 
 #include <nds/ndstypes.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Number of degrees in a circle.
 #define DEGREES_IN_CIRCLE (1 << 15)

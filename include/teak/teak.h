@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_TEAK_H__
 #define LIBTEAK_TEAK_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file teak/teak.h
 ///
 /// @brief General utilities
@@ -22,5 +26,9 @@
 
 /// Initialize Teak peripherals to a sensible state.
 void teakInit(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_TEAK_H__

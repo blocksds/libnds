@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_ARM9_TEAK_DSP_H__
 #define LIBNDS_NDS_ARM9_TEAK_DSP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 /// @file nds/arm9/teak/dsp.h
@@ -213,5 +217,9 @@ static inline u16 dspGetSemaphore(void)
     dspSpinWait();
     return REG_DSP_SEM;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_TEAK_DSP_H__

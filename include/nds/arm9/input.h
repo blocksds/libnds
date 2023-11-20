@@ -9,6 +9,10 @@
 #ifndef LIBNDS_NDS_ARM9_INPUT_H__
 #define LIBNDS_NDS_ARM9_INPUT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm9/input.h
 ///
 /// @brief NDS button and touchscreen input support.
@@ -29,10 +33,6 @@
 #include <nds/input.h>
 #include <nds/ndstypes.h>
 #include <nds/touch.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Obtains the current keypad state.
 ///

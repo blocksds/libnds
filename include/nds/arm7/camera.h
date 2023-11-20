@@ -5,14 +5,14 @@
 #ifndef LIBNDS_NDS_ARM7_CAMERA_H__
 #define LIBNDS_NDS_ARM7_CAMERA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 
 #include <nds/ndstypes.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // Low-level Aptina I2C register read/write functions
 u8 aptI2cWrite(u8 device, u16 reg, u16 data);

@@ -11,16 +11,16 @@
 #ifndef LIBNDS_NDS_ARM7_AUDIO_H__
 #define LIBNDS_NDS_ARM7_AUDIO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm7/audio.h
 ///
 /// @brief Functions to use the audio channels and microphone from the ARM7.
 
 #ifndef ARM7
 #error Audio is only available on the ARM7
-#endif
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 #include <nds/arm7/serial.h>

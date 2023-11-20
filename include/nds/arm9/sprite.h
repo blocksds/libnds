@@ -11,6 +11,10 @@
 #ifndef LIBNDS_NDS_ARM9_SPRITE_H__
 #define LIBNDS_NDS_ARM9_SPRITE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef ARM9
 #error Sprites are only available on the ARM9
 #endif
@@ -279,10 +283,6 @@ typedef struct OamState
     SpriteMapping spriteMapping; ///< The mapping of the OAM.
 } OamState;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /// An object representing the main 2D engine.
 extern OamState oamMain;
 
@@ -331,7 +331,7 @@ u16 *oamGetGfxPtr(OamState *oam, int gfxOffsetIndex);
 /// @param size The size of the sprite to allocate.
 /// @param colorFormat The color format of the sprite.
 /// @return The address in VRAM of the allocated sprite.
-u16* oamAllocateGfx(OamState *oam, SpriteSize size, SpriteColorFormat colorFormat);
+u16 *oamAllocateGfx(OamState *oam, SpriteSize size, SpriteColorFormat colorFormat);
 
 /// Free VRAM memory obtained with oamAllocateGfx.
 ///

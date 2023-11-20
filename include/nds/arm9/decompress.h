@@ -11,6 +11,10 @@
 #ifndef LIBNDS_NDS_ARM9_DECOMPRESS_H__
 #define LIBNDS_NDS_ARM9_DECOMPRESS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/bios.h>
 #include <nds/ndstypes.h>
 
@@ -22,11 +26,7 @@ typedef enum
    HUFF,        ///< VRAM safe huff decompression.
    RLE,         ///< Run length encoded decompression.
    RLEVram      ///< VRAM safe run length encoded decompression.
-}DecompressType;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+} DecompressType;
 
 /// Decompresses data using the suported type.
 ///

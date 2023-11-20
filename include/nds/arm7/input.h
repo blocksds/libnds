@@ -8,13 +8,13 @@
 #ifndef LIBNDS_NDS_ARM7_INPUT_H__
 #define LIBNDS_NDS_ARM7_INPUT_H__
 
-/// @file nds/arm7/input.h
-///
-/// @brief Keypad and touch pad ARM7 helpers.
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// @file nds/arm7/input.h
+///
+/// @brief Keypad and touch pad ARM7 helpers.
 
 #include <nds/ndstypes.h>
 

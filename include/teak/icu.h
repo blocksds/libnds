@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_ICU_H__
 #define LIBTEAK_ICU_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file teak/icu.h
 ///
 /// @brief ICU helpers.
@@ -72,5 +76,9 @@ void icuIrqSetup(u16 mask, int index);
 ///
 /// @param mask Interrupt mask. For example, ICU_IRQ_MASK_APBP.
 void icuIrqDisable(u16 mask);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_ICU_H__

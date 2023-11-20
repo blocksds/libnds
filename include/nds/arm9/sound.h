@@ -6,6 +6,10 @@
 #ifndef LIBNDS_NDS_ARM9_SOUND_H__
 #define LIBNDS_NDS_ARM9_SOUND_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm9/sound.h
 ///
 /// @brief A simple sound playback library for the DS.
@@ -13,10 +17,6 @@
 /// Provides functionality for starting and stopping sound effects from the ARM9
 /// side as well as access to PSG and noise hardware. Maxmod should be used in
 /// most music and sound effect situations.
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <nds/ndstypes.h>
 

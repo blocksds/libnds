@@ -14,6 +14,10 @@
 #ifndef LIBNDS_NDS_ARM9_POSTEST_H__
 #define LIBNDS_NDS_ARM9_POSTEST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
 
@@ -82,5 +86,9 @@ static inline int32_t PosTestZresult(void)
 {
     return GFX_POS_RESULT[2];
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_POSTEST_H__

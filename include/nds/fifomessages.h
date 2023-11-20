@@ -6,6 +6,10 @@
 #ifndef LIBNDS_NDS_FIFOMESSAGES_H__
 #define LIBNDS_NDS_FIFOMESSAGES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 #include <nds/touch.h>
 
@@ -100,5 +104,9 @@ typedef struct FifoMessage {
     };
 
 } ALIGN(4) FifoMessage;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_FIFOMESSAGES_H__

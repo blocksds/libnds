@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_NWRAM_H__
 #define LIBNDS_NDS_NWRAM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 #include <nds/ndstypes.h>
@@ -124,5 +128,9 @@ void nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool en
 void nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable);
 
 #endif // ARM9
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_NWRAM_H__

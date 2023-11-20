@@ -30,6 +30,10 @@
 #ifndef LIBNDS_NDS_DMA_H__
 #define LIBNDS_NDS_DMA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 #define DMA0_SRC        (*(vuint32 *)0x040000B0)
@@ -245,5 +249,9 @@ static inline int dmaBusy(uint8_t channel)
 {
     return (DMA_CR(channel) & DMA_BUSY) >> 31;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_DMA_H__

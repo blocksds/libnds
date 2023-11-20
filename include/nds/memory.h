@@ -14,6 +14,10 @@
 #ifndef LIBNDS_NDS_MEMORY_H__
 #define LIBNDS_NDS_MEMORY_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <assert.h>
 
 #include <nds/ndstypes.h>
@@ -275,11 +279,8 @@ typedef struct sNDSBanner {
   u16 titles[6][128]; ///< Title of the game in 6 different languages.
 } tNDSBanner;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef ARM9
+
 #define BUS_OWNER_ARM9 true
 #define BUS_OWNER_ARM7 false
 

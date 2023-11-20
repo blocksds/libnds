@@ -8,6 +8,10 @@
 #ifndef LIBNDS_NDS_DISC_IO_H__
 #define LIBNDS_NDS_DISC_IO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 #define FEATURE_MEDIUM_CANREAD      0x00000001
@@ -39,5 +43,9 @@ struct DISC_INTERFACE_STRUCT {
 typedef struct DISC_INTERFACE_STRUCT DISC_INTERFACE;
 
 const DISC_INTERFACE *get_io_dsisd(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_DISC_IO_H__

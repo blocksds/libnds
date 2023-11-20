@@ -10,12 +10,12 @@
 #ifndef LIBNDS_NDS_ARM7_TOUCH_H__
 #define LIBNDS_NDS_ARM7_TOUCH_H__
 
-#ifndef ARM7
-#error Touch screen is only available on the ARM7
-#endif
-
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef ARM7
+#error Touch screen is only available on the ARM7
 #endif
 
 #include <nds/arm7/serial.h>

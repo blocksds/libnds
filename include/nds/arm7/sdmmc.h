@@ -6,6 +6,10 @@
 #ifndef LIBNDS_NDS_ARM7_SDMMC_H__
 #define LIBNDS_NDS_ARM7_SDMMC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef ARM7
 #error SDMMC header is for ARM7 only
 #endif
@@ -97,7 +101,6 @@ typedef struct
 #define SDMMC_STATUS_NOINIT		0x01	/* Drive not initialized */
 #define SDMMC_STATUS_NODISK		0x02	/* No medium in the drive */
 #define SDMMC_STATUS_PROTECT    0x04	/* Write protected */
-
 
 /**
  * @brief      Initializes a (e)MMC/SD card device.
@@ -249,5 +252,9 @@ u32 SDMMC_sendCommand(const u8 devNum, MmcCommand *const mmcCmd);
 u32 SDMMC_getLastR1error(const u8 devNum);
 
 // TODO: TRIM/erase support.
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

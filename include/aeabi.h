@@ -3,8 +3,9 @@
 //
 // Copyright (C) 2021-2023 agbabi contributors
 
-#ifndef AEABI_H
-#define AEABI_H
+#ifndef AEABI_H__
+#define AEABI_H__
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -111,4 +112,5 @@ void __aeabi_memclr(void* dest, size_t n) __attribute__((nonnull(1)));
 #ifdef __cplusplus
 }
 #endif
-#endif /* define AEABI_H */
+
+#endif // AEABI_H__

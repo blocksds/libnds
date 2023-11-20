@@ -8,6 +8,10 @@
 #ifndef LIBNDS_NDS_NDMA_H__
 #define LIBNDS_NDS_NDMA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/ndma.h
 ///
 /// @brief NDMA helpers.
@@ -115,5 +119,9 @@ static inline int ndmaBusy(uint8_t channel)
 {
     return (NDMA_CR(channel) & NDMA_BUSY) >> 31;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_NDMA_H__

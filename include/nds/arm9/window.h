@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_ARM9_WINDOW_H__
 #define LIBNDS_NDS_ARM9_WINDOW_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm9/window.h
 ///
 /// @brief Definitions for object and background windowing.
@@ -102,5 +106,9 @@ void oamWindowEnable(OamState* oam, WINDOW w);
 /// @param oam Must be &oamMain or &oamSub.
 /// @param w The window to disable.
 void oamWindowDisable(OamState* oam, WINDOW w);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_WINDOW_H__

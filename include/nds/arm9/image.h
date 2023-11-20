@@ -18,6 +18,10 @@
 #ifndef LIBNDS_NDS_ARM9_IMAGE_H__
 #define LIBNDS_NDS_ARM9_IMAGE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/video.h>
 
 /// Holds a red green blue triplet
@@ -45,10 +49,6 @@ typedef struct sImage
     } image;
 
 } sImage, *psImage;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Destructively converts a 24-bit image to 16-bit
 ///

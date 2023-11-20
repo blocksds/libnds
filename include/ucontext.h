@@ -5,9 +5,10 @@
 
 // Context switching definitions
 
-#ifndef _UCONTEXT_H
-#define _UCONTEXT_H
-#if defined( __cplusplus )
+#ifndef UCONTEXT_H__
+#define UCONTEXT_H__
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -45,7 +46,8 @@ int swapcontext(ucontext_t* __restrict__ oucp, const ucontext_t* __restrict__ uc
  */
 void makecontext(ucontext_t* ucp, void(*func)(void), int argc, ...) __attribute__((nonnull(1, 2)));
 
-#if defined( __cplusplus )
-} // extern "C"
+#ifdef __cplusplus
+}
 #endif
-#endif // define _SYS_UCONTEXT_H
+
+#endif // UCONTEXT_H__

@@ -10,12 +10,12 @@
 #ifndef LIBNDS_NDS_ARM7_SERIAL_H__
 #define LIBNDS_NDS_ARM7_SERIAL_H__
 
-#ifndef ARM7
-#error Serial header is for ARM7 only
-#endif
-
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef ARM7
+#error Serial header is for ARM7 only
 #endif
 
 #include <nds/bios.h>

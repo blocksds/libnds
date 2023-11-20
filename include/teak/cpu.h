@@ -6,6 +6,10 @@
 #ifndef LIBTEAK_CPU_H__
 #define LIBTEAK_CPU_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // TODO: Document
 
 void cpuDisableIrqs(void);
@@ -22,5 +26,9 @@ void cpuEnableInt2(void);
 
 void cpuDisableVInt(void);
 void cpuEnableVInt(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_CPU_H__

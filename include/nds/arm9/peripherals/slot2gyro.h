@@ -5,12 +5,12 @@
 #ifndef LIBNDS_ARM9_PERIPHERALS_SLOT2GYRO_H__
 #define LIBNDS_ARM9_PERIPHERALS_SLOT2GYRO_H__
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /// Perform a gyro sensor scan.
 /// TODO: Test on hardware.

@@ -5,12 +5,12 @@
 #ifndef LIBNDS_ARM9_PERIPHERALS_SLOT2_H__
 #define LIBNDS_ARM9_PERIPHERALS_SLOT2_H__
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdbool.h>
+#include <stdint.h>
 
 // TODO: Peripherals marked as "TODO" are not currently detected.
 // In addition, the following are not listed due to insufficient information:

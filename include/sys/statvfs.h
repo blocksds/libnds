@@ -2,9 +2,10 @@
 //
 // Copyright (c) 2023 Adrian "asie" Siekierka
 
-#ifndef _SYS_STATVFS_H
-#define _SYS_STATVFS_H
-#if defined( __cplusplus )
+#ifndef SYS_STATVFS_H__
+#define SYS_STATVFS_H__
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -30,7 +31,8 @@ struct statvfs {
 int statvfs(const char * __restrict__ path, struct statvfs * __restrict__ buf);
 int fstatvfs(int fd, struct statvfs *buf);
 
-#if defined( __cplusplus )
-} // extern "C"
+#ifdef __cplusplus
+}
 #endif
-#endif // define _SYS_STATVFS_H
+
+#endif // SYS_STATVFS_H__

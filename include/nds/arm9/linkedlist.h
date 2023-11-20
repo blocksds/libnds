@@ -12,6 +12,10 @@
 #ifndef LIBNDS_NDS_ARM9_LINKEDLIST_H__
 #define LIBNDS_NDS_ARM9_LINKEDLIST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// A node of the linked list.
 typedef struct LinkedList {
     struct LinkedList *next; ///< A pointer to the next node.
@@ -38,5 +42,9 @@ LinkedList* linkedlistAdd(LinkedList **front, void* data);
 ///
 /// @param node The node you want to remove.
 void linkedlistRemove(LinkedList *node);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_LINKEDLIST_H__

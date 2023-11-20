@@ -5,15 +5,15 @@
 #ifndef LIBNDS_NDS_COTHREAD_H__
 #define LIBNDS_NDS_COTHREAD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/cothread.h
 ///
 /// @brief Cooperative multithreading system
 ///
 /// Only enabled in the ARM9 at the moment.
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -197,7 +197,7 @@ typedef struct
 } cothread_info_t;
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif // LIBNDS_NDS_COTHREAD_H__

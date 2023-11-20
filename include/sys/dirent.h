@@ -8,8 +8,8 @@
 //
 // Copyright (c) 2023 Antonio Niño Díaz
 
-#ifndef _SYS_DIRENT_H
-#define _SYS_DIRENT_H
+#ifndef SYS_DIRENT_H__
+#define SYS_DIRENT_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,4 +52,4 @@ typedef struct {
 }
 #endif
 
-#endif // _SYS_DIRENT_H
+#endif // SYS_DIRENT_H__

@@ -11,6 +11,10 @@
 #ifndef LIBNDS_NDS_ARM9_PCX_H__
 #define LIBNDS_NDS_ARM9_PCX_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct PCXHeader
 {
    char      manufacturer;  // Should be 0
@@ -28,10 +32,6 @@ typedef struct PCXHeader
    short int paletteYype;   // Should be 2
    char      filler[58];    // Ignore
 }__attribute__ ((packed)) PCXHeader, *pPCXHeader;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Loads an image structure with data from PCX formatted data.
 ///

@@ -15,6 +15,10 @@
 #ifndef LIBNDS_NDS_NDSTYPES_H__
 #define LIBNDS_NDS_NDSTYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Define libnds types in terms of stdint
 #include <stdbool.h>
 #include <stdint.h>
@@ -137,5 +141,9 @@ typedef void (* VoidFn)(void);
 
 typedef void (* IntFn)(void);
 typedef void (* fp)(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_NDSTYPES_H__

@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_TIMER_H__
 #define LIBTEAK_TIMER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file teak/timer.h
 ///
 /// @brief Timer utilities.
@@ -98,5 +102,9 @@ static inline void timerStop(u16 index)
 {
     REG_TMR_CONTROL(index) = TMR_CONTROL_PAUSE;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_TIMER_H__

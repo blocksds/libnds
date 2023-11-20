@@ -6,6 +6,10 @@
 #ifndef LIBNDS_NDS_ARM7_TMIO_H__
 #define LIBNDS_NDS_ARM7_TMIO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef ARM7
 #error TMIO header is for ARM7 only
 #endif
@@ -402,4 +406,8 @@ __attribute__((always_inline)) static inline void TMIO_setBuffer(TmioPort *const
 	port->blocks = blocks;
 }
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // LIBNDS_NDS_ARM7_TMIO_H__

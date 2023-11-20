@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_AHBM_H__
 #define LIBTEAK_AHBM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file teak/ahbm.h
 ///
 /// @brief AHBM (ARM AMBA AHB bus) utilities
@@ -87,5 +91,9 @@ static inline void ahbmResetChannel(int channel)
 {
     REG_AHBM_CH_CFG_DMA(channel) = 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_AHBM_H__

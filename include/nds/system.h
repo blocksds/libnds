@@ -16,6 +16,10 @@
 #ifndef LIBNDS_NDS_SYSTEM_H__
 #define LIBNDS_NDS_SYSTEM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 /// LCD status register.
@@ -576,5 +580,9 @@ void resetARM9(u32 address);
 #define SCFG_EXT_MBK_RAM        BIT(25)
 #define SCFG_EXT_SCFG_MBK_REG   BIT(31)
 #endif // ARM7
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_SYSTEM_H__

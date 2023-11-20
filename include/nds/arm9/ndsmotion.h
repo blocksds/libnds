@@ -15,14 +15,14 @@
 #ifndef LIBNDS_NDS_ARM9_NDSMOTION_H__
 #define LIBNDS_NDS_ARM9_NDSMOTION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct MotionCalibration {
     short xoff, yoff, zoff, goff;
     short xsens, ysens, zsens, gsens;
 } MotionCalibration;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Initializes the DS Motion Sensor.
 ///

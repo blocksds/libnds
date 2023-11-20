@@ -5,6 +5,10 @@
 #ifndef LIBTEAK_TYPES_H__
 #define LIBTEAK_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define BIT(n) (1 << (n))
@@ -47,5 +51,9 @@ typedef volatile s16 vs16;
 typedef volatile s32 vs32;
 /// 64 bit volatile signed integer.
 typedef volatile s64 vs64;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_TYPES_H__

@@ -20,6 +20,10 @@
 #ifndef LIBNDS_GL2D_H__
 #define LIBNDS_GL2D_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/videoGL.h>
 
 /// @brief Enums selecting flipping mode.
@@ -80,11 +84,6 @@ typedef struct
     int textureID;
 
 } glImage;
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 extern int gCurrentTexture;
 

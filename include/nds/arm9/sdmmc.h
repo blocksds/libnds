@@ -5,11 +5,11 @@
 #ifndef LIBNDS_NDS_ARM9_SDMMC_H__
 #define LIBNDS_NDS_ARM9_SDMMC_H__
 
-#include <unistd.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <unistd.h>
 
 // These values should be synchronized with <fatfs/diskio.h>.
 #define SDMMC_STATUS_NOINIT		0x01	/* Drive not initialized */

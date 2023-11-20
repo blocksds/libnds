@@ -10,12 +10,12 @@
 #ifndef LIBNDS_NDS_ARM9_CP15_H__
 #define LIBNDS_NDS_ARM9_CP15_H__
 
-#ifndef ARM9
-#error CP15 is only for the ARM9
-#endif
-
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef ARM9
+#error CP15 is only for the ARM9
 #endif
 
 #include <stddef.h>

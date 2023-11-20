@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_DMA_H__
 #define LIBTEAK_DMA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file teak/dma.h
 ///
 /// @brief DMA helpers.
@@ -156,5 +160,9 @@ static inline u16 dmaTransferIsRunning(u16 dma_channel)
 
     return REG_DMA_START & BIT(dma_channel) ? 1 : 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_DMA_H__

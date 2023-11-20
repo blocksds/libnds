@@ -8,6 +8,10 @@
 #ifndef LIBNDS_NDS_CARD_H__
 #define LIBNDS_NDS_CARD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/card.h
 ///
 /// @brief Slot-1 card commands.
@@ -91,10 +95,6 @@
 
 #define CARD_SPICNTH_ENABLE  (1 << 7) // In byte 1, i.e. 0x8000
 #define CARD_SPICNTH_IRQ     (1 << 6) // In byte 1, i.e. 0x4000
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void enableSlot1(void);
 void disableSlot1(void);

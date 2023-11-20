@@ -5,6 +5,10 @@
 #ifndef LIBNDS_NDS_ARM9_CAMERA_H__
 #define LIBNDS_NDS_ARM9_CAMERA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -44,10 +48,6 @@ typedef enum {
     CAMERA_OUTER = 1,
     CAMERA_NONE = 2
 } CameraDevice;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // High-level camera functions
 u8 cameraGetActive(void);

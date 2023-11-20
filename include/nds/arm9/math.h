@@ -12,6 +12,10 @@
 #ifndef LIBNDS_NDS_ARM9_MATH_H__
 #define LIBNDS_NDS_ARM9_MATH_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 #define REG_DIVCNT          (*(vu16 *)(0x04000280))
@@ -361,5 +365,9 @@ static inline void normalizef32(int32_t *a)
     a[1] = divf32(a[1], magnitude);
     a[2] = divf32(a[2], magnitude);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_MATH_H__

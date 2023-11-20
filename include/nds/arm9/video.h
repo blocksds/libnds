@@ -63,16 +63,16 @@
 #ifndef LIBNDS_NDS_ARM9_VIDEO_H__
 #define LIBNDS_NDS_ARM9_VIDEO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef ARM9
 #error Video is only available on the ARM9
 #endif
 
 #include <nds/arm9/sassert.h>
 #include <nds/ndstypes.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 extern u16 mosaicShadow;
 extern u16 mosaicShadowSub;

@@ -5,6 +5,10 @@
 #ifndef LIBNDS_NDS_ARM9_TEAK_TLF_H__
 #define LIBNDS_NDS_ARM9_TEAK_TLF_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /// @file nds/arm9/teak/tlf.h
@@ -97,6 +101,10 @@ typedef struct {
 
 #if __STDC_VERSION__ >= 201112L // C11
 static_assert(sizeof(tlf_header) == 8);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // LIBNDS_NDS_ARM9_TEAK_TLF_H__

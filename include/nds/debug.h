@@ -36,6 +36,10 @@
 #ifndef LIBNDS_NDS_DEBUG_H__
 #define LIBNDS_NDS_DEBUG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// Send a message to the no$gba debug window.
 ///
 /// @param message The message to send.
@@ -46,5 +50,9 @@ void nocashWrite(const char *message, int len);
 ///
 /// @param message The message to send (120 characters max).
 void nocashMessage(const char *message);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_DEBUG_H__

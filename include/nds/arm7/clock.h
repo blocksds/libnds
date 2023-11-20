@@ -9,16 +9,16 @@
 #ifndef LIBNDS_NDS_ARM7_CLOCK_H__
 #define LIBNDS_NDS_ARM7_CLOCK_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm7/clock.h
 ///
 /// @brief Utilities to read and write the real time clock from the ARM7.
 
 #ifndef ARM7
 #error The clock is only available on the ARM7
-#endif
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 #include <nds/arm7/serial.h>

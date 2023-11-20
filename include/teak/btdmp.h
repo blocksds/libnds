@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_BTDMP_H__
 #define LIBTEAK_BTDMP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <teak/types.h>
 
 #define BTDMP_REG_BASE                      0x8280
@@ -65,5 +69,9 @@ static inline void btdmpFlushTransmitFifo(int channel)
 {
     REG_BTDMP_TRANSMIT_FIFO_CONFIG(channel) = BTDMP_TRANSMIT_FIFO_CONFIG_FLUSH;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_BTDMP_H__

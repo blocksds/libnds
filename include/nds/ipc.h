@@ -10,6 +10,10 @@
 #ifndef LIBNDS_NDS_IPC_H__
 #define LIBNDS_NDS_IPC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 // Synchronization register
@@ -47,5 +51,9 @@ enum IPC_CONTROL_BITS {
     IPC_FIFO_ERROR      = (1 << 14),
     IPC_FIFO_ENABLE     = (1 << 15)
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_IPC_H__

@@ -7,6 +7,10 @@
 #ifndef LIBTEAK_APBP_H__
 #define LIBTEAK_APBP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file teak/apbp.h
 ///
 /// @brief Host Port Interface (APBP aka HPI)
@@ -143,5 +147,9 @@ void apbpSendData(uint16_t id, uint16_t data);
 /// @param id 0 to 2 for REG_APBP_REP0 to REG_APBP_REP2.
 /// @return Returns the data in that register.
 uint16_t apbpReceiveData(uint16_t id);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBTEAK_APBP_H__

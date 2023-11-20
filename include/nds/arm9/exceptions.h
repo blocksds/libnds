@@ -6,6 +6,10 @@
 #ifndef LIBNDS_NDS_ARM9_EXCEPTIONS_H__
 #define LIBNDS_NDS_ARM9_EXCEPTIONS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/arm9/exceptions.h
 ///
 /// @brief Functions to handle hardware exceptions.
@@ -21,10 +25,6 @@
 
 /// NDS9 BIOS debug exception stack top (mirror)
 #define EXCEPTION_STACK_TOP ((uint32_t *)0x2FFFD9C)
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Pointer to the user exception handler, called from the exception handler of
 /// libnds.

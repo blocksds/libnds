@@ -22,6 +22,10 @@
 #ifndef LIBNDS_NDS_ARM9_KEYBOARD_H__
 #define LIBNDS_NDS_ARM9_KEYBOARD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/background.h>
 #include <nds/ndstypes.h>
 
@@ -101,10 +105,6 @@ typedef enum
     DVK_LEFT      = -20, ///< Left key
     DVK_ALT       = -26  ///< Alt key
 } Keys;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Gets the default keyboard.
 ///

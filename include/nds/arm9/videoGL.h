@@ -15,6 +15,14 @@
 #ifndef LIBNDS_NDS_ARM9_VIDEOGL_H__
 #define LIBNDS_NDS_ARM9_VIDEOGL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef ARM9
+#error 3D hardware is only available from the ARM9
+#endif
+
 #include <nds/arm9/cache.h>
 #include <nds/arm9/dynamicArray.h>
 #include <nds/arm9/math.h>
@@ -23,10 +31,6 @@
 #include <nds/arm9/video.h>
 #include <nds/dma.h>
 #include <nds/ndstypes.h>
-
-#ifndef ARM9
-#    error 3D hardware is only available from the ARM9
-#endif
 
 // Misc. constants
 
@@ -442,10 +446,6 @@ static gl_hidden_globals *glGlob = &glGlobalData;
 #define FIFO_END                REG2ID(GFX_END)          ///< Ends a polygon vertex list
 #define FIFO_FLUSH              REG2ID(GFX_FLUSH)        ///< Flush the 3D context
 #define FIFO_VIEWPORT           REG2ID(GFX_VIEWPORT)     ///< Set the viewport
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Rotates the model view matrix by angle about the specified unit vector.
 ///

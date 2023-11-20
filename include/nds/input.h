@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_INPUT_H__
 #define LIBNDS_NDS_INPUT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 /// @file nds/input.h
@@ -48,5 +52,9 @@ typedef enum KEYPAD_BITS {
 #define KEYXY_DEBUG     BIT(3) ///< ARM7: Debug button.
 #define KEYXY_TOUCH     BIT(6) ///< ARM7: Touchscreen pendown.
 #define KEYXY_LID       BIT(7) ///< ARM7: Lid state.
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_INPUT_H__

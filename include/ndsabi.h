@@ -3,8 +3,9 @@
 //
 // Copyright (C) 2021-2023 agbabi contributors
 
-#ifndef NDSABI_H
-#define NDSABI_H
+#ifndef NDSABI_H__
+#define NDSABI_H__
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -140,4 +141,4 @@ void __ndsabi_coro_yield(__ndsabi_coro_t* coro, int value) __attribute__((nonnul
 #ifdef __cplusplus
 }
 #endif
-#endif /* define NDSABI_H */
+#endif // NDSABI_H__

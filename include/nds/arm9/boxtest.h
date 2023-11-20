@@ -11,16 +11,16 @@
 #ifndef LIBNDS_NDS_ARM9_BOXTEST_H__
 #define LIBNDS_NDS_ARM9_BOXTEST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
 
 /// @file nds/arm9/boxtest.h
 ///
 /// @brief 3D box test dunctions.
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Performs a test to determine if the provided box is in the view frustrum.
 ///

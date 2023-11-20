@@ -78,6 +78,10 @@
 #ifndef LIBNDS_NDS_ARM9_BACKGROUND_H__
 #define LIBNDS_NDS_ARM9_BACKGROUND_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/sassert.h>
 #include <nds/arm9/video.h>
 #include <nds/dma.h>
@@ -483,10 +487,6 @@ typedef enum
     BgSize_B16_512x256 = ((2 << 14) | BIT(7) | BIT(2) | (4 << 16)), ///< 512 x 512 pixel 16 bit bitmap background
     BgSize_B16_512x512 = ((3 << 14) | BIT(7) | BIT(2) | (4 << 16)), ///< 1024 x 1024 pixel 16 bit bitmap background
 } BgSize;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // Internally used for debug assertions
 bool bgIsText(int id);

@@ -8,12 +8,12 @@
 #ifndef LIBNDS_NDS_ARM7_CODEC_H__
 #define LIBNDS_NDS_ARM7_CODEC_H__
 
-#ifndef ARM7
-#error DSi TSC is only available on the ARM7
-#endif
-
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef ARM7
+#error DSi TSC is only available on the ARM7
 #endif
 
 #include <nds/arm7/serial.h>

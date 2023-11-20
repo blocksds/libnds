@@ -5,12 +5,12 @@
 #ifndef LIBNDS_ARM9_PERIPHERALS_SLOT2TILT_H__
 #define LIBNDS_ARM9_PERIPHERALS_SLOT2TILT_H__
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct slot2TiltPosition {
     u16 x;   ///< Raw X value

@@ -5,9 +5,10 @@
 
 // Context switching definitions
 
-#ifndef _SYS_UCONTEXT_H
-#define _SYS_UCONTEXT_H
-#if defined( __cplusplus )
+#ifndef SYS_UCONTEXT_H__
+#define SYS_UCONTEXT_H__
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -39,7 +40,8 @@ typedef struct ucontext_t {
     mcontext_t uc_mcontext;
 } ucontext_t;
 
-#if defined( __cplusplus )
-} // extern "C"
+#ifdef __cplusplus
+}
 #endif
-#endif // define _SYS_UCONTEXT_H
+
+#endif // SYS_UCONTEXT_H__

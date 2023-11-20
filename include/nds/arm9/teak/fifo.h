@@ -7,6 +7,10 @@
 #ifndef LIBNDS_NDS_ARM9_TEAK_FIFO_H__
 #define LIBNDS_NDS_ARM9_TEAK_FIFO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/arm9/teak/dsp.h>
 
 /// @file nds/arm9/teak/fifo.h
@@ -64,5 +68,9 @@ static inline void dspFifoReadData(u16 src, u16 *dst, int length)
     dspFifoRecv(DSP_PCFG_MEMSEL_DATA, src, false, dst, false, length,
                 DSP_PCFG_RLEN_FREE);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_TEAK_FIFO_H__

@@ -13,6 +13,10 @@
 #ifndef LIBNDS_NDS_INTERRUPTS_H__
 #define LIBNDS_NDS_INTERRUPTS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <nds/ndstypes.h>
 
 // Values allowed for REG_IE and REG_IF
@@ -118,10 +122,6 @@ enum IME_VALUE {
     IME_DISABLE = 0, ///< Disable all interrupts.
     IME_ENABLE = 1,  ///< Enable all interrupts not masked out in REG_IE
 };
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 extern VoidFn  __irq_vector[];
 extern vuint32 __irq_flags[];

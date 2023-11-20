@@ -11,15 +11,15 @@
 #ifndef LIBNDS_NDS_BIOS_H__
 #define LIBNDS_NDS_BIOS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @file nds/bios.h
 ///
 /// @brief Nintendo DS BIOS functions
 ///
 /// See gbatek for more information.
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <nds/ndstypes.h>
 

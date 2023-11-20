@@ -38,14 +38,14 @@
 #ifndef LIBNDS_NDS_ARM9_CONSOLE_H__
 #define LIBNDS_NDS_ARM9_CONSOLE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #include <nds/arm9/background.h>
 #include <nds/ndstypes.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// Function type used by the PrintConsole struct to send characters to the
 /// console.

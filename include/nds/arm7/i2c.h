@@ -8,12 +8,12 @@
 #ifndef LIBNDS_NDS_ARM7_I2C_H__
 #define LIBNDS_NDS_ARM7_I2C_H__
 
-#ifndef ARM7
-#error i2c header is for ARM7 only
-#endif
-
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef ARM7
+#error i2c header is for ARM7 only
 #endif
 
 #include <nds/ndstypes.h>
