@@ -67,10 +67,10 @@ static inline bool cameraTransferActive(void)
 }
 
 // Low-level I2C/MCU functions
-u16 cameraI2cRead(u8 device, u16 reg);
-u16 cameraI2cWrite(u8 device, u16 reg, u16 value);
-u16 cameraMcuRead(u8 device, u16 reg);
-u16 cameraMcuWrite(u8 device, u16 reg, u16 value);
+u16 cameraI2cReadTWL(u8 device, u16 reg);
+u16 cameraI2cWriteTWL(u8 device, u16 reg, u16 value);
+u16 cameraMcuReadTWL(u8 device, u16 reg);
+u16 cameraMcuWriteTWL(u8 device, u16 reg, u16 value);
 
 #ifdef __cplusplus
 }
