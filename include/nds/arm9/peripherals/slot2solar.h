@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+/// @file nds/arm9/peripherals/slot2solar.h
+///
+/// @brief Slot-2 solar sensor.
+
 #include <stdbool.h>
 #include <stdint.h>
 

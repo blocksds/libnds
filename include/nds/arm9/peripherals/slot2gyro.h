@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+/// @file nds/arm9/peripherals/slot2gyro.h
+///
+/// @brief Slot-2 gyro sensor.
+
 #include <stdbool.h>
 #include <stdint.h>
 

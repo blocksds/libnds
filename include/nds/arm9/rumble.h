@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+/// @file nds/arm9/rumble.h
+///
+/// @brief Slot-2 Rumble.
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -33,6 +37,8 @@ bool isRumbleInserted(void);
 ///
 /// A non-edge-activated rumble device triggers its motor starting from
 /// when setRumble(1) was called, until setRumble(0) is called.
+///
+/// @return It returns true if the device is edge-activated.
 bool rumbleIsEdgeActivated(void);
 
 /// Get the maximum rumble strength.

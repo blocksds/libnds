@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+/// @file nds/arm9/peripherals/slot2tilt.h
+///
+/// @brief Slot-2 tilt sensor.
+
 #include <stdbool.h>
 #include <stdint.h>
 
