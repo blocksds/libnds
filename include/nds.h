@@ -99,6 +99,7 @@
 /// - @ref teak/teak.h "General utilities"
 /// - @ref teak/ahbm.h "AHBM (ARM AMBA AHB bus) utilities"
 /// - @ref teak/apbp.h "Host Port Interface (APBP aka HPI)"
+/// - @ref teak/btdmp.h "BTDMP (speakers/microphone FIFO)"
 /// - @ref teak/dma.h "DMA helpers"
 /// - @ref teak/icu.h "ICU helpers"
 /// - @ref teak/timer.h "Timer utilities"

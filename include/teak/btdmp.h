@@ -11,6 +11,10 @@
 extern "C" {
 #endif
 
+/// @file teak/btdmp.h
+///
+/// @brief BTDMP (speakers/microphone FIFO).
+
 #include <teak/types.h>
 
 #define BTDMP_REG_BASE                      0x8280
@@ -68,6 +72,30 @@ static inline void btdmpDisableTransmit(int channel)
 static inline void btdmpFlushTransmitFifo(int channel)
 {
     REG_BTDMP_TRANSMIT_FIFO_CONFIG(channel) = BTDMP_TRANSMIT_FIFO_CONFIG_FLUSH;
+}
+
+/// Setups a BTDMP channel to output audio to the DS speakers.
+///
+/// Note: Remember to setup REG_SNDEXTCNT from the ARM7 to enable sound output
+/// from the DSP. For example, for 50% DSP output and 50% ARM7 output:
+/// ```
+/// REG_SNDEXTCNT = SNDEXTCNT_ENABLE | SNDEXTCNT_FREQ_32KHZ | SNDEXTCNT_RATIO(4);
+/// ```
+///
+/// @param channel The BTDMP channel to use.
+/// @param irq_index The CPU interrupt to use (0 to 2).
+void btdmpSetupOutputSpeakers(int channel, int irq_index);
+
+/// Checks if the transmit FIFO of a BTDMP channel is full or not.
+///
+/// @param channel The BTDMP channel to check.
+/// @return 1 if the FIFO is full, 0 otherwise.
+static inline int btdmpTransmitFifoFull(int channel)
+{
+    if (REG_BTDMP_TRANSMIT_FIFO_STAT(channel) & BTDMP_TRANSMIT_FIFO_STAT_FULL)
+        return 1;
+
+    return 0;
 }
 
 #ifdef __cplusplus
