@@ -71,14 +71,14 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 // DSi Registers
 
 #define REG_SNDEXTCNT           (*(vu16 *)0x04004700)
-#define REG_MICCNT              (*(vu16 *)0x04004600)
-#define REG_MICDATA             (*(vu32 *)0x04004604)
 
 #define SNDEXTCNT_RATIO(n)      ((n) & 0xF)
 #define SNDEXTCNT_FREQ_32KHZ    (0 << 13) // Output freq 32.73kHz
 #define SNDEXTCNT_FREQ_47KHZ    (1 << 13) // Output freq 47.61kHz
 #define SNDEXTCNT_MUTE          BIT(14)
 #define SNDEXTCNT_ENABLE        BIT(15)
+
+#define REG_MICCNT              (*(vu16 *)0x04004600)
 
 #define MICCNT_FORMAT(n)        ((n) & 3) // Unknown, always set to '2'
 #define MICCNT_FORMAT_MASK      (3)
@@ -93,6 +93,8 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 #define MICCNT_ENABLE_IRQ       BIT(13)
 #define MICCNT_ENABLE_IRQ2      BIT(14)
 #define MICCNT_ENABLE           BIT(15)
+
+#define REG_MICDATA             (*(vu32 *)0x04004604)
 
 /// Read a 8-bit unsigned value from the microphone.
 ///
