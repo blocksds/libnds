@@ -123,6 +123,13 @@ void enableSound(void)
             (readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_MUTE) | PM_SOUND_AMP);
 
     REG_SOUNDCNT = SOUND_ENABLE;
+
+    if (isDSiMode())
+    {
+        // Disabled, not muted, 32 KHz, 100% ARM output
+        REG_SNDEXTCNT = SNDEXTCNT_FREQ_32KHZ | SNDEXTCNT_RATIO(8);
+    }
+
     REG_MASTER_VOLUME = 127;
 
     // Clear sound registers
@@ -132,6 +139,10 @@ void enableSound(void)
 void disableSound(void)
 {
     REG_SOUNDCNT &= ~SOUND_ENABLE;
+
+    if (isDSiMode())
+        REG_SNDEXTCNT &= ~SNDEXTCNT_ENABLE;
+
     writePowerManagement(PM_CONTROL_REG,
             (readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_AMP) | PM_SOUND_MUTE);
     powerOff(POWER_SOUND);
@@ -188,6 +199,34 @@ void soundCommandHandler(u32 command, void *userdata)
 
         case MIC_STOP:
             micStopRecording();
+            break;
+
+        case SOUND_EXT_SET_ENABLED:
+            if (data != 0)
+                REG_SNDEXTCNT |= SNDEXTCNT_ENABLE;
+            else
+                REG_SNDEXTCNT &= ~SNDEXTCNT_ENABLE;
+            break;
+
+        case SOUND_EXT_SET_FREQ:
+            if (data == 47)
+                REG_SNDEXTCNT |= SNDEXTCNT_FREQ_47KHZ;
+            else
+                REG_SNDEXTCNT &= ~SNDEXTCNT_FREQ_47KHZ;
+            break;
+
+        case SOUND_EXT_SET_MUTE:
+            if (data != 0)
+                REG_SNDEXTCNT |= SNDEXTCNT_MUTE;
+            else
+                REG_SNDEXTCNT &= ~SNDEXTCNT_MUTE;
+            break;
+
+        case SOUND_EXT_SET_RATIO:
+            if (data > 8)
+                data = 8;
+            REG_SNDEXTCNT &= ~SNDEXTCNT_RATIO(0xF);
+            REG_SNDEXTCNT |= SNDEXTCNT_RATIO(data);
             break;
 
         default:

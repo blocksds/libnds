@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <nds/arm9/cache.h>
+#include <nds/arm9/sassert.h>
 #include <nds/arm9/sound.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
@@ -169,4 +170,34 @@ int soundMicRecord(void *buffer, u32 bufferLength, MicFormat format, int freq,
 void soundMicOff(void)
 {
     fifoSendValue32(FIFO_SOUND, MIC_STOP);
+}
+
+void soundExtEnable(void)
+{
+    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_ENABLED | 1);
+}
+
+void soundExtDisable(void)
+{
+    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_ENABLED | 0);
+}
+
+void soundExtSetFrequency(unsigned int freq_khz)
+{
+    sassert((freq_khz == 47) || (freq_khz == 32),
+            "Frequency must be 32 or 47 (KHz)");
+    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_FREQ | freq_khz);
+}
+
+void soundExtSetMute(bool mute)
+{
+    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_MUTE | (mute ? 1 : 0));
+}
+
+void soundExtSetRatio(unsigned int ratio)
+{
+    if (ratio > 8)
+        ratio = 8;
+
+    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_RATIO | ratio);
 }
