@@ -13,6 +13,7 @@
 #include <nds/arm9/sound.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
+#include <nds/system.h>
 
 void soundEnable(void)
 {
@@ -174,28 +175,44 @@ void soundMicOff(void)
 
 void soundExtEnable(void)
 {
+    if (!isDSiMode())
+        return;
+
     fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_ENABLED | 1);
 }
 
 void soundExtDisable(void)
 {
+    if (!isDSiMode())
+        return;
+
     fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_ENABLED | 0);
 }
 
 void soundExtSetFrequency(unsigned int freq_khz)
 {
+    if (!isDSiMode())
+        return;
+
     sassert((freq_khz == 47) || (freq_khz == 32),
             "Frequency must be 32 or 47 (KHz)");
+
     fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_FREQ | freq_khz);
 }
 
 void soundExtSetMute(bool mute)
 {
+    if (!isDSiMode())
+        return;
+
     fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_MUTE | (mute ? 1 : 0));
 }
 
 void soundExtSetRatio(unsigned int ratio)
 {
+    if (!isDSiMode())
+        return;
+
     if (ratio > 8)
         ratio = 8;
 
