@@ -1,9 +1,7 @@
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (C) 2006 Michael "Chishm" Chisholm
-
-// Interface to the low level disc functions. Used by the higher level file
-// system code. Based on code originally written by MightyMax.
+// Copyright (c) 2006 Michael Chisholm (Chishm) and Tim Seidel (Mighty Max).
 
 #include <stdlib.h>
 #include <string.h>

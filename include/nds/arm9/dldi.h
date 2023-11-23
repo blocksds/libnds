@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (C) 2006 Michael "Chishm" Chisholm
+// Copyright (c) 2006 Michael Chisholm (Chishm)
 
 #ifndef LIBNDS_NDS_ARM9_DLDI_H__
 #define LIBNDS_NDS_ARM9_DLDI_H__

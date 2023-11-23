@@ -1,9 +1,7 @@
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (c) 2006 Michael "Chishm" Chisholm
-
-// Interface template for low level disc functions. Based on code originally
-// written by MightyMax.
+// Copyright (c) 2006 Michael Chisholm (Chishm) and Tim Seidel (Mighty Max).
 
 #ifndef LIBNDS_NDS_DISC_IO_H__
 #define LIBNDS_NDS_DISC_IO_H__
