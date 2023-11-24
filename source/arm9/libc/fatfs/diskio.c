@@ -118,7 +118,7 @@ DSTATUS disk_initialize(BYTE pdrv)
     return STA_NOINIT;
 }
 
-#define IS_MAIN_RAM(buff) (((uintptr_t) (buff)) >> 24 == 0x02)
+#define IS_MAIN_RAM(buff, len) (((uintptr_t) (buff)) >= 0x02000000 && ((uintptr_t) (buff)) <= (0x02ff0000 - (len)))
 #define IS_WORD_ALIGNED(buff) (!(((uintptr_t) (buff)) & 0x03))
 
 //-----------------------------------------------------------------------
@@ -147,7 +147,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 #ifndef DISABLE_UNCACHED_READS
             // The DSi SD driver supports unaligned buffers; we cannot make
             // the same guarantee for DLDI in practice.
-            if (!cacheable && IS_MAIN_RAM(buff) && (pdrv == DEV_SD || IS_WORD_ALIGNED(buff)))
+            if (!cacheable && IS_MAIN_RAM(buff, count << 9) && (pdrv == DEV_SD || IS_WORD_ALIGNED(buff)))
             {
                 if (!io->readSectors(sector, count, buff))
                     return RES_ERROR;
@@ -211,7 +211,7 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
             const DISC_INTERFACE *io = fs_io[pdrv];
             // The DSi SD driver supports unaligned buffers; we cannot make
             // the same guarantee for DLDI in practice.
-            if (!IS_MAIN_RAM(buff) || (pdrv == DEV_DLDI && !IS_WORD_ALIGNED(buff)))
+            if (!IS_MAIN_RAM(buff, count << 9) || (pdrv == DEV_DLDI && !IS_WORD_ALIGNED(buff)))
             {
                 // DLDI drivers expect a 4-byte aligned buffer.
                 align_buffer = malloc(FF_MAX_SS);
