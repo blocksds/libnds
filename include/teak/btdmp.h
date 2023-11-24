@@ -21,6 +21,16 @@ extern "C" {
 #define BTDMP_CHANNEL_LEN                   0x80
 #define BTDMP_CHANNEL_REG_BASE(x)           (BTDMP_REG_BASE + (x) * BTDMP_CHANNEL_LEN)
 
+#define REG_BTDMP_RECEIVE_UNK00(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x00))
+#define REG_BTDMP_RECEIVE_UNK02(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x02))
+#define REG_BTDMP_RECEIVE_UNK04(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x04))
+#define REG_BTDMP_RECEIVE_UNK06(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x06))
+#define REG_BTDMP_RECEIVE_UNK08(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x08))
+#define REG_BTDMP_RECEIVE_UNK0A(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x0A))
+#define REG_BTDMP_RECEIVE_UNK0C(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x0C))
+#define REG_BTDMP_RECEIVE_UNK0E(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x0E))
+#define REG_BTDMP_RECEIVE_UNK10(x)          (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x10))
+
 #define REG_BTDMP_RECEIVE_ENABLE(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x1E))
 
 #define BTDMP_RECEIVE_ENABLE_OFF            0x0000
@@ -32,18 +42,31 @@ extern "C" {
 #define REG_BTDMP_TRANSMIT_UNK26(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x26))
 #define REG_BTDMP_TRANSMIT_UNK28(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x28))
 #define REG_BTDMP_TRANSMIT_UNK2A(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x2A))
+#define REG_BTDMP_TRANSMIT_UNK2C(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x2C))
+#define REG_BTDMP_TRANSMIT_UNK2E(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x2E))
+#define REG_BTDMP_TRANSMIT_UNK30(x)         (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x30))
 
 #define REG_BTDMP_TRANSMIT_ENABLE(x)        (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x3E))
 
 #define BTDMP_TRANSMIT_ENABLE_OFF           0x0000
 #define BTDMP_TRANSMIT_ENABLE_ON            0x8000
 
+#define REG_BTDMP_RECEIVE_FIFO_STAT(x)      (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x40))
+
+#define BTDMP_RECEIVE_FIFO_STAT_FULL        (1 << 3)
+#define BTDMP_RECEIVE_FIFO_STAT_EMPTY       (1 << 4)
+
 #define REG_BTDMP_TRANSMIT_FIFO_STAT(x)     (*(vu16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x42))
 
 #define BTDMP_TRANSMIT_FIFO_STAT_FULL       (1 << 3)
 #define BTDMP_TRANSMIT_FIFO_STAT_EMPTY      (1 << 4)
 
+#define REG_BTDMP_RECEIVE_FIFO_DATA(x)      (*(vs16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x44))
 #define REG_BTDMP_TRANSMIT_FIFO_DATA(x)     (*(vs16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x46))
+
+#define REG_BTDMP_RECEIVE_FIFO_CONFIG(x)    (*(vs16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x48))
+
+#define BTDMP_RECEIVE_FIFO_CONFIG_FLUSH     (1 << 2)
 
 #define REG_BTDMP_TRANSMIT_FIFO_CONFIG(x)   (*(vs16*)(BTDMP_CHANNEL_REG_BASE(x) + 0x4A))
 
@@ -72,6 +95,11 @@ static inline void btdmpDisableTransmit(int channel)
 static inline void btdmpFlushTransmitFifo(int channel)
 {
     REG_BTDMP_TRANSMIT_FIFO_CONFIG(channel) = BTDMP_TRANSMIT_FIFO_CONFIG_FLUSH;
+}
+
+static inline void btdmpFlushReceiveFifo(int channel)
+{
+    REG_BTDMP_RECEIVE_FIFO_CONFIG(channel) = BTDMP_RECEIVE_FIFO_CONFIG_FLUSH;
 }
 
 /// Setups a BTDMP channel to output audio to the DS speakers.
