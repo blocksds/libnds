@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Zlib
-// SPDX-FileNotice: Modified from the original version ( https://github.com/profi200/dsi_sdmmc )
+// SPDX-FileNotice: Modified from the original version (https://github.com/profi200/dsi_sdmmc)
 //
 // Copyright (c) 2023 profi200
 
@@ -116,37 +116,37 @@
 // A: According to the card current status.
 // B: Always related to the previous command. Reception of a valid command will clear it (with a delay of one command).
 // C: Clear by read.
-#define SD_R1_AKE_SEQ_ERROR       (1u<<3)  //   E R C, Error in the sequence of the authentication process.
-#define SD_R1_APP_CMD             (1u<<5)  //   S R C, The card will expect ACMD, or an indication that the command has been interpreted as ACMD.
-#define SD_R1_FX_EVENT            (1u<<6)  //   S X A, ExtensionFunctions may set this bit to get host to deal with events.
-#define SD_R1_READY_FOR_DATA      (1u<<8)  //   S X A, Corresponds to buffer empty signaling on the bus.
-#define SD_R1_STATE_IDLE          (0u<<9)  //   S X B
-#define SD_R1_STATE_READY         (1u<<9)  //   S X B
-#define SD_R1_STATE_IDENT         (2u<<9)  //   S X B
-#define SD_R1_STATE_STBY          (3u<<9)  //   S X B
-#define SD_R1_STATE_TRAN          (4u<<9)  //   S X B
-#define SD_R1_STATE_DATA          (5u<<9)  //   S X B
-#define SD_R1_STATE_RCV           (6u<<9)  //   S X B
-#define SD_R1_STATE_PRG           (7u<<9)  //   S X B
-#define SD_R1_STATE_DIS           (8u<<9)  //   S X B
-#define SD_R1_ERASE_RESET         (1u<<13) //   S R C, An erase sequence was cleared before executing because an out of erase sequence command was received.
-#define SD_R1_CARD_ECC_DISABLED   (1u<<14) //   S X A, The command has been executed without using the internal ECC.
-#define SD_R1_WP_ERASE_SKIP       (1u<<15) // E R X C, Set when only partial address space was erased due to existing write protected blocks or the temporary or permanent write protected cardwas erased.
-#define SD_R1_CSD_OVERWRITE       (1u<<16) // E R X C, Can be either one of the following errors: -The read only section of the CSD does not match the card content. -An attempt to reverse the copy (set as original) or permanent WP (unprotected) bits was made.
+#define SD_R1_AKE_SEQ_ERROR       (1u << 3)  //   E R C, Error in the sequence of the authentication process.
+#define SD_R1_APP_CMD             (1u << 5)  //   S R C, The card will expect ACMD, or an indication that the command has been interpreted as ACMD.
+#define SD_R1_FX_EVENT            (1u << 6)  //   S X A, ExtensionFunctions may set this bit to get host to deal with events.
+#define SD_R1_READY_FOR_DATA      (1u << 8)  //   S X A, Corresponds to buffer empty signaling on the bus.
+#define SD_R1_STATE_IDLE          (0u << 9)  //   S X B
+#define SD_R1_STATE_READY         (1u << 9)  //   S X B
+#define SD_R1_STATE_IDENT         (2u << 9)  //   S X B
+#define SD_R1_STATE_STBY          (3u << 9)  //   S X B
+#define SD_R1_STATE_TRAN          (4u << 9)  //   S X B
+#define SD_R1_STATE_DATA          (5u << 9)  //   S X B
+#define SD_R1_STATE_RCV           (6u << 9)  //   S X B
+#define SD_R1_STATE_PRG           (7u << 9)  //   S X B
+#define SD_R1_STATE_DIS           (8u << 9)  //   S X B
+#define SD_R1_ERASE_RESET         (1u << 13) //   S R C, An erase sequence was cleared before executing because an out of erase sequence command was received.
+#define SD_R1_CARD_ECC_DISABLED   (1u << 14) //   S X A, The command has been executed without using the internal ECC.
+#define SD_R1_WP_ERASE_SKIP       (1u << 15) // E R X C, Set when only partial address space was erased due to existing write protected blocks or the temporary or permanent write protected cardwas erased.
+#define SD_R1_CSD_OVERWRITE       (1u << 16) // E R X C, Can be either one of the following errors: -The read only section of the CSD does not match the card content. -An attempt to reverse the copy (set as original) or permanent WP (unprotected) bits was made.
 // 17 reserved for DEFERRED_RESPONSE (Refer to eSD Addendum)
-#define SD_R1_ERROR               (1u<<19) // E R X C, A general or an unknown error occurred during the operation.
-#define SD_R1_CC_ERROR            (1u<<20) // E R X C, Internal card controller error:
-#define SD_R1_CARD_ECC_FAILED     (1u<<21) // E R X C, Card internal ECC was applied but failed to correct the data.
-#define SD_R1_ILLEGAL_COMMAND     (1u<<22) //   E R B, Command  not  legal  for  the  card state.
-#define SD_R1_COM_CRC_ERROR       (1u<<23) //   E R B, The CRC check of the previous command failed.
-#define SD_R1_LOCK_UNLOCK_FAILED  (1u<<24) // E R X C, Set when a sequence or password error has been detected in lock/unlock card command.
-#define SD_R1_CARD_IS_LOCKED      (1u<<25) //   S X A, When set, signals that the card is locked by the host.
-#define SD_R1_WP_VIOLATION        (1u<<26) // E R X C, Set when the host attempts to write to a protected block or to thetemporary or permanent write protected card.
-#define SD_R1_ERASE_PARAM         (1u<<27) // E R X C, An invalid selection of write-blocks for erase occurred.
-#define SD_R1_ERASE_SEQ_ERROR     (1u<<28) //   E R C, An error in the sequence of erase commands occurred.
-#define SD_R1_BLOCK_LEN_ERROR     (1u<<29) // E R X C, The transferred block length is not allowed for this card, or the number of transferred bytes does not match the block length.
-#define SD_R1_ADDRESS_ERROR       (1u<<30) // E R X C, A misaligned address which did not match the block length was used in the command.
-#define SD_R1_OUT_OF_RANGE        (1u<<31) // E R X C, The command's argument was out of the allowed range for this card.
+#define SD_R1_ERROR               (1u << 19) // E R X C, A general or an unknown error occurred during the operation.
+#define SD_R1_CC_ERROR            (1u << 20) // E R X C, Internal card controller error:
+#define SD_R1_CARD_ECC_FAILED     (1u << 21) // E R X C, Card internal ECC was applied but failed to correct the data.
+#define SD_R1_ILLEGAL_COMMAND     (1u << 22) //   E R B, Command  not  legal  for  the  card state.
+#define SD_R1_COM_CRC_ERROR       (1u << 23) //   E R B, The CRC check of the previous command failed.
+#define SD_R1_LOCK_UNLOCK_FAILED  (1u << 24) // E R X C, Set when a sequence or password error has been detected in lock/unlock card command.
+#define SD_R1_CARD_IS_LOCKED      (1u << 25) //   S X A, When set, signals that the card is locked by the host.
+#define SD_R1_WP_VIOLATION        (1u << 26) // E R X C, Set when the host attempts to write to a protected block or to thetemporary or permanent write protected card.
+#define SD_R1_ERASE_PARAM         (1u << 27) // E R X C, An invalid selection of write-blocks for erase occurred.
+#define SD_R1_ERASE_SEQ_ERROR     (1u << 28) //   E R C, An error in the sequence of erase commands occurred.
+#define SD_R1_BLOCK_LEN_ERROR     (1u << 29) // E R X C, The transferred block length is not allowed for this card, or the number of transferred bytes does not match the block length.
+#define SD_R1_ADDRESS_ERROR       (1u <<30) // E R X C, A misaligned address which did not match the block length was used in the command.
+#define SD_R1_OUT_OF_RANGE        (1u << 31) // E R X C, The command's argument was out of the allowed range for this card.
 
 #define SD_R1_ERR_ALL             (SD_R1_OUT_OF_RANGE | SD_R1_ADDRESS_ERROR | SD_R1_BLOCK_LEN_ERROR | \
                                    SD_R1_ERASE_SEQ_ERROR | SD_R1_ERASE_PARAM | SD_R1_WP_VIOLATION | \
@@ -156,32 +156,32 @@
 
 // Argument bits for SEND_IF_COND (CMD8).
 #define SD_CMD8_CHK_PATT      (0xAAu)  // Check pattern.
-#define SD_CMD8_VHS_2_7_3_6V  (1u<<8)  // Voltage supplied (VHS) 2.7-3.6V.
-#define SD_CMD8_PCIe          (1u<<12) // PCIe Avail-ability.
-#define SD_CMD8_PCIe_1_2V     (1u<<13) // PCIe 1.2V Support.
+#define SD_CMD8_VHS_2_7_3_6V  (1u << 8)  // Voltage supplied (VHS) 2.7-3.6V.
+#define SD_CMD8_PCIe          (1u << 12) // PCIe Avail-ability.
+#define SD_CMD8_PCIe_1_2V     (1u << 13) // PCIe 1.2V Support.
 
 // 5.1 OCR register.
-#define SD_OCR_2_7_2_8V  (1u<<15) // 2.7-2.8V.
-#define SD_OCR_2_8_2_9V  (1u<<16) // 2.8-2.9V.
-#define SD_OCR_2_9_3_0V  (1u<<17) // 2.9-3.0V.
-#define SD_OCR_3_0_3_1V  (1u<<18) // 3.0-3.1V.
-#define SD_OCR_3_1_3_2V  (1u<<19) // 3.1-3.2V.
-#define SD_OCR_3_2_3_3V  (1u<<20) // 3.2-3.3V.
-#define SD_OCR_3_3_3_4V  (1u<<21) // 3.3-3.4V.
-#define SD_OCR_3_4_3_5V  (1u<<22) // 3.4-3.5V.
-#define SD_OCR_3_5_3_6V  (1u<<23) // 3.5-3.6V.
-#define SD_OCR_S18A      (1u<<24) // S18A: Switching to 1.8V Accepted. 0b: Continues current voltage signaling, 1b: Ready for switching signal voltage.
-#define SD_OCR_CO2T      (1u<<27) // Over 2TB Card. CCS must also be 1 if this is 1.
-#define SD_OCR_UHS_II    (1u<<29) // UHS-II Card Status. 0b: Non UHS-II Card, 1b: UHS-II Card.
-#define SD_OCR_CCS       (1u<<30) // Card Capacity Status. 0b: SDSC, 1b: SDHC or SDXC.
-#define SD_OCR_READY     (1u<<31) // Busy Status. 0b: On Initialization, 1b: Initialization Complete.
+#define SD_OCR_2_7_2_8V  (1u << 15) // 2.7-2.8V.
+#define SD_OCR_2_8_2_9V  (1u << 16) // 2.8-2.9V.
+#define SD_OCR_2_9_3_0V  (1u << 17) // 2.9-3.0V.
+#define SD_OCR_3_0_3_1V  (1u << 18) // 3.0-3.1V.
+#define SD_OCR_3_1_3_2V  (1u << 19) // 3.1-3.2V.
+#define SD_OCR_3_2_3_3V  (1u << 20) // 3.2-3.3V.
+#define SD_OCR_3_3_3_4V  (1u << 21) // 3.3-3.4V.
+#define SD_OCR_3_4_3_5V  (1u << 22) // 3.4-3.5V.
+#define SD_OCR_3_5_3_6V  (1u << 23) // 3.5-3.6V.
+#define SD_OCR_S18A      (1u << 24) // S18A: Switching to 1.8V Accepted. 0b: Continues current voltage signaling, 1b: Ready for switching signal voltage.
+#define SD_OCR_CO2T      (1u << 27) // Over 2TB Card. CCS must also be 1 if this is 1.
+#define SD_OCR_UHS_II    (1u << 29) // UHS-II Card Status. 0b: Non UHS-II Card, 1b: UHS-II Card.
+#define SD_OCR_CCS       (1u << 30) // Card Capacity Status. 0b: SDSC, 1b: SDHC or SDXC.
+#define SD_OCR_READY     (1u << 31) // Busy Status. 0b: On Initialization, 1b: Initialization Complete.
 
 // Argument bits for SEND_OP_COND (ACMD41).
 // For voltage bits see OCR register above.
-#define SD_ACMD41_S18R   (1u<<24) // S18R: Switching to 1.8V Request. 0b: Use current signal voltage, 1b: Switch to 1.8V signal voltage.
-#define SD_ACMD41_HO2T   (1u<<27) // Over 2TB Supported Host. HCS must also be 1 if this is 1.
-#define SD_ACMD41_XPC    (1u<<28) // SDXC Power Control. 0b: Power Saving, 1b: Maximum Performance.
-#define SD_ACMD41_HCS    (1u<<30) // Host Capacity Support. 0b: SDSC Only Host, 1b: SDHC or SDXC Supported.
+#define SD_ACMD41_S18R   (1u << 24) // S18R: Switching to 1.8V Request. 0b: Use current signal voltage, 1b: Switch to 1.8V signal voltage.
+#define SD_ACMD41_HO2T   (1u << 27) // Over 2TB Supported Host. HCS must also be 1 if this is 1.
+#define SD_ACMD41_XPC    (1u << 28) // SDXC Power Control. 0b: Power Saving, 1b: Maximum Performance.
+#define SD_ACMD41_HCS    (1u << 30) // Host Capacity Support. 0b: SDSC Only Host, 1b: SDHC or SDXC Supported.
 
 // 4.3.10 Switch Function Command.
 // mode:   0 = check function, 1 = set function
@@ -189,6 +189,8 @@
 // driver: Function group 3 Driver Strength.
 // cmd:    Function group 2 Command system.
 // acc:    Function group 1 Access mode.
-#define SD_SWITCH_FUNC_ARG(mode, pwr, driver, cmd, acc)  ((mode)<<31 | 0xFFu<<16 | ((pwr)&0xFu)<<12 | ((driver)&0xFu)<<8 | ((cmd)&0xFu)<<4 | ((acc)&0xFu))
+#define SD_SWITCH_FUNC_ARG(mode, pwr, driver, cmd, acc) \
+    (((mode) << 31) | (0xFFu << 16) | (((pwr) & 0xFu) << 12) | \
+     (((driver) & 0xFu) << 8) | (((cmd) & 0xFu) << 4) | ((acc) & 0xFu))
 
 #endif // LIBNDS_NDS_MMC_SD_SPEC_H__

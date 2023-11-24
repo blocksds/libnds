@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Zlib
-// SPDX-FileNotice: Modified from the original version ( https://github.com/profi200/dsi_sdmmc )
+// SPDX-FileNotice: Modified from the original version (https://github.com/profi200/dsi_sdmmc)
 //
 // Copyright (c) 2023 profi200
 
@@ -91,39 +91,39 @@
 // Clear Condition:
 // A: These bits are persistent, they are set and cleared in accordance with the card status.
 // B: These bits are cleared as soon as the response (reporting the error) is sent out.
-#define MMC_R1_APP_CMD               (1u<<5)  // S R   A, The card will expect ACMD, or indication that the command has been interpreted as ACMD.
-#define MMC_R1_URGENT_BKOPS          (1u<<6)  // S R   A, If set, device needs to perform backgroundoperations urgently. Host can check EXT_CSD field BKOPS_STATUS for the detailed level.
-#define MMC_R1_SWITCH_ERROR          (1u<<7)  // E X   B, If set, the card did not switch to the expected mode as requested by the SWITCH command.
-#define MMC_R1_READY_FOR_DATA        (1u<<8)  // S R   A, Corresponds to buffer empty signalling on the bus.
-#define MMC_R1_STATE_IDLE            (0u<<9)  // S R   A
-#define MMC_R1_STATE_READY           (1u<<9)  // S R   A
-#define MMC_R1_STATE_IDENT           (2u<<9)  // S R   A
-#define MMC_R1_STATE_STBY            (3u<<9)  // S R   A
-#define MMC_R1_STATE_TRAN            (4u<<9)  // S R   A
-#define MMC_R1_STATE_DATA            (5u<<9)  // S R   A
-#define MMC_R1_STATE_RCV             (6u<<9)  // S R   A
-#define MMC_R1_STATE_PRG             (7u<<9)  // S R   A
-#define MMC_R1_STATE_DIS             (8u<<9)  // S R   A
-#define MMC_R1_STATE_BTST            (9u<<9)  // S R   A
-#define MMC_R1_STATE_SLP             (10u<<9) // S R   A
-#define MMC_R1_ERASE_RESET           (1u<<13) // E R   B, An erase sequence was cleared before executing because an out of erase sequence command was received (commands other than CMD35, CMD36, CMD38 or CMD13.
-#define MMC_R1_WP_ERASE_SKIP         (1u<<15) // E X   B, Only partial address space was erased due to existing write protected blocks.
-#define MMC_R1_CXD_OVERWRITE         (1u<<16) // E X   B, Can be either one of the following errors: - The CID register has been already written and can not be overwritten - The read only section of the CSD does not match the card content. - An attempt to reverse the copy (set as original) or permanent WP (unprotected) bits was made.
-#define MMC_R1_OVERRUN               (1u<<17) // E X   B, The card could not sustain data programming in stream write mode.
-#define MMC_R1_UNDERRUN              (1u<<18) // E X   B, The card could not sustain data transfer in stream read mode.
-#define MMC_R1_ERROR                 (1u<<19) // E X   B, (Undefined by the standard) A generic card error related to the (and detected during) execution of the last host command (e.g. read or write failures).
-#define MMC_R1_CC_ERROR              (1u<<20) // E R   B, (Undefined by the standard) A card error occurred, which is not related to the host command.
-#define MMC_R1_CARD_ECC_FAILED       (1u<<21) // E X   B, Card internal ECC was applied but failed to correct the data.
-#define MMC_R1_ILLEGAL_COMMAND       (1u<<22) // E R   B, Command not legal for the card state.
-#define MMC_R1_COM_CRC_ERROR         (1u<<23) // E R   B, The CRC check of the previous command failed.
-#define MMC_R1_LOCK_UNLOCK_FAILED    (1u<<24) // E X   B, Set when a sequence or password error has been detected in lock/unlock card command.
-#define MMC_R1_CARD_IS_LOCKED        (1u<<25) // S R   A, When set, signals that the card is locked by the host.
-#define MMC_R1_WP_VIOLATION          (1u<<26) // E X   B, Attempt to program a write protected block.
-#define MMC_R1_ERASE_PARAM           (1u<<27) // E X   B, An invalid selection of erase groups for erase occurred.
-#define MMC_R1_ERASE_SEQ_ERROR       (1u<<28) // E R   B, An error in the sequence of erase commands occurred.
-#define MMC_R1_BLOCK_LEN_ERROR       (1u<<29) // E R   B, Either the argument of a SET_BLOCKLEN command exceeds the maximum value allowed for the card, or the previously defined block length is illegal for the current command (e.g. the host issues a write command, the current block length is smaller than the card’s maximum and write partial blocks is not allowed).
-#define MMC_R1_ADDRESS_MISALIGN      (1u<<30) // E R/X B, The command’ s address argument (in accordance with the currently set block length) positions the first data block misaligned to the card physical blocks. A multiple block read/write operation (although started with a valid address/blocklength combination) is attempting to read or write a data block which does not align with the physical blocks of the card.
-#define MMC_R1_ADDRESS_OUT_OF_RANGE  (1u<<31) // E R/X B, The command’s address argument was out of the allowed range for this card. A multiple block or stream read/write operation is (although started in a valid address) attempting to read or write beyond the card capacity.
+#define MMC_R1_APP_CMD               (1u << 5)  // S R   A, The card will expect ACMD, or indication that the command has been interpreted as ACMD.
+#define MMC_R1_URGENT_BKOPS          (1u << 6)  // S R   A, If set, device needs to perform backgroundoperations urgently. Host can check EXT_CSD field BKOPS_STATUS for the detailed level.
+#define MMC_R1_SWITCH_ERROR          (1u << 7)  // E X   B, If set, the card did not switch to the expected mode as requested by the SWITCH command.
+#define MMC_R1_READY_FOR_DATA        (1u << 8)  // S R   A, Corresponds to buffer empty signalling on the bus.
+#define MMC_R1_STATE_IDLE            (0u << 9)  // S R   A
+#define MMC_R1_STATE_READY           (1u << 9)  // S R   A
+#define MMC_R1_STATE_IDENT           (2u << 9)  // S R   A
+#define MMC_R1_STATE_STBY            (3u << 9)  // S R   A
+#define MMC_R1_STATE_TRAN            (4u << 9)  // S R   A
+#define MMC_R1_STATE_DATA            (5u << 9)  // S R   A
+#define MMC_R1_STATE_RCV             (6u << 9)  // S R   A
+#define MMC_R1_STATE_PRG             (7u << 9)  // S R   A
+#define MMC_R1_STATE_DIS             (8u << 9)  // S R   A
+#define MMC_R1_STATE_BTST            (9u << 9)  // S R   A
+#define MMC_R1_STATE_SLP             (10u << 9) // S R   A
+#define MMC_R1_ERASE_RESET           (1u << 13) // E R   B, An erase sequence was cleared before executing because an out of erase sequence command was received (commands other than CMD35, CMD36, CMD38 or CMD13.
+#define MMC_R1_WP_ERASE_SKIP         (1u << 15) // E X   B, Only partial address space was erased due to existing write protected blocks.
+#define MMC_R1_CXD_OVERWRITE         (1u << 16) // E X   B, Can be either one of the following errors: - The CID register has been already written and can not be overwritten - The read only section of the CSD does not match the card content. - An attempt to reverse the copy (set as original) or permanent WP (unprotected) bits was made.
+#define MMC_R1_OVERRUN               (1u << 17) // E X   B, The card could not sustain data programming in stream write mode.
+#define MMC_R1_UNDERRUN              (1u << 18) // E X   B, The card could not sustain data transfer in stream read mode.
+#define MMC_R1_ERROR                 (1u << 19) // E X   B, (Undefined by the standard) A generic card error related to the (and detected during) execution of the last host command (e.g. read or write failures).
+#define MMC_R1_CC_ERROR              (1u << 20) // E R   B, (Undefined by the standard) A card error occurred, which is not related to the host command.
+#define MMC_R1_CARD_ECC_FAILED       (1u << 21) // E X   B, Card internal ECC was applied but failed to correct the data.
+#define MMC_R1_ILLEGAL_COMMAND       (1u << 22) // E R   B, Command not legal for the card state.
+#define MMC_R1_COM_CRC_ERROR         (1u << 23) // E R   B, The CRC check of the previous command failed.
+#define MMC_R1_LOCK_UNLOCK_FAILED    (1u << 24) // E X   B, Set when a sequence or password error has been detected in lock/unlock card command.
+#define MMC_R1_CARD_IS_LOCKED        (1u << 25) // S R   A, When set, signals that the card is locked by the host.
+#define MMC_R1_WP_VIOLATION          (1u << 26) // E X   B, Attempt to program a write protected block.
+#define MMC_R1_ERASE_PARAM           (1u << 27) // E X   B, An invalid selection of erase groups for erase occurred.
+#define MMC_R1_ERASE_SEQ_ERROR       (1u << 28) // E R   B, An error in the sequence of erase commands occurred.
+#define MMC_R1_BLOCK_LEN_ERROR       (1u << 29) // E R   B, Either the argument of a SET_BLOCKLEN command exceeds the maximum value allowed for the card, or the previously defined block length is illegal for the current command (e.g. the host issues a write command, the current block length is smaller than the card’s maximum and write partial blocks is not allowed).
+#define MMC_R1_ADDRESS_MISALIGN      (1u << 30) // E R/X B, The command’ s address argument (in accordance with the currently set block length) positions the first data block misaligned to the card physical blocks. A multiple block read/write operation (although started with a valid address/blocklength combination) is attempting to read or write a data block which does not align with the physical blocks of the card.
+#define MMC_R1_ADDRESS_OUT_OF_RANGE  (1u << 31) // E R/X B, The command’s address argument was out of the allowed range for this card. A multiple block or stream read/write operation is (although started in a valid address) attempting to read or write beyond the card capacity.
 
 #define MMC_R1_ERR_ALL               (MMC_R1_ADDRESS_OUT_OF_RANGE | MMC_R1_ADDRESS_MISALIGN | \
                                       MMC_R1_BLOCK_LEN_ERROR | MMC_R1_ERASE_SEQ_ERROR | \
@@ -135,33 +135,35 @@
 
 // 8.1 OCR register.
 // Same bits for CMD1 argument.
-#define MMC_OCR_1_7_1_95V  (1u<<7)  // 1.70–1.95V.
-#define MMC_OCR_2_0_2_1V   (1u<<8)  // 2.0-2.1V.
-#define MMC_OCR_2_1_2_2V   (1u<<9)  // 2.1-2.2V.
-#define MMC_OCR_2_2_2_3V   (1u<<10) // 2.2-2.3V.
-#define MMC_OCR_2_3_2_4V   (1u<<11) // 2.3-2.4V.
-#define MMC_OCR_2_4_2_5V   (1u<<12) // 2.4-2.5V.
-#define MMC_OCR_2_5_2_6V   (1u<<13) // 2.5-2.6V.
-#define MMC_OCR_2_6_2_7V   (1u<<14) // 2.6-2.7V.
-#define MMC_OCR_2_7_2_8V   (1u<<15) // 2.7-2.8V.
-#define MMC_OCR_2_8_2_9V   (1u<<16) // 2.8-2.9V.
-#define MMC_OCR_2_9_3_0V   (1u<<17) // 2.9-3.0V.
-#define MMC_OCR_3_0_3_1V   (1u<<18) // 3.0-3.1V.
-#define MMC_OCR_3_1_3_2V   (1u<<19) // 3.1-3.2V.
-#define MMC_OCR_3_2_3_3V   (1u<<20) // 3.2-3.3V.
-#define MMC_OCR_3_3_3_4V   (1u<<21) // 3.3-3.4V.
-#define MMC_OCR_3_4_3_5V   (1u<<22) // 3.4-3.5V.
-#define MMC_OCR_3_5_3_6V   (1u<<23) // 3.5-3.6V.
-#define MMC_OCR_BYTE_MODE  (0u<<29) // Access mode = byte mode.
-#define MMC_OCR_SECT_MODE  (2u<<29) // Access mode = sector mode.
-#define MMC_OCR_READY      (1u<<31) // Card power up status bit (busy). 0 = busy.
+#define MMC_OCR_1_7_1_95V  (1u << 7)  // 1.70–1.95V.
+#define MMC_OCR_2_0_2_1V   (1u << 8)  // 2.0-2.1V.
+#define MMC_OCR_2_1_2_2V   (1u << 9)  // 2.1-2.2V.
+#define MMC_OCR_2_2_2_3V   (1u << 10) // 2.2-2.3V.
+#define MMC_OCR_2_3_2_4V   (1u << 11) // 2.3-2.4V.
+#define MMC_OCR_2_4_2_5V   (1u << 12) // 2.4-2.5V.
+#define MMC_OCR_2_5_2_6V   (1u << 13) // 2.5-2.6V.
+#define MMC_OCR_2_6_2_7V   (1u << 14) // 2.6-2.7V.
+#define MMC_OCR_2_7_2_8V   (1u << 15) // 2.7-2.8V.
+#define MMC_OCR_2_8_2_9V   (1u << 16) // 2.8-2.9V.
+#define MMC_OCR_2_9_3_0V   (1u << 17) // 2.9-3.0V.
+#define MMC_OCR_3_0_3_1V   (1u << 18) // 3.0-3.1V.
+#define MMC_OCR_3_1_3_2V   (1u << 19) // 3.1-3.2V.
+#define MMC_OCR_3_2_3_3V   (1u << 20) // 3.2-3.3V.
+#define MMC_OCR_3_3_3_4V   (1u << 21) // 3.3-3.4V.
+#define MMC_OCR_3_4_3_5V   (1u << 22) // 3.4-3.5V.
+#define MMC_OCR_3_5_3_6V   (1u << 23) // 3.5-3.6V.
+#define MMC_OCR_BYTE_MODE  (0u << 29) // Access mode = byte mode.
+#define MMC_OCR_SECT_MODE  (2u << 29) // Access mode = sector mode.
+#define MMC_OCR_READY      (1u << 31) // Card power up status bit (busy). 0 = busy.
 
 // 7.6.1 Command sets and extended settings.
 #define MMC_SWITCH_ACC_CMD_SET   (0u)
 #define MMC_SWITCH_ACC_SET_BITS  (1u)
 #define MMC_SWITCH_ACC_CLR_BITS  (2u)
 #define MMC_SWITCH_ACC_WR_BYTE   (3u)
-#define MMC_SWITCH_ARG(acc, idx, val, cmdSet)  (((acc)&3u)<<24 | ((idx)&0xFFu)<<16 | ((val)&0xFFu)<<8 | ((cmdSet)&7u))
+#define MMC_SWITCH_ARG(acc, idx, val, cmdSet) \
+    ((((acc) & 3u) << 24) | (((idx) & 0xFFu) << 16) | (((val) & 0xFFu) << 8) | \
+     ((cmdSet) & 7u))
 
 // 8.4 Extended CSD register.
 // size in bytes, access, description.

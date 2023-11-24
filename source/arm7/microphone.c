@@ -180,7 +180,7 @@ void micStartRecording(u8 *buffer, int length, int freq, int timer,
 
     // Setup a timer
     TIMER_DATA(timer) = TIMER_FREQ(freq);
-    TIMER_CR(timer) = TIMER_ENABLE |TIMER_IRQ_REQ;
+    TIMER_CR(timer) = TIMER_ENABLE | TIMER_IRQ_REQ;
 }
 
 int micStopRecording(void)
