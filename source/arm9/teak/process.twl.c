@@ -19,7 +19,7 @@ static int _dataSegs;
 static u8 _codeSlots[NWRAM_BC_SLOT_COUNT];
 static u8 _dataSlots[NWRAM_BC_SLOT_COUNT];
 
-static void *DspToArm9Address(bool isCodePtr, u32 addr)
+static void *dspToArm9Address(bool isCodePtr, u32 addr)
 {
     addr = DSP_MEM_ADDR_TO_CPU(addr);
     int seg = addr >> NWRAM_BC_SLOT_SHIFT;
@@ -29,17 +29,20 @@ static void *DspToArm9Address(bool isCodePtr, u32 addr)
             + slot * NWRAM_BC_SLOT_SIZE + offs;
 }
 
-static bool SetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
+static void dspSetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
 {
     addr = DSP_MEM_ADDR_TO_CPU(addr);
     len = DSP_MEM_ADDR_TO_CPU(len < 1 ? 1 : len);
     int segBits = isCode ? _codeSegs : _dataSegs;
+
     int start = addr >> NWRAM_BC_SLOT_SHIFT;
     int end = (addr + len - 1) >> NWRAM_BC_SLOT_SHIFT;
+
     for (int i = start; i <= end; i++)
     {
         if ((segBits & (1 << i)) == 0)
             continue;
+
         int slot = isCode ? _codeSlots[i] : _dataSlots[i];
         if (isCode)
         {
@@ -54,27 +57,17 @@ static bool SetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
                 toDsp ? i : slot, true);
         }
     }
-
-    return true;
 }
 
-static bool Execute(void)
-{
-    dspPowerOn();
-    dspSetCoreResetOff(0);
-    dspSetSemaphoreMask(0);
-    return true;
-}
-
-bool dspExecuteTLF(const void *tlf)
+int dspExecuteTLF(const void *tlf)
 {
     const tlf_header *header = tlf;
 
     if (header->magic != TLF_MAGIC)
-        return false;
+        return -1;
 
     if (header->version != 0)
-        return false;
+        return -2;
 
     _slotB = 0xFF;
     _slotC = 0xFF;
@@ -111,18 +104,23 @@ bool dspExecuteTLF(const void *tlf)
         const tlf_section_header *section = &(header->section[i]);
         const void *data = ((const char *)tlf) + section->data_offset;
         bool isCode = section->type == TLF_SEGMENT_CODE;
-        memcpy(DspToArm9Address(isCode, section->address), data, section->size);
+        memcpy(dspToArm9Address(isCode, section->address), data, section->size);
     }
 
-    SetMemoryMapping(true, 0,
+    dspSetMemoryMapping(true, 0,
             (NWRAM_BC_SLOT_SIZE * NWRAM_BC_SLOT_COUNT) >> 1, true);
-    SetMemoryMapping(false, 0,
+    dspSetMemoryMapping(false, 0,
             (NWRAM_BC_SLOT_SIZE * NWRAM_BC_SLOT_COUNT) >> 1, true);
 
-    return Execute();
+    // Boot the DSP
+    dspPowerOn();
+    dspSetCoreResetOff(0);
+    dspSetSemaphoreMask(0);
+
+    return 0;
 }
 
-bool dspExecuteDefaultTLF(const void *tlf)
+int dspExecuteDefaultTLF(const void *tlf)
 {
     nwramSetBlockMapping(NWRAM_BLOCK_A, NWRAM_BASE, 0, NWRAM_BLOCK_IMAGE_SIZE_32K);
 
@@ -132,11 +130,11 @@ bool dspExecuteDefaultTLF(const void *tlf)
     nwramSetBlockMapping(NWRAM_BLOCK_C, 0x03400000, 256 * 1024,
                          NWRAM_BLOCK_IMAGE_SIZE_256K);
 
-    bool success = dspExecuteTLF(tlf);
+    int ret = dspExecuteTLF(tlf);
 
     // Remove NWRAM from the memory map
     nwramSetBlockMapping(NWRAM_BLOCK_B, NWRAM_BASE, 0, NWRAM_BLOCK_IMAGE_SIZE_32K);
     nwramSetBlockMapping(NWRAM_BLOCK_C, NWRAM_BASE, 0, NWRAM_BLOCK_IMAGE_SIZE_32K);
 
-    return success;
+    return ret;
 }

@@ -135,8 +135,8 @@ void dspPowerOff(void);
 /// dspExecuteDefaultTLF() instead.
 ///
 /// @param tlf Pointer to the TLF data in RAM.
-/// @return true on success.
-bool dspExecuteTLF(const void *tlf);
+/// @return 0 on success, an error code on failure.
+int dspExecuteTLF(const void *tlf);
 
 /// This sets up NWRAM, powers on the DSP, loads a TLF file and executes it.
 ///
@@ -144,8 +144,8 @@ bool dspExecuteTLF(const void *tlf);
 /// it manually, use dspExecuteTLF() instead.
 ///
 /// @param tlf Pointer to the TLF data in RAM.
-/// @return true on success.
-bool dspExecuteDefaultTLF(const void *tlf);
+/// @return 0 on success, an error code on failure.
+int dspExecuteDefaultTLF(const void *tlf);
 
 /// Sends data using one of the CMD registers.
 ///
