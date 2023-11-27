@@ -126,8 +126,8 @@ void enableSound(void)
 
     if (isDSiMode())
     {
-        // Disabled, not muted, 32 KHz, 100% ARM output
-        REG_SNDEXTCNT = SNDEXTCNT_FREQ_32KHZ | SNDEXTCNT_RATIO(8);
+        // Enabled, not muted, 32 KHz, 100% ARM output
+        REG_SNDEXTCNT = SNDEXTCNT_ENABLE | SNDEXTCNT_FREQ_32KHZ | SNDEXTCNT_RATIO(8);
     }
 
     REG_MASTER_VOLUME = 127;
@@ -201,26 +201,17 @@ void soundCommandHandler(u32 command, void *userdata)
             micStopRecording();
             break;
 
-        case SOUND_EXT_SET_ENABLED:
-            if (data != 0)
-                REG_SNDEXTCNT |= SNDEXTCNT_ENABLE;
-            else
+        case SOUND_EXT_SET_FREQ: {
+            int previously_enabled = REG_SNDEXTCNT & SNDEXTCNT_ENABLE;
+            if (previously_enabled)
                 REG_SNDEXTCNT &= ~SNDEXTCNT_ENABLE;
-            break;
-
-        case SOUND_EXT_SET_FREQ:
             if (data == 47)
                 REG_SNDEXTCNT |= SNDEXTCNT_FREQ_47KHZ;
             else
                 REG_SNDEXTCNT &= ~SNDEXTCNT_FREQ_47KHZ;
-            break;
-
-        case SOUND_EXT_SET_MUTE:
-            if (data != 0)
-                REG_SNDEXTCNT |= SNDEXTCNT_MUTE;
-            else
-                REG_SNDEXTCNT &= ~SNDEXTCNT_MUTE;
-            break;
+            if (previously_enabled)
+                REG_SNDEXTCNT |= previously_enabled;
+        } break;
 
         case SOUND_EXT_SET_RATIO:
             if (data > 8)

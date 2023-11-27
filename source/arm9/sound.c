@@ -173,22 +173,6 @@ void soundMicOff(void)
     fifoSendValue32(FIFO_SOUND, MIC_STOP);
 }
 
-void soundExtEnable(void)
-{
-    if (!isDSiMode())
-        return;
-
-    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_ENABLED | 1);
-}
-
-void soundExtDisable(void)
-{
-    if (!isDSiMode())
-        return;
-
-    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_ENABLED | 0);
-}
-
 void soundExtSetFrequency(unsigned int freq_khz)
 {
     if (!isDSiMode())
@@ -198,14 +182,6 @@ void soundExtSetFrequency(unsigned int freq_khz)
             "Frequency must be 32 or 47 (KHz)");
 
     fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_FREQ | freq_khz);
-}
-
-void soundExtSetMute(bool mute)
-{
-    if (!isDSiMode())
-        return;
-
-    fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_MUTE | (mute ? 1 : 0));
 }
 
 void soundExtSetRatio(unsigned int ratio)

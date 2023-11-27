@@ -153,21 +153,10 @@ int soundMicRecord(void *buffer, u32 bufferLength, MicFormat format, int freq,
 /// Stops the microphone from recording
 void soundMicOff(void);
 
-/// Enable extended sound hardware (DSP output and microphone).
-void soundExtEnable(void);
-
-/// Disable extended sound hardware (DSP output and microphone).
-void soundExtDisable(void);
-
 /// Set extended sound hardware frequency.
 ///
 /// @param freq_khz Frequency in KHz. The default is 32, but 47 is allowed too.
 void soundExtSetFrequency(unsigned int freq_khz);
-
-/// Mute or unmute the DSP sound output.
-///
-/// @param mute If true, the output will be muted. If false, unmuted.
-void soundExtSetMute(bool mute);
 
 /// Set the DSP/ARM volume ratio of the speakers output.
 ///

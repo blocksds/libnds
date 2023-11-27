@@ -54,10 +54,8 @@ typedef enum {
     SOUND_KILL              = 8 << 20,
     SOUND_SET_MASTER_VOL    = 9 << 20,
     MIC_STOP                = 10 << 20,
-    SOUND_EXT_SET_ENABLED   = 11 << 20,
-    SOUND_EXT_SET_FREQ      = 12 << 20,
-    SOUND_EXT_SET_MUTE      = 13 << 20,
-    SOUND_EXT_SET_RATIO     = 14 << 20,
+    SOUND_EXT_SET_FREQ      = 11 << 20,
+    SOUND_EXT_SET_RATIO     = 12 << 20,
 } FifoSoundCommand;
 
 /// Enum values for the FIFO system commands.
