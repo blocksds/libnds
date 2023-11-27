@@ -2,9 +2,6 @@
 #
 # SPDX-FileContributor: Antonio Niño Díaz, 2023
 
-WONDERFUL_TOOLCHAIN	?= /opt/wonderful
-LLVM_TEAK_PATH		?= $(WONDERFUL_TOOLCHAIN)/toolchain/llvm-teak/bin/
-
 # Tools
 # -----
 
@@ -25,9 +22,9 @@ endif
 # Targets
 # -------
 
-.PHONY: all arm7 arm9 teak clean docs install
+.PHONY: all arm7 arm9 clean docs install
 
-all: arm9 arm7 teak
+all: arm9 arm7
 
 arm9:
 	@+$(MAKE) -f Makefile.arm9 --no-print-directory
@@ -36,16 +33,6 @@ arm9:
 arm7:
 	@+$(MAKE) -f Makefile.arm7 --no-print-directory
 	@+$(MAKE) -f Makefile.arm7 --no-print-directory DEBUG=1
-
-LLVM_TEAK_CLANG_VERSION	:= $(shell $(LLVM_TEAK_PATH)clang --version 2> /dev/null)
-
-teak:
-ifeq ($(strip $(LLVM_TEAK_CLANG_VERSION)),)
-	@echo "Skipping libteak: toolchain-llvm-teak-llvm not found"
-else
-	@+$(MAKE) -f Makefile.teak --no-print-directory
-	@+$(MAKE) -f Makefile.teak --no-print-directory DEBUG=1
-endif
 
 clean:
 	@echo "  CLEAN"
