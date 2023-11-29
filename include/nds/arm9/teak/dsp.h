@@ -41,8 +41,7 @@ extern "C" {
 #define DSP_PCFG_RLEN_SHIFT     2
 #define DSP_PCFG_RLEN_MASK      (3 << DSP_PCFG_RLEN_SHIFT)
 
-typedef enum
-{
+typedef enum {
     DSP_PCFG_RLEN_1 = 0 << DSP_PCFG_RLEN_SHIFT,
     DSP_PCFG_RLEN_8 = 1 << DSP_PCFG_RLEN_SHIFT,
     DSP_PCFG_RLEN_16 = 2 << DSP_PCFG_RLEN_SHIFT,
@@ -60,8 +59,7 @@ typedef enum
 #define DSP_PCFG_MEMSEL_SHIFT   12
 #define DSP_PCFG_MEMSEL_MASK    (0xF << DSP_PCFG_MEMSEL_SHIFT)
 
-typedef enum
-{
+typedef enum {
     DSP_PCFG_MEMSEL_DATA = 0 << DSP_PCFG_MEMSEL_SHIFT,
     DSP_PCFG_MEMSEL_MMIO = 1 << DSP_PCFG_MEMSEL_SHIFT,
     DSP_PCFG_MEMSEL_PROG = 5 << DSP_PCFG_MEMSEL_SHIFT
@@ -126,6 +124,14 @@ void dspSetCoreResetOff(u16 repIrqMask);
 void dspPowerOn(void);
 void dspPowerOff(void);
 
+/// Possible error codes returned by dspExecuteTLF() and dspExecuteDefaultTLF().
+typedef enum {
+    DSP_EXEC_OK = 0,            ///< No error
+    DSP_NOT_AVAILABLE = -1,     ///< DSP or NWRAM not available in REG_SCFG_EXT
+    DSP_TLF_BAD_MAGIC = -2,     ///< Invalid TLF magic value
+    DSP_TLF_BAD_VERSION = -3,   ///< Invalid TLF version
+} DSPExecResult;
+
 /// This powers on the DSP, loads a TLF file and executes it.
 ///
 /// The user must allocate NWRAM to the ARM9 before calling this function by
@@ -135,8 +141,8 @@ void dspPowerOff(void);
 /// dspExecuteDefaultTLF() instead.
 ///
 /// @param tlf Pointer to the TLF data in RAM.
-/// @return 0 on success, an error code on failure.
-int dspExecuteTLF(const void *tlf);
+/// @return DSP_EXEC_OK on success, an error code on failure.
+DSPExecResult dspExecuteTLF(const void *tlf);
 
 /// This sets up NWRAM, powers on the DSP, loads a TLF file and executes it.
 ///
@@ -144,8 +150,8 @@ int dspExecuteTLF(const void *tlf);
 /// it manually, use dspExecuteTLF() instead.
 ///
 /// @param tlf Pointer to the TLF data in RAM.
-/// @return 0 on success, an error code on failure.
-int dspExecuteDefaultTLF(const void *tlf);
+/// @return DSP_EXEC_OK on success, an error code on failure.
+DSPExecResult dspExecuteDefaultTLF(const void *tlf);
 
 /// Sends data using one of the CMD registers.
 ///

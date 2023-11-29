@@ -11,6 +11,7 @@
 #include <nds/arm9/teak/tlf.h>
 #include <nds/memory.h>
 #include <nds/nwram.h>
+#include <nds/system.h>
 
 static u16 _slotB;
 static u16 _slotC;
@@ -59,15 +60,15 @@ static void dspSetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
     }
 }
 
-int dspExecuteTLF(const void *tlf)
+DSPExecResult dspExecuteTLF(const void *tlf)
 {
     const tlf_header *header = tlf;
 
     if (header->magic != TLF_MAGIC)
-        return -1;
+        return DSP_TLF_BAD_MAGIC;
 
     if (header->version != 0)
-        return -2;
+        return DSP_TLF_BAD_VERSION;
 
     _slotB = 0xFF;
     _slotC = 0xFF;
@@ -117,11 +118,17 @@ int dspExecuteTLF(const void *tlf)
     dspSetCoreResetOff(0);
     dspSetSemaphoreMask(0);
 
-    return 0;
+    return DSP_EXEC_OK;
 }
 
-int dspExecuteDefaultTLF(const void *tlf)
+DSPExecResult dspExecuteDefaultTLF(const void *tlf)
 {
+    // Ensure that NWRAM can be accessed
+    const uint32_t required_features = SCFG_EXT_MBK_RAM;
+
+    if ((REG_SCFG_EXT & required_features) != required_features)
+        return DSP_NOT_AVAILABLE;
+
     nwramSetBlockMapping(NWRAM_BLOCK_A, NWRAM_BASE, 0, NWRAM_BLOCK_IMAGE_SIZE_32K);
 
     // Map NWRAM to copy the DSP code
