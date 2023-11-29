@@ -16,13 +16,7 @@
 //     https://sourceware.org/newlib/libc.html#Syscalls
 //     https://github.com/picolibc/picolibc/blob/main/doc/os.md
 
-void __attribute__((noreturn)) _exit(int status)
-{
-    __libnds_exit(status);
-
-    // Hang, there is nowhere to go
-    while (1);
-}
+void _exit(int rc);
 
 pid_t getpid(void)
 {

@@ -4,20 +4,38 @@
 // Copyright (C) 2009-2012 Dave Murphy (WinterMute)
 // Copyright (C) 2023 Antonio Niño Díaz
 
+#include <stdlib.h>
 #include <nds/fifocommon.h>
 #include <nds/system.h>
 
-#include "fifo_ipc_messages.h"
-#include "libnds_internal.h"
+#include "../fifo_ipc_messages.h"
+#include "../libnds_internal.h"
 
 extern char *fake_heap_end;
+
+// Weak symbol allowing catching non-zero exits from main().
 
 ARM_CODE void __attribute__((weak)) systemErrorExit(int rc)
 {
     (void)rc;
 }
 
+// System exit is performed as follows:
+//
+//          main() -> returns rc
+//                  V
+// __libnds_exit() -> called by crt0
+//                  V
+//          exit() -> calls atexit() handlers
+//                  V
+//         _exit() -> returns to loader/shuts down system
+
 ARM_CODE void __libnds_exit(int rc)
+{
+    exit(rc);
+}
+
+ARM_CODE void _exit(int rc)
 {
     if (rc != 0)
         systemErrorExit(rc);
