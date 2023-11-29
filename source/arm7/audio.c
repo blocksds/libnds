@@ -214,21 +214,34 @@ void soundCommandHandler(u32 command, void *userdata)
             micStopRecording();
             break;
 
-        case SOUND_EXT_SET_FREQ: {
+        case SOUND_EXT_SET_FREQ:
+        {
+            if (!isDSiMode())
+                break;
+
             int previously_enabled = REG_SNDEXTCNT & SNDEXTCNT_ENABLE;
             if (previously_enabled)
                 REG_SNDEXTCNT &= ~SNDEXTCNT_ENABLE;
+
+            // The frequency can't be changed while the enable bit is set to 1
             if (data == 47)
                 REG_SNDEXTCNT |= SNDEXTCNT_FREQ_47KHZ;
             else
                 REG_SNDEXTCNT &= ~SNDEXTCNT_FREQ_47KHZ;
+
             if (previously_enabled)
                 REG_SNDEXTCNT |= previously_enabled;
-        } break;
 
+            break;
+        }
         case SOUND_EXT_SET_RATIO:
+            if (!isDSiMode())
+                break;
+
             if (data > 8)
                 data = 8;
+
+            // The ratio can be changed even if the enable bit is set to 1
             REG_SNDEXTCNT &= ~SNDEXTCNT_RATIO(0xF);
             REG_SNDEXTCNT |= SNDEXTCNT_RATIO(data);
             break;

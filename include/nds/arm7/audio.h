@@ -80,8 +80,11 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 
 #define REG_MICCNT              (*(vu16 *)0x04004600)
 
-#define MICCNT_FORMAT(n)        ((n) & 3) // Unknown, always set to '2'
+#define MICCNT_FORMAT(n)        ((n) & 3)
 #define MICCNT_FORMAT_MASK      (3)
+#define MICCNT_FORMAT_STEREO    MICCNT_FORMAT(0) // Repeat every sample twice
+#define MICCNT_FORMAT_NORMAL    MICCNT_FORMAT(2)
+
 // F / (n + 1) where F is SNDEXTCNT output freq
 #define MICCNT_FREQ_DIV(n)      (((n) & 3) << 2)
 #define MICCNT_FREQ_DIV_MASK    (3 << 2)
