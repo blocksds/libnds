@@ -56,6 +56,7 @@ typedef enum {
     MIC_STOP                = 10 << 20,
     SOUND_EXT_SET_FREQ      = 11 << 20,
     SOUND_EXT_SET_RATIO     = 12 << 20,
+    MIC_SET_POWER_ON        = 13 << 20, // To enable it for the DSP
 } FifoSoundCommand;
 
 /// Enum values for the FIFO system commands.

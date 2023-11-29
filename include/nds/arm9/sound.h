@@ -164,6 +164,18 @@ void soundExtSetFrequency(unsigned int freq_khz);
 /// 50% DSP and 50% ARM.
 void soundExtSetRatio(unsigned int ratio);
 
+/// Powers on the microphone so that it can be used by the DSP.
+///
+/// It won't record anything, it will simply remain powered on. You can power it
+/// off with soundMicPowerOff().
+///
+/// This isn't required for soundMicRecord(), this is only required for the DSP.
+/// Don't use it for anything else
+void soundMicPowerOn(void);
+
+/// Powers off the microphone after powering it on with soundMicPowerOn().
+void soundMicPowerOff(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -197,6 +197,19 @@ void soundCommandHandler(u32 command, void *userdata)
             SCHANNEL_CR(channel) |= SCHANNEL_ENABLE;
             break;
 
+        case MIC_SET_POWER_ON:
+            if (!isDSiMode())
+                break;
+
+            REG_MICCNT = 0; // Disable sending samples to ARM7 registers
+
+            if (data != 0)
+                micOn();
+            else
+                micOff();
+
+            break;
+
         case MIC_STOP:
             micStopRecording();
             break;

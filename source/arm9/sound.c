@@ -194,3 +194,19 @@ void soundExtSetRatio(unsigned int ratio)
 
     fifoSendValue32(FIFO_SOUND, SOUND_EXT_SET_RATIO | ratio);
 }
+
+void soundMicPowerOn(void)
+{
+    if (!isDSiMode())
+        return;
+
+    fifoSendValue32(FIFO_SOUND, MIC_SET_POWER_ON | 1);
+}
+
+void soundMicPowerOff(void)
+{
+    if (!isDSiMode())
+        return;
+
+    fifoSendValue32(FIFO_SOUND, MIC_SET_POWER_ON | 0);
+}
