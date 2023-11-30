@@ -70,6 +70,9 @@ DSPExecResult dspExecuteTLF(const void *tlf)
     if (header->version != 0)
         return DSP_TLF_BAD_VERSION;
 
+    // Power DSP off before making any changes
+    dspPowerOff();
+
     _slotB = 0xFF;
     _slotC = 0xFF;
 
@@ -128,6 +131,9 @@ DSPExecResult dspExecuteDefaultTLF(const void *tlf)
 
     if ((REG_SCFG_EXT & required_features) != required_features)
         return DSP_NOT_AVAILABLE;
+
+    // Power DSP off before making any changes
+    dspPowerOff();
 
     nwramSetBlockMapping(NWRAM_BLOCK_A, NWRAM_BASE, 0, NWRAM_BLOCK_IMAGE_SIZE_32K);
 
