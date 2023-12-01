@@ -14,6 +14,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include <nds/ndstypes.h>
+#include <nds/system.h>
 
 /// @file nds/nwram.h
 ///
@@ -128,6 +129,23 @@ void nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool en
 void nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable);
 
 #endif // ARM9
+
+/// Checks whether NWRAM is available to be used.
+///
+/// It is possible to be in an execution state where NWRAM isn't available even
+/// in DSi mode.
+///
+/// @return If available, it returns true. If not, false.
+static inline bool nwramIsAvailable(void)
+{
+    if (!isDSiMode())
+        return false;
+
+    if (REG_SCFG_EXT & SCFG_EXT_MBK_RAM)
+        return true;
+
+    return false;
+}
 
 #ifdef __cplusplus
 }

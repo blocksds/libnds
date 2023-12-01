@@ -62,6 +62,9 @@ static void dspSetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
 
 DSPExecResult dspExecuteTLF(const void *tlf)
 {
+    if (!nwramIsAvailable())
+        return DSP_NOT_AVAILABLE;
+
     const tlf_header *header = tlf;
 
     if (header->magic != TLF_MAGIC)
@@ -126,10 +129,7 @@ DSPExecResult dspExecuteTLF(const void *tlf)
 
 DSPExecResult dspExecuteDefaultTLF(const void *tlf)
 {
-    // Ensure that NWRAM can be accessed
-    const uint32_t required_features = SCFG_EXT_MBK_RAM;
-
-    if ((REG_SCFG_EXT & required_features) != required_features)
+    if (!nwramIsAvailable())
         return DSP_NOT_AVAILABLE;
 
     // Power DSP off before making any changes
