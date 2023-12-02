@@ -14,9 +14,6 @@
 
 #include "common/libnds_internal.h"
 
-// todo document
-//
-
 static void (*SDcallback)(int) = NULL;
 
 void setSDcallback(void (*callback)(int))
@@ -24,7 +21,7 @@ void setSDcallback(void (*callback)(int))
     SDcallback = callback;
 }
 
-// Handle system requests from the arm7
+// Handle system requests from the ARM7
 void systemValueHandler(u32 value, void *data)
 {
     (void)data;
@@ -81,6 +78,8 @@ void disableSleep(void)
 
 void powerOn(uint32_t bits)
 {
+    // If the flag PM_ARM9_DIRECT is set, this is a direct write to the ARM9
+    // REG_POWERCNT register. If not, send the message to the ARM7 to do it.
     if (bits & PM_ARM9_DIRECT)
         REG_POWERCNT |= bits & 0xFFFF;
     else
@@ -89,6 +88,8 @@ void powerOn(uint32_t bits)
 
 void powerOff(uint32_t bits)
 {
+    // If the flag PM_ARM9_DIRECT is set, this is a direct write to the ARM9
+    // REG_POWERCNT register. If not, send the message to the ARM7 to do it.
     if (bits & PM_ARM9_DIRECT)
         REG_POWERCNT &= ~(bits & 0xFFFF);
     else
