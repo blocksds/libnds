@@ -171,6 +171,7 @@ extern "C" {
 #    include <nds/arm7/camera.h>
 #    include <nds/arm7/clock.h>
 #    include <nds/arm7/codec.h>
+#    include <nds/arm7/gpio.h>
 #    include <nds/arm7/i2c.h>
 #    include <nds/arm7/input.h>
 #    include <nds/arm7/sdmmc.h>
