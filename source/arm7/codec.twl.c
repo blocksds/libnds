@@ -80,6 +80,20 @@ void cdcReadRegArray(u8 bank, u8 reg, void *data, u8 size)
     *out++ = REG_SPIDATA;
 }
 
+u16 cdcReadReg16(u8 bank, u8 reg)
+{
+    u8 data[2];
+    cdcReadRegArray(bank, reg, data, 2);
+    return (data[0] << 8) | data[1];
+}
+
+u32 cdcReadReg24(u8 bank, u8 reg)
+{
+    u8 data[3];
+    cdcReadRegArray(bank, reg, data, 3);
+    return (data[0] << 16) | (data[1] << 8) | data[2];
+}
+
 void cdcWriteReg(u8 bank, u8 reg, u8 value)
 {
     bankSwitchTSC(bank);
@@ -112,6 +126,23 @@ void cdcWriteRegArray(u8 bank, u8 reg, const void *data, u8 size)
 
     REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
     REG_SPIDATA = *in++;
+}
+
+void cdcWriteReg16(u8 bank, u8 reg, u16 value)
+{
+    u8 data[2];
+    data[0] = value >> 8;
+    data[1] = value;
+    cdcWriteRegArray(bank, reg, data, 2);
+}
+
+void cdcWriteReg24(u8 bank, u8 reg, u32 value)
+{
+    u8 data[3];
+    data[0] = value >> 16;
+    data[1] = value >> 8;
+    data[2] = value;
+    cdcWriteRegArray(bank, reg, data, 3);
 }
 
 void cdcTouchInit(void)

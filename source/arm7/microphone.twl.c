@@ -15,7 +15,8 @@
 
 void micSetAmp_TWL(u8 control, u8 gain)
 {
-    static const u8 gaintbl[] = { 0x1F, 0x2B, 0x37, 0x43 };
+    // 15.5, 21.5, 27.5, 33.5 dB
+    static const u8 gaintbl[] = { 31, 43, 55, 67 };
 
     if (control == PM_AMP_ON)
     {

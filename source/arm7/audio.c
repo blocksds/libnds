@@ -126,8 +126,10 @@ void enableSound(void)
 
     if (isDSiMode())
     {
-        // Enabled, not muted, 32 KHz, 100% ARM output
-        REG_SNDEXTCNT = SNDEXTCNT_ENABLE | SNDEXTCNT_FREQ_32KHZ | SNDEXTCNT_RATIO(8);
+        // Enabled, not muted, 100% ARM output
+        REG_SNDEXTCNT = (REG_SNDEXTCNT & ~SNDEXTCNT_RATIO(0xF)) | SNDEXTCNT_ENABLE | SNDEXTCNT_RATIO(8);
+        // 32 kHz I2S frequency
+        soundExtSetFrequencyTWL(32);
     }
 
     REG_MASTER_VOLUME = 127;
@@ -215,25 +217,9 @@ void soundCommandHandler(u32 command, void *userdata)
             break;
 
         case SOUND_EXT_SET_FREQ:
-        {
-            if (!isDSiMode())
-                break;
-
-            int previously_enabled = REG_SNDEXTCNT & SNDEXTCNT_ENABLE;
-            if (previously_enabled)
-                REG_SNDEXTCNT &= ~SNDEXTCNT_ENABLE;
-
-            // The frequency can't be changed while the enable bit is set to 1
-            if (data == 47)
-                REG_SNDEXTCNT |= SNDEXTCNT_FREQ_47KHZ;
-            else
-                REG_SNDEXTCNT &= ~SNDEXTCNT_FREQ_47KHZ;
-
-            if (previously_enabled)
-                REG_SNDEXTCNT |= previously_enabled;
-
+            soundExtSetFrequencyTWL(data);
             break;
-        }
+
         case SOUND_EXT_SET_RATIO:
             if (!isDSiMode())
                 break;
