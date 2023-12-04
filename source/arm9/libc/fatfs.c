@@ -332,11 +332,11 @@ int fatInitLookupCache(int fd, uint32_t max_buffer_size)
 {
     if (FD_IS_NITRO(fd))
         return FAT_INIT_LOOKUP_CACHE_NOT_SUPPORTED;
-    
+
     FIL *fp = (FIL *) fd;
     if (fp->cltbl != NULL)
         return FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED;
-    
+
     fp->cltbl = malloc(max_buffer_size);
     if (fp->cltbl == NULL)
         return FAT_INIT_LOOKUP_CACHE_OUT_OF_MEMORY;
