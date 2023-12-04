@@ -36,7 +36,25 @@ enum cdcBanks {
 // TODO: These lists are incomplete.
 
 enum cdcControlRegister {
+    CDC_CONTROL_RESET = 0x01,
+    CDC_CONTROL_CLOCK_MUX = 0x04,
+    CDC_CONTROL_PLL_PR = 0x05,
+    CDC_CONTROL_PLL_J = 0x06,
+    CDC_CONTROL_PLL_D_16 = 0x07,
+    CDC_CONTROL_DAC_NDAC = 0x0B,
+    CDC_CONTROL_DAC_MDAC = 0x0C,
+    CDC_CONTROL_ADC_NADC = 0x12,
+    CDC_CONTROL_ADC_MADC = 0x13,
+    CDC_CONTROL_CLKOUT_MUX = 0x19,
     CDC_CONTROL_DAC_CTRL = 0x3F,
+    CDC_CONTROL_DAC_VOLUME = 0x40,
+    CDC_CONTROL_DAC_VOLUME_LEFT = 0x41,
+    CDC_CONTROL_DAC_VOLUME_RIGHT = 0x42,
+    CDC_CONTROL_DAC_BEEP1 = 0x47,
+    CDC_CONTROL_DAC_BEEP2 = 0x48,
+    CDC_CONTROL_DAC_BEEP_LEN_24 = 0x49,
+    CDC_CONTROL_DAC_BEEP_SIN_16 = 0x4C,
+    CDC_CONTROL_DAC_BEEP_COS_16 = 0x4E,
     CDC_CONTROL_ADC_MIC = 0x51,
     CDC_CONTROL_ADC_VOL_FINE = 0x52,
     CDC_CONTROL_ADC_VOL_COARSE = 0x53
@@ -60,6 +78,21 @@ enum cdcTouchCntRegister {
     CDC_TOUCHCNT_DEBOUNCE_PENUP = 0x12,
     CDC_TOUCHCNT_DEBOUNCE_PENDOWN = 0x14
 };
+
+#define CDC_CONTROL_CLOCK_DISABLE                   (0)
+#define CDC_CONTROL_CLOCK_ENABLE(n)                 (0x80 + (n))
+
+// CDC_CONTROL_CLOCK_MUX register values
+#define CDC_CONTROL_CLOCK_PLL_IN_MCLK               (0)
+#define CDC_CONTROL_CLOCK_PLL_IN_BCLK               (1 << 2)
+#define CDC_CONTROL_CLOCK_PLL_IN_GPIO1              (2 << 2)
+#define CDC_CONTROL_CLOCK_PLL_IN_SDIN               (3 << 2)
+#define CDC_CONTROL_CLOCK_PLL_IN_MASK               (3 << 2)
+#define CDC_CONTROL_CLOCK_CODEC_IN_MCLK             (0)
+#define CDC_CONTROL_CLOCK_CODEC_IN_BCLK             (1)
+#define CDC_CONTROL_CLOCK_CODEC_IN_GPIO1            (2)
+#define CDC_CONTROL_CLOCK_CODEC_IN_PLL              (3)
+#define CDC_CONTROL_CLOCK_CODEC_IN_MASK             (3)
 
 // CDC_TOUCHCNT_SAR_ADC_CTRL1 register values
 #define CDC_TOUCHCNT_SAR_ADC_STOP                   (1 << 7)
@@ -164,9 +197,13 @@ enum cdcTouchCntRegister {
 // Direct register functions
 u8 cdcReadReg(u8 bank, u8 reg);
 void cdcReadRegArray(u8 bank, u8 reg, void *data, u8 size);
+u16 cdcReadReg16(u8 bank, u8 reg);
+u32 cdcReadReg24(u8 bank, u8 reg);
 void cdcWriteReg(u8 bank, u8 reg, u8 value);
 void cdcWriteRegMask(u8 bank, u8 reg, u8 mask, u8 value);
 void cdcWriteRegArray(u8 bank, u8 reg, const void *data, u8 size);
+void cdcWriteReg16(u8 bank, u8 reg, u16 value);
+void cdcWriteReg24(u8 bank, u8 reg, u32 value);
 
 // Touchscreen functions
 void cdcTouchInit(void);

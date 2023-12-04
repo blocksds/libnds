@@ -156,6 +156,13 @@ static inline void micOff(void)
     micSetAmp(PM_AMP_OFF, 0);
 }
 
+
+/// Set extended sound hardware frequency.
+///
+/// @param freq_khz Frequency in KHz. The default is 32, but 47 is allowed too.
+/// @return Returns true if the change was successful.
+bool soundExtSetFrequencyTWL(unsigned int freq_khz);
+
 /// Enable sound hardware and clear sound registers.
 void enableSound(void);
 
