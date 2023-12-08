@@ -594,6 +594,14 @@ void glTexCoord2f32(int32_t u, int32_t v);
 /// @param color The color to set for that material property.
 void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 
+/// Sends a packed list of commands into the graphics FIFO via asyncronous DMA.
+///
+/// The first 32 bits is the length of the packed command list, followed by the
+/// packed list.
+///
+/// @param list Pointer to the packed list.
+void glCallList(const u32 *list);
+
 // Private: Initializes the GL state.
 int glInit_C(void);
 
@@ -841,35 +849,6 @@ static inline void glMaterialShinyness(void)
 
     for (int i = 0; i < 128 / 4; i++)
         GFX_SHININESS = shiny32[i];
-}
-
-/// Sends a packed list of commands into the graphics FIFO via asyncronous DMA.
-///
-/// The first 32 bits is the length of the packed command list, followed by the
-/// packed list.
-///
-/// @param list Pointer to the packed list.
-static inline void glCallList(const u32 *list)
-{
-    sassert(list != NULL, "glCallList received a null display list pointer");
-
-    u32 count = *list++;
-
-    sassert(count != 0, "glCallList received a display list of size 0");
-
-    // Flush the area that we are going to DMA
-    DC_FlushRange(list, count * 4);
-
-    // There is a hardware bug that affects DMA when there are multiple channels
-    // active, under certain conditions. Instead of checking for said
-    // conditions, simply ensure that there are no DMA channels active.
-    while (dmaBusy(0) || dmaBusy(1) || dmaBusy(2) || dmaBusy(3));
-
-    // Send the packed list asynchronously via DMA to the FIFO
-    DMA_SRC(0) = (uint32_t)list;
-    DMA_DEST(0) = (uint32_t)&GFX_FIFO;
-    DMA_CR(0) = DMA_FIFO | count;
-    while (dmaBusy(0));
 }
 
 /// Set the parameters for polygons rendered on the current frame.
