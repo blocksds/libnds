@@ -841,6 +841,8 @@ static inline void glFlush(u32 mode)
 /// The DS uses a table for shininess. This generates one.
 static inline void glMaterialShinyness(void)
 {
+    /* More optimized version of the following:
+
     u32 shiny32[128 / 4];
     u8 *shiny8 = (u8 *)shiny32;
 
@@ -848,7 +850,12 @@ static inline void glMaterialShinyness(void)
         shiny8[i >> 1] = i;
 
     for (int i = 0; i < 128 / 4; i++)
-        GFX_SHININESS = shiny32[i];
+        GFX_SHININESS = shiny32[i]; */
+
+    uint32_t v = 0x06040200;
+
+    for (int i = 0; i < 128 / 4; i++, v += 0x08080808)
+        GFX_SHININESS = v;
 }
 
 /// Set the parameters for polygons rendered on the current frame.
