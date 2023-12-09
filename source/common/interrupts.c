@@ -18,7 +18,7 @@ void irqDummy(void)
 }
 
 #ifdef ARM9
-#define INT_TABLE_SECTION __attribute__((section(".itcm")))
+#define INT_TABLE_SECTION __attribute__((section(".itcm.data")))
 #else
 #define INT_TABLE_SECTION
 #endif
