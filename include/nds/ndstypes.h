@@ -24,7 +24,7 @@ extern "C" {
 #include <stdint.h>
 
 /// Used to place a function in ITCM
-#define ITCM_CODE __attribute__((section(".itcm.text"), long_call))
+#define ITCM_CODE __attribute__((section(".itcm"), long_call))
 
 /// Used to place initialized data in DTCM
 #define DTCM_DATA __attribute__((section(".dtcm")))
@@ -32,9 +32,9 @@ extern "C" {
 #define DTCM_BSS __attribute__((section(".sbss")))
 
 /// Used to place a function in DSi RAM.
-#define TWL_CODE __attribute__((section(".twl.text")))
+#define TWL_CODE __attribute__((section(".twl")))
 /// Used to place initialized data in DSi RAM.
-#define TWL_DATA __attribute__((section(".twl.data")))
+#define TWL_DATA __attribute__((section(".twl")))
 /// Used to place uninitialized data in DSi RAM.
 #define TWL_BSS __attribute__((section(".twl_bss")))
 
