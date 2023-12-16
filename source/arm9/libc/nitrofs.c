@@ -32,7 +32,6 @@
 // Include "dirent.h" after the FatFs inclusion hack.
 #include <dirent.h>
 
-static bool nitrofs_initialized = false;
 static nitrofs_t nitrofs_local;
 
 /// Configuration
@@ -187,7 +186,7 @@ static int32_t nitrofs_dir_step(uint16_t dir, const char *name)
 
 int nitrofs_opendir(nitrofs_dir_state_t *state, const char *name)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
@@ -373,7 +372,7 @@ int nitrofs_getcwd(char *buf, size_t size)
 
 int nitrofs_chdir(const char *path)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
         return FR_NO_FILESYSTEM;
     
     int32_t res = nitrofs_path_resolve((char*) path);
@@ -446,7 +445,7 @@ static int nitrofs_open_by_id(nitrofs_file_t *fp, uint16_t id)
 
 int nitrofs_open(const char *name)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
@@ -489,7 +488,7 @@ static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 
 int nitrofs_stat(const char *name, struct stat *st)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
@@ -528,19 +527,21 @@ int nitrofs_fstat(int fd, struct stat *st)
 
 void nitroFSExit(void)
 {
-    if (nitrofs_initialized)
+    if (nitrofs_local.fat_offset)
     {
         if (nitrofs_local.file)
             fclose(nitrofs_local.file);
 
-        nitrofs_initialized = false;
+        nitrofs_local.fnt_offset = 0;
+        nitrofs_local.fat_offset = 0;
     }
 }
 
 bool nitroFSInit(const char *basepath)
 {
     uint32_t nitrofs_offsets[4];
-    if (nitrofs_initialized)
+
+    if (nitrofs_local.fat_offset)
         nitroFSExit();
 
     nitrofs_local.file = NULL;
@@ -589,25 +590,35 @@ bool nitroFSInit(const char *basepath)
         }
     }
 
-    if (!(nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0 && nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0))
+    // Reset FNT/FAT offsets.
+    nitrofs_local.fnt_offset = 0;
+    nitrofs_local.fat_offset = 0;
+
+    // Initialize FAT offset, if valid; otherwise exit.
+    if (nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0)
+        nitrofs_local.fat_offset = nitrofs_offsets[2];
+    else
     {
         if (nitrofs_local.file)
             fclose(nitrofs_local.file);
+
+        nitrofs_local.fnt_offset = 0;
         return false;
     }
-    nitrofs_local.fnt_offset = nitrofs_offsets[0];
-    nitrofs_local.fat_offset = nitrofs_offsets[2];
+
+    // Initialize FNT offset, if valid. Allow opening files by direct ID
+    // even without an FNT.
+    if (nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0)
+        nitrofs_local.fnt_offset = nitrofs_offsets[0];
 
     // Set "nitro:/" as default path
     current_drive_is_nitrofs = true;
-
-    nitrofs_initialized = true;
 
     return true;
 }
 
 int nitroFSInitLookupCache(uint32_t max_buffer_size) {
-    if (!nitrofs_initialized || !nitrofs_local.file)
+    if (!nitrofs_local.fat_offset || !nitrofs_local.file)
         return 0;
     return fatInitLookupCacheFile(nitrofs_local.file, max_buffer_size);
 }
