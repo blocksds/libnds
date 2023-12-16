@@ -443,6 +443,34 @@ static int nitrofs_open_by_id(nitrofs_file_t *fp, uint16_t id)
     return 0;
 }
 
+int nitroFSOpenById(uint16_t id)
+{
+    nitrofs_file_t *fp = malloc(sizeof(nitrofs_file_t));
+    if (fp == NULL)
+    {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    int32_t res = nitrofs_open_by_id(fp, id);
+    if (res < 0)
+    {
+        free(fp);
+        errno = ENOENT;
+        return -1;
+    }
+
+    return FD_DESC(fp) | (FD_TYPE_NITRO << 28);
+}
+
+FILE *nitroFSFopenById(uint16_t id, const char *mode)
+{
+    int fd = nitroFSOpenById(id);
+    if (fd == -1)
+        return NULL;
+    return fdopen(fd, mode);
+}
+
 int nitrofs_open(const char *name)
 {
     if (!nitrofs_local.fnt_offset)
@@ -457,20 +485,7 @@ int nitrofs_open(const char *name)
         errno = ENOENT;
         return -1;
     }
-    nitrofs_file_t *fp = malloc(sizeof(nitrofs_file_t));
-    if (fp == NULL)
-    {
-        errno = ENOMEM;
-        return -1;
-    }
-    res = nitrofs_open_by_id(fp, res);
-    if (res < 0)
-    {
-        free(fp);
-        errno = ENOENT;
-        return -1;
-    }
-    return FD_DESC(fp) | (FD_TYPE_NITRO << 28);
+    return nitroFSOpenById(res);
 }
 
 static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)

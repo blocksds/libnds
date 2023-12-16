@@ -42,6 +42,33 @@ void nitroFSExit(void);
 /// @return 0 if the initialization was successful, a non-zero value on error.
 int nitroFSInitLookupCache(uint32_t max_buffer_size);
 
+/// Open a NitroFS file descriptor directly by its FAT offset ID.
+///
+/// This FAT offset ID can be sourced from functions like @see stat,
+/// @see fstat or @see readdir - it is equivalent to the st_ino/d_ino value.
+///
+/// In all other functions, this file descriptor behaves identically to one
+/// sourced from @see open , and should be closed likewise.
+///
+/// @param id The FAT offset ID of the file (0x0000..0xEFFF).
+///
+/// @return A valid file descriptor; -1 on error.
+int nitroFSOpenById(uint16_t id);
+
+/// Open a NitroFS file directly by its FAT offset ID.
+///
+/// This FAT offset ID can be sourced from functions like @see stat,
+/// @see fstat or @see readdir - it is equivalent to the st_ino/d_ino value.
+///
+/// In all other functions, this file behaves identically to one sourced from
+/// @see fopen , and should be closed likewise.
+///
+/// @param id The FAT offset ID of the file (0x0000..0xEFFF).
+/// @param mode The file open mode. Only "r" and "rb" are supported.
+///
+/// @return A valid file pointer; NULL on error.
+FILE *nitroFSFopenById(uint16_t id, const char *mode);
+
 #ifdef __cplusplus
 }
 #endif
