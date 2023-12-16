@@ -35,6 +35,8 @@
 static bool nitrofs_initialized = false;
 static nitrofs_t nitrofs_local;
 
+/// Configuration
+#define ENABLE_DOTDOT_EMULATION
 #define MAX_NESTED_SUBDIRS 128
 
 /// Helper functions
@@ -80,6 +82,11 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
     state->position = 0;
     state->file_index = fnt_entry.first_file;
     state->dir_opened = dir;
+    state->dir_parent = fnt_entry.parent;
+#ifdef ENABLE_DOTDOT_EMULATION
+    // Create dot and dot-dot entries for subdirectories.
+    state->dotdot_offset = dir == 0xF000 ? 0 : -2;
+#endif
 
     if (nitrofs_local.file == NULL)
     {
@@ -204,6 +211,25 @@ int nitrofs_rewinddir(nitrofs_dir_state_t *state)
 
 int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
 {
+#ifdef ENABLE_DOTDOT_EMULATION
+    // Emit dot and dot-dot entries, if requested.
+    if (state->dotdot_offset < 0) {
+        if (state->dotdot_offset == -2) {
+            ent->d_name[0] = '.';
+            ent->d_name[1] = 0;
+            ent->d_ino = state->dir_opened;
+        } else if (state->dotdot_offset == -1) {
+            ent->d_name[0] = '.';
+            ent->d_name[1] = '.';
+            ent->d_name[2] = 0;
+            ent->d_ino = state->dir_parent;
+        }
+        ent->d_type = DT_DIR;
+        state->dotdot_offset++;
+        return 0;
+    }
+#endif
+
     uint8_t type = state->buffer[state->position];
 
     size_t len = type & 0x7F;
@@ -215,6 +241,7 @@ int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
     ent->d_name[sizeof(ent->d_name) - 1] = '\0';
 
     ent->d_type = (type & 0x80) ? DT_DIR : DT_REG;
+    ent->d_ino = nitrofs_dir_state_index(state);
 
     if (!nitrofs_dir_state_next(state))
         return -1;

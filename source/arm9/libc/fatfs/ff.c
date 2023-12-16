@@ -2349,7 +2349,8 @@ static FRESULT dir_read (
 		{	/* On the FAT/FAT32 volume */
 			dp->obj.attr = attr = dp->dir[DIR_Attr] & AM_MASK;	/* Get attribute */
 #if FF_USE_LFN		/* LFN configuration */
-			if (b == DDEM || b == '.' || (int)((attr & ~AM_ARC) == AM_VOL) != vol) {	/* An entry without valid data */
+			/* BlocksDS: (Feature) Avoid filtering dot and dot-dot directories. */
+			if (b == DDEM || /* b == '.' || */ (int)((attr & ~AM_ARC) == AM_VOL) != vol) {	/* An entry without valid data */
 				ord = 0xFF;
 			} else {
 				if (attr == AM_LFN) {	/* An LFN entry is found */
@@ -2368,7 +2369,8 @@ static FRESULT dir_read (
 				}
 			}
 #else		/* Non LFN configuration */
-			if (b != DDEM && b != '.' && attr != AM_LFN && (int)((attr & ~AM_ARC) == AM_VOL) == vol) {	/* Is it a valid entry? */
+			/* BlocksDS: (Feature) Avoid filtering dot and dot-dot directories. */
+			if (b != DDEM && /* b != '.' && */ attr != AM_LFN && (int)((attr & ~AM_ARC) == AM_VOL) == vol) {	/* Is it a valid entry? */
 				break;
 			}
 #endif
@@ -4760,6 +4762,15 @@ FRESULT f_readdir (
 			if (res == FR_NO_FILE) res = FR_OK;	/* Ignore end of directory */
 			if (res == FR_OK) {				/* A valid entry is found */
 				get_fileinfo(dp, fno);		/* Get the object information */
+				/* BlocksDS: (Feature) Write device/cluster information */
+				fno->fpdrv = dp->obj.fs->pdrv;
+#if FF_FS_EXFAT
+				if (fs->fs_type == FS_EXFAT) {
+					fno->fclust = 0; /* FIXME */
+				} else
+#endif
+				fno->fclust = ld_clust(dp->obj.fs, dp->dir);
+				/* BlocksDS: end (Feature) Write device/cluster information */
 				res = dir_next(dp, 0);		/* Increment index for next */
 				if (res == FR_NO_FILE) res = FR_OK;	/* Ignore end of directory now */
 			}
@@ -4844,7 +4855,7 @@ FRESULT f_stat (
 		INIT_NAMBUF(dj.obj.fs);
 		res = follow_path(&dj, path);	/* Follow the file path */
 		if (res == FR_OK) {				/* Follow completed */
-			/* BlocksDS - support origin directory stat(), write device/cluster information */
+			/* BlocksDS: (Feature) Support origin directory stat(), write device/cluster information */
 			if (fno) {
 				fno->fpdrv = dj.obj.fs->pdrv;
 #if FF_FS_EXFAT
@@ -4866,6 +4877,7 @@ FRESULT f_stat (
 					get_fileinfo(&dj, fno);
 				}
 			}
+			/* BlocksDS: end (Feature) Support origin directory stat(), write device/cluster information */
 		}
 		FREE_NAMBUF();
 	}

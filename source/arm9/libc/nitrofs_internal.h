@@ -45,6 +45,10 @@ typedef struct
     uint16_t file_index;
     // dir opened
     uint16_t dir_opened;
+    // parent directory
+    uint16_t dir_parent;
+    // dotdot offset
+    int16_t dotdot_offset;
 } nitrofs_dir_state_t;
 
 // Forward declarations
