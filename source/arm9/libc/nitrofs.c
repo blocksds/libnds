@@ -490,8 +490,8 @@ int nitrofs_open(const char *name)
 
 static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 {
-    // On NitroFS, st_dev is always 2, while st_ino is the file's unique ID.
-    st->st_dev = 2;
+    // On NitroFS, st_dev is always 128, while st_ino is the file's unique ID.
+    st->st_dev = 128;
     st->st_ino = fp->file_index;
     st->st_size = fp->endofs - fp->offset;
     st->st_blksize = 0x200;
