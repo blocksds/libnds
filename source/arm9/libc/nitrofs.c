@@ -32,9 +32,10 @@
 // Include "dirent.h" after the FatFs inclusion hack.
 #include <dirent.h>
 
-static bool nitrofs_initialized = false;
 static nitrofs_t nitrofs_local;
 
+/// Configuration
+#define ENABLE_DOTDOT_EMULATION
 #define MAX_NESTED_SUBDIRS 128
 
 /// Helper functions
@@ -80,6 +81,11 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
     state->position = 0;
     state->file_index = fnt_entry.first_file;
     state->dir_opened = dir;
+    state->dir_parent = fnt_entry.parent;
+#ifdef ENABLE_DOTDOT_EMULATION
+    // Create dot and dot-dot entries for subdirectories.
+    state->dotdot_offset = dir == 0xF000 ? 0 : -2;
+#endif
 
     if (nitrofs_local.file == NULL)
     {
@@ -180,7 +186,7 @@ static int32_t nitrofs_dir_step(uint16_t dir, const char *name)
 
 int nitrofs_opendir(nitrofs_dir_state_t *state, const char *name)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
@@ -204,6 +210,25 @@ int nitrofs_rewinddir(nitrofs_dir_state_t *state)
 
 int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
 {
+#ifdef ENABLE_DOTDOT_EMULATION
+    // Emit dot and dot-dot entries, if requested.
+    if (state->dotdot_offset < 0) {
+        if (state->dotdot_offset == -2) {
+            ent->d_name[0] = '.';
+            ent->d_name[1] = 0;
+            ent->d_ino = state->dir_opened;
+        } else if (state->dotdot_offset == -1) {
+            ent->d_name[0] = '.';
+            ent->d_name[1] = '.';
+            ent->d_name[2] = 0;
+            ent->d_ino = state->dir_parent;
+        }
+        ent->d_type = DT_DIR;
+        state->dotdot_offset++;
+        return 0;
+    }
+#endif
+
     uint8_t type = state->buffer[state->position];
 
     size_t len = type & 0x7F;
@@ -215,6 +240,7 @@ int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
     ent->d_name[sizeof(ent->d_name) - 1] = '\0';
 
     ent->d_type = (type & 0x80) ? DT_DIR : DT_REG;
+    ent->d_ino = nitrofs_dir_state_index(state);
 
     if (!nitrofs_dir_state_next(state))
         return -1;
@@ -346,7 +372,7 @@ int nitrofs_getcwd(char *buf, size_t size)
 
 int nitrofs_chdir(const char *path)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
         return FR_NO_FILESYSTEM;
     
     int32_t res = nitrofs_path_resolve((char*) path);
@@ -417,9 +443,37 @@ static int nitrofs_open_by_id(nitrofs_file_t *fp, uint16_t id)
     return 0;
 }
 
+int nitroFSOpenById(uint16_t id)
+{
+    nitrofs_file_t *fp = malloc(sizeof(nitrofs_file_t));
+    if (fp == NULL)
+    {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    int32_t res = nitrofs_open_by_id(fp, id);
+    if (res < 0)
+    {
+        free(fp);
+        errno = ENOENT;
+        return -1;
+    }
+
+    return FD_DESC(fp) | (FD_TYPE_NITRO << 28);
+}
+
+FILE *nitroFSFopenById(uint16_t id, const char *mode)
+{
+    int fd = nitroFSOpenById(id);
+    if (fd == -1)
+        return NULL;
+    return fdopen(fd, mode);
+}
+
 int nitrofs_open(const char *name)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
@@ -431,26 +485,13 @@ int nitrofs_open(const char *name)
         errno = ENOENT;
         return -1;
     }
-    nitrofs_file_t *fp = malloc(sizeof(nitrofs_file_t));
-    if (fp == NULL)
-    {
-        errno = ENOMEM;
-        return -1;
-    }
-    res = nitrofs_open_by_id(fp, res);
-    if (res < 0)
-    {
-        free(fp);
-        errno = ENOENT;
-        return -1;
-    }
-    return FD_DESC(fp) | (FD_TYPE_NITRO << 28);
+    return nitroFSOpenById(res);
 }
 
 static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 {
-    // On NitroFS, st_dev is always 2, while st_ino is the file's unique ID.
-    st->st_dev = 2;
+    // On NitroFS, st_dev is always 128, while st_ino is the file's unique ID.
+    st->st_dev = 128;
     st->st_ino = fp->file_index;
     st->st_size = fp->endofs - fp->offset;
     st->st_blksize = 0x200;
@@ -462,7 +503,7 @@ static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
 
 int nitrofs_stat(const char *name, struct stat *st)
 {
-    if (!nitrofs_initialized)
+    if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
@@ -501,19 +542,21 @@ int nitrofs_fstat(int fd, struct stat *st)
 
 void nitroFSExit(void)
 {
-    if (nitrofs_initialized)
+    if (nitrofs_local.fat_offset)
     {
         if (nitrofs_local.file)
             fclose(nitrofs_local.file);
 
-        nitrofs_initialized = false;
+        nitrofs_local.fnt_offset = 0;
+        nitrofs_local.fat_offset = 0;
     }
 }
 
 bool nitroFSInit(const char *basepath)
 {
     uint32_t nitrofs_offsets[4];
-    if (nitrofs_initialized)
+
+    if (nitrofs_local.fat_offset)
         nitroFSExit();
 
     nitrofs_local.file = NULL;
@@ -562,25 +605,35 @@ bool nitroFSInit(const char *basepath)
         }
     }
 
-    if (!(nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0 && nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0))
+    // Reset FNT/FAT offsets.
+    nitrofs_local.fnt_offset = 0;
+    nitrofs_local.fat_offset = 0;
+
+    // Initialize FAT offset, if valid; otherwise exit.
+    if (nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0)
+        nitrofs_local.fat_offset = nitrofs_offsets[2];
+    else
     {
         if (nitrofs_local.file)
             fclose(nitrofs_local.file);
+
+        nitrofs_local.fnt_offset = 0;
         return false;
     }
-    nitrofs_local.fnt_offset = nitrofs_offsets[0];
-    nitrofs_local.fat_offset = nitrofs_offsets[2];
+
+    // Initialize FNT offset, if valid. Allow opening files by direct ID
+    // even without an FNT.
+    if (nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0)
+        nitrofs_local.fnt_offset = nitrofs_offsets[0];
 
     // Set "nitro:/" as default path
     current_drive_is_nitrofs = true;
-
-    nitrofs_initialized = true;
 
     return true;
 }
 
 int nitroFSInitLookupCache(uint32_t max_buffer_size) {
-    if (!nitrofs_initialized || !nitrofs_local.file)
+    if (!nitrofs_local.fat_offset || !nitrofs_local.file)
         return 0;
     return fatInitLookupCacheFile(nitrofs_local.file, max_buffer_size);
 }

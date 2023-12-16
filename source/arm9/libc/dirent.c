@@ -168,6 +168,7 @@ struct dirent *readdir(DIR *dirp)
 
     dirp->index++;
     ent->d_off = dirp->index;
+    ent->d_ino = fno.fclust;
 
     strncpy(ent->d_name, fno.fname, sizeof(ent->d_name));
     ent->d_name[sizeof(ent->d_name) - 1] = '\0';
