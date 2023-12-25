@@ -34,6 +34,9 @@ typedef int comutex_t;
 ///
 /// This stack will be freed when the thread is deleted.
 ///
+/// Important: If this thread is going to do filesystem accesses, you need to
+/// assign it a reasonably big stack size.
+///
 /// @param entrypoint Function to be run. The argument is the value of 'arg'
 ///                   passed to cothread_create().
 /// @param arg Argument to be passed to entrypoint.
