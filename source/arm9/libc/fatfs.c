@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <nds/memory.h>
@@ -78,6 +79,16 @@ int fatfs_error_to_posix(FRESULT error)
         return ENOMSG;
 
     return codes[error];
+}
+
+DWORD fatfs_timestamp_to_fattime(struct tm *stm)
+{
+    return (DWORD)(stm->tm_year - 80) << 25 |
+           (DWORD)(stm->tm_mon + 1) << 21 |
+           (DWORD)stm->tm_mday << 16 |
+           (DWORD)stm->tm_hour << 11 |
+           (DWORD)stm->tm_min << 5 |
+           (DWORD)stm->tm_sec >> 1;
 }
 
 // It takes a full path to a NDS ROM and it creates a new string with the path
