@@ -155,3 +155,14 @@ char *getcwd(char *buf, size_t size)
         return buf;
     }
 }
+
+char *getwd(char *buf)
+{
+    return getcwd(buf, PATH_MAX);
+}
+
+// glibc extension
+char *get_current_dir_name(void)
+{
+    return getcwd(NULL, 0);
+}
