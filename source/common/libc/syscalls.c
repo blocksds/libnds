@@ -18,11 +18,16 @@
 
 void _exit(int rc);
 
-pid_t getpid(void)
-{
-    // The PID of this process is 1
-    return 1;
-}
+// Single-process system; assume a PID, GID and UID of 1.
+pid_t getpid(void) { return 1; }
+gid_t getgid(void) { return 1; }
+gid_t getegid(void) { return 1; }
+uid_t getuid(void) { return 1; }
+uid_t geteuid(void) { return 1; }
+int setgid(gid_t gid) { (void)gid; errno = EINVAL; return -1; }
+int setegid(gid_t gid) { (void)gid; errno = EINVAL; return -1; }
+int setuid(uid_t uid) { (void)uid; errno = EINVAL; return -1; }
+int seteuid(uid_t uid) { (void)uid; errno = EINVAL; return -1; }
 
 int kill(pid_t pid, int sig)
 {
