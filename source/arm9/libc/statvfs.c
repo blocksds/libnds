@@ -11,6 +11,8 @@
 
 #include "fatfs/ff.h"
 #include "fatfs_internal.h"
+#include "filesystem_internal.h"
+#include "nitrofs_internal.h"
 
 static void _statvfs_populate(FATFS *fs, DWORD nclst, struct statvfs *buf)
 {
@@ -37,6 +39,12 @@ int statvfs(const char *restrict path, struct statvfs *restrict buf)
     DWORD nclst = 0;
     FRESULT result;
 
+    if (nitrofs_use_for_path(path))
+    {
+        errno = ENOSYS;
+        return -1;
+    }
+
     if ((result = f_getfree(path, &nclst, &fs)) != FR_OK || fs == NULL)
     {
         errno = EIO;
@@ -57,6 +65,12 @@ int fstatvfs(int fd, struct statvfs *buf)
     // This isn't handled here
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
+
+    if (FD_IS_NITRO(fd))
+    {
+        errno = ENOSYS;
+        return -1;
+    }
 
     fp = (FIL *)fd;
     fs = fp->obj.fs;
