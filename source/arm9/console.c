@@ -15,20 +15,20 @@
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 
-#include <default_font_bin.h>
+#include <default_font.h>
 
 #include "common/libnds_internal.h"
 
 PrintConsole defaultConsole = {
     // Font:
     {
-        (u16 *)default_font_bin, // font gfx
-        0,                       // font palette
-        0,                       // font color count
-        1,                       // bpp
-        32,                      // first ascii character in the set
-        95,                      // number of characters in the font set
-        true                     // convert single color
+        (u16 *)default_fontTiles, // font gfx
+        0,                        // font palette
+        0,                        // font color count
+        1,                        // bpp
+        32,                       // first ascii character in the set
+        96,                       // number of characters in the font set
+        true                      // convert single color
     },
     0,  // font background map
     0,  // font background gfx
@@ -348,21 +348,21 @@ void consoleLoadFont(PrintConsole *console)
                 {
                     u8 row = ((const u8 *)console->font.gfx)[i];
                     u32 temp = 0;
-                    if (row & 0x80)
-                        temp |= 0xF;
-                    if (row & 0x40)
-                        temp |= 0xF0;
-                    if (row & 0x20)
-                        temp |= 0xF00;
-                    if (row & 0x10)
-                        temp |= 0xF000;
-                    if (row & 0x08)
-                        temp |= 0xF0000;
-                    if (row & 0x04)
-                        temp |= 0xF00000;
-                    if (row & 0x02)
-                        temp |= 0xF000000;
                     if (row & 0x01)
+                        temp |= 0xF;
+                    if (row & 0x02)
+                        temp |= 0xF0;
+                    if (row & 0x04)
+                        temp |= 0xF00;
+                    if (row & 0x08)
+                        temp |= 0xF000;
+                    if (row & 0x10)
+                        temp |= 0xF0000;
+                    if (row & 0x20)
+                        temp |= 0xF00000;
+                    if (row & 0x40)
+                        temp |= 0xF000000;
+                    if (row & 0x80)
                         temp |= 0xF0000000;
                     ((u32 *)console->fontBgGfx)[i] = temp;
                 }
