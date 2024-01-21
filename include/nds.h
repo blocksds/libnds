@@ -71,6 +71,7 @@
 /// @section utility_api Utility
 /// - @ref nds/arm9/decompress.h "Decompression"
 /// - @ref nds/arm9/image.h "Image Manipulation"
+/// - @ref nds/arm9/grf.h "GRF file loader"
 /// - @ref nds/arm9/pcx.h "PCX file loader"
 /// - @ref nds/arm9/dynamicArray.h "General Purpose dynamic array implementation"
 /// - @ref nds/arm9/linkedlist.h "General purpose linked list implementation"
@@ -145,6 +146,7 @@ extern "C" {
 #    include <nds/arm9/linkedlist.h>
 #    include <nds/arm9/math.h>
 #    include <nds/arm9/paddle.h>
+#    include <nds/arm9/grf.h>
 #    include <nds/arm9/pcx.h>
 #    include <nds/arm9/piano.h>
 #    include <nds/arm9/rumble.h>
