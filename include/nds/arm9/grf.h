@@ -23,7 +23,7 @@ extern "C" {
 
 /// Header chunk of a GRF file.
 typedef struct {
-    uint8_t  gfxAttr;  ///< BPP of graphics. 0 if not present.
+    uint8_t  gfxAttr;  ///< BPP of graphics (or GRFTextureTypes). 0 if not present.
     uint8_t  mapAttr;  ///< BPP of map (16 or 8 for affine). 0 if not present.
     uint8_t  mmapAttr; ///< BPP of metamap (16). 0 if not present.
     uint8_t  palAttr;  ///< BPP of palette (16). 0 if not present.
@@ -31,6 +31,14 @@ typedef struct {
     uint8_t  metaWidth, metaHeight; ///< Size of metamap in tiles
     uint32_t gfxWidth, gfxHeight;   ///< Size of graphics in pixels
 } GRFHeader;
+
+/// Special values for the GFX attribute field for NDS textures.
+typedef enum
+{
+    GRF_TEXFMT_A5I3 = 128,
+    GRF_TEXFMT_A3I5 = 129,
+    GRF_TEXFMT_4x4  = 130,
+} GRFTextureTypes;
 
 /// Possible errors that can happen while reading GRF files.
 typedef enum {
