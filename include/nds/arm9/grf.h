@@ -23,10 +23,10 @@ extern "C" {
 
 /// Header chunk of a GRF file.
 typedef struct {
-    uint8_t  gfxAttr;  ///< BPP of graphics (or GRFTextureTypes). 0 if not present.
-    uint8_t  mapAttr;  ///< BPP of map (16 or 8 for affine). 0 if not present.
-    uint8_t  mmapAttr; ///< BPP of metamap (16). 0 if not present.
-    uint8_t  palAttr;  ///< Number of colors of the palette. 0 if not present.
+    uint16_t gfxAttr;  ///< BPP of graphics (or GRFTextureTypes). 0 if not present.
+    uint16_t mapAttr;  ///< BPP of map (16 or 8 for affine). 0 if not present.
+    uint16_t mmapAttr; ///< BPP of metamap (16). 0 if not present.
+    uint16_t palAttr;  ///< Number of colors of the palette. 0 if not present.
     uint8_t  tileWidth, tileHeight; ///< Size of tiles in pixels
     uint8_t  metaWidth, metaHeight; ///< Size of metamap in tiles
     uint32_t gfxWidth, gfxHeight;   ///< Size of graphics in pixels
