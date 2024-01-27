@@ -2,18 +2,33 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Christian Auby (DesktopMan)
-// Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (C) 2005-2008 Dave Murphy (WinterMute)
 
-// Key input code. Provides slightly higher level input forming.
+// Key and touch screen input code.
 
 #include <stdlib.h>
 
 #include <nds/arm9/input.h>
 #include <nds/ipc.h>
 #include <nds/input.h>
+#include <nds/interrupts.h>
 #include <nds/system.h>
 
 #include "common/libnds_internal.h"
+
+// This is updated whenever the FIFO handler receives a message from the ARM7
+static touchPosition receivedTouchPosition;
+static u16 receivedArm7Buttons = 0xFFFF; // Not pressed
+
+// This is updated from receivedTouchPosition and receivedArm7Buttons whenever
+// scanKeys() is called.
+//
+// This prevents a race condition when keysHeld() may say that KEY_TOUCH is
+// pressed, but the touch screen status is updated before calling
+// touchPosition(), which returns (0, 0) because the player has stopped
+// touching the screen.
+static touchPosition latchedTouchPosition;
+static u16 latchedArm7Buttons = 0xFFFF;
 
 static uint16_t keys_cur(void)
 {
@@ -21,7 +36,7 @@ static uint16_t keys_cur(void)
         KEY_RIGHT | KEY_LEFT | KEY_UP | KEY_DOWN | KEY_R | KEY_L;
 
     uint16_t keyinput = ~REG_KEYINPUT;
-    uint16_t keyxy = ~__transferRegion()->buttons;
+    uint16_t keyxy = ~latchedArm7Buttons;
 
     uint16_t keys_arm9 = keyinput & keyinput_mask;
 
@@ -46,6 +61,12 @@ static u8 delay = 30, repeat = 15, count = 30;
 
 void scanKeys(void)
 {
+    int oldIME = enterCriticalSection();
+
+    // Get current copy of ARM7 input
+    latchedTouchPosition = receivedTouchPosition;
+    latchedArm7Buttons = receivedArm7Buttons;
+
     keysold = keys;
     keys = keys_cur();
 
@@ -63,6 +84,8 @@ void scanKeys(void)
             keysrepeat = keys;
         }
     }
+
+    leaveCriticalSection(oldIME);
 }
 
 uint32_t keysHeld(void)
@@ -100,4 +123,20 @@ uint32_t keysUp(void)
 uint32_t keysCurrent(void)
 {
     return keys_cur();
+}
+
+void touchRead(touchPosition *data)
+{
+    if (data == NULL)
+        return;
+
+    int oldIME = enterCriticalSection();
+    *data = latchedTouchPosition;
+    leaveCriticalSection(oldIME);
+}
+
+void setTransferInputData(touchPosition *touch, u16 buttons)
+{
+    receivedTouchPosition = *touch;
+    receivedArm7Buttons = buttons;
 }

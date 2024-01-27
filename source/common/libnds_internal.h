@@ -18,10 +18,6 @@
 
 typedef struct __TransferRegion
 {
-    vs16 touchX, touchY;     // TSC X, Y
-    vs16 touchXpx, touchYpx; // TSC X, Y pixel values
-    vs16 touchZ1, touchZ2;   // TSC x-panel measurements
-    vu16 buttons;            // X, Y, /PENIRQ buttons
     time_t unixTime;
     struct __bootstub *bootcode;
 } __TransferRegion, *__pTransferRegion;
@@ -63,19 +59,7 @@ static inline __TransferRegion volatile *__transferRegion(void)
         return (__TransferRegion volatile *)0x02FFF000;
 }
 
-static inline void setTransferInputData(touchPosition *touch, u16 buttons)
-{
-    __TransferRegion volatile *transfer = __transferRegion();
-
-    transfer->buttons = buttons;
-    transfer->touchX = touch->rawx;
-    transfer->touchY = touch->rawy;
-    transfer->touchXpx = touch->px;
-    transfer->touchYpx = touch->py;
-    transfer->touchZ1 = touch->z1;
-    transfer->touchZ2 = touch->z2;
-}
-
+void setTransferInputData(touchPosition *touch, u16 buttons);
 void __libnds_exit(int rc);
 
 extern time_t *punixTime;

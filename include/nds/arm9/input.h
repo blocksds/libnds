@@ -74,13 +74,18 @@ void keysSetRepeat(u8 setDelay, u8 setRepeat);
 /// @return Bitmask of keys that have just been released.
 uint32_t keysUp(void);
 
-// Old way of reading the touchpad state.
-__attribute__((deprecated)) touchPosition touchReadXY(void);
-
 /// Obtains the current touchpad state.
 ///
 /// @param data A touchPosition pointer which will be filled by the function.
 void touchRead(touchPosition *data);
+
+// Old way of reading the touchpad state.
+static inline __attribute__((deprecated)) touchPosition touchReadXY(void)
+{
+    touchPosition touchPos;
+    touchRead(&touchPos);
+    return touchPos;
+}
 
 #ifdef __cplusplus
 }

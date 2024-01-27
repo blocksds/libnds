@@ -64,8 +64,6 @@ void __attribute__((weak)) initSystem(void)
     fifoSetValue32Handler(FIFO_SYSTEM, systemValueHandler, 0);
     fifoSetDatamsgHandler(FIFO_SYSTEM, systemMsgHandler, 0);
 
-    __transferRegion()->buttons = 0xffff;
-
     punixTime = (time_t *)memUncached((void *)&__transferRegion()->unixTime);
 
     extern char *fake_heap_end;
