@@ -31,26 +31,27 @@ void inputGetAndSend(void)
 
     // touchPenDown() handles DSi-mode touch detection
     // (on DS mode, it just checks REG_KEYXY & KEYXY_TOUCH)
-    if (!touchPenDown())
-        keys |= KEYXY_TOUCH;
-    else
-        keys &= ~KEYXY_TOUCH;
-
-    msg.SystemInput.keys = keys;
-
-    if (!(keys & KEYXY_TOUCH))
+    if (touchPenDown())
     {
-        // only mark pen as down if valid coordinates
-        msg.SystemInput.keys |= KEYXY_TOUCH;
-
         touchReadXY(&tempPos);
 
+        // Only mark pen as down if the coordinates are valid
         if (tempPos.rawx && tempPos.rawy)
         {
-            msg.SystemInput.keys &= ~KEYXY_TOUCH;
             msg.SystemInput.touch = tempPos;
+            keys &= ~KEYXY_TOUCH;
+        }
+        else
+        {
+            keys |= KEYXY_TOUCH;
         }
     }
+    else
+    {
+        keys |= KEYXY_TOUCH;
+    }
+
+    msg.SystemInput.keys = keys;
 
     // Sleep if lid has been closed for a specified number of frames
     if (sleepCounterMax > 0)
