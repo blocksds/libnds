@@ -21,12 +21,16 @@ typedef struct slot2TiltPosition {
     u16 y;   ///< Raw Y value
 } slot2TiltPosition;
 
-/// Update the tilt sensor values.
-/// It is recommended to run this function once per VBlank.
+/// Start a new tilt sensor measurement.
+/// This is required before a successful read can be performed.
+bool peripheralSlot2TiltStart(void);
+
+/// Read the tilt sensor values, if the sensor measurement has finished.
 ///
 /// @param data Tilt sensor position data.
 /// @return True if new values are available.
-bool peripheralSlot2TiltUpdate(slot2TiltPosition *data);
+/// @see peripheralSlot2TiltStart
+bool peripheralSlot2TiltRead(slot2TiltPosition *data);
 
 #ifdef __cplusplus
 }
