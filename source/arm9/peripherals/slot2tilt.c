@@ -21,17 +21,23 @@ bool peripheralSlot2TiltUpdate(slot2TiltPosition *data) {
     if (!peripheralSlot2Open(SLOT2_PERIPHERAL_TILT))
         return false;
 
-    if (!(TILT_X_HIGH & 0x80))
-        return false;
+    bool ok = false;
 
-    if (data)
+    if (TILT_X_HIGH & 0x80)
     {
-        data->x = TILT_X_LOW | ((TILT_X_HIGH & 0x0F) << 8);
-        data->y = TILT_Y_LOW | ((TILT_Y_HIGH & 0x0F) << 8);
+        ok = true;
+
+        if (data)
+        {
+            data->x = TILT_X_LOW | ((TILT_X_HIGH & 0x0F) << 8);
+            data->y = TILT_Y_LOW | ((TILT_Y_HIGH & 0x0F) << 8);
+        }
     }
 
+    // Regardless of whether the data was available or not, send the sample
+    // command so that the next frame the data is available.
     TILT_SAMPLE1 = 0x55;
     TILT_SAMPLE2 = 0xAA;
-    return true;
 
+    return ok;
 }
