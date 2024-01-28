@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include <nds/arm9/keyboard.h>
+#include <nds/arm9/input.h>
 #include <nds/cothread.h>
 #include <nds/interrupts.h>
 
@@ -95,6 +96,7 @@ static int stdin_getc_keyboard(FILE *file)
 
     while (true)
     {
+        scanKeys();
 #ifdef INPUT_BUFFER_SIZE
         stdin_buf_empty = stdin_buf_left == stdin_buf_right;
         int kc = keyboardUpdate();

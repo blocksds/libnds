@@ -160,12 +160,16 @@ void keyboardGetString(char *buffer, int maxLen);
 ///
 /// Use keyboardUpdate instead for async operation.
 ///
+/// Remember to call scanKeys() every frame if you use keyboardGetChar().
+///
 /// @return The key pressed.
 s16 keyboardGetChar(void);
 
 /// Processes the keyboard.
 ///
 /// Should be called once per frame when using the keyboard in an async manner.
+///
+/// Remember to call scanKeys() every frame if you use keyboardUpdate().
 ///
 /// @return the ASCII code of the key pressed or NOKEY if no key was pressed.
 s16 keyboardUpdate(void);
