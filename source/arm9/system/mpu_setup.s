@@ -56,7 +56,7 @@
 // but it isn't possible to map everything at 0x02000000 because shared WRAM is
 // mapped at 0x03000000, so there are only 16 MB available. The last 16 MB of
 // the main RAM can only be accessed from their non-cachable mirror. This isn't
-// a problem in a regular consumer DSi because it has exactly 16 MB of RAM.
+// a problem in a regular retail DSi because it has exactly 16 MB of RAM.
 //
 // Legend:
 //
@@ -78,13 +78,53 @@
 
     .arm
 
-// This macro sets the zero flag to 1 if DSi extended RAM is detected; it sets
-// it to 0 otherwise.
-.macro HAS_DSI_MAIN_RAM reg
-    ldr     \reg, =0x4004008 // SCFG_EXT9
-    ldr     \reg, [\reg]
-    // Bits 14-15: Main RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
-    tst     \reg, #0x8000
+// This macro sets the zero flag to 1 when running on a DSi; otherwise 0.
+.macro IS_DSI reg
+    // If the lowest two bits of SCFG_A9ROM are 0b01, this is a DSi.
+
+    ldr     \reg, =0x04004000 // SCFG_A9ROM
+    ldrb    \reg, [\reg]
+    and     \reg, \reg, #0x3
+    cmp     \reg, #0x1
+.endm
+
+// This macro sets the zero flag to 0 if the DSi is a regular retail unit; it
+// will set it to 1 if it's a DSi debugger unit.
+.macro IS_DSI_DEBUGGER reg1, reg2
+    // In order to detect if there are 16 MB of RAM or open bus, we write two
+    // different values to 0x0DFFFFFA and try to read them from 0x0CFFFFFA. If
+    // the memory is mirrored, the values will match.
+
+    // Set RAM size to 32 MB. This will turn the memory from 0x0D000000 to
+    // 0x0DFFFFFF into open bus in the case of a retail DSi unit, and into
+    // additional 16 MB of RAM in a debugger DSi unit.
+    ldr     \reg1, =0x4004008 // SCFG_EXT9
+    ldr     \reg2, [\reg1]
+    orr     \reg2, #0xC000 // 32 MB
+    str     \reg2, [\reg1]
+
+    // Try to write and read from the potential RAM region.
+
+    ldr     \reg1, =0x0DFFFFFA
+
+    mov     \reg2, #0x55
+    strb    \reg2, [\reg1]
+    ldrb    \reg2, [\reg1]
+    cmp     \reg2, #0x55
+
+    // If the zero flag is set at this point, the value we read matched the
+    // value we wrote, so there is potentially RAM in that address. Try with a
+    // different value in case it was just a coincidence.
+    //
+    // If the zero flag isn't set, the values don't match, no need to try again
+    // because there isn't any RAM there.
+
+    moveq   \reg2, #0xAA
+    strbeq  \reg2, [\reg1]
+    ldrbeq  \reg2, [\reg1]
+    cmpeq   \reg2, #0xAA
+
+    // If the zero flag is set the memory is definitely present (= debugger DSi)
 .endm
 
 // This sets r8 to the end address of RAM for this DS model
@@ -144,9 +184,9 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     orr     r0, r0, #(CP15_REGION_SIZE_32KB | CP15_CONFIG_REGION_ENABLE)
     mcr     CP15_REG6_PROTECTION_REGION(r0, 4)
 
-    // If DSi extended RAM is detected, load DSi code/data sections
-    HAS_DSI_MAIN_RAM r0
-    bne     dsi_mode
+    // When running on a DSi, load DSi code/data sections
+    IS_DSI  r0
+    beq     dsi_mode
 
     // DS mode: The debugger model is detected using swiIsDebugger()
 
@@ -173,13 +213,15 @@ debug_mode:
     // DSi mode: The debugger model is detected by checking the RAM size.
 
 dsi_mode:
-    tst     r0, #0x4000
+    // This will set the zero flag to 1 if this is a debugger DSi
+    IS_DSI_DEBUGGER r0, r1
+
     ldr     r1, =(0x03000000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
     // Regular DSi
-    ldreq   r2, =(0x0C000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
+    ldrne   r2, =(0x0C000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
     // DSi debugger extended IWRAM
-    ldrne   r2, =(0x0C000000 | CP15_REGION_SIZE_32MB | CP15_CONFIG_REGION_ENABLE)
+    ldreq   r2, =(0x0C000000 | CP15_REGION_SIZE_32MB | CP15_CONFIG_REGION_ENABLE)
     mov     r8, #0x03000000
     ldr     r9, =dsimasks
 
@@ -272,9 +314,9 @@ BEGIN_ASM_FUNC memUncached
 // Enables data cache for the DS slot-2 memory region
 BEGIN_ASM_FUNC peripheralSlot2EnableCache
 
-    # When running in DSi mode there is no slot-2 memory region, just return
-    HAS_DSI_MAIN_RAM r1
-    bxne    lr
+    # When running on a DSi there is no slot-2 memory region, just return
+    IS_DSI  r1
+    bxeq    lr
 
     // Enable data cache for this region
     mrc     CP15_REG2_DATA_CACHE_CONFIG(r1)
@@ -295,9 +337,9 @@ BEGIN_ASM_FUNC peripheralSlot2EnableCache
 // Disable data cache for the DS slot-2 memory region
 BEGIN_ASM_FUNC peripheralSlot2DisableCache
 
-    # When running in DSi mode there is no slot-2 memory region, just return
-    HAS_DSI_MAIN_RAM r1
-    bxne    lr
+    # When running on a DSi there is no slot-2 memory region, just return
+    IS_DSI  r1
+    bxeq    lr
 
     // If write-back is enabled, flush all data cache before disabling it for
     // this region
