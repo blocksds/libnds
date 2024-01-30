@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 // Copyright (c) 2023 Adrian "asie" Siekierka
 
 #include <errno.h>
@@ -13,6 +13,9 @@
 #include <sys/stat.h>
 
 #include <fat.h>
+#include <nds/arm9/card.h>
+#include <nds/arm9/sassert.h>
+#include <nds/arm9/dldi.h>
 #include <nds/card.h>
 #include <nds/memory.h>
 #include <nds/system.h>
@@ -48,6 +51,11 @@ bool nitrofs_use_for_path(const char *path)
         return current_drive_is_nitrofs;
 }
 
+// Symbol defined by the linker
+extern char __dtcm_start[];
+const uintptr_t DTCM_START = (uintptr_t)__dtcm_start;
+const uintptr_t DTCM_END   = DTCM_START + (16 * 1024) - 1;
+
 static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
 {
     if (nitrofs_local.file)
@@ -55,17 +63,28 @@ static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
         fseek(nitrofs_local.file, offset, SEEK_SET);
         return fread(ptr, 1, len, nitrofs_local.file);
     }
-    else if (nitrofs_local.use_slot2)
+
+    if (nitrofs_local.use_slot2)
     {
         sysSetCartOwner(BUS_OWNER_ARM9);
-        memcpy(ptr, (void*) (0x08000000 + offset), len);
+        memcpy(ptr, (void *)(0x08000000 + offset), len);
         return len;
     }
     else
     {
-        sysSetCardOwner(BUS_OWNER_ARM9);
-        cardRead(ptr, offset, len, __NDSHeader->cardControl13);
-        return len;
+        if (dldiGetMode() == DLDI_MODE_ARM7)
+        {
+            sassert(!((uintptr_t)ptr >= DTCM_START && (uintptr_t)ptr < DTCM_END),
+                    "The destination can't be in DTCM");
+            cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
+            return len;
+        }
+        else
+        {
+            sysSetCardOwner(BUS_OWNER_ARM9);
+            cardRead(ptr, offset, len, __NDSHeader->cardControl13);
+            return len;
+        }
     }
 }
 

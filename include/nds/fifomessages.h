@@ -88,6 +88,7 @@ typedef struct FifoMessage {
             void *buffer;
             u32 offset;
             u32 size;
+            u32 flags;
         } cardParams;
 
         struct {
