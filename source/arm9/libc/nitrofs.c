@@ -15,6 +15,7 @@
 #include <fat.h>
 #include <nds/arm9/card.h>
 #include <nds/arm9/sassert.h>
+#include <nds/arm9/dldi.h>
 #include <nds/card.h>
 #include <nds/memory.h>
 #include <nds/system.h>
@@ -36,9 +37,6 @@
 
 static nitrofs_t nitrofs_local;
 
-// By default use the ARM9 to read from NitroFS
-bool nitrofs_reader_is_arm9 = true;
-
 /// Configuration
 #define ENABLE_DOTDOT_EMULATION
 #define MAX_NESTED_SUBDIRS 128
@@ -53,13 +51,10 @@ bool nitrofs_use_for_path(const char *path)
         return current_drive_is_nitrofs;
 }
 
-void nitroFSSetReaderCPU(bool use_arm9)
-{
-    nitrofs_reader_is_arm9 = use_arm9;
-}
-
-#define DTCM_BASE   ((void *)0x02FF0000)
-#define DTCM_END    ((void *)((uintptr_t)DTCM_BASE + (16 * 1024) - 1))
+// Symbol defined by the linker
+extern char __dtcm_start[];
+const uintptr_t DTCM_START = (uintptr_t)__dtcm_start;
+const uintptr_t DTCM_END   = DTCM_START + (16 * 1024) - 1;
 
 static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
 {
@@ -77,16 +72,17 @@ static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
     }
     else
     {
-        if (nitrofs_reader_is_arm9)
+        if (dldiGetMode() == DLDI_MODE_ARM7)
         {
-            sysSetCardOwner(BUS_OWNER_ARM9);
-            cardRead(ptr, offset, len, __NDSHeader->cardControl13);
+            sassert(!((uintptr_t)ptr >= DTCM_START && (uintptr_t)ptr < DTCM_END),
+                    "The destination can't be in DTCM");
+            cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
             return len;
         }
         else
         {
-            sassert(!(ptr >= DTCM_BASE && ptr < DTCM_END), "Destination is in DTCM");
-            cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
+            sysSetCardOwner(BUS_OWNER_ARM9);
+            cardRead(ptr, offset, len, __NDSHeader->cardControl13);
             return len;
         }
     }
