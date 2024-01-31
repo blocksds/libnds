@@ -92,8 +92,8 @@
 // will set it to 1 if it's a DSi debugger unit.
 .macro IS_DSI_DEBUGGER reg1, reg2
     // In order to detect if there are 16 MB of RAM or open bus, we write two
-    // different values to 0x0DFFFFFA and try to read them from 0x0CFFFFFA. If
-    // the memory is mirrored, the values will match.
+    // different values to 0x0DFFFFFA and try to read them back. If they match,
+    // the memory is present. If not, it's open bus.
 
     // Set RAM size to 32 MB. This will turn the memory from 0x0D000000 to
     // 0x0DFFFFFF into open bus in the case of a retail DSi unit, and into
@@ -322,7 +322,7 @@ BEGIN_ASM_FUNC memUncached
 // Enables data cache for the DS slot-2 memory region
 BEGIN_ASM_FUNC peripheralSlot2EnableCache
 
-    # When running on a DSi there is no slot-2 memory region, just return
+    // When running on a DSi there is no slot-2 memory region, just return
     IS_DSI  r1
     bxeq    lr
 
@@ -345,7 +345,7 @@ BEGIN_ASM_FUNC peripheralSlot2EnableCache
 // Disable data cache for the DS slot-2 memory region
 BEGIN_ASM_FUNC peripheralSlot2DisableCache
 
-    # When running on a DSi there is no slot-2 memory region, just return
+    // When running on a DSi there is no slot-2 memory region, just return
     IS_DSI  r1
     bxeq    lr
 
