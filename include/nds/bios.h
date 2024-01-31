@@ -219,11 +219,13 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
     return r0;
 }
 
-
-/// Returns 0 if running on a Nintendo hardware debugger.
+/// Returns 1 if running on a Nintendo hardware debugger.
 ///
-/// @return 0 if running on a debugger (8 MB of RAM instead of 4 MB), else some
-///         other number.
+/// @note It only works in DS mode (not DSi mode), and with the cache disabled.
+/// It's recommended to use isDSDebugger() instead, which works in DSi mode too,
+/// and doesn't require the cache to be disabled.
+///
+/// @return 1 if running on a debugger (8 MB of RAM instead of 4 MB), else 0.
 __attribute__((always_inline))
 static inline int swiIsDebugger(void)
 {
