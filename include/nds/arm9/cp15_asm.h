@@ -14,10 +14,6 @@
 #define BIT(n)          (1 << (n))
 #endif
 
-#ifndef MASK
-#define MASK(t, b)      ((BIT(t) - 1) - (BIT(b) - 1))
-#endif
-
 // General definitions for the NDS
 
 #define ICACHE_SIZE             0x2000
@@ -29,25 +25,25 @@
 
 #define CP15_REG0_ID_CODE_REG(rd)               p15, 0, rd, c0, c0, 0
 
-#define CP15_ID_IMPLEMENTOR_MASK                MASK(31, 24) // 0x41
-#define CP15_ID_ARCHITECTURE_VERSION_MASK       MASK(19, 16) // 0x4
-#define CP15_ID_PART_NUMBER_MASK                MASK(15, 4) // 0x946
-#define CP15_ID_VERSION_MASK                    MASK(3, 0)
+#define CP15_ID_IMPLEMENTOR_MASK                0xFF000000 // 0x41
+#define CP15_ID_ARCHITECTURE_VERSION_MASK       0x000F0000 // 0x4
+#define CP15_ID_PART_NUMBER_MASK                0x0000FFF0 // 0x946
+#define CP15_ID_VERSION_MASK                    0x0000000F
 
 // Register 0, Cache type register
 
 #define CP15_REG0_CACHE_TYPE(rd)                p15, 0, rd, c0, c0, 1
 
-#define CP15_CTYPE_CACHE_TYPE_MASK              MASK(28, 25)
-#define CP15_CTYPE_HARVARD_UNIFIED              BIT(24)
-#define CP15_CTYPE_DCACHE_SIZE_MASK             MASK(21, 18)
-#define CP15_CTYPE_DCACHE_ASSOCIATIVITY_MASK    MASK(17, 15)
-#define CP15_CTYPE_DCACHE_BASE_SIZE             BIT(14)
-#define CP15_CTYPE_DCACHE_WORDS_PER_LINE_MASK   MASK(13, 12) // 0b10 = 8 words per line
-#define CP15_CTYPE_ICACHE_SIZE_MASK             MASK(9, 6)
-#define CP15_CTYPE_ICACHE_ASSOCIATIVITY_MASK    MASK(5, 3)
-#define CP15_CTYPE_ICACHE_BASE_SIZE             BIT(2)
-#define CP15_CTYPE_ICACHE_WORDS_PER_LINE_MASK   MASK(1, 0) // 0b10 = 8 words per line
+#define CP15_CTYPE_CACHE_TYPE_MASK              0x1E000000
+#define CP15_CTYPE_HARVARD_UNIFIED              0x00400000
+#define CP15_CTYPE_DCACHE_SIZE_MASK             0x003C0000
+#define CP15_CTYPE_DCACHE_ASSOCIATIVITY_MASK    0x00038000
+#define CP15_CTYPE_DCACHE_BASE_SIZE             0x00004000
+#define CP15_CTYPE_DCACHE_WORDS_PER_LINE_MASK   0x00003000 // 0b10 = 8 words per line
+#define CP15_CTYPE_ICACHE_SIZE_MASK             0x000003C0
+#define CP15_CTYPE_ICACHE_ASSOCIATIVITY_MASK    0x00000038
+#define CP15_CTYPE_ICACHE_BASE_SIZE             0x00000004
+#define CP15_CTYPE_ICACHE_WORDS_PER_LINE_MASK   0x00000003 // 0b10 = 8 words per line
 
 #define CP15_CACHE_SIZE_0KB         (0x0)
 #define CP15_CACHE_SIZE_4KB         (0x3)
@@ -64,10 +60,10 @@
 
 #define CP15_REG0_TCM_SIZE(rd)                      p15, 0, rd, c0, c0, 2
 
-#define CP15_TCM_DATA_RAM_SIZE_MASK                 MASK(21, 18)
-#define CP15_TCM_DATA_RAM_ABSENT                    BIT(14)
-#define CP15_TCM_INSTRUCTION_RAM_SIZE_MASK          MASK(9, 6)
-#define CP15_TCM_INSTRUCTION_RAM_ABSENT             BIT(2)
+#define CP15_TCM_DATA_RAM_SIZE_MASK                 0x003C0000
+#define CP15_TCM_DATA_RAM_ABSENT                    0x00004000
+#define CP15_TCM_INSTRUCTION_RAM_SIZE_MASK          0x000003C0
+#define CP15_TCM_INSTRUCTION_RAM_ABSENT             0x00000004
 
 // Register 1, Control Register
 
@@ -117,8 +113,8 @@
 
 #define CP15_REG6_PROTECTION_REGION(rd, n)      p15, 0, rd, c6, c##n, 0
 
-#define CP15_CONFIG_REGION_BASE_MASK            MASK(31, 12)
-#define CP15_CONFIG_REGION_SIZE_MASK            MASK(5, 1)
+#define CP15_CONFIG_REGION_BASE_MASK            0xFFFFF000
+#define CP15_CONFIG_REGION_SIZE_MASK            0x0000003E
 #define CP15_CONFIG_REGION_ENABLE               BIT(0)
 
 #define CP15_REGION_SIZE_4KB                    (0x0B << 1)
@@ -165,7 +161,7 @@
 #define CP15_REG9_INSTRUCTION_LOCKDOWN_CONTROL(rd)      p15, 0, rd, c9, c0, 1
 
 #define CP15_CACHE_LOCKDOWN_LOAD_BIT                    BIT(31)
-#define CP15_CACHE_LOCKDOWN_SEGMENT_MASK                MASK(1, 0)
+#define CP15_CACHE_LOCKDOWN_SEGMENT_MASK                0x3
 
 // Register 9, Tightly-coupled memory region registers
 
