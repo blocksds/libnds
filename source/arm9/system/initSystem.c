@@ -21,7 +21,8 @@
 
 #include "common/libnds_internal.h"
 
-bool __dsimode; // The crt0 sets this variable
+bool __dsimode; // Set by the crt0
+bool __debugger_unit; // Set by the crt0
 
 time_t *punixTime;
 

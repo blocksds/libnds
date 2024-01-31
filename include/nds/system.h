@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
+
 #include <nds/ndstypes.h>
 
 /// LCD status register.
@@ -98,6 +100,20 @@ static inline bool isDSiMode(void)
 {
     extern bool __dsimode;
     return __dsimode;
+}
+
+/// Checks whether the application is running in a debugger or retail console.
+///
+/// It works on DS and DSi consoles.
+///
+/// @note swiIsDebugger() only works with the cache disabled, this function
+/// doesn't have any restrictions.
+///
+/// @return Returns true if running on a debugger unit, false on retail units.
+static inline bool isHwDebugger(void)
+{
+    extern bool __debugger_unit;
+    return __debugger_unit;
 }
 
 // ARM9 section

@@ -135,7 +135,9 @@
     strne   \reg2, [\reg1]
 .endm
 
-// This sets r8 to the end address of RAM for this DS model
+// Returns:
+// r7: 1 if the device is a debugger unit, 0 if it is a retail unit.
+// r8: End address of the cached RAM for this DS model (mapped at 0x02000000)
 BEGIN_ASM_FUNC __libnds_mpu_setup
 
     // Disable TCM and protection unit
@@ -198,12 +200,13 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
 
     // DS mode: The debugger model is detected using swiIsDebugger()
 
-    swi     0xf0000 // swiIsDebugger (only available in DS mode, not DSi mode)
+    swi     0xF0000 // swiIsDebugger. Only in DS mode, cache must be off.
 
     ldr     r1, =(0x08000000 | CP15_REGION_SIZE_128MB | CP15_CONFIG_REGION_ENABLE)
     cmp     r0, #0
     bne     debug_mode
 
+    mov     r7, #0 // Retail DS
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_4MB | CP15_CONFIG_REGION_ENABLE)
     ldr     r2, =(0x02000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
     mov     r8, #0x02400000
@@ -212,6 +215,7 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     b       setregions
 
 debug_mode:
+    mov     r7, #1 // Debugger DS
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
     ldr     r2, =(0x02800000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
     mov     r8, #0x02800000
@@ -226,11 +230,13 @@ dsi_mode:
 
     ldr     r1, =(0x03000000 | CP15_REGION_SIZE_8MB | CP15_CONFIG_REGION_ENABLE)
     ldr     r3, =(0x02000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
-    // Regular DSi
+    // Retail DSi
+    movne   r7, #0
     ldrne   r2, =(0x0C000000 | CP15_REGION_SIZE_16MB | CP15_CONFIG_REGION_ENABLE)
-    // DSi debugger extended IWRAM
+    // Debugger DSi
+    moveq   r7, #1
     ldreq   r2, =(0x0C000000 | CP15_REGION_SIZE_32MB | CP15_CONFIG_REGION_ENABLE)
-    mov     r8, #0x03000000
+    mov     r8, #0x03000000 // The end is after 16 MB even on a debugger
     ldr     r9, =dsimasks
 
 setregions:
