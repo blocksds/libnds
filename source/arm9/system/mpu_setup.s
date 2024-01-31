@@ -125,6 +125,14 @@
     cmpeq   \reg2, #0xAA
 
     // If the zero flag is set the memory is definitely present (= debugger DSi)
+
+    // If the zero flag is not set this is a retail DSi, reduce the amount of
+    // RAM to 16 MB.
+
+    ldrne   \reg1, =0x4004008 // SCFG_EXT9
+    ldrne   \reg2, [\reg1]
+    bicne   \reg2, #0x4000
+    strne   \reg2, [\reg1]
 .endm
 
 // This sets r8 to the end address of RAM for this DS model
