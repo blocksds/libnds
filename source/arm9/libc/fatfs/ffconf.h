@@ -311,4 +311,77 @@
 #define ff_memalloc malloc
 #define ff_memfree free
 
+/*---------------------------------------------------------------------------/
+/ wf-fatfs Fork Configurations (Optimizations & Tweaks)
+/---------------------------------------------------------------------------*/
+
+#define FF_WF_UNALIGNED_ACCESS 1
+/* FF_WF_UNALIGNED_ACCESS enables performance optimizations based on certain
+/  CPU architecture assumptions.
+/
+/  0: Any endianness, unaligned access support not required. Slowest.
+/  1: Little-endian, unaligned access support not required.
+/  2: Little-endian, unaligned access support required. Fastest.
+*/
+
+
+#define FF_WF_LIST_DOTDOT 1
+/* FF_WF_LIST_DOTDOT controls whether or not f_readdir() and other functions
+/  expose "." and ".." directory entries.
+/
+/  0: "." and ".." directory entries are hidden.
+/  1: "." and ".." directory entries are exposed.
+*/
+
+
+#define FF_WF_FAST_CONTIGUOUS_READ  1
+#define FF_WF_FAST_CONTIGUOUS_WRITE 1
+/* FF_WF_FAST_CONTIGUOUS_* controls whether or not contiguous reads or writes
+/  of more than 1 cluster (>4-32KB) are optimized to use large disk_read()
+/  and disk_write() calls. This can be useful on platforms where the cost of
+/  initializing a sector read/write is large.
+/
+/  0: Do not optimize this scenario.
+/  1: Optimize this scenario.
+*/
+
+
+#define FF_WF_CACHE_CLUSTER_SHIFT 1
+/* FF_WF_CACHE_CLUSTER_SHIFT controls whether the cluster bitshift value
+/  is cached. This is useful on platforms with slow divisions.
+*/
+
+
+#define FF_WF_MARK_WINDOW_READS 1
+/* FF_WF_MARK_WINDOW_READS allows marking reads done on the FATFS instance's
+/  window (directory/cluster reads) with an "| 0x80" on the pdrv argument
+/  in disk_read(). This can be used as information for sector caching
+/  algorithms.
+*/
+
+
+/*---------------------------------------------------------------------------/
+/ wf-fatfs Fork Configurations (POSIX compatibility improvements)
+/---------------------------------------------------------------------------*/
+
+#define FF_WF_FILINFO_LOCATION 1
+/* FF_WF_FILINFO_LOCATION controls whether or not the FILINFO structure
+/  contains fpdrv (physical drive ID) and fclust (file cluster #) values.
+/
+/  FIXME: This is not currently supported when FF_FS_EXFAT == 1.
+*/
+
+
+#define FF_WF_STAT_ORIGIN_DIRECTORY 1
+/* FF_WF_STAT_ORIGIN_DIRECTORY controls whether or not the origin directory
+/  can pass an f_stat() call.
+*/
+
+
+#define FF_WF_GETFREE_NULL_PATH 1
+/* FF_WF_GETFREE_NULL_PATH controls whether or not f_getfree() can be called
+/  on a FATFS instance directly by passing NULL to path and an instance
+/  in the "return" pointer.
+*/
+
 /*--- End of configuration options ---*/

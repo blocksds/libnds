@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <sys/time.h>
-#include "fatfs/ff.h"
+#include "ff.h"
 
 int fatfs_error_to_posix(FRESULT error);
 uint32_t fatfs_timestamp_to_fattime(struct tm *stm);

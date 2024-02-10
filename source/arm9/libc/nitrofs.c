@@ -26,7 +26,7 @@
 // unmodified so that updating it is easier, so this is a hack to rename it just
 // in this compilation unit.
 #define DIR DIRff
-#include "fatfs/ff.h"
+#include "ff.h"
 #include "fatfs_internal.h"
 #undef DIR
 #include "filesystem_internal.h"

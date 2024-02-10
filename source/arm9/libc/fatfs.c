@@ -12,8 +12,8 @@
 #include <nds/system.h>
 
 #include "fat.h"
+#include "ff.h"
 #include "fatfs/cache.h"
-#include "fatfs/ff.h"
 #include "filesystem_internal.h"
 
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes

@@ -9,7 +9,7 @@
 #include <sys/statvfs.h>
 #include <sys/unistd.h>
 
-#include "fatfs/ff.h"
+#include "ff.h"
 #include "fatfs_internal.h"
 #include "filesystem_internal.h"
 #include "nitrofs_internal.h"

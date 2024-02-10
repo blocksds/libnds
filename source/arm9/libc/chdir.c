@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fatfs/ff.h"
+#include "ff.h"
 #include "fatfs_internal.h"
 #include "filesystem_internal.h"
 #include "nitrofs_internal.h"
