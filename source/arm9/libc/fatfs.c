@@ -210,6 +210,30 @@ char *fatGetDefaultCwd(void)
     }
 }
 
+const char *fatGetDefaultDrive(void)
+{
+    // If argv[0] is provided, try to use it.
+
+    if (__system_argv->argvMagic == ARGV_MAGIC && __system_argv->argc >= 1)
+    {
+        const char *argv0 = __system_argv->argv[0];
+
+        // Check if the path starts with "sd:/", "fat:/", or neither.
+        if (strncmp(argv0, sd_drive, strlen(sd_drive)) == 0)
+            return sd_drive;
+        else if (strncmp(argv0, fat_drive, strlen(fat_drive)) == 0)
+            return fat_drive;
+    }
+
+    // argv[0] wasn't provided, or the path is invalid. Use the DSi SD card as
+    // default on DSi, and DLDI on DS as fallback.
+
+    if (isDSiMode())
+        return sd_drive;
+    else
+        return fat_drive;
+}
+
 bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 {
     (void)set_as_default_device;

@@ -65,6 +65,20 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 /// @return Returns a string with the path.
 char *fatGetDefaultCwd(void);
 
+/// This function returns the default drive ("sd:/" or "fat:/").
+///
+/// It is extracted from argv[0] if it has been provided by the loader.
+///
+/// If the format of the path provided by the loader is incorrect, or if no
+/// argv[0] was provided, it will default to the root of the filesystem. In the
+/// case of DSi, the default drive is the SD card. In the case of DS, the
+/// default drive is DLDI.
+///
+/// The returned string must not be passed to free().
+///
+/// @return Returns a string with the path.
+const char *fatGetDefaultDrive(void);
+
 /// This function initializes a lookup cache on a given FAT file.
 /// For NitroFS, use @see nitrofsInitLookupCache instead.
 ///
