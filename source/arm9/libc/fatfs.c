@@ -185,10 +185,8 @@ char *fatGetDefaultCwd(void)
 
         char *dirpath = get_dirname(argv0);
 
-        if (dirpath)
+        if (dirpath != NULL)
             return dirpath;
-
-        free(dirpath);
     }
 
     // argv[0] wasn't provided, or the path is invalid. Use the root of the SD
