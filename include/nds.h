@@ -28,7 +28,6 @@
 ///
 /// @section audio_api Audio API
 /// - @ref nds/arm9/sound.h "Simple Sound Engine"
-/// - <a href="https://maxmod.devkitpro.org/ref">Maxmod</a>
 ///
 /// @section math_api Math
 /// - @ref nds/arm9/math.h "Hardware Assisted Math"
