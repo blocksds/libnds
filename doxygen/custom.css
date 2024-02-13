@@ -1,0 +1,14 @@
+html {
+    /* override light-mode variables here */
+    --spacing-small: 2px;
+    --spacing-medium: 5px;
+    --spacing-large: 7px;
+}
+
+html.dark-mode {
+    /* define dark-mode variable overrides here if you DO use doxygen-awesome-darkmode-toggle.js */
+    --spacing-small: 2px;
+    --spacing-medium: 5px;
+    --spacing-large: 7px;
+}
+
