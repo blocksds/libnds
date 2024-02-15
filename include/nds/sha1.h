@@ -57,7 +57,8 @@ void swiSHA1Calc(void *digest, const void *data, size_t len);
 ///
 /// @param digest1 Buffer containing hash to verify.
 /// @param digest2 Buffer containing hash to verify.
-void swiSHA1Verify(const void *digest1, const void *digest2);
+/// @return 1 if they match, else 0. If either pointer is NULL it returns 0.
+int swiSHA1Verify(const void *digest1, const void *digest2);
 
 #ifdef __cplusplus
 }
