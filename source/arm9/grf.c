@@ -44,7 +44,7 @@ typedef struct {
 #define ID_PAL      CHUNK_ID('P', 'A', 'L', ' ')
 
 // Extracts a GRF item
-static GRFError grfExtract(const void *src, void **dst)
+static GRFError grfExtract(const void *src, void **dst, size_t *sz)
 {
     if ((src == NULL) || (dst == NULL))
         return GRF_NULL_POINTER;
@@ -54,6 +54,9 @@ static GRFError grfExtract(const void *src, void **dst)
     // consistency.
     uint32_t header = *(uint32_t *)src;
     uint32_t size = header >> 8;
+
+    if (sz != NULL)
+        *sz = size;
 
     // If the user has already provided a pointer, use it. If not, allocate mem
     if (*dst == NULL)
@@ -83,8 +86,12 @@ static GRFError grfExtract(const void *src, void **dst)
     }
 }
 
-GRFError grfLoadMem(const void *src, GRFHeader *header, void **gfxDst,
-                    void **mapDst, void **palDst, void **mtilDst, void **mmapDst)
+GRFError grfLoadMemEx(const void *src, GRFHeader *header,
+                      void **gfxDst, size_t *gfxSize,
+                      void **mapDst, size_t *mapSize,
+                      void **palDst, size_t *palSize,
+                      void **mtilDst, size_t *mtilSize,
+                      void **mmapDst, size_t *mmapSize)
 {
     if (src == NULL)
         return GRF_NULL_POINTER;
@@ -131,23 +138,23 @@ GRFError grfLoadMem(const void *src, GRFHeader *header, void **gfxDst,
                 break;
             case ID_GFX:
                 if (gfxDst)
-                    ret = grfExtract(data, gfxDst);
+                    ret = grfExtract(data, gfxDst, gfxSize);
                 break;
             case ID_MAP:
                 if (mapDst)
-                    ret = grfExtract(data, mapDst);
+                    ret = grfExtract(data, mapDst, mapSize);
                 break;
             case ID_MTIL:
                 if (mtilDst)
-                    ret = grfExtract(data, mtilDst);
+                    ret = grfExtract(data, mtilDst, mtilSize);
                 break;
             case ID_MMAP:
                 if (mmapDst)
-                    ret = grfExtract(data, mmapDst);
+                    ret = grfExtract(data, mmapDst, mmapSize);
                 break;
             case ID_PAL:
                 if (palDst)
-                    ret = grfExtract(data, palDst);
+                    ret = grfExtract(data, palDst, palSize);
                 break;
             default:
                 // Ignore unknown chunks rather than failing
@@ -159,6 +166,15 @@ GRFError grfLoadMem(const void *src, GRFHeader *header, void **gfxDst,
     }
 
     return GRF_NO_ERROR;
+}
+
+GRFError grfLoadMem(const void *src, GRFHeader *header,
+                    void **gfxDst, size_t *gfxSize,
+                    void **mapDst, size_t *mapSize,
+                    void **palDst, size_t *palSize)
+{
+    return grfLoadMemEx(src, header, gfxDst, gfxSize, mapDst, mapSize,
+                        palDst, palSize, NULL, NULL, NULL, NULL);
 }
 
 static void *grfReadAllFile(FILE *file)
@@ -182,8 +198,12 @@ static void *grfReadAllFile(FILE *file)
     return buffer;
 }
 
-GRFError grfLoadFile(FILE *file, GRFHeader *header, void **gfxDst, void **mapDst,
-                     void **palDst, void **mtilDst, void **mmapDst)
+GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
+                       void **gfxDst, size_t *gfxSize,
+                       void **mapDst, size_t *mapSize,
+                       void **palDst, size_t *palSize,
+                       void **mtilDst, size_t *mtilSize,
+                       void **mmapDst, size_t *mmapSize)
 {
     if (file == NULL)
         return GRF_NULL_POINTER;
@@ -192,16 +212,30 @@ GRFError grfLoadFile(FILE *file, GRFHeader *header, void **gfxDst, void **mapDst
     if (src == NULL)
         return GRF_FILE_NOT_READ;
 
-    GRFError ret = grfLoadMem(src, header, gfxDst, mapDst, palDst,
-                                 mtilDst, mmapDst);
+    GRFError ret = grfLoadMemEx(src, header, gfxDst, gfxSize, mapDst, mapSize,
+                                palDst, palSize, mtilDst, mtilSize,
+                                mmapDst, mmapSize);
 
     free(src);
 
     return ret;
 }
 
-GRFError grfLoadPath(const char *path, GRFHeader *header, void **gfxDst,
-                     void **mapDst, void **palDst, void **mtilDst, void **mmapDst)
+GRFError grfLoadFile(FILE *file, GRFHeader *header,
+                     void **gfxDst, size_t *gfxSize,
+                     void **mapDst, size_t *mapSize,
+                     void **palDst, size_t *palSize)
+{
+    return grfLoadFileEx(file, header, gfxDst, gfxSize, mapDst, mapSize,
+                         palDst, palSize, NULL, NULL, NULL, NULL);
+}
+
+GRFError grfLoadPathEx(const char *path, GRFHeader *header,
+                       void **gfxDst, size_t *gfxSize,
+                       void **mapDst, size_t *mapSize,
+                       void **palDst, size_t *palSize,
+                       void **mtilDst, size_t *mtilSize,
+                       void **mmapDst, size_t *mmapSize)
 {
     if (path == NULL)
         return GRF_NULL_POINTER;
@@ -210,10 +244,20 @@ GRFError grfLoadPath(const char *path, GRFHeader *header, void **gfxDst,
     if (file == NULL)
         return GRF_FILE_NOT_OPENED;
 
-    GRFError ret = grfLoadFile(file, header, gfxDst, mapDst, palDst,
-                                  mtilDst, mmapDst);
+    GRFError ret = grfLoadFileEx(file, header, gfxDst, gfxSize, mapDst, mapSize,
+                                 palDst, palSize, mtilDst, mtilSize,
+                                 mmapDst, mmapSize);
 
     fclose(file);
 
     return ret;
+}
+
+GRFError grfLoadPath(const char *path, GRFHeader *header,
+                     void **gfxDst, size_t *gfxSize,
+                     void **mapDst, size_t *mapSize,
+                     void **palDst, size_t *palSize)
+{
+     return grfLoadPathEx(path, header, gfxDst, gfxSize, mapDst, mapSize,
+                          palDst, palSize, NULL, NULL, NULL, NULL);
 }
