@@ -170,18 +170,41 @@ typedef enum {
 ///
 /// Related functions: glPolyFmt(), glInit(), POLY_ALPHA(), POLY_ID()
 enum GL_POLY_FORMAT_ENUM {
-    POLY_FORMAT_LIGHT0  = (1 << 0), ///< Enable light number 0
-    POLY_FORMAT_LIGHT1  = (1 << 1), ///< Enable light number 1
-    POLY_FORMAT_LIGHT2  = (1 << 2), ///< Enable light number 2
-    POLY_FORMAT_LIGHT3  = (1 << 3), ///< Enable light number 3
-    POLY_MODULATION     = (0 << 4), ///< Enable modulation shading mode (default)
-    POLY_DECAL          = (1 << 4), ///< Enable decal shading
-    POLY_TOON_HIGHLIGHT = (2 << 4), ///< Enable toon/highlight shading mode
-    POLY_SHADOW         = (3 << 4), ///< Enable shadow shading
-    POLY_CULL_FRONT     = (1 << 6), ///< Cull front polygons
-    POLY_CULL_BACK      = (2 << 6), ///< Cull rear polygons
-    POLY_CULL_NONE      = (3 << 6), ///< Don't cull any polygons
-    POLY_FOG            = (1 << 15) ///< Enable/disable fog for this polygon
+    POLY_FORMAT_LIGHT0     = (1 << 0), ///< Enable light number 0
+    POLY_FORMAT_LIGHT1     = (1 << 1), ///< Enable light number 1
+    POLY_FORMAT_LIGHT2     = (1 << 2), ///< Enable light number 2
+    POLY_FORMAT_LIGHT3     = (1 << 3), ///< Enable light number 3
+
+    POLY_MODULATION        = (0 << 4), ///< Enable modulation shading mode (default)
+    POLY_DECAL             = (1 << 4), ///< Enable decal shading
+    POLY_TOON_HIGHLIGHT    = (2 << 4), ///< Enable toon/highlight shading mode
+    POLY_SHADOW            = (3 << 4), ///< Enable shadow shading
+
+    POLY_CULL_FRONT        = (1 << 6), ///< Cull front polygons
+    POLY_CULL_BACK         = (2 << 6), ///< Cull rear polygons
+    POLY_CULL_NONE         = (3 << 6), ///< Don't cull any polygons
+
+    /// Don't update depth buffer when drawing translucent polygons
+    POLY_TRANS_KEEP_DEPTH  = (0 << 11),
+    /// Update depth buffer when drawing translucent polygons
+    POLY_TRANS_SET_DEPTH   = (1 << 11),
+
+    /// Hide polygons that intersect with far plane
+    POLY_HIDE_FAR_POLYS    = (0 << 12),
+    /// Render polygons that intersect with far plane
+    POLY_RENDER_FAR_POLYS  = (1 << 12),
+
+    /// Hide 1-dot polygons behind GFX_CUTOFF_DEPTH
+    POLY_HIDE_1DOT_POLYS   = (0 << 13),
+    /// Draw 1-dot polygons behind GFX_CUTOFF_DEPTH
+    POLY_RENDER_1DOT_POLYS = (1 << 13),
+
+    /// Draw polygons with a lower depth than the depth buffer
+    POLY_DEPTH_TEST_LESS   = (0 << 14),
+    /// Draw polygons with the same depth of the depth buffer
+    POLY_DEPTH_TEST_EQUAL  = (1 << 14),
+
+    POLY_FOG            = (1 << 15) ///< Enable fog for this polygon
 };
 
 /// Possibles size of a texture (horizontal and vertical).

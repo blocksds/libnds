@@ -13,7 +13,7 @@
 
 void BoxTest_Asynch(v16 x, v16 y, v16 z, v16 width, v16 height, v16 depth)
 {
-    glPolyFmt(BIT(12) | BIT(13));
+    glPolyFmt(POLY_RENDER_FAR_POLYS | POLY_RENDER_1DOT_POLYS);
     glBegin(GL_TRIANGLES);
     glEnd();
 
@@ -24,7 +24,7 @@ void BoxTest_Asynch(v16 x, v16 y, v16 z, v16 width, v16 height, v16 depth)
 
 int BoxTest(v16 x, v16 y, v16 z, v16 width, v16 height, v16 depth)
 {
-    glPolyFmt(BIT(12) | BIT(13));
+    glPolyFmt(POLY_RENDER_FAR_POLYS | POLY_RENDER_1DOT_POLYS);
     glBegin(GL_TRIANGLES);
     glEnd();
 
