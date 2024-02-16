@@ -14,7 +14,7 @@
 ///
 /// The timers are fed with a 33.513982 MHz source on the ARM9 and ARM7.
 ///
-/// @note that dswifi will use timer 3 on the arm9, so don't use that if you use dswifi.
+/// @note that DSWifi will use timer 3 on the ARM9, so don't use that if you use DSWifi.
 
 #ifndef LIBNDS_NDS_TIMERS_H__
 #define LIBNDS_NDS_TIMERS_H__
