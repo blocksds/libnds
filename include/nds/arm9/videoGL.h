@@ -209,7 +209,7 @@ enum GL_POLY_FORMAT_ENUM {
 
 /// Possibles size of a texture (horizontal and vertical).
 ///
-/// Related functions: glTexImage2d(), glTexParameter()
+/// Related functions: glTexImage2D(), glTexParameter()
 enum GL_TEXTURE_SIZE_ENUM {
     TEXTURE_SIZE_8    = 0, ///< 8 texels
     TEXTURE_SIZE_16   = 1, ///< 16 texels
@@ -223,7 +223,7 @@ enum GL_TEXTURE_SIZE_ENUM {
 
 /// Texture parameters such as texture wrapping and texture coord wrapping.
 ///
-/// Related functions: glTexImage2d(), glTexParameter()
+/// Related functions: glTexImage2D(), glTexParameter()
 typedef enum  {
     /// Wrap (repeat) texture on S axis.
     GL_TEXTURE_WRAP_S = (1 << 16),
@@ -248,7 +248,7 @@ typedef enum  {
 
 /// Texture formats.
 ///
-/// Related functions: glTexImage2d(), glTexParameter()
+/// Related functions: glTexImage2D(), glTexParameter()
 typedef enum {
     GL_NOTEXTURE  = 0, ///< No texture is used - useful for making palettes
     GL_RGB32_A3   = 1, ///< 32 color palette, 3 bits of alpha
