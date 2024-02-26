@@ -127,7 +127,7 @@ int motion_card_is_inserted(void)
     return 0;
 }
 
-// urn on the DS Motion Sensor (DS Motion Pak or DS Motion Card)
+// Turn on the DS Motion Sensor (DS Motion Pak or DS Motion Card)
 // Requires knowing which type is present (can be found by using motion_init)
 int motion_enable(int card_type)
 {
