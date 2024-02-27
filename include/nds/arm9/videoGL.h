@@ -493,6 +493,39 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
                  int sizeY, int empty2, int param, const void *texture);
 
+/// This converts a size in pixels to a GL_TEXTURE_SIZE_ENUM value.
+///
+/// Note: This is not a real OpenGL function.
+///
+/// @param size Size in pixels.
+/// @return A valid GL_TEXTURE_SIZE_ENUM or -1 if the size is incorrect.
+static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
+{
+    // By making this function static inline it's easy for the compiler to
+    // optimize it when the argument is a constant.
+    switch (size)
+    {
+        case 8:
+            return TEXTURE_SIZE_8;
+        case 16:
+            return TEXTURE_SIZE_16;
+        case 32:
+            return TEXTURE_SIZE_32;
+        case 64:
+            return TEXTURE_SIZE_64;
+        case 128:
+            return TEXTURE_SIZE_128;
+        case 256:
+            return TEXTURE_SIZE_256;
+        case 512:
+            return TEXTURE_SIZE_512;
+        case 1024:
+            return TEXTURE_SIZE_1024;
+        default:
+            return -1;
+    }
+}
+
 /// Loads a 15-bit color palette into palette memory, and sets it to the
 /// currently bound texture.
 ///
