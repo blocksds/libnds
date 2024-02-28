@@ -44,6 +44,7 @@
 /// - @ref nds/card.h "Slot-1 access functions"
 /// - @ref fat.h "Simple replacement of libfat"
 /// - @ref filesystem.h "NitroFS, filesystem embedded in a NDS ROM"
+/// - @ref nds/arm9/sdmmc.h "ARM9 SDMMC Module"
 ///
 /// @section system_api System
 /// - @ref nds/ndstypes.h "Custom DS types"
@@ -88,6 +89,7 @@
 /// - @ref nds/arm7/clock.h "RTC utilities"
 /// - @ref nds/arm7/input.h "Keypad and touch pad ARM7 helpers"
 /// - @ref nds/arm7/audio.h "Audio and microphone helpers"
+/// - @ref nds/arm7/tmio.h "TMIO ARM7 module"
 ///
 /// @section debug_api Debugging
 /// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"

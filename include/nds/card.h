@@ -96,152 +96,156 @@ extern "C" {
 #define CARD_SPICNTH_ENABLE  (1 << 7) // In byte 1, i.e. 0x8000
 #define CARD_SPICNTH_IRQ     (1 << 6) // In byte 1, i.e. 0x4000
 
+/// Enable Slot-1 in a DSi console.
 void enableSlot1(void);
+
+/// Disable Slot-1 in a DSi console.
 void disableSlot1(void);
 
-/**
- * @brief Write a command to the card interface.
- * 
- * @param command 8-byte command buffer, little endian.
- */
+/// Write a command to the card interface.
+///
+/// @param command 8-byte command buffer, little endian.
 void cardWriteCommand(const u8 *command);
 
-/**
- * @brief Write a ROM command, reading the response via polling (synchronously).
- * 
- * @param flags The ROM control flags to use for the transfer.
- * @param destination The response's destination buffer.
- * @param length The length of the response, in bytes.
- * @param command 8-byte command buffer, little endian.
- */
+/// Write a ROM command, reading the response via polling (synchronously).
+///
+/// @param flags The ROM control flags to use for the transfer.
+/// @param destination The response's destination buffer.
+/// @param length The length of the response, in bytes.
+/// @param command 8-byte command buffer, little endian.
 void cardPolledTransfer(u32 flags, u32 *destination, u32 length, const u8 *command);
 
-/**
- * @brief Perform a ROM command, reading the response via DMA (asynchronously).
- * Note that this function does not wait for the DMA to complete!
- * 
- * @param command 8-byte command buffer, little endian.
- * @param destination The response's destination buffer.
- * @param channel The DMA channel to use for the transfer.
- * @param flags The ROM control flags to use for the transfer.
- */
+/// Perform a ROM command, reading the response via DMA (asynchronously).
+///
+/// Note that this function does not wait for the DMA to complete!
+///
+/// @param command 8-byte command buffer, little endian.
+/// @param destination The response's destination buffer.
+/// @param channel The DMA channel to use for the transfer.
+/// @param flags The ROM control flags to use for the transfer.
 void cardStartTransfer(const u8 *command, u32 *destination, int channel, u32 flags);
 
-/**
- * @brief Perform a ROM command, reading one word of response.
- * 
- * @param command 8-byte command buffer, little endian.
- * @param flags The ROM control flags to use for the transfer.
- * @return uint32_t The response.
- */
+/// Perform a ROM command, reading one word of response.
+///
+/// @param command 8-byte command buffer, little endian.
+/// @param flags The ROM control flags to use for the transfer.
+/// @return uint32_t The response.
 uint32_t cardWriteAndRead(const u8 *command, u32 flags);
 
-/**
- * @brief Write a ROM command of the following form, reading the response via
- * polling (synchronously):
- *
- * ccpppppppp000000
- *
- * where cc is the command and pp is the parameter.
- * 
- * @param command The command.
- * @param parameter The parameter.
- * @param flags The ROM control flags to use for the transfer.
- * @param destination The response's destination buffer.
- * @param length The length of the response, in bytes.
- */
+/// Write a ROM command of the following form, reading the response via polling
+/// (synchronously).
+///
+/// ccpppppppp000000
+///
+/// where cc is the command and pp is the parameter.
+///
+/// @param command The command.
+/// @param parameter The parameter.
+/// @param flags The ROM control flags to use for the transfer.
+/// @param destination The response's destination buffer.
+/// @param length The length of the response, in bytes.
 void cardParamCommand(u8 command, u32 parameter, u32 flags, u32 *destination, u32 length);
 
-// These commands require the cart to not be initialized yet, which may mean the
-// user needs to eject and reinsert the cart or they will return random data.
+/// Read card header to the provided buffer.
+///
+/// This command requires the cart to not be initialized yet, which may mean the
+/// user needs to eject and reinsert the cart or they will return random data.
+///
+/// TODO: Is that correct?
+///
+/// @param header Buffer to store the data in.
 void cardReadHeader(u8 *header);
 
+/// Read card ID.
+///
+/// This command requires the cart to not be initialized yet, which may mean the
+/// user needs to eject and reinsert the cart or they will return random data.
+///
+/// TODO: Is that correct?
+///
+/// @param flags The ROM control flags to use for the transfer.
+/// @return The card ID.
 u32 cardReadID(u32 flags);
 
+/// Reset the card.
+///
+/// This command requires the cart to not be initialized yet, which may mean the
+/// user needs to eject and reinsert the cart or they will return random data.
+///
+/// TODO: Is that correct?
 void cardReset(void);
 
-/**
- * @brief Read bytes from the card ROM.
- * 
- * @param dest The destination buffer.
- * @param offset The offset to read from, in bytes.
- * @param len The number of bytes to read.
- * @param flags The read flags.
- */
+/// Read bytes from the card ROM.
+///
+/// @param dest The destination buffer.
+/// @param offset The offset to read from, in bytes.
+/// @param len The number of bytes to read.
+/// @param flags The read flags.
 void cardRead(void *dest, size_t offset, size_t len, uint32_t flags);
 
+/// Wait until an EEPROM command is done.
 static inline void eepromWaitBusy(void)
 {
     while (REG_AUXSPICNT & CARD_SPI_BUSY);
 }
 
-/**
- * @brief Read from the card EEPROM.
- * 
- * @param address The address to read from.
- * @param data The data to write.
- * @param length The length of data, in bytes.
- * @param addrtype The card EEPROM's type. @see cardEepromGetType
- */
+/// Read from the card EEPROM.
+///
+/// @param address The address to read from.
+/// @param data The data to write.
+/// @param length The length of data, in bytes.
+/// @param addrtype The card EEPROM's type. @see cardEepromGetType
 void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype);
 
-/**
- * @brief Write to the card EEPROM.
- *
- * Note that TYPE 3 (FLASH) EEPROM must be erased before writing.
- * 
- * @param address The address to write to.
- * @param data The data to write.
- * @param length The length of data, in bytes.
- * @param addrtype The card EEPROM's type. @see cardEepromGetType
- */
+/// Write to the card EEPROM.
+///
+/// Note that TYPE 3 (FLASH) EEPROM must be erased before writing.
+///
+/// @param address The address to write to.
+/// @param data The data to write.
+/// @param length The length of data, in bytes.
+/// @param addrtype The card EEPROM's type. @see cardEepromGetType
 void cardWriteEeprom(u32 address, u8 *data, u32 length, u32 addrtype);
 
-/**
- * @brief Attempt to read the ID of the card EEPROM chip.
- * Doesn't work well; most chips return 0xFFFF.
- * 
- * @return u32 The ID of the chip.
- */
+/// Attempt to read the ID of the card EEPROM chip.
+///
+/// Doesn't work well; most chips return 0xFFFF.
+///
+/// @return u32 The ID of the chip.
 u32 cardEepromReadID(void);
 
-/**
- * @brief Send a command to the card EEPROM.
- * 
- * @param command The command to send.
- * @return u8 The result, if any.
- */
+/// Send a command to the card EEPROM.
+///
+/// @param command The command to send.
+/// @return u8 The result, if any.
 u8 cardEepromCommand(u8 command);
 
-/**
- * @brief Read the card EEPROM's type.
- * 
- * @return int The type:
- *   -1: no card or no EEPROM
- *    0: unknown                   PassMe?
- *    1: TYPE 1   4Kbit(512Byte)   EEPROM
- *    2: TYPE 2  64Kbit(8KByte)or  512kbit(64Kbyte)   EEPROM
- *    3: TYPE 3   2Mbit(256KByte)  FLASH MEMORY (some rare 4Mbit and 8Mbit chips also)
- */
+/// Read the card EEPROM's type.
+///
+/// ```
+/// Type | Description
+/// -----+-------------------------------------------------------------
+/// -1   | no card or no EEPROM
+///  0   | unknown                   PassMe?
+///  1   | TYPE 1   4Kbit(512Byte)   EEPROM
+///  2   | TYPE 2  64Kbit(8KByte)or  512kbit(64Kbyte)   EEPROM
+///  3   | TYPE 3   2Mbit(256KByte)  FLASH MEMORY (some rare 4Mbit and 8Mbit chips also)
+/// ```
+///
+/// @return It returns the type.
 int cardEepromGetType(void);
 
-/**
- * @brief Read the card EEPROM's size.
- * 
- * @return u32 The EEPROM's size, in bytes.
- */
+/// Read the card EEPROM's size.
+///
+/// @return u32 The EEPROM's size, in bytes.
 u32 cardEepromGetSize(void);
 
-/**
- * @brief Erase the entirety of a TYPE 3 (FLASH) card EEPROM.
- */
+/// Erase the entirety of a TYPE 3 (FLASH) card EEPROM.
 void cardEepromChipErase(void);
 
-/**
- * @brief Erase a single sector of a TYPE 3 (FLASH) card EEPROM.
- *
- * @param address The address to erase at.
- */
+/// Erase a single sector of a TYPE 3 (FLASH) card EEPROM.
+///
+/// @param address The address to erase at.
 void cardEepromSectorErase(u32 address);
 
 #ifdef __cplusplus
