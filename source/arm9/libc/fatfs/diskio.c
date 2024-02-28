@@ -38,7 +38,6 @@
 #include <nds/memory.h>
 #include <nds/system.h>
 
-#include <fatfs.h>
 #include "../fatfs_internal.h"
 
 #include "ff.h"     // Obtains integer types
@@ -82,7 +81,7 @@ DSTATUS disk_status(BYTE pdrv)
             result = STA_NOINIT;
             break;
     }
-    
+
     return result;
 }
 
