@@ -12,9 +12,9 @@ extern "C" {
 #include <unistd.h>
 
 // These values should be synchronized with <fatfs/diskio.h>.
-#define SDMMC_STATUS_NOINIT		0x01	/* Drive not initialized */
-#define SDMMC_STATUS_NODISK		0x02	/* No medium in the drive */
-#define SDMMC_STATUS_PROTECT    0x04	/* Write protected */
+#define SDMMC_STATUS_NOINIT     0x01 // Drive not initialized
+#define SDMMC_STATUS_NODISK     0x02 // No medium in the drive
+#define SDMMC_STATUS_PROTECT    0x04 // Write protected
 
 #define SDMMC_DEVICE_SD         0
 #define SDMMC_DEVICE_NAND       1
