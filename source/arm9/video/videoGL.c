@@ -1286,6 +1286,21 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     if (!glGlob->activeTexture)
         return 0;
 
+    // Values between 0 and 7 (inclusive) represent internal texture sizes as
+    // represented in GPU registers. Powers of 2 between 8 and 1024 (inclusive)
+    // represent actual sizes in pixels, which need to be converted to the
+    // internal hardware representations.
+    if (sizeX >= 8)
+        sizeX = glTexSizeToEnum(sizeX);
+    if (sizeY >= 8)
+        sizeY = glTexSizeToEnum(sizeY);
+
+    // Either the value provided by the user was negative to begin with, or the
+    // conversion of glTexSizeToEnum() failed because the size isn't a valid
+    // power of two.
+    if ((sizeX < 0) || (sizeY < 0))
+        return 0;
+
     size = 1 << (sizeX + sizeY + 6);
 
     switch (type)

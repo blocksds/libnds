@@ -481,11 +481,15 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 /// Loads a 2D texture into texture memory and sets the currently bound texture
 /// ID to the attributes specified.
 ///
+/// The only allowed texture sizes are powers of two between 8 and 1024
+/// (inclusive). It is possible to specify the size in pixels or using the
+/// values of GL_TEXTURE_SIZE_ENUM.
+///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param empty1 Ignored, only here for OpenGL compatibility.
 /// @param type The format of the texture.
-/// @param sizeX the horizontal size of the texture, check GL_TEXTURE_SIZE_ENUM.
-/// @param sizeY the vertical size of the texture, check GL_TEXTURE_SIZE_ENUM.
+/// @param sizeX Width of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
+/// @param sizeY Height of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
 /// @param empty2 Ignored, only here for OpenGL compatibility.
 /// @param param Parameters of the texture.
 /// @param texture Pointer to the texture data to load.
