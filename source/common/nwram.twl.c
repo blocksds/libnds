@@ -68,30 +68,56 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
 }
 
 #ifdef ARM9
-void nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool enable)
+
+int nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool enable)
 {
     if (slot < 0 || slot > 3 || offset < 0 || offset > 3)
-        return;
+        return -1;
 
-    REG_MBK1[slot] = enable ?
-        (NWRAM_A_SLOT_ENABLE | master | NWRAM_A_SLOT_OFFSET(offset)) : 0;
+    // Check if the register is marked as read-only
+    if (REG_MBK9 & BIT(slot))
+        return -1;
+
+    if (enable)
+        REG_MBK1[slot] = NWRAM_A_SLOT_ENABLE | master | NWRAM_A_SLOT_OFFSET(offset);
+    else
+        REG_MBK1[slot] = 0;
+
+    return 0;
 }
 
-void nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool enable)
+int nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool enable)
 {
     if (slot < 0 || slot > 7 || offset < 0 || offset > 7)
-        return;
+        return -1;
 
-    REG_MBK2[slot] = enable ?
-        (NWRAM_BC_SLOT_ENABLE | master | NWRAM_BC_SLOT_OFFSET(offset)) : 0;
+    // Check if the register is marked as read-only
+    if (REG_MBK9 & BIT(slot + 8))
+        return -1;
+
+    if (enable)
+        REG_MBK2[slot] = NWRAM_BC_SLOT_ENABLE | master | NWRAM_BC_SLOT_OFFSET(offset);
+    else
+        REG_MBK2[slot] = 0;
+
+    return 0;
 }
 
-void nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable)
+int nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable)
 {
     if (slot < 0 || slot > 7 || offset < 0 || offset > 7)
-        return;
+        return -1;
 
-    REG_MBK4[slot] = enable ?
-        (NWRAM_BC_SLOT_ENABLE | master | NWRAM_BC_SLOT_OFFSET(offset)) : 0;
+    // Check if the register is marked as read-only
+    if (REG_MBK9 & BIT(slot + 16))
+        return -1;
+
+    if (enable)
+        REG_MBK4[slot] = NWRAM_BC_SLOT_ENABLE | master | NWRAM_BC_SLOT_OFFSET(offset);
+    else
+        REG_MBK4[slot] = 0;
+
+    return 0;
 }
+
 #endif // ARM9

@@ -110,7 +110,8 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
 /// @param master Owner of the slot (ARM7, ARM9 or DSP).
 /// @param offset Offset of the slot.
 /// @param enable true to enable the slot, false to disable it.
-void nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool enable);
+/// @return Returns 0 on success, a negative number on failure.
+int nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool enable);
 
 /// Maps a slot of WRAM slot B to the specified CPU.
 ///
@@ -118,7 +119,8 @@ void nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool en
 /// @param master Owner of the slot (ARM7, ARM9 or DSP).
 /// @param offset Offset of the slot.
 /// @param enable true to enable the slot, false to disable it.
-void nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool enable);
+/// @return Returns 0 on success, a negative number on failure.
+int nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool enable);
 
 /// Maps a slot of WRAM slot C to the specified CPU.
 ///
@@ -126,7 +128,8 @@ void nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool en
 /// @param master Owner of the slot (ARM7, ARM9 or DSP).
 /// @param offset Offset of the slot.
 /// @param enable true to enable the slot, false to disable it.
-void nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable);
+/// @return Returns 0 on success, a negative number on failure.
+int nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable);
 
 #endif // ARM9
 
