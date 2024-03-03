@@ -215,7 +215,7 @@ static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
     src = (const void *)0x027FFE04;
 #else
     DMA_FILL(3) = value;
-    src = (const void *)&DMA_FILL(3);
+    src = (const void *)(uintptr_t)&DMA_FILL(3);
 #endif
     dmaSetParams(3, src, dest, DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2));
     while (DMA_CR(3) & DMA_BUSY);
@@ -235,7 +235,7 @@ static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
     src = (const void *)0x027FFE04;
 #else
     DMA_FILL(3) = value;
-    src = (const void *)&DMA_FILL(3);
+    src = (const void *)(uintptr_t)&DMA_FILL(3);
 #endif
     dmaSetParams(3, src, dest, DMA_SRC_FIX | DMA_COPY_HALFWORDS | (size >> 1));
     while (DMA_CR(3) & DMA_BUSY);
