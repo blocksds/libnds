@@ -127,7 +127,7 @@ void dspPowerOff(void);
 /// Possible error codes returned by dspExecuteTLF() and dspExecuteDefaultTLF().
 typedef enum {
     DSP_EXEC_OK = 0,            ///< No error
-    DSP_NOT_AVAILABLE = -1,     ///< DSP or NWRAM not available in REG_SCFG_EXT
+    DSP_NOT_AVAILABLE = -1,     ///< DSP or NWRAM not available in SCFG_EXT or MBK9
     DSP_TLF_BAD_MAGIC = -2,     ///< Invalid TLF magic value
     DSP_TLF_BAD_VERSION = -3,   ///< Invalid TLF version
 } DSPExecResult;

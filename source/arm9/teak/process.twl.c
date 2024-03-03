@@ -30,7 +30,7 @@ static void *dspToArm9Address(bool isCodePtr, u32 addr)
             + slot * NWRAM_BC_SLOT_SIZE + offs;
 }
 
-static void dspSetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
+static int dspSetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
 {
     addr = DSP_MEM_ADDR_TO_CPU(addr);
     len = DSP_MEM_ADDR_TO_CPU(len < 1 ? 1 : len);
@@ -44,20 +44,27 @@ static void dspSetMemoryMapping(bool isCode, u32 addr, u32 len, bool toDsp)
         if ((segBits & (1 << i)) == 0)
             continue;
 
+        int ret;
+
         int slot = isCode ? _codeSlots[i] : _dataSlots[i];
         if (isCode)
         {
-            nwramMapWramBSlot(slot,
+            ret = nwramMapWramBSlot(slot,
                 toDsp ? NWRAM_B_SLOT_MASTER_DSP_CODE : NWRAM_B_SLOT_MASTER_ARM9,
                 toDsp ? i : slot, true);
         }
         else
         {
-            nwramMapWramCSlot(slot,
+            ret = nwramMapWramCSlot(slot,
                 toDsp ? NWRAM_C_SLOT_MASTER_DSP_DATA : NWRAM_C_SLOT_MASTER_ARM9,
                 toDsp ? i : slot, true);
         }
+
+        if (ret < 0)
+            return - 1;
     }
+
+    return 0;
 }
 
 DSPExecResult dspExecuteTLF(const void *tlf)
@@ -88,7 +95,8 @@ DSPExecResult dspExecuteTLF(const void *tlf)
         _codeSlots[i] = i;
         _dataSlots[i] = i;
 
-        nwramMapWramBSlot(i, NWRAM_B_SLOT_MASTER_ARM9, i, true);
+        if (nwramMapWramBSlot(i, NWRAM_B_SLOT_MASTER_ARM9, i, true) < 0)
+            return DSP_NOT_AVAILABLE;
 
         u32 *slot = (u32 *)(nwramGetBlockAddress(NWRAM_BLOCK_B)
                   + i * NWRAM_BC_SLOT_SIZE);
@@ -96,7 +104,8 @@ DSPExecResult dspExecuteTLF(const void *tlf)
         for (int j = 0; j < (NWRAM_BC_SLOT_SIZE >> 2); j++)
             *slot++ = 0;
 
-        nwramMapWramCSlot(i, NWRAM_C_SLOT_MASTER_ARM9, i, true);
+        if (nwramMapWramCSlot(i, NWRAM_C_SLOT_MASTER_ARM9, i, true) < 0)
+            return DSP_NOT_AVAILABLE;
 
         slot = (u32 *)(nwramGetBlockAddress(NWRAM_BLOCK_C)
              + i * NWRAM_BC_SLOT_SIZE);
@@ -114,10 +123,13 @@ DSPExecResult dspExecuteTLF(const void *tlf)
         memcpy(dspToArm9Address(isCode, section->address), data, section->size);
     }
 
-    dspSetMemoryMapping(true, 0,
-            (NWRAM_BC_SLOT_SIZE * NWRAM_BC_SLOT_COUNT) >> 1, true);
-    dspSetMemoryMapping(false, 0,
-            (NWRAM_BC_SLOT_SIZE * NWRAM_BC_SLOT_COUNT) >> 1, true);
+    if (dspSetMemoryMapping(true, 0,
+            (NWRAM_BC_SLOT_SIZE * NWRAM_BC_SLOT_COUNT) >> 1, true) != 0)
+        return DSP_NOT_AVAILABLE;
+
+    if (dspSetMemoryMapping(false, 0,
+            (NWRAM_BC_SLOT_SIZE * NWRAM_BC_SLOT_COUNT) >> 1, true) != 0)
+        return DSP_NOT_AVAILABLE;
 
     // Boot the DSP
     dspPowerOn();
