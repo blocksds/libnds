@@ -27,19 +27,19 @@ void decompress(const void *data, void *dst, DecompressType type)
     switch (type)
     {
         case LZ77Vram:
-            swiDecompressLZSSVram((void *)data, (void *)dst, 0, &decomStream);
+            swiDecompressLZSSVram(data, dst, 0, &decomStream);
             break;
         case LZ77:
-            swiDecompressLZSSWram((void *)data, (void *)dst);
+            swiDecompressLZSSWram(data, dst);
             break;
         case HUFF:
-            swiDecompressHuffman((void *)data, (void *)dst, 0, &decomStream);
+            swiDecompressHuffman(data, dst, 0, &decomStream);
             break;
         case RLE:
-            swiDecompressRLEWram((void *)data, (void *)dst);
+            swiDecompressRLEWram(data, dst);
             break;
         case RLEVram:
-            swiDecompressRLEVram((void *)data, (void *)dst, 0, &decomStream);
+            swiDecompressRLEVram(data, dst, 0, &decomStream);
             break;
         default:
             break;
@@ -59,13 +59,13 @@ void decompressStream(const void *data, void *dst, DecompressType type,
     switch (type)
     {
         case LZ77Vram:
-            swiDecompressLZSSVram((void *)data, (void *)dst, 0, &decompresStream);
+            swiDecompressLZSSVram(data, dst, 0, &decompresStream);
             break;
         case HUFF:
-            swiDecompressHuffman((void *)data, (void *)dst, 0, &decompresStream);
+            swiDecompressHuffman(data, dst, 0, &decompresStream);
             break;
         case RLEVram:
-            swiDecompressRLEVram((void *)data, (void *)dst, 0, &decompresStream);
+            swiDecompressRLEVram(data, dst, 0, &decompresStream);
             break;
         default:
             break;

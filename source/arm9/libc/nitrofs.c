@@ -393,9 +393,10 @@ int nitrofs_chdir(const char *path)
 {
     if (!nitrofs_local.fnt_offset)
         return FR_NO_FILESYSTEM;
-    
-    int32_t res = nitrofs_path_resolve((char*) path);
-    if (res < 0) return FR_NO_PATH;
+
+    int32_t res = nitrofs_path_resolve(path);
+    if (res < 0)
+        return FR_NO_PATH;
     nitrofs_local.current_dir = res;
     return FR_OK;
 }

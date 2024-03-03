@@ -16,9 +16,9 @@ bool loadPCX(const unsigned char *pcx, sImage *image)
     //     unsigned char b,g,r;
     // };
 
-    RGB_24 *pal;
+    const RGB_24 *pal;
 
-    PCXHeader *hdr = (PCXHeader *)pcx;
+    const PCXHeader *hdr = (const PCXHeader *)pcx;
 
     pcx += sizeof(PCXHeader);
 
@@ -82,7 +82,7 @@ bool loadPCX(const unsigned char *pcx, sImage *image)
 
     pcx++;
 
-    pal = (RGB_24 *)(pcx);
+    pal = (const RGB_24 *)(pcx);
 
     image->bpp = 8;
 

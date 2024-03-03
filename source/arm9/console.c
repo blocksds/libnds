@@ -174,7 +174,7 @@ ssize_t nocash_write(const char *ptr, size_t len)
 
 static ssize_t con_write(const char *ptr, size_t len)
 {
-    char *tmp = (char *)ptr;
+    const char *tmp = ptr;
 
     if (!tmp || len <= 0)
         return -1;
@@ -192,7 +192,7 @@ static ssize_t con_write(const char *ptr, size_t len)
         if (chr == 0x1b && *tmp == '[')
         {
             bool escaping = true;
-            char *escapeseq = tmp;
+            const char *escapeseq = tmp;
             int escapelen = 0;
 
             do

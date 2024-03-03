@@ -156,8 +156,8 @@ s32 tanLerp(s16 angle)
 
 int asinComp(const void *a, const void *b)
 {
-    u16 par = (*(u16 *)a);
-    u16 *lut = (u16 *)b;
+    u16 par = (*(const u16 *)a);
+    const u16 *lut = b;
 
     if (par == lut[0] || (par > lut[0] && par < lut[1]))
         return 0;
@@ -214,8 +214,8 @@ s16 acosLerp(s16 par)
 
 int atanComp(const void *a, const void *b)
 {
-    s32 par = (*(s32 *)a);
-    s32 *lut = (s32 *)b;
+    s32 par = (*(const s32 *)a);
+    const s32 *lut = b;
 
     if (par == lut[0] || (par > lut[0] && par < lut[1]))
         return 0;

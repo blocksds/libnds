@@ -108,7 +108,7 @@ void cdcWriteRegMask(u8 bank, u8 reg, u8 mask, u8 value)
 
 void cdcWriteRegArray(u8 bank, u8 reg, const void *data, u8 size)
 {
-    const u8 *in = (u8 *)data;
+    const u8 *in = data;
     bankSwitchTSC(bank);
 
     SerialWaitBusy();

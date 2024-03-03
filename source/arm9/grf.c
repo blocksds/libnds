@@ -52,7 +52,7 @@ static GRFError grfExtract(const void *src, void **dst, size_t *sz)
     // The header of this data is the header used for all GBA/NDS BIOS
     // decompression routines. Uncompressed chunks also use the same format for
     // consistency.
-    uint32_t header = *(uint32_t *)src;
+    uint32_t header = *(const uint32_t *)src;
     uint32_t size = header >> 8;
 
     if (sz != NULL)
@@ -69,7 +69,7 @@ static GRFError grfExtract(const void *src, void **dst, size_t *sz)
     switch (header & 0xF0)
     {
         case 0x00: // No compression
-            swiCopy((uint8_t *)src + 4, *dst,
+            swiCopy((const uint8_t *)src + 4, *dst,
                     COPY_MODE_HWORD | COPY_MODE_COPY | (size >> 1));
             return GRF_NO_ERROR;
         case 0x10: // LZ77

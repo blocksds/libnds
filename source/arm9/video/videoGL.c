@@ -1473,7 +1473,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
         if (type == GL_RGB)
         {
-            uint16_t *src = (uint16_t *)texture;
+            const uint16_t *src = texture;
             uint16_t *dest = (uint16_t *)tex->vramAddr;
             size >>= 1;
             while (size--)
@@ -1488,9 +1488,9 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
             dmaCopyWords(0, texture, tex->vramAddr, size);
             if (type == GL_COMPRESSED)
             {
-                DC_FlushRange((char *)texture + tex->texSize, size >> 1);
+                DC_FlushRange((const char *)texture + tex->texSize, size >> 1);
                 vramSetBankB(VRAM_B_LCD);
-                dmaCopyWords(0, (char *)texture + tex->texSize,
+                dmaCopyWords(0, (const char *)texture + tex->texSize,
                              vramBlock_getAddr(glGlob->vramBlocks[0], tex->texIndexExt),
                              size >> 1);
             }
