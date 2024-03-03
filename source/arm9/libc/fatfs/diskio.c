@@ -165,7 +165,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
                 }
                 else
                 {
-                    void *cache = cache_sector_add(pdrv, sector);
+                    cache = cache_sector_add(pdrv, sector);
 
                     if (!io->readSectors(sector, 1, cache))
                         return RES_ERROR;

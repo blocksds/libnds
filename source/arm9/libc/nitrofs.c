@@ -405,82 +405,82 @@ int nitrofs_chdir(const char *path)
 
 ssize_t nitrofs_read(int fd, void *ptr, size_t len)
 {
-    nitrofs_file_t *fp = (nitrofs_file_t*) FD_DESC(fd);
-    size_t remaining = fp->endofs - fp->position;
+    nitrofs_file_t *f = (nitrofs_file_t*) FD_DESC(fd);
+    size_t remaining = f->endofs - f->position;
     if (len > remaining)
         len = remaining;
     if (len == 0)
         return 0;
-    ssize_t result = nitrofs_read_internal(ptr, fp->position, len);
+    ssize_t result = nitrofs_read_internal(ptr, f->position, len);
     if (result <= 0)
         return result;
-    fp->position += result;
+    f->position += result;
     return result;
 }
 
 off_t nitrofs_lseek(int fd, off_t offset, int whence)
 {
-    nitrofs_file_t *fp = (nitrofs_file_t*) FD_DESC(fd);
+    nitrofs_file_t *f = (nitrofs_file_t*) FD_DESC(fd);
     size_t new_position;
 
     if (whence == SEEK_END)
-        new_position = fp->endofs + offset;
+        new_position = f->endofs + offset;
     else if (whence == SEEK_CUR)
-        new_position = fp->position + offset;
+        new_position = f->position + offset;
     else if (whence == SEEK_SET)
-        new_position = fp->offset + offset;
+        new_position = f->offset + offset;
     else
     {
         errno = EINVAL;
         return (off_t)-1;
     }
 
-    if (new_position < fp->offset)
-        new_position = fp->offset;
-    else if (new_position > fp->endofs)
-        new_position = fp->endofs;
-    fp->position = new_position;
-    return new_position - fp->offset;
+    if (new_position < f->offset)
+        new_position = f->offset;
+    else if (new_position > f->endofs)
+        new_position = f->endofs;
+    f->position = new_position;
+    return new_position - f->offset;
 }
 
 int nitrofs_close(int fd)
 {
-    nitrofs_file_t *fp = (nitrofs_file_t*) FD_DESC(fd);
-    free(fp);
+    nitrofs_file_t *f = (nitrofs_file_t*) FD_DESC(fd);
+    free(f);
     return 0;
 }
 
-static int nitrofs_open_by_id(nitrofs_file_t *fp, uint16_t id)
+static int nitrofs_open_by_id(nitrofs_file_t *f, uint16_t id)
 {
     if (id >= 0xF000)
     {
         // not a file
         return -1;
     }
-    nitrofs_read_internal(fp, nitrofs_local.fat_offset + (id * 8), 8);
-    fp->position = fp->offset;
-    fp->file_index = id;
+    nitrofs_read_internal(f, nitrofs_local.fat_offset + (id * 8), 8);
+    f->position = f->offset;
+    f->file_index = id;
     return 0;
 }
 
 int nitroFSOpenById(uint16_t id)
 {
-    nitrofs_file_t *fp = malloc(sizeof(nitrofs_file_t));
-    if (fp == NULL)
+    nitrofs_file_t *f = malloc(sizeof(nitrofs_file_t));
+    if (f == NULL)
     {
         errno = ENOMEM;
         return -1;
     }
 
-    int32_t res = nitrofs_open_by_id(fp, id);
+    int32_t res = nitrofs_open_by_id(f, id);
     if (res < 0)
     {
-        free(fp);
+        free(f);
         errno = ENOENT;
         return -1;
     }
 
-    return FD_DESC(fp) | (FD_TYPE_NITRO << 28);
+    return FD_DESC(f) | (FD_TYPE_NITRO << 28);
 }
 
 FILE *nitroFSFopenById(uint16_t id, const char *mode)
@@ -508,12 +508,12 @@ int nitrofs_open(const char *name)
     return nitroFSOpenById(res);
 }
 
-static int nitrofs_stat_file_internal(nitrofs_file_t *fp, struct stat *st)
+static int nitrofs_stat_file_internal(nitrofs_file_t *f, struct stat *st)
 {
     // On NitroFS, st_dev is always 128, while st_ino is the file's unique ID.
     st->st_dev = 128;
-    st->st_ino = fp->file_index;
-    st->st_size = fp->endofs - fp->offset;
+    st->st_ino = f->file_index;
+    st->st_size = f->endofs - f->offset;
     st->st_blksize = 0x200;
     st->st_blocks = (st->st_size + 0x200 - 1) / 0x200;
     st->st_mode = S_IFREG;
@@ -529,7 +529,7 @@ int nitrofs_stat(const char *name, struct stat *st)
         return -1;
     }
 
-    nitrofs_file_t fp;
+    nitrofs_file_t f;
     int32_t res = nitrofs_path_resolve(name);
     if (res < 0)
     {
@@ -543,19 +543,19 @@ int nitrofs_stat(const char *name, struct stat *st)
         st->st_mode = S_IFDIR;
         return 0;
     }
-    res = nitrofs_open_by_id(&fp, res);
+    res = nitrofs_open_by_id(&f, res);
     if (res < 0)
     {
         errno = ENOENT;
         return -1;
     }
-    return nitrofs_stat_file_internal(&fp, st);
+    return nitrofs_stat_file_internal(&f, st);
 }
 
 int nitrofs_fstat(int fd, struct stat *st)
 {
-    nitrofs_file_t *fp = (nitrofs_file_t*) FD_DESC(fd);
-    return nitrofs_stat_file_internal(fp, st);
+    nitrofs_file_t *f = (nitrofs_file_t *) FD_DESC(fd);
+    return nitrofs_stat_file_internal(f, st);
 }
 
 /// Initialization

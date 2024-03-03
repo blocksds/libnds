@@ -74,7 +74,7 @@ VoidFn setPowerButtonCB(VoidFn CB)
 }
 #endif
 
-static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 max)
+static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable_[], u32 max)
 {
     if (mask == 0)
         return;
@@ -83,15 +83,15 @@ static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable[], u32 ma
 
     for (i = 0; i < max; i++)
     {
-        if (!irqTable[i].mask || irqTable[i].mask == mask)
+        if (!irqTable_[i].mask || irqTable_[i].mask == mask)
             break;
     }
 
     if (i == max)
         return;
 
-    irqTable[i].handler = handler;
-    irqTable[i].mask = mask;
+    irqTable_[i].handler = handler;
+    irqTable_[i].mask = mask;
 }
 
 void irqSet(u32 mask, IntFn handler)
@@ -185,20 +185,20 @@ void irqDisable(uint32_t irq)
     leaveCriticalSection(oldIME);
 }
 
-static void __irqClear(u32 mask, struct IntTable irqTable[], u32 max)
+static void __irqClear(u32 mask, struct IntTable irqTable_[], u32 max)
 {
     u32 i = 0;
 
     for (i = 0; i < max; i++)
     {
-        if (irqTable[i].mask == mask)
+        if (irqTable_[i].mask == mask)
             break;
     }
 
     if (i == max)
         return;
 
-    irqTable[i].handler = irqDummy;
+    irqTable_[i].handler = irqDummy;
 }
 
 void irqClear(u32 mask)

@@ -435,7 +435,7 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
     {
         u32 data = FIFO_BUFFER_DATA(block);
 
-        for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
         {
             if (copied_bytes < buffersize)
             {

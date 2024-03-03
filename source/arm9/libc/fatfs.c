@@ -366,23 +366,23 @@ int fatInitLookupCache(int fd, uint32_t max_buffer_size)
     if (FD_IS_NITRO(fd))
         return FAT_INIT_LOOKUP_CACHE_NOT_SUPPORTED;
 
-    FIL *fp = (FIL *) fd;
-    if (fp->cltbl != NULL)
+    FIL *f = (FIL *) fd;
+    if (f->cltbl != NULL)
         return FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED;
 
-    fp->cltbl = malloc(max_buffer_size);
-    if (fp->cltbl == NULL)
+    f->cltbl = malloc(max_buffer_size);
+    if (f->cltbl == NULL)
         return FAT_INIT_LOOKUP_CACHE_OUT_OF_MEMORY;
-    fp->cltbl[0] = max_buffer_size / sizeof(DWORD);
+    f->cltbl[0] = max_buffer_size / sizeof(DWORD);
 
-    FRESULT ret = f_lseek(fp, CREATE_LINKMAP);
+    FRESULT ret = f_lseek(f, CREATE_LINKMAP);
     if (ret == FR_NOT_ENOUGH_CORE) {
-        return fp->cltbl[0];
+        return f->cltbl[0];
     }
 
-    DWORD* new_cltbl = realloc(fp->cltbl, fp->cltbl[0] * sizeof(DWORD));
+    DWORD *new_cltbl = realloc(f->cltbl, f->cltbl[0] * sizeof(DWORD));
     if (new_cltbl != NULL)
-        fp->cltbl = new_cltbl;
+        f->cltbl = new_cltbl;
 
     return 0;
 }

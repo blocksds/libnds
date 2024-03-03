@@ -37,7 +37,7 @@ static inline void SPI_Off(void)
 // Volatile GBA bus SRAM for reading from DS Motion Pak
 #define V_SRAM ((volatile unsigned char *)0x0A000000)
 
-int card_type = -1;
+static int card_type = -1;
 
 // these are the default calibration values for sensitivity and offset
 MotionCalibration calibration = { 2048, 2048, 2048, 1680, 819, 819, 819, 825 };
@@ -129,9 +129,9 @@ int motion_card_is_inserted(void)
 
 // Turn on the DS Motion Sensor (DS Motion Pak or DS Motion Card)
 // Requires knowing which type is present (can be found by using motion_init)
-int motion_enable(int card_type)
+int motion_enable(int card_type_)
 {
-    switch (card_type)
+    switch (card_type_)
     {
         case 1: // DS Motion Pak - automatically enabled on powerup
             // Check to see whether Motion Pak is alive

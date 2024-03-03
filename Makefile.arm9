@@ -83,7 +83,7 @@ DEFINES		+= -D__NDS__ -DARM9
 
 ARCH		:= -mcpu=arm946e-s+nofp
 
-WARNFLAGS	:= -Wall -Wextra -Wpedantic -Wstrict-prototypes
+WARNFLAGS	:= -Wall -Wextra -Wpedantic -Wstrict-prototypes -Wshadow
 
 INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 		   $(foreach path,$(LIBDIRS),-I$(path)/include)
