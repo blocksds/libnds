@@ -140,7 +140,7 @@ typedef uint32_t sec_t;
 typedef void (* VoidFn)(void);
 
 typedef void (* IntFn)(void);
-typedef void (* fp)(void);
+__attribute__((deprecated)) typedef void (* fp)(void);
 
 #ifdef __cplusplus
 }
