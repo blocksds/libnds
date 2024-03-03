@@ -70,15 +70,16 @@ typedef struct
     vu32 sd_fifo32;           // 0x10C Note: This is in the FIFO region on ARM11 (3DS).
 } Tmio;
 #if __STDC_VERSION__ >= 201112L // C11
-static_assert(offsetof(Tmio, sd_fifo32) == 0x10C, "Error: Member sd_fifo32 of Tmio is not at offset 0x10C!");
+static_assert(offsetof(Tmio, sd_fifo32) == 0x10C,
+              "Error: Member sd_fifo32 of Tmio is not at offset 0x10C!");
 #endif
 
-__attribute__((always_inline)) static inline Tmio* getTmioRegs(const u8 controller)
+static inline Tmio* getTmioRegs(const u8 controller)
 {
-    return (controller == 0 ? (Tmio*)TMIO1_REGS_BASE : (Tmio*)TMIO2_REGS_BASE);
+    return (controller == 0 ? (Tmio *)TMIO1_REGS_BASE : (Tmio *)TMIO2_REGS_BASE);
 }
 
-__attribute__((always_inline)) static inline vu32* getTmioFifo(Tmio *const regs)
+static inline vu32* getTmioFifo(Tmio *const regs)
 {
     return &regs->sd_fifo32;
 }
@@ -174,12 +175,12 @@ __attribute__((always_inline)) static inline vu32* getTmioFifo(Tmio *const regs)
 
 // Outputs the matching divider for clk.
 // Shift the output right by 2 to get the value for REG_SD_CLK_CTRL.
-__attribute__((always_inline)) static inline u32 TMIO_CLK2DIV(u32 clk)
+static inline u32 TMIO_CLK2DIV(u32 clk)
 {
     u32 __shift = 1;
     while (clk < (TMIO_HCLK >> __shift))
         ++__shift;
-    return 1u<<__shift;
+    return 1u << __shift;
 }
 
 // Clock off by default.
@@ -352,9 +353,9 @@ u32 TMIO_sendCommand(TmioPort *const port, const u16 cmd, const u32 arg);
 ///
 /// @param     port A pointer to the port struct.
 /// @param[in] clk  The target clock in Hz.
-__attribute__((always_inline)) static inline void TMIO_setClock(TmioPort *const port, const u32 clk)
+static inline void TMIO_setClock(TmioPort *const port, const u32 clk)
 {
-    port->sd_clk_ctrl = SD_CLK_AUTO_OFF | SD_CLK_EN | TMIO_CLK2DIV(clk)>>2;
+    port->sd_clk_ctrl = SD_CLK_AUTO_OFF | SD_CLK_EN | TMIO_CLK2DIV(clk) >> 2;
 }
 
 /// Sets the transfer block length for a tmio port.
@@ -362,9 +363,10 @@ __attribute__((always_inline)) static inline void TMIO_setClock(TmioPort *const 
 /// @param     port     A pointer to the port struct.
 /// @param[in] blockLen The block length. Caution: Provide a buffer with
 ///                     multiple of 4 size regardless of block length.
-__attribute__((always_inline)) static inline void TMIO_setBlockLen(TmioPort *const port, u16 blockLen)
+static inline void TMIO_setBlockLen(TmioPort *const port, u16 blockLen)
 {
-    if(blockLen > 512) blockLen = 512;
+    if (blockLen > 512)
+        blockLen = 512;
 
     port->sd_blocklen = blockLen;
 }
@@ -373,7 +375,7 @@ __attribute__((always_inline)) static inline void TMIO_setBlockLen(TmioPort *con
 ///
 /// @param     port  A pointer to the port struct.
 /// @param[in] width The bus width.
-__attribute__((always_inline)) static inline void TMIO_setBusWidth(TmioPort *const port, const u8 width)
+static inline void TMIO_setBusWidth(TmioPort *const port, const u8 width)
 {
     port->sd_option = (width == 4 ? SD_OPTION_BUS_WIDTH4 : SD_OPTION_BUS_WIDTH1) |
                       SD_OPTION_UNK14 | SD_OPTION_DEFAULT_TIMINGS;
@@ -384,7 +386,7 @@ __attribute__((always_inline)) static inline void TMIO_setBusWidth(TmioPort *con
 /// @param     port   A pointer to the port struct.
 /// @param     buf    The buffer pointer.
 /// @param[in] blocks The number of blocks to transfer.
-__attribute__((always_inline)) static inline void TMIO_setBuffer(TmioPort *const port, void *buf, const u16 blocks)
+static inline void TMIO_setBuffer(TmioPort *const port, void *buf, const u16 blocks)
 {
     port->buf    = buf;
     port->blocks = blocks;
