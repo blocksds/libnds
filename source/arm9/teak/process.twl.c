@@ -147,8 +147,6 @@ DSPExecResult dspExecuteDefaultTLF(const void *tlf)
     // Power DSP off before making any changes
     dspPowerOff();
 
-    nwramSetBlockMapping(NWRAM_BLOCK_A, NWRAM_BASE, 0, NWRAM_BLOCK_IMAGE_SIZE_32K);
-
     // Map NWRAM to copy the DSP code
     nwramSetBlockMapping(NWRAM_BLOCK_B, 0x03000000, 256 * 1024,
                          NWRAM_BLOCK_IMAGE_SIZE_256K);
