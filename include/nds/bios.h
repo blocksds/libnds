@@ -73,7 +73,7 @@ typedef struct UnpackStruct
     uint8_t sourceWidth; ///< 1,2,4 or 8 bits.
     uint8_t destWidth;   ///< 1,2,4,8,16 or 32 bits.
     uint32_t dataOffset; ///< bits 0-30 are added to all non-zero destination writes, unless bit 31 is set, which does it for zeros too.
-} PACKED TUnpackStruct, * PUnpackStruct;
+} PACKED TUnpackStruct, __attribute__((deprecated)) * PUnpackStruct;
 
 /// Resets the DS.
 __attribute__((always_inline))
@@ -242,11 +242,11 @@ static inline int swiIsDebugger(void)
 /// @param destination Destination address (word aligned).
 /// @param params Pointer to an UnpackStruct.
 __attribute__((always_inline))
-static inline void swiUnpackBits(const uint8_t *source, uint32_t *destination, PUnpackStruct params)
+static inline void swiUnpackBits(const uint8_t *source, uint32_t *destination, TUnpackStruct *params)
 {
     register const uint8_t* r0 asm("r0") = source;
     register uint32_t* r1 asm("r1") = destination;
-    register const PUnpackStruct* r2 asm("r2") = &params;
+    register const TUnpackStruct* r2 asm("r2") = params;
     asm volatile inline ("swi 0x10 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2) :: "r3", "memory");
 }
 
