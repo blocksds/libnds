@@ -27,6 +27,7 @@ extern "C" {
 #define sassert(e, ...) ((e) ? (void)0 : __sassert (__FILE__, __LINE__, #e, __VA_ARGS__))
 #endif // NDEBUG
 
+__attribute__((noreturn))
 void __sassert(const char *fileName, int lineNumber, const char *conditionString,
                const char *format, ...) __attribute__((format(printf, 4, 5)));
 

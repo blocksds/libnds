@@ -16,6 +16,7 @@
 #include <nds/input.h>
 #include <nds/interrupts.h>
 
+__attribute__((noreturn))
 void __sassert(const char *fileName, int lineNumber, const char *conditionString,
                const char *format, ...)
 {
