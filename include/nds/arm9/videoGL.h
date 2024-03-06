@@ -526,7 +526,7 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
         case 1024:
             return TEXTURE_SIZE_1024;
         default:
-            return -1;
+            return (enum GL_TEXTURE_SIZE_ENUM)-1;
     }
 }
 
