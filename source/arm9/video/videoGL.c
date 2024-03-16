@@ -28,7 +28,7 @@ gl_hidden_globals *glGetGlobals(void)
     return &glGlobalData;
 }
 
-void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z)
+ARM_CODE void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z)
 {
     int32_t axis[3];
     int32_t sin = sinLerp(angle);
@@ -84,7 +84,7 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color)
     GFX_SPECULAR_EMISSION = specular_emission;
 }
 
-void glTexCoord2f32(int32_t u, int32_t v)
+ARM_CODE void glTexCoord2f32(int32_t u, int32_t v)
 {
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
 
