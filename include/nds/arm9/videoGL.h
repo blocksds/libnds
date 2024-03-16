@@ -1180,29 +1180,7 @@ static inline void glRotateZi(int angle)
 /// @param top Top vertical clipping plane.
 /// @param zNear Near clipping plane.
 /// @param zFar Far clipping plane.
-static inline void glOrthof32(int left, int right, int bottom, int top,
-                              int zNear, int zFar)
-{
-    MATRIX_MULT4x4 = divf32(inttof32(2), right - left);
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = divf32(inttof32(2), top - bottom);
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = divf32(inttof32(-2), zFar - zNear);
-    MATRIX_MULT4x4 = 0;
-
-    MATRIX_MULT4x4 = -divf32(right + left, right - left);
-    MATRIX_MULT4x4 = -divf32(top + bottom, top - bottom);
-    MATRIX_MULT4x4 = -divf32(zFar + zNear, zFar - zNear);
-    MATRIX_MULT4x4 = floattof32(1.0f);
-}
+void glOrthof32(int left, int right, int bottom, int top, int zNear, int zFar);
 
 /// Places the camera at the specified location and orientation (fixed point
 /// version).
@@ -1219,50 +1197,9 @@ static inline void glOrthof32(int left, int right, int bottom, int top,
 ///            the camera.
 /// @param upz <upx, upy, upz> Unit vector describing which direction is up for
 ///            the camera.
-static inline void gluLookAtf32(int eyex, int eyey, int eyez,
-                                int lookAtx, int lookAty, int lookAtz,
-                                int upx, int upy, int upz)
-{
-    int32_t side[3], forward[3], up[3], eye[3];
-
-    forward[0] = eyex - lookAtx;
-    forward[1] = eyey - lookAty;
-    forward[2] = eyez - lookAtz;
-
-    normalizef32(forward);
-
-    up[0] = upx;
-    up[1] = upy;
-    up[2] = upz;
-    eye[0] = eyex;
-    eye[1] = eyey;
-    eye[2] = eyez;
-
-    crossf32(up, forward, side);
-
-    normalizef32(side);
-
-    // Recompute local up
-    crossf32(forward, side, up);
-
-    glMatrixMode(GL_MODELVIEW);
-
-    MATRIX_MULT4x3 = side[0];
-    MATRIX_MULT4x3 = up[0];
-    MATRIX_MULT4x3 = forward[0];
-
-    MATRIX_MULT4x3 = side[1];
-    MATRIX_MULT4x3 = up[1];
-    MATRIX_MULT4x3 = forward[1];
-
-    MATRIX_MULT4x3 = side[2];
-    MATRIX_MULT4x3 = up[2];
-    MATRIX_MULT4x3 = forward[2];
-
-    MATRIX_MULT4x3 = -dotf32(eye,side);
-    MATRIX_MULT4x3 = -dotf32(eye,up);
-    MATRIX_MULT4x3 = -dotf32(eye,forward);
-}
+void gluLookAtf32(int eyex, int eyey, int eyez,
+                  int lookAtx, int lookAty, int lookAtz,
+                  int upx, int upy, int upz);
 
 /// Specifies the viewing frustum for the projection matrix (fixed point
 /// version).
@@ -1275,29 +1212,7 @@ static inline void gluLookAtf32(int eyex, int eyey, int eyez,
 ///             window).
 /// @param far Location of a the far clipping plane (parallel to viewing
 ///            window).
-static inline void glFrustumf32(int left, int right, int bottom, int top,
-                                int near, int far)
-{
-    MATRIX_MULT4x4 = divf32(2 * near, right - left);
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = divf32(2 * near, top - bottom);
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-
-    MATRIX_MULT4x4 = divf32(right + left, right - left);
-    MATRIX_MULT4x4 = divf32(top + bottom, top - bottom);
-    MATRIX_MULT4x4 = -divf32(far + near, far - near);
-    MATRIX_MULT4x4 = floattof32(-1.0f);
-
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = -divf32(2 * mulf32(far, near), far - near);
-    MATRIX_MULT4x4 = 0;
-}
+void glFrustumf32(int left, int right, int bottom, int top, int near, int far);
 
 /// Utility function which sets up the projection matrix (fixed point version).
 ///
@@ -1306,18 +1221,7 @@ static inline void glFrustumf32(int left, int right, int bottom, int top,
 ///               width divided by screen height).
 /// @param zNear Specifies the near clipping plane.
 /// @param zFar Specifies the far clipping plane.
-static inline void gluPerspectivef32(int fovy, int aspect, int zNear, int zFar)
-{
-    int xmin, xmax, ymin, ymax;
-
-    ymax = mulf32(zNear, tanLerp(fovy >> 1));
-
-    ymin = -ymax;
-    xmin = mulf32(ymin, aspect);
-    xmax = mulf32(ymax, aspect);
-
-    glFrustumf32(xmin, xmax, ymin, ymax, zNear, zFar);
-}
+void gluPerspectivef32(int fovy, int aspect, int zNear, int zFar);
 
 /// Utility function which generates a picking matrix for selection.
 ///
@@ -1326,57 +1230,10 @@ static inline void gluPerspectivef32(int fovy, int aspect, int zNear, int zFar)
 /// @param width Width in pixels of the window (3 or 4 is a good number).
 /// @param height Height in pixels of the window (3 or 4 is a good number).
 /// @param viewport The current viewport (normally {0, 0, 255, 191}).
-static inline void gluPickMatrix(int x, int y, int width, int height,
-                                 const int viewport[4])
-{
-    MATRIX_MULT4x4 = inttof32(viewport[2]) / width;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = inttof32(viewport[3]) / height;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = inttof32(1);
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = inttof32(viewport[2] + ((viewport[0] - x) << 1)) / width;
-    MATRIX_MULT4x4 = inttof32(viewport[3] + ((viewport[1] - y) << 1)) / height;
-    MATRIX_MULT4x4 = 0;
-    MATRIX_MULT4x4 = inttof32(1);
-}
+void gluPickMatrix(int x, int y, int width, int height, const int viewport[4]);
 
 /// Resets matrix stack to top level
-static inline void glResetMatrixStack(void)
-{
-    // Make sure there are no push/pops that haven't executed yet
-    while(GFX_STATUS & GFX_STATUS_MATRIX_STACK_BUSY)
-    {
-        // Clear push/pop errors or push/pop busy bit never clears
-        GFX_STATUS |= GFX_STATUS_MATRIX_STACK_ERROR;
-    }
-
-    // Pop the projection stack to the top; poping 0 off an empty stack causes
-    // an error.
-    if ((GFX_STATUS & (1 << 13)) != 0)
-    {
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix(1);
-    }
-
-    // 31 deep modelview matrix; 32nd entry works but sets error flag
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix((GFX_STATUS >> 8) & 0x1F);
-
-    // Load identity to all the matrices
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-}
+void glResetMatrixStack(void);
 
 /// Specifies an edge color for polygons.
 ///
