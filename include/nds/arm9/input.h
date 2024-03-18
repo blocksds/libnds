@@ -54,7 +54,7 @@ uint32_t keysHeld(void);
 
 /// Obtains the current keypad pressed state.
 ///
-/// @return Bitmask of keys that have just been released.
+/// @return Bitmask of keys that have just been pressed.
 uint32_t keysDown(void);
 
 /// Obtains the current keypad pressed or repeating state.
