@@ -161,7 +161,7 @@ struct dirent *readdir(DIR *dirp)
     if (fno.fname[0] == '\0')
     {
         // End of directory reached
-        dirp->index = INDEX_NO_ENTRY;
+        dirp->index = INDEX_END_OF_DIRECTORY;
         errno = 0;
         return NULL;
     }
