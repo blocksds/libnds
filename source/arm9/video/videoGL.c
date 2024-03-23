@@ -1758,16 +1758,17 @@ void glTexCoord2f(float s, float t)
     }
 }
 
-void glCallList(const u32 *list)
+void glCallList(const void *list)
 {
     sassert(list != NULL, "glCallList received a null display list pointer");
 
-    u32 count = *list++;
+    const u32 *ptr = list;
+    u32 count = *ptr++;
 
     sassert(count != 0, "glCallList received a display list of size 0");
 
     // Flush the area that we are going to DMA
-    DC_FlushRange(list, count * 4);
+    DC_FlushRange(ptr, count * 4);
 
     // There is a hardware bug that affects DMA when there are multiple channels
     // active, under certain conditions. Instead of checking for said
@@ -1775,7 +1776,7 @@ void glCallList(const u32 *list)
     while (dmaBusy(0) || dmaBusy(1) || dmaBusy(2) || dmaBusy(3));
 
     // Send the packed list asynchronously via DMA to the FIFO
-    DMA_SRC(0) = (uint32_t)list;
+    DMA_SRC(0) = (uint32_t)ptr;
     DMA_DEST(0) = (uint32_t)&GFX_FIFO;
     DMA_CR(0) = DMA_FIFO | count;
     while (dmaBusy(0));

@@ -660,7 +660,7 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 /// packed list.
 ///
 /// @param list Pointer to the packed list.
-void glCallList(const u32 *list);
+void glCallList(const void *list);
 
 // Private: Initializes the GL state.
 int glInit_C(void);
