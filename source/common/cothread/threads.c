@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 
 #include <malloc.h>
 #include <stdbool.h>
@@ -15,6 +15,35 @@
 #include <nds/cothread.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
+
+// Generate a reference to __retarget_lock_acquire(). This will force the linker
+// to add the version of the function included in libnds.
+//
+// picolibc has a placeholder implementation of the __retarget_lock family of
+// functions. libnds has the actual implementation we need. This family of
+// functions is used in multithreaded environments by some libc functions
+// (stdio, malloc, etc).
+//
+// If we add this reference to libnds, the linker will take the functions from
+// libnds, even if they aren't directly used by libnds. Then, when picolibc is
+// linked, it won't try to find them again as they are already found. Note that
+// it's only required to add a reference to one of the symbols for the rest of
+// the symbols to be added correctly.
+//
+// If we don't add this reference to libnds, the linker will realize that
+// nothing in libnds uses the functions directly, and it will remove them. Then,
+// when picolibc is linked, it will detect that the functions are actually
+// called, but it will take them from picolibc (the placeholder version).
+//
+// For this reference trick to work, the file needs to always be linked in if
+// the library is used. Currently, cothread_start() is called from the crt0, and
+// the cothread functions are the ones that require the __retarget_lock
+// functions. By leaving this reference here, we only add the functions to
+// binaries that call cothread_start(). Currently, only the ARM9 has
+// multithreading enabled, while the ARM7 doesn't. This means that only the ARM9
+// binary will have the functions, not the ARM7, even if this file is common to
+// both CPUs.
+__asm__(".equ __retarget_lock_acquire_reference, __retarget_lock_acquire");
 
 #define DEFAULT_STACK_SIZE_CHILD (1 * 1024)
 
