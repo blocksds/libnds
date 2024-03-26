@@ -19,6 +19,7 @@
 /// - @ref nds/arm9/video.h "General video"
 /// - @ref nds/arm9/background.h "2D Background Layers"
 /// - @ref nds/arm9/sprite.h "2D Sprites"
+/// - @ref nds/arm9/window.h "Sprite and background windows"
 ///
 /// @section video_3D_api 3D engine API
 /// - @ref nds/arm9/videoGL.h "OpenGL (ish)"
@@ -41,7 +42,8 @@
 /// - @ref nds/nwram.h "DSi New WRAM"
 ///
 /// @section filesystem_api Storage Access
-/// - @ref nds/card.h "Slot-1 access functions"
+/// - @ref nds/card.h "Slot-1 common access functions"
+/// - @ref nds/arm9/card.h "Slot-1 ARM9 access functions"
 /// - @ref fat.h "Simple replacement of libfat"
 /// - @ref filesystem.h "NitroFS, filesystem embedded in a NDS ROM"
 /// - @ref nds/arm9/sdmmc.h "ARM9 SDMMC Module"
@@ -62,6 +64,8 @@
 /// - @ref nds/arm9/input.h "Keypad and touch pad"
 /// - @ref nds/arm9/keyboard.h "Keyboard"
 /// - @ref nds/arm9/console.h "Console and Debug Printing"
+/// - @ref nds/touch.h "Touch screen definitions"
+/// - @ref nds/input.h "Input definitions"
 ///
 /// @section dsp_api DSi Teak DSP Utilities
 /// - @ref nds/arm9/teak/dsp.h "DSP general utilities"
@@ -75,6 +79,7 @@
 /// - @ref nds/arm9/pcx.h "PCX file loader"
 /// - @ref nds/arm9/dynamicArray.h "General Purpose dynamic array implementation"
 /// - @ref nds/arm9/linkedlist.h "General purpose linked list implementation"
+/// - @ref nds/sha1.h "DSi SHA1 functions"
 ///
 /// @section peripheral_api Custom Peripherals
 /// - @ref nds/arm9/peripherals/slot2.h "Slot-2 peripheral detection, external RAM"
@@ -84,12 +89,15 @@
 /// - @ref nds/arm9/rumble.h "Slot-2 Rumble"
 /// - @ref nds/arm9/ndsmotion.h "DS Motion Card/Pak"
 /// - @ref nds/arm9/piano.h "DS Easy Piano"
+/// - @ref nds/arm9/paddle.h "Slot-2 Paddle controller"
+/// - @ref nds/arm9/guitarGrip.h "Slot-2 Guitar Grip controller"
 ///
 /// @section arm7 ARM7 modules
 /// - @ref nds/arm7/clock.h "RTC utilities"
 /// - @ref nds/arm7/input.h "Keypad and touch pad ARM7 helpers"
 /// - @ref nds/arm7/audio.h "Audio and microphone helpers"
 /// - @ref nds/arm7/tmio.h "TMIO ARM7 module"
+/// - @ref nds/arm7/gpio.h "DSi GPIO ARM7 definitions and helpers"
 ///
 /// @section debug_api Debugging
 /// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"

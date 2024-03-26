@@ -7,7 +7,7 @@
 
 /// @file nds/arm9/paddle.h
 ///
-/// @brief Paddle device slot-2 addon support.
+/// @brief Slot-2 Paddle controller support.
 
 #ifndef LIBNDS_NDS_ARM9_PADDLE_H__
 #define LIBNDS_NDS_ARM9_PADDLE_H__

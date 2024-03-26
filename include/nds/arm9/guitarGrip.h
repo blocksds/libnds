@@ -6,7 +6,7 @@
 
 /// @file nds/arm9/guitarGrip.h
 ///
-/// @brief guitar grip device slot-2 addon support.
+/// @brief Slot-2 Guitar Grip controller support.
 
 #ifndef LIBNDS_NDS_ARM9_GUITARGRIP_H__
 #define LIBNDS_NDS_ARM9_GUITARGRIP_H__

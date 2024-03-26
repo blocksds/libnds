@@ -42,7 +42,7 @@ extern "C" {
 #define GPIO_WIFI_MODE_NTR       BIT(8) ///< NTR/NDS WiFi mode
 #define GPIO_WIFI_MODE_MASK      BIT(8)
 
-/// @brief Set the GPIO Wi-Fi chipset mode.
+/// Set the GPIO Wi-Fi chipset mode.
 ///
 /// Using the NDS Wi-Fi chip requires GPIO_WIFI_MODE_NTR on DSi consoles.
 /// On DSi, DWM-W024 boards require GPIO_WIFI_MODE_TWL to correctly operate.

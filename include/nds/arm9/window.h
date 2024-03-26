@@ -13,7 +13,7 @@ extern "C" {
 
 /// @file nds/arm9/window.h
 ///
-/// @brief Definitions for object and background windowing.
+/// @brief Definitions for sprite and background windows.
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/sassert.h>
