@@ -873,7 +873,6 @@ static inline void bgScrollf(int id, s32 dx, s32 dy)
 /// @param id Background ID returned from bgInit or bgInitSub.
 /// @param dx horizontal scroll.
 /// @param dy Vertical scroll.
-/// @note In text backgrounds the fractional part is ignored.
 static inline void bgScroll(int id, int dx, int dy)
 {
     bgScrollf(id, dx << 8, dy << 8);
