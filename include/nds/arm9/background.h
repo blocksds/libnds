@@ -698,7 +698,7 @@ static inline void bgWrapOff(int id)
 /// Sets the background priority.
 ///
 /// Higher level priority will result in background rendering on top of lower
-/// level priority.
+/// level priority. Low numbers have higher priority over high numbers.
 ///
 /// @param id Background ID returned from bgInit or bgInitSub.
 /// @param priority Background priority (0 - 3).
