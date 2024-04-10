@@ -125,7 +125,7 @@ Keyboard *keyboardGetDefault(void);
 Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
                        int mapBase, int tileBase, bool mainDisplay, bool loadGraphics);
 
-/// Initializes the keyboard with default options.
+/// Initializes the default keyboard of libnds.
 ///
 /// Same as calling:
 /// ```
@@ -135,10 +135,16 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
 /// @return A pointer to the current keyboard.
 Keyboard* keyboardDemoInit(void);
 
+/// Hides the current keyboard immediately.
+void keyboardEnd(void);
+
 /// Displays the keyboard.
 void keyboardShow(void);
 
 /// Hides the keyboard.
+///
+/// If scrollSpeed has been set to a non-zero value it will scroll it out of the
+/// screen. If not, it will hide it right away.
 void keyboardHide(void);
 
 /// Returns the ASCII code for the key located at the supplied x and y.

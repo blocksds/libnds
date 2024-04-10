@@ -288,10 +288,23 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
 
     keyboard->keyboardOnSub = !mainDisplay;
 
+    // First, it's needed to disable the layer in case something was using it
+    // before. Then, we initialize the background. However, bgInit() and
+    // bgInitSub() enable the layer, which isn't ready yet, so it is needed to
+    // disable it again.
     if (keyboard->keyboardOnSub)
+    {
+        videoBgDisableSub(layer);
         keyboard->background = bgInitSub(layer, type, size, mapBase, tileBase);
+    }
     else
+    {
+        videoBgDisable(layer);
         keyboard->background = bgInit(layer, type, size, mapBase, tileBase);
+    }
+
+    // This call hides the background right away without calling bgUpdate().
+    bgHide(keyboard->background);
 
     bgSetControlBits(keyboard->background, BIT(13));
 
@@ -318,8 +331,6 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
 
     keyboard->visible = 0;
 
-    bgHide(keyboard->background);
-
     bgUpdate();
 
     return keyboard;
@@ -329,6 +340,15 @@ Keyboard *keyboardDemoInit(void)
 {
     return keyboardInit(keyboardGetDefault(), 3, BgType_Text4bpp, BgSize_T_256x512,
                         defaultKeyboard.mapBase, defaultKeyboard.tileBase, false, true);
+}
+
+void keyboardEnd(void)
+{
+    Keyboard *keyboard = curKeyboard;
+
+    bgHide(keyboard->background);
+
+    keyboard->visible = 0;
 }
 
 void keyboardShow(void)
