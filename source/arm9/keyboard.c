@@ -269,20 +269,13 @@ Keyboard *keyboardGetDefault(void)
     return &defaultKeyboard;
 }
 
-Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
-                       int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
+Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize size,
+                            int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
 {
     if (keyboard)
-    {
         curKeyboard = keyboard;
-    }
     else
-    {
-        if (curKeyboard == NULL)
-            curKeyboard = &defaultKeyboard;
-
         keyboard = curKeyboard;
-    }
 
     *keyboard = defaultKeyboard;
 
@@ -334,19 +327,22 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
     return keyboard;
 }
 
-Keyboard *keyboardDemoInit(void)
+void keyboardExit(void)
 {
-    return keyboardInit(keyboardGetDefault(), 3, BgType_Text4bpp, BgSize_T_256x512,
-                        defaultKeyboard.mapBase, defaultKeyboard.tileBase, false, true);
+    if (curKeyboard == NULL)
+        return;
+
+    curKeyboard->visible = 0;
+    bgHide(curKeyboard->background);
+    bgUpdate();
+
+    curKeyboard = NULL;
 }
 
-void keyboardEnd(void)
+Keyboard *keyboardDemoInit(void)
 {
-    Keyboard *keyboard = curKeyboard;
-
-    bgHide(keyboard->background);
-
-    keyboard->visible = 0;
+    return keyboardInit_call(keyboardGetDefault(), 3, BgType_Text4bpp, BgSize_T_256x512,
+                             defaultKeyboard.mapBase, defaultKeyboard.tileBase, false, true);
 }
 
 void keyboardShow(void)

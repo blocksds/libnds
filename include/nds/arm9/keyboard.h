@@ -122,8 +122,13 @@ Keyboard *keyboardGetDefault(void);
 /// @param mainDisplay If true the keyboard will render on the main display.
 /// @param loadGraphics If true the keyboard graphics will be loaded.
 /// @return Returns the initialized keyboard struct.
-Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
-                       int mapBase, int tileBase, bool mainDisplay, bool loadGraphics);
+static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
+                                     int mapBase, int tileBase, bool mainDisplay, bool loadGraphics) {
+    Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize size,
+                                int mapBase, int tileBase, bool mainDisplay, bool loadGraphics);
+
+    return keyboardInit_call(keyboard == NULL ? keyboardGetDefault() : keyboard, layer, type, size, mapBase, tileBase, mainDisplay, loadGraphics);
+}
 
 /// Initializes the default keyboard of libnds.
 ///
@@ -135,8 +140,10 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
 /// @return A pointer to the current keyboard.
 Keyboard* keyboardDemoInit(void);
 
-/// Hides the current keyboard immediately.
-void keyboardEnd(void);
+/// De-initializes the keyboard system, if initialized.
+///
+/// After calling this, one may de-allocate any custom keyboard struct used.
+void keyboardExit(void);
 
 /// Displays the keyboard.
 void keyboardShow(void);
