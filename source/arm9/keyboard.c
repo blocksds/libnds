@@ -306,8 +306,6 @@ Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
     // This call hides the background right away without calling bgUpdate().
     bgHide(keyboard->background);
 
-    bgSetControlBits(keyboard->background, BIT(13));
-
     keyboard->mapBase = mapBase;
     keyboard->tileBase = tileBase;
 
