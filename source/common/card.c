@@ -134,11 +134,24 @@ void cardReset(void)
 }
 
 #define NDS_CARD_BLOCK_SIZE 0x200 // CARD_BLK_SIZE(1)
-#define NDS_CARD_PAGE_ALIGN_MASK (~0xFFF)
+#define NDS_CARD_BLOCK_ALIGN ((NDS_CARD_BLOCK_SIZE) - 1)
+#define NDS_CARD_BLOCK_ALIGN_MASK (~(NDS_CARD_BLOCK_ALIGN))
+
+#define NDS_CARD_PAGE_SIZE 0x1000
+#define NDS_CARD_PAGE_ALIGN ((NDS_CARD_PAGE_SIZE) - 1)
+#define NDS_CARD_PAGE_ALIGN_MASK (~(NDS_CARD_PAGE_ALIGN))
+
+// The cardRead() code supports a minimum read size of 0x4 (word alignment).
+// This should be supported by most emulators, but is not guaranteed to work
+// correctly on all hardware in circulation; retail software assumes a minimum
+// read size of 0x200, so we stick to it here.
+#define NDS_CARD_READ_SIZE NDS_CARD_BLOCK_SIZE
+#define NDS_CARD_READ_ALIGN ((NDS_CARD_READ_SIZE) - 1)
+#define NDS_CARD_READ_ALIGN_MASK (~(NDS_CARD_READ_ALIGN))
 
 static inline void cardReadInternal(void *dest, size_t offset, size_t len, uint32_t flags)
 {
-    cardParamCommand(CARD_CMD_DATA_READ, offset, flags | CARD_nRESET | CARD_ACTIVATE | CARD_BLK_SIZE(1),
+    cardParamCommand(CARD_CMD_DATA_READ, offset, flags | CARD_nRESET | CARD_ACTIVATE,
                      dest, len >> 2);
 }
 
@@ -149,12 +162,17 @@ void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
 
     while (len)
     {
-        // are both the read offset and the destination buffer word-aligned?
-        while (!(offset & 3) && !(((uint32_t) pc) & 3) && len >= 4)
+        // are both the read offset and the destination buffer read-aligned?
+        while (!(offset & NDS_CARD_READ_ALIGN) && !(((uint32_t) pc) & NDS_CARD_READ_ALIGN) && len >= NDS_CARD_READ_SIZE)
         {
-            size_t len_aligned = len & (~3);
-            if (len_aligned > NDS_CARD_BLOCK_SIZE)
+            size_t len_aligned;
+            if (NDS_CARD_READ_SIZE == NDS_CARD_BLOCK_SIZE) {
                 len_aligned = NDS_CARD_BLOCK_SIZE;
+            } else {
+                len_aligned = len & NDS_CARD_READ_ALIGN_MASK;
+                if (len_aligned > NDS_CARD_BLOCK_SIZE)
+                    len_aligned = NDS_CARD_BLOCK_SIZE;
+            }
 
             // check if block is in the same 0x1000 page
             size_t len_masked = ((offset | 0xFFF) + 1) - offset;
@@ -162,7 +180,7 @@ void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
                 len_aligned = len_masked;
 
             // fast direct read
-            cardReadInternal(pc, offset, len_aligned, flags);
+            cardReadInternal(pc, offset, len_aligned, flags | CARD_BLK_SIZE(1));
 
             pc += len_aligned;
             offset += len_aligned;
@@ -172,7 +190,7 @@ void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
         }
 
         // slow buffered read: approximate to word alignment, then memcpy
-        size_t block_offset = (offset & 3);
+        size_t block_offset = (offset & NDS_CARD_READ_ALIGN);
         size_t block_len = len;
 
         // offset is not word-aligned; adjust offset to have word alignment
@@ -189,12 +207,12 @@ void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
         size_t block_len_masked = ((offset | 0xFFF) + 1) - offset;
         if (block_len > block_len_masked)
             block_len = block_len_masked;
-        size_t block_len_aligned = (block_len + 3) & (~3);
+        size_t block_len_aligned = (block_len + NDS_CARD_READ_ALIGN) & NDS_CARD_READ_ALIGN_MASK;
 
         // the length of data actually written to dest
         size_t dest_block_len = block_len - block_offset;
 
-        cardReadInternal(buffer, offset, block_len_aligned, flags);
+        cardReadInternal(buffer, offset, block_len_aligned, flags | CARD_BLK_SIZE(1));
 
         memcpy(pc, buffer + block_offset, dest_block_len);
         offset += block_len;
