@@ -103,6 +103,38 @@ static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size) {
 #define FAT_INIT_LOOKUP_CACHE_OUT_OF_MEMORY     -2
 #define FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED -3
 
+// FAT file attributes
+#define ATTR_ARCHIVE    0x20 ///< Archive
+#define ATTR_DIRECTORY  0x10 ///< Directory
+#define ATTR_VOLUME     0x08 ///< Volume (Unused in FatFs)
+#define ATTR_SYSTEM     0x04 ///< System
+#define ATTR_HIDDEN     0x02 ///< Hidden
+#define ATTR_READONLY   0x01 ///< Read only
+
+/// Get FAT attributes of a file.
+///
+/// This function works when used on NitroFS.
+///
+/// On error, this function sets errno to an error code.
+///
+/// @param file Path to the file.
+///
+/// @return A combination of ATTR_* flags with the attributes of the file. On
+///         error, it returns -1.
+int FAT_getAttr(const char *file);
+
+/// Set FAT attributes of a file.
+///
+/// This function fails when used on NitroFS (it's read-only).
+///
+/// On error, this function sets errno to an error code.
+///
+/// @param file Path to the file.
+/// @param attr A combination of ATTR_* flags with the new attributes of the file.
+///
+/// @return 0 on success, -1 on error.
+int FAT_setAttr(const char *file, uint8_t attr);
+
 #ifdef __cplusplus
 }
 #endif

@@ -652,3 +652,41 @@ int symlink(const char *target, const char *path)
     return -1;
 }
 
+int FAT_getAttr(const char *file)
+{
+    if (nitrofs_use_for_path(file))
+        return nitrofs_fat_get_attr(file);
+
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(file, &fno);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return fno.fattrib;
+}
+
+int FAT_setAttr(const char *file, uint8_t attr)
+{
+    if (nitrofs_use_for_path(file))
+    {
+        errno = EROFS; // Read-only filesystem
+        return -1;
+    }
+
+    // Modify all attributes (except for directory and volume)
+    BYTE mask = AM_RDO | AM_ARC | AM_SYS | AM_HID;
+
+    FRESULT result = f_chmod(file, attr, mask);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}

@@ -68,5 +68,6 @@ off_t nitrofs_lseek(int fd, off_t offset, int whence);
 int nitrofs_close(int fd);
 int nitrofs_stat(const char *name, struct stat *st);
 int nitrofs_fstat(int fd, struct stat *st);
+int nitrofs_fat_get_attr(const char *name);
 
 #endif // NITROFS_INTERNAL_H__

@@ -521,6 +521,27 @@ static int nitrofs_stat_file_internal(nitrofs_file_t *f, struct stat *st)
     return 0;
 }
 
+int nitrofs_fat_get_attr(const char *name)
+{
+    if (!nitrofs_local.fnt_offset)
+    {
+        errno = ENODEV;
+        return -1;
+    }
+
+    int32_t res = nitrofs_path_resolve(name);
+    if (res < 0)
+    {
+        errno = ENOENT;
+        return -1;
+    }
+
+    if (res >= 0xF000)
+        return ATTR_DIRECTORY | ATTR_READONLY;
+
+    return ATTR_READONLY;
+}
+
 int nitrofs_stat(const char *name, struct stat *st)
 {
     if (!nitrofs_local.fnt_offset)
