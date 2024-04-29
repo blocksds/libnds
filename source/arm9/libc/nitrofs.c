@@ -337,6 +337,20 @@ int nitrofs_getcwd(char *buf, size_t size)
     memcpy(buf, "nitro:", 6);
     bufpos += 6;
 
+    // If we are in the root directory add a slash to form "nitro:/"
+    if (subdir_count == 0)
+    {
+        // append "/"
+        if (bufpos >= size)
+        {
+            errno = ERANGE;
+            return -1;
+        }
+        buf[bufpos] = '/';
+
+        return 0;
+    }
+
     uint16_t curr_dir = 0xF000;
     while (subdir_count > 0)
     {
