@@ -90,8 +90,9 @@ char *getcwd(char *buf, size_t size)
         // Extension to POSIX.1-2001 standard. If buf is NULL, the buffer is
         // allocated by getcwd() using malloc(). The size is the one provided by
         // the caller. If the size is zero, it is allocated as big as necessary.
-        // As an extension to the , glibc's getcwd() allocates the buffer. The
-        // caller must free this buffer after using it.
+        // As an extension to the POSIX.1-2001 standard, glibc's getcwd()
+        // allocates the buffer. The caller must free this buffer after it's
+        // done using it.
 
         int optimize_mem = 0;
 
