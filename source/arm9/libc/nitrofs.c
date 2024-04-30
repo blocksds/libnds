@@ -341,12 +341,13 @@ int nitrofs_getcwd(char *buf, size_t size)
     if (subdir_count == 0)
     {
         // append "/"
-        if (bufpos >= size)
+        if (bufpos >= (size - 2))
         {
             errno = ERANGE;
             return -1;
         }
-        buf[bufpos] = '/';
+        buf[bufpos++] = '/';
+        buf[bufpos] = '\0';
 
         return 0;
     }
@@ -399,7 +400,12 @@ int nitrofs_getcwd(char *buf, size_t size)
         }
     }
 
-    // string is finalized by parent getcwd()
+    if (bufpos >= (size - 1))
+    {
+        errno = ERANGE;
+        return -1;
+    }
+    buf[bufpos] = '\0';
     return 0;
 }
 

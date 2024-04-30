@@ -150,6 +150,8 @@ char *getcwd(char *buf, size_t size)
                 return NULL;
             }
         }
+        // This shouldn't be needed, nitrofs_getcwd() and f_getcwd() should fail
+        // if the terminator character doesn't fit in the buffer.
         buf[size - 1] = '\0';
 
         return buf;
