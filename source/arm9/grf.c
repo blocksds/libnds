@@ -193,7 +193,10 @@ static void *grfReadAllFile(FILE *file)
         return NULL;
 
     if (fread(buffer, 1, size, file) != size)
+    {
+        free(buffer);
         return NULL;
+    }
 
     return buffer;
 }

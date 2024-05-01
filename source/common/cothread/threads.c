@@ -278,7 +278,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     // Setup context
 
-    cothread_info_t *ctx = calloc(sizeof(cothread_info_t), 1);
+    cothread_info_t *ctx = calloc(1, sizeof(cothread_info_t));
     if (ctx == NULL)
     {
         errno = ENOMEM;
