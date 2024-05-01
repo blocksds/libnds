@@ -55,6 +55,7 @@ int scandir(const char *path, struct dirent ***names,
             struct dirent *ent_copy = malloc(sizeof(struct dirent));
             if (ent_copy == NULL)
             {
+                free(new_names);
                 error = true;
                 break;
             }

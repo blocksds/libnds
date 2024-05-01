@@ -117,7 +117,7 @@ int open(const char *path, int flags, ...)
         mode |= FA_OPEN_EXISTING; // r
     }
 
-    FIL *fp = calloc(sizeof(FIL), 1);
+    FIL *fp = calloc(1, sizeof(FIL));
     if (fp == NULL)
     {
         errno = ENOMEM;

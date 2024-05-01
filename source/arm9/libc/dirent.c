@@ -28,14 +28,14 @@
 
 static DIR *alloc_dir(size_t len)
 {
-    void *dp = calloc(len, 1);
+    void *dp = calloc(1, len);
     if (dp == NULL)
     {
         errno = ENOMEM;
         return NULL;
     }
 
-    DIR *dirp = calloc(sizeof(DIR), 1);
+    DIR *dirp = calloc(1, sizeof(DIR));
     if (dirp == NULL)
     {
         free(dp);

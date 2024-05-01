@@ -101,7 +101,7 @@ char *getcwd(char *buf, size_t size)
             optimize_mem = 1;
         }
 
-        buf = calloc(size, 1);
+        buf = malloc(size);
         if (buf == NULL)
         {
             errno = ENOMEM;
@@ -112,6 +112,7 @@ char *getcwd(char *buf, size_t size)
         if (result == NULL)
         {
             // errno has already been set
+            free(buf);
             return NULL;
         }
 
