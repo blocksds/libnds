@@ -145,7 +145,7 @@ BEGIN_ASM_FUNC swiGetVolumeTable
 
 BEGIN_ASM_FUNC swiSwitchToGBAMode
 
-    movs    r0, #0x40
+    movs    r2, #0x40
     swi     0x1F
     // Does not return, of course
 
