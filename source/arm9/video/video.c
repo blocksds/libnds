@@ -64,6 +64,8 @@ u32 __attribute__((weak)) vramDefault(void)
     dmaFillWords(0, OAM, 2 * 1024);        // Clear main and sub OAM
     dmaFillWords(0, VRAM, 656 * 1024);     // Clear all VRAM
 
-    return vramSetPrimaryBanks(VRAM_A_MAIN_BG, VRAM_B_MAIN_SPRITE, VRAM_C_SUB_BG,
-                               VRAM_D_SUB_SPRITE);
+    return vramSetPrimaryBanks(VRAM_A_MAIN_BG_0x06000000,
+                               VRAM_B_MAIN_SPRITE_0x06400000,
+                               VRAM_C_SUB_BG_0x06200000,
+                               VRAM_D_SUB_SPRITE_0x06600000);
 }
