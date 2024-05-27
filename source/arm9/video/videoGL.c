@@ -1177,8 +1177,8 @@ void glBindTexture(int target, int name)
 
 // Load a 15-bit color format palette into palette memory, and set it to the
 // currently bound texture.
-void glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empty3,
-                     const uint16_t *table)
+int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empty3,
+                    const uint16_t *table)
 {
     (void)target;
     (void)empty1;
@@ -1196,7 +1196,7 @@ void glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int emp
         // Exit if no color table or color count is 0 (helpful in emptying the
         // palette for the active texture)
         if (!width || table == NULL)
-            return;
+            return 0;
 
         // Allocate new palette block based on the texture's format
         uint32_t colFormat = ((texture->texFormat >> 26) & 0x7);
@@ -1226,7 +1226,7 @@ void glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int emp
                 // Palette location not good because 4 color mode cannot extend
                 // past 64K texture palette space
                 GFX_PAL_FORMAT = glGlob->activePalette = 0;
-                return;
+                return 0;
             }
 
             palette = malloc(sizeof(gl_palette_data));
@@ -1285,12 +1285,14 @@ void glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int emp
             GFX_PAL_FORMAT = glGlob->activePalette = texture->palIndex;
         }
     }
+
+    return 1;
 }
 
 // Load a 15-bit color format palette into a specific spot in a currently bound
 // texture's existing palette.
-void glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
-                        const uint16_t *data)
+int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
+                       const uint16_t *data)
 {
     (void)target;
     (void)empty1;
@@ -1307,13 +1309,17 @@ void glColorSubTableEXT(int target, int start, int count, int empty1, int empty2
             swiCopy(data, (char *)palette->vramAddr + (start << 1),
                     count | COPY_MODE_HWORD);
             vramRestoreBanks_EFG(tempVRAM);
+
+            return 1;
         }
     }
+
+    return 0;
 }
 
 // Retrieve a 15-bit color format palette from the palette memory of the
 // currently bound texture.
-void glGetColorTableEXT(int target, int empty1, int empty2, uint16_t *table)
+int glGetColorTableEXT(int target, int empty1, int empty2, uint16_t *table)
 {
     (void)target;
     (void)empty1;
@@ -1327,7 +1333,11 @@ void glGetColorTableEXT(int target, int empty1, int empty2, uint16_t *table)
         uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
         swiCopy(palette->vramAddr, table, palette->palSize >> 1 | COPY_MODE_HWORD);
         vramRestoreBanks_EFG(tempVRAM);
+
+        return 1;
     }
+
+    return 0;
 }
 
 // Set the active texture with a palette set with another texture. This is not

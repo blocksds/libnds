@@ -293,7 +293,7 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 /// @param palette Pointer to the palette data to load (if NULL, then palette is
 ///                emoved from currently bound texture).
 /// @param texture Pointer to the texture data to load.
-/// @return Returns the texture ID.
+/// @return Returns the texture ID on success, -1 on error.
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
                      const unsigned int *texcoords, GL_TEXTURE_TYPE_ENUM type,
                      int sizeX, int sizeY, int param, int pallette_width,
@@ -321,7 +321,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 /// @param palette Pointer to the palette data to load (if NULL, then palette
 ///                 is removed from currently bound texture).
 /// @param texture Pointer to the texture data to load.
-/// @return Returns the texture ID.
+/// @return Returns the texture ID on success, -1 on error.
 int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int bmp_hei,
                   GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
                   int pallette_width, const void *palette, const void *texture);
