@@ -30,8 +30,11 @@ ARM_CODE float hw_sqrtf(float x)
     mantissa <<= (((xu.i & (1 << 23)) == 0) + 25);
     // applies additional shift depending on whether exponent is even or odd
     // 25 is 23+2, the +2 is necessary for rounding
-    REG_SQRTCNT = SQRT_64;
     REG_SQRT_PARAM = mantissa;
+    if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
+    {
+        REG_SQRTCNT = SQRT_64;
+    }
     // starts hardware squareroot
     // It is critical that this happens as early as possible so that
     // we have time to do other stuff in the meantime
@@ -53,13 +56,11 @@ ARM_CODE float hw_sqrtf(float x)
             // Quiet NaN mantissa (100000.....00001)
             // Signalling NaN mantissa (00000.....00001)
             xu.i = QUIET_NAN;
-            while (REG_SQRTCNT & SQRT_BUSY); // wait for sqrt
             return xu.f;
         }
         else if (raw_exponent == (255  << 23)) // check for +Inf
         {
             xu.i = INF;
-            while (REG_SQRTCNT & SQRT_BUSY); // wait for sqrt
             return xu.f; // return Inf
         }
         s32 exponent = raw_exponent - (127 << 23);
@@ -93,7 +94,6 @@ ARM_CODE float hw_sqrtf(float x)
         // so maybe make sure subnormal number handling is done with a define
         // that checks if this option is present
         xu.i = sign;
-        while (REG_SQRTCNT & SQRT_BUSY);// wait for sqrt to be done
         return xu.f; // returns +0 or -0 as appropriate
     }
 }
