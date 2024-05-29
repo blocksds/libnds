@@ -30,8 +30,11 @@ ARM_CODE float hw_sqrtf(float x)
     mantissa <<= (((xu.i & (1 << 23)) == 0) + 25);
     // applies additional shift depending on whether exponent is even or odd
     // 25 is 23+2, the +2 is necessary for rounding
-    REG_SQRTCNT = SQRT_64;
     REG_SQRT_PARAM = mantissa;
+    if ((REG_SQRTCNT & 0xF) != SQRT_64)
+    {
+        REG_SQRTCNT = SQRT_64;
+    }
     // starts hardware squareroot
     // It is critical that this happens as early as possible so that
     // we have time to do other stuff in the meantime

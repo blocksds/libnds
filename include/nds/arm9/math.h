@@ -64,9 +64,12 @@ extern "C" {
 /// @param den 20.12 denominator.
 static inline void divf32_asynch(int32_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_64_32;
     REG_DIV_NUMER = ((int64_t)num) << 12;
     REG_DIV_DENOM_L = den;
+    if ((REG_DIVCNT & 0xF) != DIV_64_32)
+    {
+	REG_DIVCNT = DIV_64_32;
+    }
 }
 
 /// Asynchronous fixed point divide result
@@ -106,8 +109,11 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 /// @param a 20.12 positive value.
 static inline void sqrtf32_asynch(int32_t a)
 {
-    REG_SQRTCNT = SQRT_64;
     REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
+    if ((REG_SQRTCNT & 0xF) != SQRT_64)
+    {
+        REG_SQRTCNT = SQRT_64;
+    }
 }
 
 /// Asynchronous fixed point sqrt result.
@@ -139,9 +145,12 @@ static inline int32_t sqrtf32(int32_t a)
 /// @param den Denominator.
 static inline void div32_asynch(int32_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_32_32;
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
+    if ((REG_DIVCNT & 0xF) != DIV_32_32)
+    {
+        REG_DIVCNT = DIV_32_32;
+    }
 }
 
 /// Asynchronous integer divide result.
@@ -171,9 +180,12 @@ static inline int32_t div32(int32_t num, int32_t den)
 /// @param den Denominator.
 static inline void mod32_asynch(int32_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_32_32;
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
+    if ((REG_DIVCNT & 0xF) != DIV_32_32)
+    {
+        REG_DIVCNT = DIV_32_32;
+    }
 }
 
 /// Asynchronous integer modulo result.
@@ -203,9 +215,12 @@ static inline int32_t mod32(int32_t num, int32_t den)
 /// @param den 32 bit denominator.
 static inline void div64_asynch(int64_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_64_32;
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
+    if ((REG_DIVCNT & 0xF) != DIV_64_32)
+    {
+        REG_DIVCNT = DIV_64_32;
+    }
 }
 
 /// Asynchronous integer 64 bit divide result.
@@ -214,7 +229,6 @@ static inline void div64_asynch(int64_t num, int32_t den)
 static inline int32_t div64_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
-
     return REG_DIV_RESULT_L;
 }
 
@@ -235,9 +249,12 @@ static inline int32_t div64(int64_t num, int32_t den)
 /// @param den 32 bit denominator.
 static inline void mod64_asynch(int64_t num, int32_t den)
 {
-    REG_DIVCNT = DIV_64_32;
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
+    if ((REG_DIVCNT & 0xF) != DIV_64_32)
+    {
+        REG_DIVCNT = DIV_64_32;
+    }
 }
 
 /// Asynchronous integer 64 bit modulo result.
