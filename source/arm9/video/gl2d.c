@@ -689,7 +689,7 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 }
 
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
-                    const unsigned int *texcoords, GL_TEXTURE_TYPE_ENUM type,
+                    const uint16_t *texcoords, GL_TEXTURE_TYPE_ENUM type,
                     int sizeX, int sizeY, int param, int palette_width,
                     const void *palette, const void *texture)
 {
