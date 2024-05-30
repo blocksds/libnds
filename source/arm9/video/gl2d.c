@@ -690,7 +690,7 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
                     const unsigned int *texcoords, GL_TEXTURE_TYPE_ENUM type,
-                    int sizeX, int sizeY, int param, int pallette_width,
+                    int sizeX, int sizeY, int param, int palette_width,
                     const void *palette, const void *texture)
 {
     int textureID;
@@ -700,7 +700,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
     if (glTexImage2D(0, 0, type, sizeX, sizeY, 0, param, texture) == 0)
         return -1;
 
-    if (glColorTableEXT(0, 0, pallette_width, 0, 0, palette) == 0)
+    if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
         return -1;
 
     // Init sprites texture coords and texture ID
@@ -721,7 +721,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 
 int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int bmp_hei,
                   GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
-                  int pallette_width, const void *palette, const void *texture)
+                  int palette_width, const void *palette, const void *texture)
 {
     int textureID;
     glGenTextures(1, &textureID);
@@ -730,7 +730,7 @@ int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int 
     if (glTexImage2D(0, 0, type, sizeX, sizeY, 0, param, texture) == 0)
         return -1;
 
-    if (glColorTableEXT(0, 0, pallette_width, 0, 0, palette) == 0)
+    if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
         return -1;
 
     int i = 0;
