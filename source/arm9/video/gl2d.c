@@ -700,8 +700,21 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
     if (glTexImage2D(0, 0, type, sizeX, sizeY, 0, param, texture) == 0)
         return -1;
 
-    if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
-        return -1;
+    bool needs_palette = !((type == GL_RGBA) || (type == GL_RGB));
+
+    if (palette == NULL)
+    {
+        if (needs_palette)
+            return -2;
+    }
+    else
+    {
+        if (!needs_palette)
+            return -3;
+
+        if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
+            return -4;
+    }
 
     // Init sprites texture coords and texture ID
     for (unsigned int i = 0; i < numframes; i++)
@@ -730,8 +743,21 @@ int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int 
     if (glTexImage2D(0, 0, type, sizeX, sizeY, 0, param, texture) == 0)
         return -1;
 
-    if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
-        return -1;
+    bool needs_palette = !((type == GL_RGBA) || (type == GL_RGB));
+
+    if (palette == NULL)
+    {
+        if (needs_palette)
+            return -2;
+    }
+    else
+    {
+        if (!needs_palette)
+            return -3;
+
+        if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
+            return -4;
+    }
 
     int i = 0;
 
