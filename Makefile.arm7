@@ -19,6 +19,8 @@ INCLUDEDIRS	:= include source source/common/ndsabi/
 
 ifneq ($(DEBUG),1)
 DEFINES		:= -DNDEBUG
+else
+CFLAGS		+= -fstack-protector-strong
 endif
 
 # Libraries

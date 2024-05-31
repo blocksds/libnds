@@ -21,6 +21,8 @@ BINDIRS		:= source/arm9
 
 ifneq ($(DEBUG),1)
 DEFINES		:= -DNDEBUG
+else
+CFLAGS		+= -fstack-protector-strong
 endif
 
 # Libraries
