@@ -722,26 +722,25 @@ uint32_t vramBlock_allocateSpecial(s_vramBlock *mb, uint8_t *addr, uint32_t size
     struct s_SingleBlock *newBlock = (struct s_SingleBlock *)vramBlock__allocateBlock(
         mb, mb->lastExamined, addr, size);
 
-    if (newBlock)
-    {
-        // with current implementation, it should never be false if it gets to here
-        uint32_t curBlock;
+    if (newBlock == NULL)
+        return 0;
 
-        // Use a prior index if one exists. Else, obtain a new index
-        if (mb->deallocCount)
-            curBlock = (uint32_t)DynamicArrayGet(&mb->deallocBlocks, mb->deallocCount--);
-        else
-            curBlock = mb->blockCount++;
+    // with current implementation, it should never be false if it gets to here
+    uint32_t curBlock;
 
-        DynamicArraySet(&mb->blockPtrs, curBlock, (void *)newBlock);
-        // Clear out examination data
-        mb->lastExamined = NULL;
-        mb->lastExaminedAddr = NULL;
-        mb->lastExaminedSize = 0;
-        newBlock->indexOut = curBlock;
-        return curBlock;
-    }
-    return 0;
+    // Use a prior index if one exists. Else, obtain a new index
+    if (mb->deallocCount)
+        curBlock = (uint32_t)DynamicArrayGet(&mb->deallocBlocks, mb->deallocCount--);
+    else
+        curBlock = mb->blockCount++;
+
+    DynamicArraySet(&mb->blockPtrs, curBlock, (void *)newBlock);
+    // Clear out examination data
+    mb->lastExamined = NULL;
+    mb->lastExaminedAddr = NULL;
+    mb->lastExaminedSize = 0;
+    newBlock->indexOut = curBlock;
+    return curBlock;
 }
 
 uint32_t vramBlock_allocateBlock(s_vramBlock *mb, uint32_t size, uint8_t align)
@@ -1017,48 +1016,49 @@ int glDeleteTextures(int n, int *names)
 {
     for (int index = 0; index < n; index++)
     {
-        if (names[index] != 0)
+        if (names[index] == 0)
+            continue;
+
+        if (glGlob->deallocTexSize == MAX_TEXTURES
+            || names[index] >= MAX_TEXTURES) // This still needed?
+            return 0;
+
+        DynamicArraySet(&glGlob->deallocTex, ++glGlob->deallocTexSize,
+                        (void *)names[index]);
+        gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs,
+                                                    names[index]);
+        if (texture)
         {
-            if (glGlob->deallocTexSize == MAX_TEXTURES
-                || names[index] >= MAX_TEXTURES) // This still needed?
-                return 0;
-
-            DynamicArraySet(&glGlob->deallocTex, ++glGlob->deallocTexSize,
-                            (void *)names[index]);
-            gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs,
-                                                       names[index]);
-            if (texture)
+            // Clear out the texture blocks
+            if (texture->texIndex)
             {
-                // Clear out the texture blocks
+                // Delete extra texture for GL_COMPRESSED, if it exists
+                if (texture->texIndexExt)
+                    vramBlock_deallocateBlock(glGlob->vramBlocks[0],
+                                              texture->texIndexExt);
                 if (texture->texIndex)
-                {
-                    // Delete extra texture for GL_COMPRESSED, if it exists
-                    if (texture->texIndexExt)
-                        vramBlock_deallocateBlock(glGlob->vramBlocks[0],
-                                                  texture->texIndexExt);
-                    if (texture->texIndex)
-                        vramBlock_deallocateBlock(glGlob->vramBlocks[0],
-                                                  texture->texIndex);
-                }
-
-                // Clear out the palette if this texture name is the last
-                // texture using it
-                if (texture->palIndex)
-                    removePaletteFromTexture(texture);
-
-                free(texture);
+                    vramBlock_deallocateBlock(glGlob->vramBlocks[0],
+                                              texture->texIndex);
             }
-            DynamicArraySet(&glGlob->texturePtrs, names[index], (void *)0);
 
-            // Zero out register if the active texture was being deleted
-            if (glGlob->activeTexture == names[index])
-            {
-                GFX_TEX_FORMAT = 0;
-                glGlob->activeTexture = 0;
-            }
-            names[index] = 0;
+            // Clear out the palette if this texture name is the last
+            // texture using it
+            if (texture->palIndex)
+                removePaletteFromTexture(texture);
+
+            free(texture);
         }
+        DynamicArraySet(&glGlob->texturePtrs, names[index], NULL);
+
+        // Zero out register if the active texture was being deleted
+        if (glGlob->activeTexture == names[index])
+        {
+            GFX_TEX_FORMAT = 0;
+            glGlob->activeTexture = 0;
+        }
+        names[index] = 0;
     }
+
     return 1;
 }
 
@@ -1149,29 +1149,28 @@ void glBindTexture(int target, int name)
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
 
     // Does the name exist?
-    if (tex != NULL)
-    {
-        GFX_TEX_FORMAT = tex->texFormat;
-        glGlob->activeTexture = name;
-
-        // Set palette if exists
-        if (tex->palIndex)
-        {
-            gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
-            GFX_PAL_FORMAT = pal->addr;
-            glGlob->activePalette = tex->palIndex;
-        }
-        else
-        {
-            GFX_PAL_FORMAT = glGlob->activePalette = 0;
-        }
-    }
-    else
+    if (tex == NULL)
     {
         GFX_TEX_FORMAT = 0;
         GFX_PAL_FORMAT = 0;
         glGlob->activePalette = 0;
         glGlob->activeTexture = 0;
+        return;
+    }
+
+    GFX_TEX_FORMAT = tex->texFormat;
+    glGlob->activeTexture = name;
+
+    // Set palette if exists
+    if (tex->palIndex)
+    {
+        gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
+        GFX_PAL_FORMAT = pal->addr;
+        glGlob->activePalette = tex->palIndex;
+    }
+    else
+    {
+        GFX_PAL_FORMAT = glGlob->activePalette = 0;
     }
 }
 
@@ -1326,19 +1325,17 @@ int glGetColorTableEXT(int target, int empty1, int empty2, uint16_t *table)
     (void)empty1;
     (void)empty2;
 
-    if (glGlob->activePalette)
-    {
-        gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs,
-                                                   glGlob->activePalette);
+    if (!glGlob->activePalette)
+        return 0;
 
-        uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
-        swiCopy(palette->vramAddr, table, palette->palSize >> 1 | COPY_MODE_HWORD);
-        vramRestoreBanks_EFG(tempVRAM);
+    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs,
+                                               glGlob->activePalette);
 
-        return 1;
-    }
+    uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
+    swiCopy(palette->vramAddr, table, palette->palSize >> 1 | COPY_MODE_HWORD);
+    vramRestoreBanks_EFG(tempVRAM);
 
-    return 0;
+    return 1;
 }
 
 // Set the active texture with a palette set with another texture. This is not
@@ -1406,14 +1403,12 @@ void *glGetTexturePointer(int name)
 // Retrieves the currently bound texture's format.
 u32 glGetTexParameter(void)
 {
-    if (glGlob->activeTexture)
-    {
-        gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs,
-                                               glGlob->activeTexture);
-        return tex->texFormat;
-    }
+    if (!glGlob->activeTexture)
+        return 0;
 
-    return 0;
+    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs,
+                                           glGlob->activeTexture);
+    return tex->texFormat;
 }
 
 // Retrieves information pertaining to the currently bound texture's palette.
@@ -1421,22 +1416,21 @@ void glGetColorTableParameterEXT(int target, int pname, int *params)
 {
     (void)target;
 
-    if (glGlob->activePalette)
-    {
-        gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs,
-                                               glGlob->activePalette);
-
-        if (pname == GL_COLOR_TABLE_FORMAT_EXT)
-            *params = pal->addr;
-        else if (pname == GL_COLOR_TABLE_WIDTH_EXT)
-            *params = pal->palSize >> 1;
-        else
-            *params = -1;
-    }
-    else
+    if (!glGlob->activePalette)
     {
         *params = -1;
+        return;
     }
+
+    gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs,
+                                           glGlob->activePalette);
+
+    if (pname == GL_COLOR_TABLE_FORMAT_EXT)
+        *params = pal->addr;
+    else if (pname == GL_COLOR_TABLE_WIDTH_EXT)
+        *params = pal->palSize >> 1;
+    else
+        *params = -1;
 }
 
 // Similer to glTextImage2D from gl it takes a pointer to data. Empty fields and
