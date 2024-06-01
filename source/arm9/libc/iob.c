@@ -52,16 +52,6 @@ static int putc_buffered(char c, char *buf, uint16_t *buf_len, ConsoleOutFn fn)
     return c;
 }
 
-static int stdout_putc_buffered(char c, FILE *file)
-{
-    (void)file;
-
-    if (libnds_stdout_write == NULL)
-        return c;
-
-    return putc_buffered(c, stdout_buf, &stdout_buf_len, libnds_stdout_write);
-}
-
 static int stderr_putc_buffered(char c, FILE *file)
 {
     (void)file;
@@ -70,6 +60,18 @@ static int stderr_putc_buffered(char c, FILE *file)
         return c;
 
     return putc_buffered(c, stderr_buf, &stderr_buf_len, libnds_stderr_write);
+}
+
+static int stdout_putc_buffered(char c, FILE *file)
+{
+    (void)file;
+
+    // If stdout is not initialized, the user may have nonetheless initialized
+    // a debug console with consoleDebugInit(). Try to fall back to that.
+    if (libnds_stdout_write == NULL)
+        return stderr_putc_buffered(c, file);
+
+    return putc_buffered(c, stdout_buf, &stdout_buf_len, libnds_stdout_write);
 }
 
 static int stdin_getc_keyboard(FILE *file)
