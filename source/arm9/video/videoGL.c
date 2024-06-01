@@ -1185,106 +1185,107 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     (void)empty2;
     (void)empty3;
 
-    if (glGlob->activeTexture)
+    // We can only load a palette if there is an active texture
+    if (!glGlob->activeTexture)
+        return 0;
+
+    gl_texture_data *texture = (gl_texture_data *)DynamicArrayGet(
+        &glGlob->texturePtrs, glGlob->activeTexture);
+    gl_palette_data *palette;
+    if (texture->palIndex) // Remove prior palette if exists
+        removePaletteFromTexture(texture);
+
+    // Exit if no color table or color count is 0 (helpful in emptying the
+    // palette for the active texture)
+    if (!width || table == NULL)
+        return 0;
+
+    // Allocate new palette block based on the texture's format
+    uint32_t colFormat = ((texture->texFormat >> 26) & 0x7);
+
+    uint32_t colFormatVal =
+        ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && width <= 4)) ? 3 : 4);
+    uint8_t *checkAddr = vramBlock_examineSpecial(glGlob->vramBlocks[1],
+        (uint8_t *)VRAM_E, width << 1, colFormatVal);
+
+    if (checkAddr == NULL)
     {
-        gl_texture_data *texture = (gl_texture_data *)DynamicArrayGet(
-            &glGlob->texturePtrs, glGlob->activeTexture);
-        gl_palette_data *palette;
-        if (texture->palIndex) // Remove prior palette if exists
-            removePaletteFromTexture(texture);
-
-        // Exit if no color table or color count is 0 (helpful in emptying the
-        // palette for the active texture)
-        if (!width || table == NULL)
-            return 0;
-
-        // Allocate new palette block based on the texture's format
-        uint32_t colFormat = ((texture->texFormat >> 26) & 0x7);
-
-        uint32_t colFormatVal =
-            ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && width <= 4)) ? 3 : 4);
-        uint8_t *checkAddr = vramBlock_examineSpecial(
-            glGlob->vramBlocks[1], (uint8_t *)VRAM_E, width << 1, colFormatVal);
-
-        if (checkAddr)
-        {
-            // Calculate the address, logical and actual, of where the palette
-            // will go
-            uint16_t *baseBank = vramGetBank((uint16_t *)checkAddr);
-            uint32_t addr = ((uint32_t)checkAddr - (uint32_t)baseBank);
-            uint8_t offset = 0;
-
-            if (baseBank == VRAM_F)
-                offset = (VRAM_F_CR >> 3) & 3;
-            else if (baseBank == VRAM_G)
-                offset = (VRAM_G_CR >> 3) & 3;
-            addr += ((offset & 0x1) * 0x4000) + ((offset & 0x2) * 0x8000);
-
-            addr >>= colFormatVal;
-            if (colFormatVal == 3 && addr >= 0x2000)
-            {
-                // Palette location not good because 4 color mode cannot extend
-                // past 64K texture palette space
-                GFX_PAL_FORMAT = glGlob->activePalette = 0;
-                return 0;
-            }
-
-            palette = malloc(sizeof(gl_palette_data));
-            palette->palIndex =
-                vramBlock_allocateSpecial(glGlob->vramBlocks[1], checkAddr, width << 1);
-            palette->vramAddr = checkAddr;
-            palette->addr = addr;
-
-            palette->connectCount = 1;
-            palette->palSize = width << 1;
-
-            // copy straight to VRAM, and assign a palette name
-            uint32_t tempVRAM = VRAM_EFG_CR;
-            uint16_t *startBank = vramGetBank((uint16_t *)palette->vramAddr);
-            uint16_t *endBank =
-                vramGetBank((uint16_t *)((char *)palette->vramAddr + (width << 1) - 1));
-            do
-            {
-                if (startBank == VRAM_E)
-                {
-                    vramSetBankE(VRAM_E_LCD);
-                    startBank += 0x8000;
-                }
-                else if (startBank == VRAM_F)
-                {
-                    vramSetBankF(VRAM_F_LCD);
-                    startBank += 0x2000;
-                }
-                else if (startBank == VRAM_G)
-                {
-                    vramSetBankG(VRAM_G_LCD);
-                    startBank += 0x2000;
-                }
-            } while (startBank <= endBank);
-
-            swiCopy(table, palette->vramAddr, width | COPY_MODE_HWORD);
-            vramRestoreBanks_EFG(tempVRAM);
-
-            if (glGlob->deallocPalSize)
-            {
-                texture->palIndex = (uint32_t)DynamicArrayGet(&glGlob->deallocPal,
-                                                              glGlob->deallocPalSize--);
-            }
-            else
-            {
-                texture->palIndex = glGlob->palCount++;
-            }
-
-            DynamicArraySet(&glGlob->palettePtrs, texture->palIndex, (void *)palette);
-
-            GFX_PAL_FORMAT = palette->addr;
-            glGlob->activePalette = texture->palIndex;
-        }
-        else
-        {
-            GFX_PAL_FORMAT = glGlob->activePalette = texture->palIndex;
-        }
+        // Failed to find enough space for the palette
+        sassert(texture->palIndex == 0, "glColorTableEXT didn't clear palette");
+        GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        return 0;
     }
+
+    // Calculate the address, logical and actual, of where the palette will go
+    uint16_t *baseBank = vramGetBank((uint16_t *)checkAddr);
+    uint32_t addr = ((uint32_t)checkAddr - (uint32_t)baseBank);
+    uint8_t offset = 0;
+
+    if (baseBank == VRAM_F)
+        offset = (VRAM_F_CR >> 3) & 3;
+    else if (baseBank == VRAM_G)
+        offset = (VRAM_G_CR >> 3) & 3;
+    addr += ((offset & 0x1) * 0x4000) + ((offset & 0x2) * 0x8000);
+
+    addr >>= colFormatVal;
+    if (colFormatVal == 3 && addr >= 0x2000)
+    {
+        // Palette location not good because 4 color mode cannot extend
+        // past 64K texture palette space
+        GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        return 0;
+    }
+
+    palette = malloc(sizeof(gl_palette_data));
+    palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[1],
+                                                  checkAddr, width << 1);
+    palette->vramAddr = checkAddr;
+    palette->addr = addr;
+
+    palette->connectCount = 1;
+    palette->palSize = width << 1;
+
+    // copy straight to VRAM, and assign a palette name
+    uint32_t tempVRAM = VRAM_EFG_CR;
+    uint16_t *startBank = vramGetBank((uint16_t *)palette->vramAddr);
+    uint16_t *endBank =
+        vramGetBank((uint16_t *)((char *)palette->vramAddr + (width << 1) - 1));
+    do
+    {
+        if (startBank == VRAM_E)
+        {
+            vramSetBankE(VRAM_E_LCD);
+            startBank += 0x8000;
+        }
+        else if (startBank == VRAM_F)
+        {
+            vramSetBankF(VRAM_F_LCD);
+            startBank += 0x2000;
+        }
+        else if (startBank == VRAM_G)
+        {
+            vramSetBankG(VRAM_G_LCD);
+            startBank += 0x2000;
+        }
+    } while (startBank <= endBank);
+
+    swiCopy(table, palette->vramAddr, width | COPY_MODE_HWORD);
+    vramRestoreBanks_EFG(tempVRAM);
+
+    if (glGlob->deallocPalSize)
+    {
+        texture->palIndex = (uint32_t)DynamicArrayGet(&glGlob->deallocPal,
+                                                      glGlob->deallocPalSize--);
+    }
+    else
+    {
+        texture->palIndex = glGlob->palCount++;
+    }
+
+    DynamicArraySet(&glGlob->palettePtrs, texture->palIndex, (void *)palette);
+
+    GFX_PAL_FORMAT = palette->addr;
+    glGlob->activePalette = texture->palIndex;
 
     return 1;
 }
