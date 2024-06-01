@@ -187,20 +187,6 @@ typedef enum {
 /// @note Use the appropriate macro depending on the used clock divider.
 #define TIMER_FREQ_1024(n) TIMER_FREQ_SHIFT(n, 1, 10)
 
-/// A macro that calculates TIMER_DATA(n) settings for a given frequency of n.
-///
-/// It will calculate the correct value for TIMER_DATA(n) given the frequency
-/// in Hz (number of times the timer should overflow per second).
-///
-/// This macro works like TIMER_FREQ(n), except it emits values which will
-/// be synchronized to the frequency of SOUND_FREQ(n) for any given n.
-///
-/// Max frequency is: 16756991 Hz
-/// Min frequency is: ~512 Hz
-///
-/// @note Use the appropriate macro depending on the used clock divider.
-#define TIMER_FREQ_SOUND(n) (TIMER_FREQ_SHIFT(n, 1, 1) << 1)
-
 /// Start a hardware timer.
 ///
 /// Callback is tied directly to interrupt table and called directly, resulting
