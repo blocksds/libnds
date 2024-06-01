@@ -545,7 +545,7 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 ///              removed from currently bound texture).
 /// @return 1 on success, 0 on failure.
 int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
-                    int empty3, const uint16_t *table);
+                    int empty3, const void *table);
 
 /// Loads a 15-bit color format palette into a specific spot in a currently
 /// bound texture's existing palette.
@@ -558,7 +558,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
 /// @param data Pointer to the palette data to load.
 /// @return 1 on success, 0 on failure.
 int glColorSubTableEXT(int target, int start, int count, int empty1,
-                       int empty2, const uint16_t *data);
+                       int empty2, const void *data);
 
 /// Retrieves a 15-bit color format palette from the palette memory of the
 /// currently bound texture.
@@ -568,7 +568,7 @@ int glColorSubTableEXT(int target, int start, int count, int empty1,
 /// @param empty2 Ignored, only here for OpenGL compatibility.
 /// @param table Pointer where palette data will be written to.
 /// @return 1 on success, 0 on failure.
-int glGetColorTableEXT(int target, int empty1, int empty2, uint16_t *table);
+int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 
 /// glAssignColorTable sets the active texture with a palette set with another
 /// texture.

@@ -1177,7 +1177,7 @@ void glBindTexture(int target, int name)
 // Load a 15-bit color format palette into palette memory, and set it to the
 // currently bound texture.
 int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empty3,
-                    const uint16_t *table)
+                    const void *table)
 {
     (void)target;
     (void)empty1;
@@ -1292,7 +1292,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
 // Load a 15-bit color format palette into a specific spot in a currently bound
 // texture's existing palette.
 int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
-                       const uint16_t *data)
+                       const void *data)
 {
     (void)target;
     (void)empty1;
@@ -1319,7 +1319,7 @@ int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
 
 // Retrieve a 15-bit color format palette from the palette memory of the
 // currently bound texture.
-int glGetColorTableEXT(int target, int empty1, int empty2, uint16_t *table)
+int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
 {
     (void)target;
     (void)empty1;
