@@ -83,3 +83,17 @@ ARM_CODE void _exit(int rc)
 
     while (1);
 }
+
+// As this file is always linked in by the crt0, it makes for a good place
+// to include newlib/picolibc stack smash protection overrides.
+uintptr_t __stack_chk_guard = 0x00000aff;
+
+__attribute__((noreturn))
+THUMB_CODE void __stack_chk_fail(void) {
+    // This function causes an undefined instruction exception to crash the CPU
+    // in a controlled way.
+    //
+    // See common/libc/locks.c for more information.
+    asm volatile inline(".hword 0xE800 | 0xBAD");
+    __builtin_unreachable();
+}
