@@ -1638,12 +1638,12 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
         if (type == GL_RGB)
         {
-            const uint16_t *src = texture;
-            uint16_t *dest = (uint16_t *)tex->vramAddr;
-            size >>= 1;
+            const uint32_t *src = texture;
+            uint32_t *dest = (uint32_t *)tex->vramAddr;
+            size >>= 2;
             while (size--)
             {
-                *dest++ = *src | 0x8000;
+                *dest++ = *src | 0x80008000;
                 src++;
             }
         }
