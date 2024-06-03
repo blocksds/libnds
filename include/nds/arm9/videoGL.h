@@ -258,7 +258,11 @@ typedef enum {
     GL_COMPRESSED = 5, ///< Compressed texture
     GL_RGB8_A5    = 6, ///< 8 color palette, 5 bits of alpha
     GL_RGBA       = 7, ///< 15 bit direct color, 1 bit of alpha
-    GL_RGB        = 8  ///< 15 bit direct color. Converted to GL_RGBA internally, which causes a performance penalty when using glTexImage2D().
+
+    /// 15 bit direct color. Converted to GL_RGBA internally, which causes a
+    /// performance penalty when using glTexImage2D(). This format isn't
+    /// recommended, use GL_RGBA instead.
+    GL_RGB        = 8
 } GL_TEXTURE_TYPE_ENUM;
 
 /// Enums for texture palette data retrieval
