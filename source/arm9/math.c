@@ -97,12 +97,3 @@ ARM_CODE float hw_sqrtf(float x)
         return xu.f; // returns +0 or -0 as appropriate
     }
 }
-
-
-
-
-
-
-
-
-
