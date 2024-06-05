@@ -111,7 +111,7 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 static inline void sqrtf32_asynch(int32_t a)
 {
     REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
-    if ((REG_SQRTCNT & 0xF) != SQRT_64)
+    if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
     {
         REG_SQRTCNT = SQRT_64;
     }
