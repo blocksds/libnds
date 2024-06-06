@@ -604,11 +604,24 @@ u32 glGetTexParameter(void);
 /// @param params The destination for the attribute to read into.
 void glGetColorTableParameterEXT(int target, int pname, int *params);
 
-/// Returns the address alocated to the texure named by name.
+/// Returns the address allocated to the texure named by name.
 ///
 /// @param name The name of the texture to get a pointer to.
 /// @return The address.
 void *glGetTexturePointer(int name);
+
+/// Returns address allocated to the extra compressed texure data named by name.
+///
+/// @param name The name of the texture to get a pointer to.
+/// @return The address, or NULL if there is no data or the format of the
+///         texture isn't GL_COMPRESSED.
+void *glGetTextureExtPointer(int name);
+
+/// Returns the address alocated to the palette of the texture named by name.
+///
+/// @param name The name of the texture to get a pointer to.
+/// @return The address.
+void *glGetColorTablePointer(int name);
 
 /// glBindTexure sets the current named texture to the active texture.
 ///

@@ -1400,6 +1400,38 @@ void *glGetTexturePointer(int name)
         return NULL;
 }
 
+// Gets a pointer to the VRAM address that contains the extra data of the
+// compressed texture.
+void *glGetTextureExtPointer(int name)
+{
+    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
+    if (tex == NULL)
+        return NULL;
+
+    uint32_t format = (tex->texFormat >> 26) & 0x07;
+    if (format != GL_COMPRESSED)
+        return NULL;
+
+    return vramBlock_getAddr(glGlob->vramBlocks[0], tex->texIndexExt);
+}
+
+// Gets a pointer to the VRAM address that contains the palette.
+void *glGetColorTablePointer(int name)
+{
+    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
+    if (tex == NULL)
+        return NULL;
+
+    if (tex->palIndex == 0)
+        return NULL;
+
+    gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
+    if (pal == NULL)
+        return NULL;
+
+    return pal->vramAddr;
+}
+
 // Retrieves the currently bound texture's format.
 u32 glGetTexParameter(void)
 {
