@@ -50,6 +50,7 @@ extern "C" {
 #define SQRT_32             0
 #define SQRT_BUSY           (1 << 15)
 #define SQRT_MODE_MASK      1
+
 // Fixed point conversion macros
 
 #define inttof32(n)         ((n) * (1 << 12)) ///< Convert int to f32
