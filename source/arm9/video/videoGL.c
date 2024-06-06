@@ -1552,83 +1552,99 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     // Allocate a new space for the texture in VRAM
     if (!tex->texIndex)
     {
-        if (type != GL_NOTEXTURE)
+        if (type == GL_NOTEXTURE)
         {
-            if (type != GL_COMPRESSED)
-            {
-                tex->texIndex =
-                    vramBlock_allocateBlock(glGlob->vramBlocks[0], tex->texSize, 3);
-            }
-            else
-            {
-                uint8_t *vramBAddr = (uint8_t *)VRAM_B;
-                uint8_t *vramACAddr = NULL;
-                uint8_t *vramBFound, *vramACFound;
-                uint32_t vramBAllocSize = size >> 1;
-                if ((VRAM_B_CR & 0x83) != 0x83)
-                    return 0;
+            // Don't allocate a new texture, only deallocate the old one.
+        }
+        else if (type != GL_COMPRESSED)
+        {
+            tex->texIndex = vramBlock_allocateBlock(glGlob->vramBlocks[0], tex->texSize, 3);
+        }
+        else // if (type == GL_COMPRESSED)
+        {
+            uint8_t *vramBAddr = (uint8_t *)VRAM_B;
+            uint8_t *vramACAddr = NULL;
+            uint8_t *vramBFound, *vramACFound;
+            uint32_t vramBAllocSize = size >> 1;
 
-                // The process of finding a valid spot for compressed textures
-                // is as follows:
-                //
-                // - Examine first available spot in VRAM_B for the header data.
-                // - Extrapulate where the tile data would go in VRAM_A or VRAM_C
-                //   if the spot in VRAM_B were used.
-                // - Check the extrapulated area to see if it is an empty spot.
-                // - If not, then adjust the header spot in VRAM_B by a ratio
-                //   amount found by the tile spot
+            // In theory, any VRAM bank mapped as texture slot 1 can work,
+            // but let's restrict ourselves to using VRAM_B
+            if (VRAM_B_CR != (VRAM_ENABLE | VRAM_B_TEXTURE_SLOT1))
+                return 0;
 
-                while (1)
+            if ((VRAM_A_CR != (VRAM_ENABLE | VRAM_A_TEXTURE_SLOT0)) &&
+                (VRAM_C_CR != (VRAM_ENABLE | VRAM_C_TEXTURE_SLOT2)))
+                return 0;
+
+            // The process of finding a valid spot for compressed textures
+            // is as follows:
+            //
+            // - Examine first available spot in VRAM_B for the header data.
+            // - Extrapolate where the tile data would go in VRAM_A or VRAM_C if
+            //   the spot in VRAM_B were used.
+            // - Check the extrapolated area to see if it is an empty spot.
+            // - If not, then adjust the header spot in VRAM_B by a ratio amount
+            //   found by the tile spot.
+
+            while (1)
+            {
+                // Check designated opening, and return available spot
+                vramBFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
+                                                      vramBAddr, vramBAllocSize, 2);
+
+                // Make sure that the space found in VRAM_B is completely in
+                // it, and not extending out of it. If it extends out of it,
+                // there is no space in VRAM_B, so the texture can't be loaded.
+                if ((vramGetBank((uint16_t *)vramBFound) != VRAM_B) ||
+                    (vramGetBank((uint16_t *)(vramBFound + vramBAllocSize) - 1) != VRAM_B))
                 {
-                    // Check designated opening, and return available spot
-                    vramBFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
-                                                          vramBAddr, vramBAllocSize, 2);
-
-                    // Make sure that the space found in VRAM_B is completely in
-                    // it, and not extending out of it
-                    if (vramGetBank((uint16_t *)vramBFound) != VRAM_B
-                        || vramGetBank((uint16_t *)(vramBFound + vramBAllocSize) - 1)
-                               != VRAM_B)
-                    {
-                        return 0;
-                    }
-
-                    // Make sure it is completely on either half of VRAM_B
-                    if (((uint32_t)vramBFound - (uint32_t)VRAM_B < 0x10000)
-                        && ((uint32_t)vramBFound - (uint32_t)VRAM_B + vramBAllocSize
-                            > 0x10000))
-                    {
-                        vramBAddr = (uint8_t *)VRAM_B + 0x10000;
-                        continue;
-                    }
-
-                    // Retrieve the tile location in VRAM_A or VRAM_C
-                    uint32_t offset = ((uint32_t)vramBFound - (uint32_t)VRAM_B);
-                    vramACAddr =
-                        (uint8_t *)(offset >= 0x10000 ? VRAM_B : VRAM_A) + (offset << 1);
-
-                    vramACFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
-                                                           vramACAddr, size, 3);
-                    if (vramACAddr != vramACFound)
-                    {
-                        // Adjust the spot in VRAM_B by the difference found
-                        // with VRAM_A/VRAM_C, divided by 2
-                        vramBAddr += (((uint32_t)vramACFound - (uint32_t)vramACAddr) >> 1);
-                        continue;
-                    }
-                    else
-                    {
-                        // Spot found, setting up spots
-                        tex->texIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[0],
-                                                                  vramACFound, size);
-                        tex->texIndexExt = vramBlock_allocateSpecial(
-                            glGlob->vramBlocks[0],
-                            vramBlock_examineSpecial(glGlob->vramBlocks[0], vramBFound,
-                                                     vramBAllocSize, 2),
-                            vramBAllocSize);
-                        break;
-                    }
+                    return 0;
                 }
+
+                uint32_t offset = (uint32_t)vramBFound - (uint32_t)VRAM_B;
+
+                // Make sure it is completely on either half of VRAM_B. The
+                // first half maps to VRAM_A, the second half maps to VRAM_C.
+                if ((offset < 0x10000) && (offset + vramBAllocSize > 0x10000))
+                {
+                    // If the slot is in both halves, try again starting from
+                    // the second half of VRAM_B.
+                    vramBAddr = (uint8_t *)VRAM_B + 0x10000;
+                    continue;
+                }
+
+                // Retrieve the tile location in VRAM_A or VRAM_C
+                vramACAddr = (uint8_t *)(offset >= 0x10000 ? VRAM_C : VRAM_A)
+                           + ((offset & 0xFFFF) << 1);
+
+                vramACFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
+                                                       vramACAddr, size, 3);
+                if (vramACAddr == vramACFound)
+                {
+                    // Valid addresses found, lock them for this texture.
+                    tex->texIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[0],
+                                                              vramACFound, size);
+                    tex->texIndexExt = vramBlock_allocateSpecial(
+                        glGlob->vramBlocks[0],
+                        vramBlock_examineSpecial(glGlob->vramBlocks[0], vramBFound,
+                                                 vramBAllocSize, 2),
+                        vramBAllocSize);
+                    break;
+                }
+
+                // If we started to look for space from VRAM_A, but VRAM_A is
+                // completely full (or not mapped for textures) it is possible
+                // that vramACFound is inside VRAM_B. If that happens, restart
+                // from VRAM_C.
+                if (vramGetBank((uint16_t *)vramACFound) == VRAM_B)
+                {
+                    vramBAddr = (uint8_t *)VRAM_B + 0x10000;
+                    continue;
+                }
+
+                // Advance the address in VRAM_B by the difference found with
+                // VRAM_A/VRAM_C, divided by 2. Then, try again there.
+                vramBAddr += ((uint32_t)vramACFound - (uint32_t)vramACAddr) >> 1;
             }
         }
 
