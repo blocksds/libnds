@@ -1026,7 +1026,7 @@ int glDeleteTextures(int n, int *names)
         DynamicArraySet(&glGlob->deallocTex, ++glGlob->deallocTexSize,
                         (void *)names[index]);
         gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs,
-                                                    names[index]);
+                                                   names[index]);
         if (texture)
         {
             // Clear out the texture blocks
@@ -1491,22 +1491,28 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         size = 0;
 
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-
-    // Clear out the texture data if one already exists for the active texture
-    if (tex)
+    if (tex == NULL)
     {
-        uint32_t texType = ((tex->texFormat >> 26) & 0x07);
-        if ((tex->texSize != size) || (typeSizes[texType] != typeSizes[type]))
-        {
-            if (tex->texIndexExt)
-                vramBlock_deallocateBlock(glGlob->vramBlocks[0], tex->texIndexExt);
+        // This point is reached if there is no active texture when
+        // glTexImage2D() is called. This is a programmer error (glBindTexture()
+        // hasn't been called to set an active texture).
+        return 0;
+    }
 
-            if (tex->texIndex)
-                vramBlock_deallocateBlock(glGlob->vramBlocks[0], tex->texIndex);
+    // If there is a texture already and its size and bits per pixel are the
+    // same as the ones of the new texture, reuse the old buffer. If not, clear
+    // the texture data so that a new buffer is allocated.
+    uint32_t texType = ((tex->texFormat >> 26) & 0x07);
+    if ((tex->texSize != size) || (typeSizes[texType] != typeSizes[type]))
+    {
+        if (tex->texIndexExt)
+            vramBlock_deallocateBlock(glGlob->vramBlocks[0], tex->texIndexExt);
 
-            tex->texIndex = tex->texIndexExt = 0;
-            tex->vramAddr = NULL;
-        }
+        if (tex->texIndex)
+            vramBlock_deallocateBlock(glGlob->vramBlocks[0], tex->texIndex);
+
+        tex->texIndex = tex->texIndexExt = 0;
+        tex->vramAddr = NULL;
     }
 
     tex->texSize = size;
@@ -1593,6 +1599,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 }
             }
         }
+
         if (tex->texIndex)
         {
             tex->vramAddr = vramBlock_getAddr(glGlob->vramBlocks[0], tex->texIndex);
@@ -1609,6 +1616,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     }
     else
     {
+        // This point is reached if there already was a buffer that we can use
+        // for the new texture. We only need to update the texture information.
         tex->texFormat = (sizeX << 20) | (sizeY << 23)
                          | ((type == GL_RGB ? GL_RGBA : type) << 26)
                          | (tex->texFormat & 0xFFFF);
