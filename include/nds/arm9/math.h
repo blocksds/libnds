@@ -69,7 +69,7 @@ static inline void divf32_asynch(int32_t num, int32_t den)
     REG_DIV_DENOM_L = den;
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
     {
-	REG_DIVCNT = DIV_64_32;
+        REG_DIVCNT = DIV_64_32;
     }
 }
 
@@ -230,6 +230,7 @@ static inline void div64_asynch(int64_t num, int32_t den)
 static inline int32_t div64_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
+    
     return REG_DIV_RESULT_L;
 }
 
