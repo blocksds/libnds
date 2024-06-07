@@ -211,14 +211,15 @@ enum GL_POLY_FORMAT_ENUM {
 ///
 /// Related functions: glTexImage2D(), glTexParameter()
 enum GL_TEXTURE_SIZE_ENUM {
-    TEXTURE_SIZE_8    = 0, ///< 8 texels
-    TEXTURE_SIZE_16   = 1, ///< 16 texels
-    TEXTURE_SIZE_32   = 2, ///< 32 texels
-    TEXTURE_SIZE_64   = 3, ///< 64 texels
-    TEXTURE_SIZE_128  = 4, ///< 128 texels
-    TEXTURE_SIZE_256  = 5, ///< 256 texels
-    TEXTURE_SIZE_512  = 6, ///< 512 texels
-    TEXTURE_SIZE_1024 = 7  ///< 1024 texels
+    TEXTURE_SIZE_INVALID = -1, ///< An invalid number of texels
+    TEXTURE_SIZE_8       =  0, ///< 8 texels
+    TEXTURE_SIZE_16      =  1, ///< 16 texels
+    TEXTURE_SIZE_32      =  2, ///< 32 texels
+    TEXTURE_SIZE_64      =  3, ///< 64 texels
+    TEXTURE_SIZE_128     =  4, ///< 128 texels
+    TEXTURE_SIZE_256     =  5, ///< 256 texels
+    TEXTURE_SIZE_512     =  6, ///< 512 texels
+    TEXTURE_SIZE_1024    =  7, ///< 1024 texels
 };
 
 /// Texture parameters such as texture wrapping and texture coord wrapping.
@@ -487,7 +488,8 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 ///
 /// The only allowed texture sizes are powers of two between 8 and 1024
 /// (inclusive). It is possible to specify the size in pixels or using the
-/// values of GL_TEXTURE_SIZE_ENUM.
+/// values of GL_TEXTURE_SIZE_ENUM. Note that a value of 0 won't cause an error
+/// because is a GL_TEXTURE_SIZE_ENUM value equivalent to 8 pixels.
 ///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param empty1 Ignored, only here for OpenGL compatibility.
@@ -506,7 +508,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
 /// Note: This is not a real OpenGL function.
 ///
 /// @param size Size in pixels.
-/// @return A valid GL_TEXTURE_SIZE_ENUM or -1 if the size is incorrect.
+/// @return A valid GL_TEXTURE_SIZE_ENUM value (TEXTURE_SIZE_INVALID if the size
+///         is invalid).
 static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 {
     // By making this function static inline it's easy for the compiler to
@@ -530,7 +533,7 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
         case 1024:
             return TEXTURE_SIZE_1024;
         default:
-            return (enum GL_TEXTURE_SIZE_ENUM)-1;
+            return TEXTURE_SIZE_INVALID;
     }
 }
 
