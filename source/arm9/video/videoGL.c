@@ -1195,9 +1195,9 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
         removePaletteFromTexture(texture);
 
     // Exit if no color table or color count is 0 (helpful in emptying the
-    // palette for the active texture)
-    if (!width || table == NULL)
-        return 0;
+    // palette for the active texture). This isn't considered an error.
+    if ((width == 0) || (table == NULL))
+        return 1;
 
     // Allocate new palette block based on the texture's format
     uint32_t colFormat = ((texture->texFormat >> 26) & 0x7);
@@ -1555,6 +1555,9 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         if (type == GL_NOTEXTURE)
         {
             // Don't allocate a new texture, only deallocate the old one.
+            tex->vramAddr = NULL;
+            tex->texFormat = 0;
+            return 1;
         }
         else if (type != GL_COMPRESSED)
         {
