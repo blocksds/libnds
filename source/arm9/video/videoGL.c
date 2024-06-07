@@ -1480,7 +1480,12 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         0, 8, 2, 4, 8, 3, 8, 16, 16
     };
 
+    // There must be an active texture for this function to work
     if (!glGlob->activeTexture)
+        return 0;
+
+    // Check if the texture format is invalid
+    if (type > GL_RGB)
         return 0;
 
     // Values between 0 and 7 (inclusive) represent internal texture sizes as
@@ -1569,6 +1574,10 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
             uint8_t *vramACAddr = NULL;
             uint8_t *vramBFound, *vramACFound;
             uint32_t vramBAllocSize = size >> 1;
+
+            // The main texture chunk needs to fit in one VRAM bank (A or C)
+            if (size > 128 * 1024)
+                return 0;
 
             // In theory, any VRAM bank mapped as texture slot 1 can work,
             // but let's restrict ourselves to using VRAM_B

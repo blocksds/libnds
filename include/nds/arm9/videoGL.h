@@ -498,7 +498,8 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 /// @param sizeY Height of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
 /// @param empty2 Ignored, only here for OpenGL compatibility.
 /// @param param Parameters of the texture.
-/// @param texture Pointer to the texture data to load.
+/// @param texture Pointer to the texture data to load. If this is NULL, the
+///                texture will be allocated but no data will be copied to it.
 /// @return 1 on success, 0 on failure.
 int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
                  int sizeY, int empty2, int param, const void *texture);
