@@ -1636,8 +1636,11 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                     // Valid addresses found, lock them for this texture.
                     tex->texIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[0],
                                                               vramACFound, size);
-                    tex->texIndexExt = vramBlock_allocateSpecial(glGlob->vramBlocks[0],
-                                                                 vramBFound, vramBAllocSize);
+                    tex->texIndexExt = vramBlock_allocateSpecial(
+                        glGlob->vramBlocks[0],
+                        vramBlock_examineSpecial(glGlob->vramBlocks[0], vramBFound,
+                                                 vramBAllocSize, 2),
+                        vramBAllocSize);
                     break;
                 }
 
