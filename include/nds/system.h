@@ -394,7 +394,15 @@ typedef struct tPERSONAL_DATA
 
     u8 year;            ///< Year (0 = 2000 .. 255 = 2255)
     u8 rtcClockAdjust;  ///< Real Time Clock adjustment register value.
-    u32 rtcOffset;      ///< Real Time Clock offset.
+
+    /// Real Time Clock offset.
+    ///
+    /// Whenever the time/date of the NDS is changed in the system settings menu
+    /// from time A to time B, the firmware adds (epoch(B) - epoch(A)) to this
+    /// field. libnds doesn't do this in rtcTimeSet() or rtcTimeAndDateSet(),
+    /// so any game that relies on this firmware field to detect time/date
+    /// modifications won't be able to do it.
+    u32 rtcOffset;
     u32 RESERVED4;      // ???
 } PACKED PERSONAL_DATA;
 

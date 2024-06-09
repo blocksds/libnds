@@ -139,6 +139,9 @@ void rtcTimeGet(rtcTime *rtc);
 /// correctly, only that the checks previous to writing the RTC registers
 /// passed.
 ///
+/// Note: Check the documentation of rtcOffset in struct tPERSONAL_DATA for
+/// additional information.
+///
 /// @param rtc Pointer to the rtcTime struct with the new time.
 /// @return If the provided values were valid, it returns 0, else -1.
 int rtcTimeSet(rtcTime *rtc);
@@ -153,6 +156,9 @@ void rtcTimeAndDateGet(rtcTimeAndDate *rtc);
 /// A returned value of 0 doesn't mean that the RTC registers were updated
 /// correctly, only that the checks previous to writing the RTC registers
 /// passed.
+///
+/// Note: Check the documentation of rtcOffset in struct tPERSONAL_DATA for
+/// additional information.
 ///
 /// @param rtc Pointer to the rtcTimeAndDate struct with the new time and date.
 /// @return If the provided values were valid, it returns 0, else -1.
