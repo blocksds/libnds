@@ -76,7 +76,7 @@ typedef struct UnpackStruct
 } PACKED TUnpackStruct, __attribute__((deprecated)) * PUnpackStruct;
 
 /// Resets the DS.
-__attribute__((always_inline))
+__attribute__((always_inline, noreturn))
 static inline void swiSoftReset(void)
 {
     asm volatile inline ("swi 0x0 << ((1f - . == 4) * -16); 1:");
@@ -462,6 +462,7 @@ static inline void swiSleep(void)
 /// Switches the DS to GBA mode.
 ///
 /// @note ARM7 exclusive.
+__attribute__((noreturn))
 void swiSwitchToGBAMode(void);
 
 /// Returns an entry in the sine table.
