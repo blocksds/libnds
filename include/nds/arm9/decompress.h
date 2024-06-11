@@ -35,8 +35,10 @@ typedef enum
 /// @param type Type of data to decompress.
 void decompress(const void *data, void *dst, DecompressType type);
 
-/// Decompresses data using the suported type (only LZ77Vram, HUFF, and RLEVram
-/// support streaming)
+/// Decompresses data using the suported type.
+///
+/// Only LZ77Vram, HUFF and RLEVram support streaming, but HUFF isn't supported
+/// by this function at all, use decompressStreamStruct() instead.
 ///
 /// @param dst Destination to decompress to.
 /// @param data Data to decompress.

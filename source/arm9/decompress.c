@@ -3,11 +3,13 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
+#include <stdlib.h>
+
 #include <nds/arm9/decompress.h>
 #include <nds/arm9/sassert.h>
 #include <nds/bios.h>
 
-static int getHeader(uint8_t *source, uint16_t *dest, uint32_t arg)
+static int decompress_get_header(uint8_t *source, uint16_t *dest, uint32_t arg)
 {
     (void)dest;
     (void)arg;
@@ -15,12 +17,28 @@ static int getHeader(uint8_t *source, uint16_t *dest, uint32_t arg)
     return *(uint32_t *)source;
 }
 
-static uint8_t readByte(uint8_t *source)
+static uint8_t decompress_read_8(uint8_t *source)
 {
     return *source;
 }
 
-TDecompressionStream decomStream = { getHeader, 0, readByte };
+static uint16_t decompress_read_16(uint16_t *source)
+{
+    return *source;
+}
+
+static uint32_t decompress_read_32(uint32_t *source)
+{
+    return *source;
+}
+
+TDecompressionStream decomStream = {
+    decompress_get_header,
+    NULL, // The close callback can be omitted
+    decompress_read_8,
+    decompress_read_16,
+    decompress_read_32
+};
 
 void decompress(const void *data, void *dst, DecompressType type)
 {
@@ -54,7 +72,15 @@ void decompressStream(const void *data, void *dst, DecompressType type,
             "LZ77 and RLE do not support streaming, use Vram versions");
 #endif
 
-    TDecompressionStream decompresStream = { getHeaderCB, 0, readCB };
+    sassert(type != HUFF, "HUFF not supported");
+
+    TDecompressionStream decompresStream = {
+        getHeaderCB,
+        NULL,
+        readCB,
+        NULL,
+        NULL // Only required for Huffman
+    };
 
     switch (type)
     {
@@ -62,7 +88,6 @@ void decompressStream(const void *data, void *dst, DecompressType type,
             swiDecompressLZSSVram(data, dst, 0, &decompresStream);
             break;
         case HUFF:
-            swiDecompressHuffman(data, dst, 0, &decompresStream);
             break;
         case RLEVram:
             swiDecompressRLEVram(data, dst, 0, &decompresStream);

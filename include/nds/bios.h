@@ -50,20 +50,38 @@ typedef int (*getHeaderCallback)(u8 *source, u16 *dest, u32 arg);
 ///         The value will be returned from BIOS function if value is negative.
 typedef int (*getResultCallback)(u8 *source);
 
-/// Should returns a raw byte of the stream.
+/// Should return a raw byte of the stream.
 ///
 /// @param source A pointer to the byte.
 /// @return A byte.
 typedef u8 (*getByteCallback)(u8 *source);
 
+/// Should return a raw halfword of the stream.
+///
+/// @param source A pointer to the halfword.
+/// @return A halfword.
+typedef u16 (*getHalfWordCallback)(u16 *source);
+
+/// Should return a raw word of the stream.
+///
+/// @param source A pointer to the word.
+/// @return A word.
+typedef u32 (*getWordCallback)(u32 *source);
+
 /// A struct that contains callback function pointers used by the decompression
 /// functions.
 typedef struct DecompressionStream
 {
-    getHeaderCallback getSize;   ///< gets called to get the header of the stream.
-    getResultCallback getResult; ///< gets called to verify the result afterwards, can be NULL (no callback).
-    getByteCallback readByte;    ///< gets called to get a byte of the compressed data.
-    // According to gbatek, there are 2 more callback pointers here.
+    /// It gets called to get the header of the stream.
+    getHeaderCallback getSize;
+    /// It gets called to verify the result afterwards. It can be NULL.
+    getResultCallback getResult;
+    /// It gets called to get a byte of the compressed data.
+    getByteCallback readByte;
+    /// It gets called to get a halfword of the compressed data. Unused.
+    getHalfWordCallback readHalfWord;
+    /// It gets called to get a word of the compressed data. Used for Huffman.
+    getWordCallback readWord;
 } PACKED TDecompressionStream;
 
 /// A struct and struct pointer with information about unpacking data.
@@ -72,7 +90,10 @@ typedef struct UnpackStruct
     uint16_t sourceSize; ///< in bytes
     uint8_t sourceWidth; ///< 1,2,4 or 8 bits.
     uint8_t destWidth;   ///< 1,2,4,8,16 or 32 bits.
-    uint32_t dataOffset; ///< bits 0-30 are added to all non-zero destination writes, unless bit 31 is set, which does it for zeros too.
+
+    /// Bits 0-30 are added to all non-zero destination writes. If bit 31 is
+    /// set they are added to zeroes too.
+    uint32_t dataOffset;
 } PACKED TUnpackStruct, __attribute__((deprecated)) * PUnpackStruct;
 
 /// Resets the DS.
