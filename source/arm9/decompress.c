@@ -77,7 +77,7 @@ void decompressStream(const void *data, void *dst, DecompressType type,
             "LZ77 and RLE do not support streaming, use Vram versions");
 #endif
 
-    sassert(type != HUFF, "HUFF not supported");
+    sassert(type != HUFF, "HUFF not supported, use decompresStreamStruct()");
 
     TDecompressionStream decompresStream = {
         getHeaderCB,
@@ -92,10 +92,40 @@ void decompressStream(const void *data, void *dst, DecompressType type,
         case LZ77Vram:
             swiDecompressLZSSVram(data, dst, 0, &decompresStream);
             break;
-        case HUFF:
-            break;
         case RLEVram:
             swiDecompressRLEVram(data, dst, 0, &decompresStream);
+            break;
+        default:
+            break;
+    }
+}
+
+void decompressStreamStruct(const void *data, void *dst, DecompressType type,
+                            void *param, TDecompressionStream *ds)
+{
+#ifdef ARM9
+    sassert(type != LZ77 && type != RLE,
+            "LZ77 and RLE do not support streaming, use Vram versions");
+#endif
+
+    sassert(ds->getSize != NULL, "getSize() callback is required");
+    sassert(ds->readByte != NULL, "readByte() callback is required");
+
+    switch (type)
+    {
+        case LZ77Vram:
+            swiDecompressLZSSVram(data, dst, (uintptr_t)param, ds);
+            break;
+        case HUFF:
+        {
+            sassert(param != NULL, "Temporary buffer required for HUFF");
+            sassert(ds->readWord != NULL, "readWord() callback required for HUFF");
+
+            swiDecompressHuffman(data, dst, (uintptr_t)param, ds);
+            break;
+        }
+        case RLEVram:
+            swiDecompressRLEVram(data, dst, (uintptr_t)param, ds);
             break;
         default:
             break;

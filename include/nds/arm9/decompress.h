@@ -51,6 +51,22 @@ void decompress(const void *data, void *dst, DecompressType type);
 void decompressStream(const void *data, void *dst, DecompressType type,
                       getByteCallback readCB, getHeaderCallback getHeaderCB);
 
+/// Decompresses data using the suported type.
+///
+/// Only LZ77Vram, HUFF and RLEVram support streaming.
+///
+/// For HUFF, make sure to pass a 512 byte buffer in 'param' to be used as a
+/// temporary buffer by the decompression code.
+///
+/// @param dst Destination to decompress to.
+/// @param data Data to decompress.
+/// @param type Type of data to decompress.
+/// @param param A value to be passed to getHeaderCallback(), or a temporary
+///              buffer for HUFF.
+/// @param ds A struct with callbacks to be used by the decompression routine.
+void decompressStreamStruct(const void *data, void *dst, DecompressType type,
+                            void *param, TDecompressionStream *ds);
+
 #ifdef __cplusplus
 }
 #endif
