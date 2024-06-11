@@ -51,8 +51,13 @@ void decompress(const void *data, void *dst, DecompressType type)
             swiDecompressLZSSWram(data, dst);
             break;
         case HUFF:
-            swiDecompressHuffman(data, dst, 0, &decomStream);
+        {
+            // This temporary buffer is allocated in the stack, in DTCM, but
+            // that's okay because the ARM9 BIOS can access DTCM.
+            uint8_t temp[0x200];
+            swiDecompressHuffman(data, dst, (uintptr_t)&temp[0], &decomStream);
             break;
+        }
         case RLE:
             swiDecompressRLEWram(data, dst);
             break;

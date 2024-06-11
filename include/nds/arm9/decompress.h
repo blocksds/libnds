@@ -30,6 +30,9 @@ typedef enum
 
 /// Decompresses data using the suported type.
 ///
+/// When 'type' is HUFF, this function will allocate 512 bytes in the stack as a
+/// temporary buffer.
+///
 /// @param dst Destination to decompress to.
 /// @param data Data to decompress.
 /// @param type Type of data to decompress.
