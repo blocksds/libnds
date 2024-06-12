@@ -769,13 +769,33 @@ static inline void glVertex3v16(v16 x, v16 y, v16 z)
     GFX_VERTEX16 = z;
 }
 
+/// Specifies a new vertex by its X and Y components.
+///
+/// The Z component is the same as the last vertex sent to the GPU.
+///
+/// @param x The x component for the vertex.
+/// @param y The y component for the vertex.
+static inline void glVertex2v16(v16 x, v16 y)
+{
+    GFX_VERTEX_XY = (y << 16) | (x & 0xFFFF);
+}
+
 /// Sets texture coordinates for the following vertices.
 ///
-/// @param u U (a.k.a. S) texture coordinate in texels.
-/// @param v V (a.k.a. T) texture coordinate in texels.
+/// @param u U (a.k.a. S) texture coordinate in texels (12.4 format).
+/// @param v V (a.k.a. T) texture coordinate in texels (12.4 format).
 static inline void glTexCoord2t16(t16 u, t16 v)
 {
     GFX_TEX_COORD = TEXTURE_PACK(u, v);
+}
+
+/// Sets texture coordinates for the following vertices.
+///
+/// @param u U (a.k.a. S) texture coordinate in texels (12.0 format).
+/// @param v V (a.k.a. T) texture coordinate in texels (12.0 format).
+static inline void glTexCoord2i(t16 u, t16 v)
+{
+    GFX_TEX_COORD = (v << 20) | ((u << 4) & 0xFFFF);
 }
 
 /// Pushes the current matrix to the stack.

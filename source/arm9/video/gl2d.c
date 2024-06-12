@@ -11,47 +11,6 @@
 
 #include <gl2d.h>
 
-// Direct copy of glVertex3v16(). I made this since VideoGL don't have a
-// glVertex#i() wrappers.
-static inline void gxVertex3i(v16 x, v16 y, v16 z)
-{
-    GFX_VERTEX16 = (y << 16) | (x & 0xFFFF);
-    GFX_VERTEX16 = ((uint32_t)(uint16_t)z);
-}
-
-// Again no gxVertex2i() in the videoGL header. This is used for optimizing
-// vertex calls.
-static inline void gxVertex2i(v16 x, v16 y)
-{
-    GFX_VERTEX_XY = (y << 16) | (x & 0xFFFF);
-}
-
-// Almost a direct copy of TEXTURE_PACK except that UV coords are shifted left
-// by 4 bits.  U and V are shifted left by 4 bits since GFX_TEX_COORD expects
-// 12.4 Fixed point values.
-static inline void gxTexcoord2i(t16 u, t16 v)
-{
-    GFX_TEX_COORD = (v << 20) | ((u << 4) & 0xFFFF);
-}
-
-// I made this since the scale wrappers are either the vectorized mode or does
-// not permit you to scale only the axis you want to scale. Needed for sprite
-// scaling.
-static inline void gxScalef32(s32 x, s32 y, s32 z)
-{
-    MATRIX_SCALE = x;
-    MATRIX_SCALE = y;
-    MATRIX_SCALE = z;
-}
-
-// I this made for future naming conflicts.
-static inline void gxTranslate3f32(int32_t x, int32_t y, int32_t z)
-{
-    MATRIX_TRANSLATE = x;
-    MATRIX_TRANSLATE = y;
-    MATRIX_TRANSLATE = z;
-}
-
 // Our static global variable used for depth values since we cannot disable
 // depth testing in the DS hardware. This value is incremented for every draw
 // call.
@@ -163,9 +122,9 @@ void glPutPixel(int x, int y, int color)
     glBindTexture(0, 0);
     glColor(color);
     glBegin(GL_TRIANGLES);
-        gxVertex3i(x, y, g_depth);
-        gxVertex2i(x, y);
-        gxVertex2i(x, y);
+        glVertex3v16(x, y, g_depth);
+        glVertex2v16(x, y);
+        glVertex2v16(x, y);
     glEnd();
     glColor(0x7FFF);
     g_depth++;
@@ -180,9 +139,9 @@ void glLine(int x1, int y1, int x2, int y2, int color)
     glBindTexture(0, 0);
     glColor(color);
     glBegin(GL_TRIANGLES);
-        gxVertex3i(x1, y1, g_depth);
-        gxVertex2i(x2, y2);
-        gxVertex2i(x2, y2);
+        glVertex3v16(x1, y1, g_depth);
+        glVertex2v16(x2, y2);
+        glVertex2v16(x2, y2);
     glEnd();
     glColor(0x7FFF);
     g_depth++;
@@ -199,22 +158,22 @@ void glBox(int x1, int y1, int x2, int y2, int color)
     glColor(color);
     glBegin(GL_TRIANGLES);
 
-        gxVertex3i(x1, y1, g_depth);
-        gxVertex2i(x2, y1);
-        gxVertex2i(x2, y1);
+        glVertex3v16(x1, y1, g_depth);
+        glVertex2v16(x2, y1);
+        glVertex2v16(x2, y1);
 
-        gxVertex2i(x2, y1);
-        gxVertex2i(x2, y2);
-        gxVertex2i(x2, y2);
+        glVertex2v16(x2, y1);
+        glVertex2v16(x2, y2);
+        glVertex2v16(x2, y2);
 
         // Bug fix for lower-right corner disappearing pixel
-        gxVertex2i(++x2, y2);
-        gxVertex2i(x1, y2);
-        gxVertex2i(x1, y2);
+        glVertex2v16(++x2, y2);
+        glVertex2v16(x1, y2);
+        glVertex2v16(x1, y2);
 
-        gxVertex2i(x1, y2);
-        gxVertex2i(x1, y1);
-        gxVertex2i(x1, y1);
+        glVertex2v16(x1, y2);
+        glVertex2v16(x1, y1);
+        glVertex2v16(x1, y1);
 
     glEnd();
     glColor(0x7FFF);
@@ -232,11 +191,11 @@ void glBoxFilled(int x1, int y1, int x2, int y2, int color)
     glColor(color);
     glBegin(GL_QUADS);
         // Use 3i for first vertex so that we increment HW depth
-        gxVertex3i(x1, y1, g_depth);
+        glVertex3v16(x1, y1, g_depth);
         // No need for 3 vertices as 2i would share last depth call
-        gxVertex2i(x1, y2);
-        gxVertex2i(x2, y2);
-        gxVertex2i(x2, y1);
+        glVertex2v16(x1, y2);
+        glVertex2v16(x2, y2);
+        glVertex2v16(x2, y1);
     glEnd();
     glColor(0x7FFF);
     g_depth++;
@@ -253,14 +212,14 @@ void glBoxFilledGradient(int x1, int y1, int x2, int y2,
     glBegin(GL_QUADS);
         glColor(color1);
         // Use 3i for first vertex so that we increment HW depth
-        gxVertex3i(x1, y1, g_depth);
+        glVertex3v16(x1, y1, g_depth);
         glColor(color2);
         // No need for 3 vertices as 2i would share last depth call
-        gxVertex2i(x1, y2);
+        glVertex2v16(x1, y2);
         glColor(color3);
-        gxVertex2i(x2, y2);
+        glVertex2v16(x2, y2);
         glColor(color4);
-        gxVertex2i(x2, y1);
+        glVertex2v16(x2, y1);
     glEnd();
     glColor(0x7FFF);
     g_depth++;
@@ -273,17 +232,17 @@ void glTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int color)
     glColor(color);
     glBegin(GL_TRIANGLES);
 
-        gxVertex3i(x1, y1, g_depth);
-        gxVertex2i(x2, y2);
-        gxVertex2i(x2, y2);
+        glVertex3v16(x1, y1, g_depth);
+        glVertex2v16(x2, y2);
+        glVertex2v16(x2, y2);
 
-        gxVertex2i(x2, y2);
-        gxVertex2i(x3, y3);
-        gxVertex2i(x3, y3);
+        glVertex2v16(x2, y2);
+        glVertex2v16(x3, y3);
+        glVertex2v16(x3, y3);
 
-        gxVertex2i(x3, y3);
-        gxVertex2i(x1, y1);
-        gxVertex2i(x1, y1);
+        glVertex2v16(x3, y3);
+        glVertex2v16(x1, y1);
+        glVertex2v16(x1, y1);
 
     glEnd();
     glColor(0x7FFF);
@@ -298,10 +257,10 @@ void glTriangleFilled(int x1, int y1, int x2, int y2, int x3, int y3, int color)
     glColor(color);
     glBegin(GL_TRIANGLES);
         // Use 3i for first vertex so that we increment HW depth
-        gxVertex3i(x1, y1, g_depth);
+        glVertex3v16(x1, y1, g_depth);
         // No need for 3 vertices as 2i would share last depth call
-        gxVertex2i(x2, y2);
-        gxVertex2i(x3, y3);
+        glVertex2v16(x2, y2);
+        glVertex2v16(x3, y3);
     glEnd();
     glColor(0x7FFF);
     g_depth++;
@@ -316,12 +275,12 @@ void glTriangleFilledGradient(int x1, int y1, int x2, int y2, int x3, int y3,
     glBegin(GL_TRIANGLES);
         // Use 3i for first vertex so that we increment HW depth
         glColor(color1);
-        gxVertex3i(x1, y1, g_depth);
+        glVertex3v16(x1, y1, g_depth);
         glColor(color2);
         // No need for 3 vertices as 2i would share last depth call
-        gxVertex2i(x2, y2);
+        glVertex2v16(x2, y2);
         glColor(color3);
-        gxVertex2i(x3, y3);
+        glVertex2v16(x3, y3);
     glEnd();
     glColor(0x7FFF);
     g_depth++;
@@ -348,10 +307,10 @@ void glSprite(int x, int y, int flipmode, const glImage *spr)
 
     glBegin(GL_QUADS);
 
-        gxTexcoord2i(u1, v1); gxVertex3i(x1, y1, g_depth);
-        gxTexcoord2i(u1, v2); gxVertex2i(x1, y2);
-        gxTexcoord2i(u2, v2); gxVertex2i(x2, y2);
-        gxTexcoord2i(u2, v1); gxVertex2i(x2, y1);
+        glTexCoord2i(u1, v1); glVertex3v16(x1, y1, g_depth);
+        glTexCoord2i(u1, v2); glVertex2v16(x1, y2);
+        glTexCoord2i(u2, v2); glVertex2v16(x2, y2);
+        glTexCoord2i(u2, v1); glVertex2v16(x2, y1);
 
     glEnd();
 
@@ -378,19 +337,19 @@ void glSpriteScale(int x, int y, s32 scale, int flipmode, const glImage *spr)
 
     glPushMatrix();
 
-        gxTranslate3f32(x, y, 0);
-        gxScalef32(scale, scale, 1 << 12);
+        glTranslatef32(x, y, 0);
+        glScalef32(scale, scale, 1 << 12);
 
         glBegin(GL_QUADS);
 
-            gxTexcoord2i(u1, v1);
-            gxVertex3i(x1, y1, g_depth);
-            gxTexcoord2i(u1, v2);
-            gxVertex2i(x1, y2);
-            gxTexcoord2i(u2, v2);
-            gxVertex2i(x2, y2);
-            gxTexcoord2i(u2, v1);
-            gxVertex2i(x2, y1);
+            glTexCoord2i(u1, v1);
+            glVertex3v16(x1, y1, g_depth);
+            glTexCoord2i(u1, v2);
+            glVertex2v16(x1, y2);
+            glTexCoord2i(u2, v2);
+            glVertex2v16(x2, y2);
+            glTexCoord2i(u2, v1);
+            glVertex2v16(x2, y1);
 
         glEnd();
 
@@ -419,19 +378,19 @@ void glSpriteScaleXY(int x, int y, s32 scaleX, s32 scaleY, int flipmode,
 
     glPushMatrix();
 
-        gxTranslate3f32(x, y, 0);
-        gxScalef32(scaleX, scaleY, 1 << 12);
+        glTranslatef32(x, y, 0);
+        glScalef32(scaleX, scaleY, 1 << 12);
 
         glBegin(GL_QUADS);
 
-            gxTexcoord2i(u1, v1);
-            gxVertex3i(x1, y1, g_depth);
-            gxTexcoord2i(u1, v2);
-            gxVertex2i(x1, y2);
-            gxTexcoord2i(u2, v2);
-            gxVertex2i(x2, y2);
-            gxTexcoord2i(u2, v1);
-            gxVertex2i(x2, y1);
+            glTexCoord2i(u1, v1);
+            glVertex3v16(x1, y1, g_depth);
+            glTexCoord2i(u1, v2);
+            glVertex2v16(x1, y2);
+            glTexCoord2i(u2, v2);
+            glVertex2v16(x2, y2);
+            glTexCoord2i(u2, v1);
+            glVertex2v16(x2, y1);
 
         glEnd();
 
@@ -463,19 +422,19 @@ void glSpriteRotate(int x, int y, s32 angle, int flipmode, const glImage *spr)
 
     glPushMatrix();
 
-        gxTranslate3f32(x, y, 0);
+        glTranslatef32(x, y, 0);
         glRotateZi(angle);
 
         glBegin(GL_QUADS);
 
-            gxTexcoord2i(u1, v1);
-            gxVertex3i(x1, y1, g_depth);
-            gxTexcoord2i(u1, v2);
-            gxVertex2i(x1, y2);
-            gxTexcoord2i(u2, v2);
-            gxVertex2i(x2, y2);
-            gxTexcoord2i(u2, v1);
-            gxVertex2i(x2, y1);
+            glTexCoord2i(u1, v1);
+            glVertex3v16(x1, y1, g_depth);
+            glTexCoord2i(u1, v2);
+            glVertex2v16(x1, y2);
+            glTexCoord2i(u2, v2);
+            glVertex2v16(x2, y2);
+            glTexCoord2i(u2, v1);
+            glVertex2v16(x2, y1);
 
         glEnd();
 
@@ -509,21 +468,21 @@ void glSpriteRotateScale(int x, int y, s32 angle, s32 scale, int flipmode,
 
     glPushMatrix();
 
-        gxTranslate3f32(x, y, 0);
-        gxScalef32(scale, scale, 1 << 12);
+        glTranslatef32(x, y, 0);
+        glScalef32(scale, scale, 1 << 12);
         glRotateZi(angle);
 
 
         glBegin(GL_QUADS);
 
-            gxTexcoord2i(u1, v1);
-            gxVertex3i(x1, y1, g_depth);
-            gxTexcoord2i(u1, v2);
-            gxVertex2i(x1, y2);
-            gxTexcoord2i(u2, v2);
-            gxVertex2i(x2, y2);
-            gxTexcoord2i(u2, v1);
-            gxVertex2i(x2, y1);
+            glTexCoord2i(u1, v1);
+            glVertex3v16(x1, y1, g_depth);
+            glTexCoord2i(u1, v2);
+            glVertex2v16(x1, y2);
+            glTexCoord2i(u2, v2);
+            glVertex2v16(x2, y2);
+            glTexCoord2i(u2, v1);
+            glVertex2v16(x2, y1);
 
         glEnd();
 
@@ -558,21 +517,21 @@ void glSpriteRotateScaleXY(int x, int y, s32 angle, s32 scaleX, s32 scaleY,
 
     glPushMatrix();
 
-        gxTranslate3f32(x, y, 0);
-        gxScalef32(scaleX, scaleY, 1 << 12);
+        glTranslatef32(x, y, 0);
+        glScalef32(scaleX, scaleY, 1 << 12);
         glRotateZi(angle);
 
 
         glBegin(GL_QUADS);
 
-            gxTexcoord2i(u1, v1);
-            gxVertex3i(x1, y1, g_depth);
-            gxTexcoord2i(u1, v2);
-            gxVertex2i(x1, y2);
-            gxTexcoord2i(u2, v2);
-            gxVertex2i(x2, y2);
-            gxTexcoord2i(u2, v1);
-            gxVertex2i(x2, y1);
+            glTexCoord2i(u1, v1);
+            glVertex3v16(x1, y1, g_depth);
+            glTexCoord2i(u1, v2);
+            glVertex2v16(x1, y2);
+            glTexCoord2i(u2, v2);
+            glVertex2v16(x2, y2);
+            glTexCoord2i(u2, v1);
+            glVertex2v16(x2, y1);
 
         glEnd();
 
@@ -604,17 +563,17 @@ void glSpriteStretchHorizontal(int x, int y, int length_x, const glImage *spr)
     int x2l = x + su;
     glBegin(GL_QUADS);
 
-        gxTexcoord2i(u1, v1);
-        gxVertex3i(x1, y1, g_depth);
+        glTexCoord2i(u1, v1);
+        glVertex3v16(x1, y1, g_depth);
 
-        gxTexcoord2i(u1, v2);
-        gxVertex2i(x1, y2);
+        glTexCoord2i(u1, v2);
+        glVertex2v16(x1, y2);
 
-        gxTexcoord2i(u1 + su, v2);
-        gxVertex2i(x2l, y2);
+        glTexCoord2i(u1 + su, v2);
+        glVertex2v16(x2l, y2);
 
-        gxTexcoord2i(u1 + su, v1);
-        gxVertex2i(x2l, y1);
+        glTexCoord2i(u1 + su, v1);
+        glVertex2v16(x2l, y1);
 
     glEnd();
 
@@ -623,17 +582,17 @@ void glSpriteStretchHorizontal(int x, int y, int length_x, const glImage *spr)
     x2l = x2 - su - 1;
     glBegin(GL_QUADS);
 
-        gxTexcoord2i(u1 + su, v1);
-        gxVertex2i(x1l, y1);
+        glTexCoord2i(u1 + su, v1);
+        glVertex2v16(x1l, y1);
 
-        gxTexcoord2i(u1 + su, v2);
-        gxVertex2i(x1l, y2);
+        glTexCoord2i(u1 + su, v2);
+        glVertex2v16(x1l, y2);
 
-        gxTexcoord2i(u1 + su, v2);
-        gxVertex2i(x2l, y2);
+        glTexCoord2i(u1 + su, v2);
+        glVertex2v16(x2l, y2);
 
-        gxTexcoord2i(u1 + su, v1);
-        gxVertex2i(x2l, y1);
+        glTexCoord2i(u1 + su, v1);
+        glVertex2v16(x2l, y1);
 
     glEnd();
 
@@ -641,17 +600,17 @@ void glSpriteStretchHorizontal(int x, int y, int length_x, const glImage *spr)
     x1l = x2 - su - 1;
     glBegin(GL_QUADS);
 
-        gxTexcoord2i(u1 + su, v1);
-        gxVertex2i(x1l, y1);
+        glTexCoord2i(u1 + su, v1);
+        glVertex2v16(x1l, y1);
 
-        gxTexcoord2i(u1 + su, v2);
-        gxVertex2i(x1l, y2);
+        glTexCoord2i(u1 + su, v2);
+        glVertex2v16(x1l, y2);
 
-        gxTexcoord2i(u2, v2);
-        gxVertex2i(x2, y2);
+        glTexCoord2i(u2, v2);
+        glVertex2v16(x2, y2);
 
-        gxTexcoord2i(u2, v1);
-        gxVertex2i(x2, y1);
+        glTexCoord2i(u2, v1);
+        glVertex2v16(x2, y1);
 
     glEnd();
 
@@ -674,14 +633,14 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 
     glBegin(GL_QUADS);
 
-        gxTexcoord2i(u1 + uoff, v1 + voff);
-        gxVertex3i(x1, y1, g_depth);
-        gxTexcoord2i(u1 + uoff, v2 + voff);
-        gxVertex2i(x2, y2);
-        gxTexcoord2i(u2 + uoff, v2 + voff);
-        gxVertex2i(x3, y3);
-        gxTexcoord2i(u2 + uoff, v1 + voff);
-        gxVertex2i(x4, y4);
+        glTexCoord2i(u1 + uoff, v1 + voff);
+        glVertex3v16(x1, y1, g_depth);
+        glTexCoord2i(u1 + uoff, v2 + voff);
+        glVertex2v16(x2, y2);
+        glTexCoord2i(u2 + uoff, v2 + voff);
+        glVertex2v16(x3, y3);
+        glTexCoord2i(u2 + uoff, v1 + voff);
+        glVertex2v16(x4, y4);
 
     glEnd();
 
