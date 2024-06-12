@@ -17,6 +17,12 @@ extern "C" {
 /// it packs multiple graphics blobs as well as metadata such as compression
 /// type and size.
 ///
+/// GRF files may contain compressed and uncompressed data blobs in the same
+/// file. Compressed blobs may use different compression algorithms. Check the
+/// documentation of decompress() for more information about the supported
+/// formats. Note that all compression formats supported by grit are also
+/// supported by decompress().
+///
 /// Check https://www.coranac.com/man/grit/html/grit.htm for more information.
 
 #include <stdint.h>
