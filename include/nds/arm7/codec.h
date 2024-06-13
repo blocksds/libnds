@@ -3,8 +3,6 @@
 //
 // Copyright (C) 2017 fincs
 
-// DSi "codec" Touchscreen/Sound Controller control for ARM7
-
 #ifndef LIBNDS_NDS_ARM7_CODEC_H__
 #define LIBNDS_NDS_ARM7_CODEC_H__
 
@@ -15,6 +13,10 @@ extern "C" {
 #ifndef ARM7
 #error DSi TSC is only available on the ARM7
 #endif
+
+/// @file nds/arm7/codec.h
+///
+/// @brief DSi "codec" Touchscreen/Sound Controller control for ARM7
 
 #include <nds/arm7/serial.h>
 #include <nds/memory.h>
@@ -27,10 +29,10 @@ static inline bool cdcIsAvailable(void)
 }
 
 enum cdcBanks {
-    CDC_CONTROL     = 0x00, // Chip control
-    CDC_SOUND       = 0x01, // ADC/DAC control
-    CDC_TOUCHCNT    = 0x03, // TSC control
-    CDC_TOUCHDATA    = 0xFC, // TSC data buffer
+    CDC_CONTROL     = 0x00, ///< Chip control
+    CDC_SOUND       = 0x01, ///< ADC/DAC control
+    CDC_TOUCHCNT    = 0x03, ///< TSC control
+    CDC_TOUCHDATA    = 0xFC, ///< TSC data buffer
 };
 
 // TODO: These lists are incomplete.

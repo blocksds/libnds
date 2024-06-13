@@ -24,6 +24,12 @@ extern "C" {
 
 #include <nds/ndstypes.h>
 
+/// Screen height in pixels.
+#define SCREEN_HEIGHT 192
+
+/// Screen width in pixels.
+#define SCREEN_WIDTH  256
+
 /// LCD status register.
 #define REG_DISPSTAT (*(vu16*)0x04000004)
 
@@ -279,10 +285,6 @@ void systemSleep(void);
 
 // Internal. Check if sleep mode is enabled.
 int sleepEnabled(void);
-
-// Warning: These functions use the SPI chain, and are thus 'critical' sections,
-// make sure to disable interrupts during the call if you've got a VBlank IRQ
-// polling the touch screen, etc...
 
 // Read/write a power management register
 int writePowerManagement(int reg, int command);

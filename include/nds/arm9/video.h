@@ -73,6 +73,7 @@ extern "C" {
 
 #include <nds/arm9/sassert.h>
 #include <nds/ndstypes.h>
+#include <nds/system.h>
 
 extern u16 mosaicShadow;
 extern u16 mosaicShadowSub;
@@ -113,12 +114,6 @@ extern u16 mosaicShadowSub;
 /// Macro to convert 5 bit r, g, b components plus 1 bit alpha into a single 16
 /// bit ARGB triplet.
 #define ARGB16(a, r, g, b)  (((a) << 15) | (r) | ((g) << 5) | ((b) << 10))
-
-/// Screen height in pixels.
-#define SCREEN_HEIGHT 192
-
-/// Screen width in pixels.
-#define SCREEN_WIDTH  256
 
 // VRAM Control
 #define VRAM_CR         (*(vu32 *)0x04000240)

@@ -20,16 +20,6 @@
 // Delay (in swiDelay units) for each bit transfer
 #define RTC_DELAY 48
 
-// Pin defines on RTC_CR
-#define CS_0    (1 << 6)
-#define CS_1    ((1 << 6) | (1 << 2))
-#define SCK_0   (1 << 5)
-#define SCK_1   ((1 << 5) | (1 << 1))
-#define SIO_0   (1 << 4)
-#define SIO_1   ((1 << 4) | (1 << 0))
-#define SIO_out (1 << 4)
-#define SIO_in  (1)
-
 void BCDToInteger(uint8_t *data, uint32_t length)
 {
     for (u32 i = 0; i < length; i++)
@@ -53,9 +43,9 @@ void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
     uint8_t data;
 
     // Raise CS
-    RTC_CR8 = CS_0 | SCK_1 | SIO_1;
+    REG_RTCCNT8 = RTCCNT_CS_0 | RTCCNT_SCK_1 | RTCCNT_SIO_1;
     swiDelay(RTC_DELAY);
-    RTC_CR8 = CS_1 | SCK_1 | SIO_1;
+    REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_1 | RTCCNT_SIO_1;
     swiDelay(RTC_DELAY);
 
     // Write command byte (high bit first)
@@ -63,10 +53,10 @@ void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
 
     for (bit = 0; bit < 8; bit++)
     {
-        RTC_CR8 = CS_1 | SCK_0 | SIO_out | (data >> 7);
+        REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_0 | RTCCNT_SIO_OUT | (data >> 7);
         swiDelay(RTC_DELAY);
 
-        RTC_CR8 = CS_1 | SCK_1 | SIO_out | (data >> 7);
+        REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_1 | RTCCNT_SIO_OUT | (data >> 7);
         swiDelay(RTC_DELAY);
 
         data = data << 1;
@@ -79,10 +69,10 @@ void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
 
         for (bit = 0; bit < 8; bit++)
         {
-            RTC_CR8 = CS_1 | SCK_0 | SIO_out | (data & 1);
+            REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_0 | RTCCNT_SIO_OUT | (data & 1);
             swiDelay(RTC_DELAY);
 
-            RTC_CR8 = CS_1 | SCK_1 | SIO_out | (data & 1);
+            REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_1 | RTCCNT_SIO_OUT | (data & 1);
             swiDelay(RTC_DELAY);
 
             data = data >> 1;
@@ -96,20 +86,20 @@ void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
 
         for (bit = 0; bit < 8; bit++)
         {
-            RTC_CR8 = CS_1 | SCK_0;
+            REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_0;
             swiDelay(RTC_DELAY);
 
-            RTC_CR8 = CS_1 | SCK_1;
+            REG_RTCCNT8 = RTCCNT_CS_1 | RTCCNT_SCK_1;
             swiDelay(RTC_DELAY);
 
-            if (RTC_CR8 & SIO_in)
+            if (REG_RTCCNT8 & RTCCNT_SIO)
                 data |= (1 << bit);
         }
         *result++ = data;
     }
 
     // Finish up by dropping CS low
-    RTC_CR8 = CS_0 | SCK_1;
+    REG_RTCCNT8 = RTCCNT_CS_0 | RTCCNT_SCK_1;
     swiDelay(RTC_DELAY);
 }
 

@@ -11,26 +11,20 @@
 int writePowerManagement(int reg, int command)
 {
     int oldIME = enterCriticalSection();
+    spiWaitBusy();
 
     // Write the register / access mode (bit 7 sets access mode)
-    while (REG_SPICNT & SPI_BUSY);
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHz | SPI_BYTE_MODE | SPI_CONTINUOUS
-               | SPI_DEVICE_POWER;
-    REG_SPIDATA = reg;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_POWER | SPI_CONTINUOUS;
+    spiWrite(reg);
 
     // Write the command / start a read
-    while (REG_SPICNT & SPI_BUSY);
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_POWER;
+    uint8_t value = spiExchange(command);
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_1MHz | SPI_BYTE_MODE | SPI_DEVICE_POWER;
-    REG_SPIDATA = command;
-
-    // Read the result
-    while (REG_SPICNT & SPI_BUSY);
-
+    REG_SPICNT = 0;
     leaveCriticalSection(oldIME);
 
-    return REG_SPIDATA & 0xFF;
+    return value;
 }
 
 void ledBlink(int value)

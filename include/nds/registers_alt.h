@@ -302,4 +302,9 @@
 
 #define SOUND_BIAS          REG_SOUNDBIAS
 
+#ifdef ARM7
+#define RTC_CR              REG_RTCCNT
+#define RTC_CR8             REG_RTCCNT8
+#endif
+
 #endif // LIBNDS_NDS_REGISTERS_ALT_H__

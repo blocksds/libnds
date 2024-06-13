@@ -29,8 +29,6 @@ void inputGetAndSend(void)
 
     u16 keys = REG_KEYXY;
 
-    // touchPenDown() handles DSi-mode touch detection
-    // (on DS mode, it just checks REG_KEYXY & KEYXY_TOUCH)
     if (touchPenDown())
     {
         touchReadXY(&tempPos);

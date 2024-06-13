@@ -5,36 +5,31 @@
 
 // DSi "codec" Touchscreen/Sound Controller control for ARM7
 
+#include "arm7/libnds_internal.h"
+#include "nds/arm7/serial.h"
+#include "nds/interrupts.h"
 #include <nds/arm7/codec.h>
 
 static u8 readTSC(u8 reg)
 {
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = 1 | (reg << 1);
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(1 | (reg << 1));
 
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = 0;
-
-    SerialWaitBusy();
-
-    return REG_SPIDATA;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    return spiRead();
 }
 
 static void writeTSC(u8 reg, u8 value)
 {
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = reg << 1;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(reg << 1);
 
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = value;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    spiWrite(value);
 }
 
 static void bankSwitchTSC(u8 bank)
@@ -58,26 +53,16 @@ void cdcReadRegArray(u8 bank, u8 reg, void *data, u8 size)
     u8 *out = (u8 *)data;
     bankSwitchTSC(bank);
 
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = 1 | (reg << 1);
-
-    SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(1 | (reg << 1));
 
     for (; size > 1; size--)
-    {
-        REG_SPIDATA = 0;
-        SerialWaitBusy();
-        *out++ = REG_SPIDATA;
-    }
+        *out++ = spiRead();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = 0;
-
-    SerialWaitBusy();
-
-    *out++ = REG_SPIDATA;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    *out++ = spiRead();
 }
 
 u16 cdcReadReg16(u8 bank, u8 reg)
@@ -111,21 +96,16 @@ void cdcWriteRegArray(u8 bank, u8 reg, const void *data, u8 size)
     const u8 *in = data;
     bankSwitchTSC(bank);
 
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = reg << 1;
-
-    SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(reg << 1);
 
     for (; size > 1; size--)
-    {
-        REG_SPIDATA = *in++;
-        SerialWaitBusy();
-    }
+        spiWrite(*in++);
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = *in++;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    spiWrite(*in++);
 }
 
 void cdcWriteReg16(u8 bank, u8 reg, u16 value)
@@ -182,11 +162,17 @@ bool cdcTouchRead(touchPosition *pos)
 {
     u8 raw[4 * 2 * 5];
     u16 arrayX[5], arrayY[5], arrayZ1[5], arrayZ2[5];
-    u32 sumX, sumY, sumZ1, sumZ2;
 
+    pos->rawx = 0;
+    pos->rawy = 0;
+    pos->z1 = 0;
+    pos->z2 = 0;
+
+    int oldIME = enterCriticalSection();
     cdcReadRegArray(CDC_TOUCHDATA, 0x01, raw, sizeof(raw));
+    leaveCriticalSection(oldIME);
 
-    for (int i = 0; i < 5; i ++)
+    for (int i = 0; i < 5; i++)
     {
         arrayX[i] = (raw[i * 2 + 0] << 8) | raw[i * 2 + 1];
         arrayY[i] = (raw[i * 2 + 10] << 8) | raw[i * 2 + 11];
@@ -194,31 +180,19 @@ bool cdcTouchRead(touchPosition *pos)
         arrayZ2[i] = (raw[i * 2 + 30] << 8) | raw[i * 2 + 31];
 
         if ((arrayX[i] & 0xF000) || (arrayY[i] & 0xF000))
-        {
-            pos->rawx = 0;
-            pos->rawy = 0;
             return false;
-        }
     }
 
-    // TODO: For now we just average all values without removing inaccurate values
-    sumX = 0;
-    sumY = 0;
-    sumZ1 = 0;
-    sumZ2 = 0;
+    pos->rawx = libnds_touchFilter(arrayX, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
+    pos->rawy = libnds_touchFilter(arrayY, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
+    pos->z1 = libnds_touchFilter(arrayZ1, LIBNDS_TOUCH_MAX_DIFF_OTHER);
+    pos->z2 = libnds_touchFilter(arrayZ2, LIBNDS_TOUCH_MAX_DIFF_OTHER);
 
-    for (int i = 0; i < 5; i ++)
-    {
-        sumX += arrayX[i];
-        sumY += arrayY[i];
-        sumZ1 += arrayZ1[i];
-        sumZ2 += arrayZ2[i];
-    }
+    if (!pos->z1) pos->z2 = 0;
+    else if (!pos->z2) pos->z1 = 0;
 
-    pos->rawx = sumX / 5;
-    pos->rawy = sumY / 5;
-    pos->z1 = sumZ1 / 5;
-    pos->z2 = sumZ2 / 5;
+    if (!pos->rawx) pos->rawy = 0;
+    else if (!pos->rawy) pos->rawx = 0;
 
     return true;
 }

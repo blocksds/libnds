@@ -4,6 +4,7 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005-2008 Jason Rogers (Dovoto)
 // Copyright (C) 2005-2017 Dave Murphy (WinterMute)
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 // Touch screen control for the ARM7
 
@@ -12,328 +13,122 @@
 #include <nds/arm7/codec.h>
 #include <nds/arm7/input.h>
 #include <nds/arm7/touch.h>
+#include <nds/arm7/tsc.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
-static u8 last_time_touched = 0;
+#include "libnds_internal.h"
 
-static u8 range_counter_1 = 0;
-static u8 range_counter_2 = 0;
-static u8 range = 20;
-static u8 min_range = 20;
+// This touch filter focuses on removing outlier inputs and reducing noise while
+// preserving responsiveness.
+//
+// Five given inputs are sorted. Of those, the three closest values fitting within
+// the provided range are selected, with a small preference for the midpoint. Of
+// those, an average is calculated.
+//
+// This should ensure a consistent readout if >=60% low-noise, valid inputs can be
+// identified, even if the inputs are biased in a specific direction.
+//
+// See also:
+//
+// - https://dlbeer.co.nz/articles/tsf.html (median, IIR)
+// - https://www.ti.com/lit/an/sbaa155a/sbaa155a.pdf (average, weighted average, median)
+// - https://www.ti.com/lit/an/slyt209a/slyt209a.pdf (average with out-of-range rejection)
 
-static u8 CheckStylus(void)
+// Compare and swap two values.
+static inline void compare_and_swap(u16 *a, u16 *b)
 {
-    SerialWaitBusy();
+    u16 tmp;
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS; // 0x8A01;
-    REG_SPIDATA = TSC_MEASURE_TEMP1;
-
-    SerialWaitBusy();
-
-    REG_SPIDATA = 0;
-
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH; // 0x8201;
-    REG_SPIDATA = 0;
-
-    SerialWaitBusy();
-
-    if (last_time_touched == 1)
+    if (*a > *b)
     {
-        if (!(REG_KEYXY & KEYXY_TOUCH))
-        {
-            return 1;
-        }
-        else
-        {
-            REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-            REG_SPIDATA = TSC_MEASURE_TEMP1;
-
-            SerialWaitBusy();
-
-            REG_SPIDATA = 0;
-
-            SerialWaitBusy();
-
-            REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH;
-            REG_SPIDATA = 0;
-
-            SerialWaitBusy();
-
-            return !(REG_KEYXY & KEYXY_TOUCH) ? 2 : 0;
-        }
-    }
-    else
-    {
-        return !(REG_KEYXY & KEYXY_TOUCH) ? 1 : 0;
+        tmp = *a;
+        *a = *b;
+        *b = tmp;
     }
 }
 
-uint16_t touchRead(uint32_t command)
+// Compare two outliers; used internally in libnds_touchFilter.
+#define LIBNDS_TOUCH_DIFF_OUTLIERS(a, b) \
+    tmp_diff = abs(values[b] - values[a]); \
+    if (!tmp_diff) goto location_found; \
+    else if (tmp_diff < diff) { \
+        v = values + a; \
+        diff = tmp_diff; \
+    }
+
+u16 libnds_touchFilter(u16 *values, int max_diff)
 {
-    uint16_t result, result2;
+    // Sort using a pre-calculated sorting network.
+    // This allows us to quickly check ranges and remove outliers.
+    compare_and_swap(&values[0], &values[3]);
+    compare_and_swap(&values[1], &values[4]);
+    compare_and_swap(&values[0], &values[2]);
+    compare_and_swap(&values[1], &values[3]);
+    compare_and_swap(&values[0], &values[1]);
+    compare_and_swap(&values[2], &values[4]);
+    compare_and_swap(&values[1], &values[2]);
+    compare_and_swap(&values[3], &values[4]);
+    compare_and_swap(&values[2], &values[3]);
 
-    uint32_t oldIME = REG_IME;
+    // Find three closest values which are within the specified range.
+    // These are the most likely to be the correct read. Prefer the midpoint values.
+    u16 *v = values;
+    int diff = max_diff + 1;
+    int tmp_diff;
+    LIBNDS_TOUCH_DIFF_OUTLIERS(1, 3);
+    LIBNDS_TOUCH_DIFF_OUTLIERS(0, 2);
+    LIBNDS_TOUCH_DIFF_OUTLIERS(2, 4);
 
-    REG_IME = 0;
+    // If no such triplet exists, return an invalid read.
+    if (diff > max_diff)
+        return 0;
 
-    SerialWaitBusy();
-
-    // Write the command and wait for it to complete
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS; // 0x8A01;
-    REG_SPIDATA = command;
-    SerialWaitBusy();
-
-    // Write the second command and clock in part of the data
-    REG_SPIDATA = 0;
-    SerialWaitBusy();
-    result = REG_SPIDATA;
-
-    // Clock in the rest of the data (last transfer)
-    REG_SPICNT = SPI_ENABLE | 0x201;
-    REG_SPIDATA = 0;
-    SerialWaitBusy();
-
-    result2 = REG_SPIDATA >> 3;
-
-    REG_IME = oldIME;
-
-    // Return the result
-    return ((result & 0x7F) << 5) | result2;
+location_found:
+    ;
+    // Calculate a slightly weighted average; this saves a division.
+    u32 value = (((v[0] + v[2]) * 5) + (v[1] * 6)) >> 4;
+    // Skip value 0 when returning - libnds assumes it to be an invalid position.
+    return value ? value : 1;
 }
 
-uint32_t touchReadTemperature(int *t1, int *t2)
+u32 touchReadTemperature(int *t1, int *t2)
 {
-    *t1 = touchRead(TSC_MEASURE_TEMP1);
-    *t2 = touchRead(TSC_MEASURE_TEMP2);
+    *t1 = tscRead(TSC_MEASURE_TEMP1);
+    *t2 = tscRead(TSC_MEASURE_TEMP2);
     return 8490 * (*t2 - *t1) - 273 * 4096;
 }
 
-int16_t readTouchValue(uint32_t command, int16_t *dist_max, u8 *err)
+static u16 tscReadFiltered(u32 command, int max_diff)
 {
-    int16_t values[5];
-    int32_t aux1, aux2, aux3, dist, dist2, result = 0;
-
-    *err = 1;
-
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = command;
-
-    SerialWaitBusy();
-
-    for (int i = 0; i < 5; i++)
-    {
-        REG_SPIDATA = 0;
-        SerialWaitBusy();
-
-        aux1 = REG_SPIDATA;
-        aux1 = aux1 & 0xFF;
-        aux1 = aux1 << 16;
-        aux1 = aux1 >> 8;
-
-        values[4 - i] = aux1;
-
-        REG_SPIDATA = command;
-        SerialWaitBusy();
-
-        aux1 = REG_SPIDATA;
-        aux1 = aux1 & 0xFF;
-        aux1 = aux1 << 16;
-
-        aux1 = values[4 - i] | (aux1 >> 16);
-        values[4 - i] = ((aux1 & 0x7FF8) >> 3);
-    }
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = 0;
-    SerialWaitBusy();
-
-    dist = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        aux1 = values[i];
-
-        for (int j = i + 1; j < 5; j++)
-        {
-            aux2 = values[j];
-            aux2 = abs(aux1 - aux2);
-            if (aux2 > dist)
-                dist = aux2;
-        }
-    }
-
-    *dist_max = dist;
-
-    for (int i = 0; i < 3; i++)
-    {
-        aux1 = values[i];
-
-        for (int j = i + 1; j < 4; j++)
-        {
-            aux2 = values[j];
-            dist = abs(aux1 - aux2);
-
-            if (dist <= range)
-            {
-                for (int k = j + 1; k < 5; k++)
-                {
-                    aux3 = values[k];
-                    dist2 = abs(aux1 - aux3);
-
-                    if (dist2 <= range)
-                    {
-                        result = aux2 + (aux1 << 1);
-                        result = result + aux3;
-                        result = result >> 2;
-                        result = result & (~7);
-
-                        *err = 0;
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if ((*err) == 1)
-    {
-        result = values[0] + values[4];
-        result = result >> 1;
-        result = result & (~7);
-    }
-
-    return result & 0xFFF;
-}
-
-void UpdateRange(uint8_t *this_range, int16_t last_dist_max, u8 data_error, u8 tsc_touched)
-{
-    // range_counter_1 = counter_0x380A98C
-    // range_counter_2 = counter_0x380A990
-    // Initial values:
-    //  range = 20
-    //  min_range = 20
-
-    if (tsc_touched != 0)
-    {
-        if (data_error == 0)
-        {
-            range_counter_2 = 0;
-
-            if (last_dist_max >= ((*this_range) >> 1))
-            {
-                range_counter_1 = 0;
-            }
-            else
-            {
-                range_counter_1++;
-
-                if (range_counter_1 >= 4)
-                {
-                    range_counter_1 = 0;
-
-                    if ((*this_range) > min_range)
-                    {
-                        (*this_range)--;
-                        range_counter_2 = 3;
-                    }
-                }
-            }
-        }
-        else
-        {
-            range_counter_1 = 0;
-            range_counter_2++;
-
-            if (range_counter_2 >= 4)
-            {
-                range_counter_2 = 0;
-
-                if ((*this_range) < 35) // 0x23 = 35
-                    *this_range = (*this_range) + 1;
-            }
-        }
-    }
-    else
-    {
-        range_counter_2 = 0;
-        range_counter_1 = 0;
-    }
+    // Skip the first value.
+    u16 values[6];
+    tscMeasure(command, values, 6);
+    return libnds_touchFilter(values + 1, max_diff);
 }
 
 static void touchReadDSMode(touchPosition *touchPos)
 {
-    int16_t dist_max_y, dist_max_x, dist_max;
-    u8 error, error_where, first_check;
+    int oldIME = enterCriticalSection();
 
-    first_check = CheckStylus();
-    if (first_check != 0)
-    {
-        error_where = 0;
+    // Hold ADC on. We're reading at near-full speed, and this
+    // may slightly improve read accuracy.
+    touchPos->z1 = tscReadFiltered(TSC_MEASURE_Z1 | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_OTHER);
+    touchPos->z2 = tscReadFiltered(TSC_MEASURE_Z2 | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_OTHER);
+    touchPos->rawx = tscReadFiltered(TSC_MEASURE_X | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
+    touchPos->rawy = tscReadFiltered(TSC_MEASURE_Y | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
 
-        touchPos->z1 = readTouchValue(TSC_MEASURE_Z1 | 1, &dist_max, &error);
-        touchPos->z2 = readTouchValue(TSC_MEASURE_Z2 | 1, &dist_max, &error);
+    // Make an empty read to switch the TSC into power-down mode.
+    tscRead(TSC_MEASURE_TEMP1 | TSC_POWER_AUTO);
 
-        touchPos->rawx = readTouchValue(TSC_MEASURE_X | 1, &dist_max_x, &error);
-        if (error == 1)
-            error_where += 1;
+    leaveCriticalSection(oldIME);
 
-        touchPos->rawy = readTouchValue(TSC_MEASURE_Y | 1, &dist_max_y, &error);
-        if (error == 1)
-            error_where += 2;
+    if (!touchPos->z1) touchPos->z2 = 0;
+    else if (!touchPos->z2) touchPos->z1 = 0;
 
-        REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-        for (int i = 0; i < 12; i++)
-        {
-            REG_SPIDATA = 0;
-
-            SerialWaitBusy();
-        }
-
-        REG_SPICNT = SPI_ENABLE | SPI_BAUD_2MHz | SPI_DEVICE_TOUCH;
-        REG_SPIDATA = 0;
-
-        SerialWaitBusy();
-
-        if (first_check == 2)
-            error_where = 3;
-
-        switch (CheckStylus())
-        {
-            case 0:
-                last_time_touched = 0;
-                break;
-            case 1:
-                last_time_touched = 1;
-
-                if (dist_max_x > dist_max_y)
-                    dist_max = dist_max_x;
-                else
-                    dist_max = dist_max_y;
-
-                break;
-            case 2:
-                last_time_touched = 0;
-                error_where = 3;
-
-                break;
-        }
-    }
-    else
-    {
-        dist_max = 0;
-        error_where = 3;
-        touchPos->rawx = 0;
-        touchPos->rawy = 0;
-        last_time_touched = 0;
-    }
-
-    UpdateRange(&range, dist_max, error_where, last_time_touched);
+    if (!touchPos->rawx) touchPos->rawy = 0;
+    else if (!touchPos->rawy) touchPos->rawx = 0;
 }
 
 static s32 xscale, yscale;
@@ -377,14 +172,17 @@ bool touchPenDown(void)
 
 void touchReadXY(touchPosition *touchPos)
 {
-    int oldIME = enterCriticalSection();
-
     if (cdcIsAvailable())
         cdcTouchRead(touchPos);
     else
         touchReadDSMode(touchPos);
 
-    leaveCriticalSection(oldIME);
+    if (!touchPos->rawx)
+    {
+        touchPos->px = 0;
+        touchPos->py = 0;
+        return;
+    }
 
     s16 px = (touchPos->rawx * xscale - xoffset + xscale / 2) >> 19;
     s16 py = (touchPos->rawy * yscale - yoffset + yscale / 2) >> 19;

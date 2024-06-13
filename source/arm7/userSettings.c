@@ -3,9 +3,8 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
-#include <string.h>
-
-#include <nds/arm7/serial.h>
+#include <nds/arm7/firmware.h>
+#include <nds/bios.h>
 #include <nds/system.h>
 
 bool readUserSettings(void)
