@@ -44,12 +44,12 @@ void micSetAmp_NTR(u8 control, u8 gain)
 
 static inline u8 micReadData8_NTR(void)
 {
-    return tscRead(TSC_MEASURE_AUX | TSC_CONVERT_8BIT) >> 4;
+    return tscRead(TSC_MEASURE_AUX | TSC_CONVERT_8BIT | TSC_POWER_AUTO) >> 4;
 }
 
 static inline u16 micReadData12_NTR(void)
 {
-    return tscRead(TSC_MEASURE_AUX | TSC_CONVERT_12BIT);
+    return tscRead(TSC_MEASURE_AUX | TSC_CONVERT_12BIT | TSC_POWER_AUTO);
 }
 
 void micSetAmp(u8 control, u8 gain)

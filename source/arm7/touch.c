@@ -95,34 +95,34 @@ location_found:
 
 u32 touchReadTemperature(int *t1, int *t2)
 {
-    *t1 = tscRead(TSC_MEASURE_TEMP1);
-    *t2 = tscRead(TSC_MEASURE_TEMP2);
+    *t1 = tscRead(TSC_MEASURE_TEMP1 | TSC_POWER_ON);
+    *t2 = tscRead(TSC_MEASURE_TEMP2 | TSC_POWER_AUTO);
     return 8490 * (*t2 - *t1) - 273 * 4096;
-}
-
-static u16 tscReadFiltered(u32 command, int max_diff)
-{
-    // Skip the first value.
-    u16 values[6];
-    tscMeasure(command, values, 6);
-    return libnds_touchFilter(values + 1, max_diff);
 }
 
 static void touchReadDSMode(touchPosition *touchPos)
 {
+    u16 values[4][6];
+
     int oldIME = enterCriticalSection();
 
     // Hold ADC on. We're reading at near-full speed, and this
     // may slightly improve read accuracy.
-    touchPos->z1 = tscReadFiltered(TSC_MEASURE_Z1 | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_OTHER);
-    touchPos->z2 = tscReadFiltered(TSC_MEASURE_Z2 | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_OTHER);
-    touchPos->rawx = tscReadFiltered(TSC_MEASURE_X | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
-    touchPos->rawy = tscReadFiltered(TSC_MEASURE_Y | TSC_POWER_ON, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
+    tscMeasure(TSC_MEASURE_Z1 | TSC_POWER_ON, values[0], 6);
+    tscMeasure(TSC_MEASURE_Z2 | TSC_POWER_ON, values[1], 6);
+    tscMeasure(TSC_MEASURE_X | TSC_POWER_ON, values[2], 6);
+    tscMeasure(TSC_MEASURE_Y | TSC_POWER_ON, values[3], 6);
 
     // Make an empty read to switch the TSC into power-down mode.
     tscRead(TSC_MEASURE_TEMP1 | TSC_POWER_AUTO);
 
     leaveCriticalSection(oldIME);
+
+    // Skip the first value in each readout.
+    touchPos->z1 = libnds_touchFilter(values[0] + 1, LIBNDS_TOUCH_MAX_DIFF_OTHER);
+    touchPos->z2 = libnds_touchFilter(values[1] + 1, LIBNDS_TOUCH_MAX_DIFF_OTHER);
+    touchPos->rawx = libnds_touchFilter(values[2] + 1, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
+    touchPos->rawy = libnds_touchFilter(values[3] + 1, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
 
     if (!touchPos->z1) touchPos->z2 = 0;
     else if (!touchPos->z2) touchPos->z1 = 0;
