@@ -13,10 +13,11 @@ extern "C" {
 #error TSC is only available on the ARM7
 #endif
 
-/// @file nds/arm7/touch.h
+/// @file nds/arm7/tsc.h
 ///
 /// @brief DS Touchscreen/Sound Controller control for ARM7
 
+#include <nds/arm7/touch.h>
 #include <nds/arm7/serial.h>
 
 #define TSC_START               0x80
@@ -38,6 +39,14 @@ extern "C" {
 #define TSC_MEASURE_TEMP2       (TSC_START | TSC_CHANNEL(7) | TSC_CONVERT_12BIT | TSC_MODE_SER)
 
 /**
+ * @brief Check if the NDS-mode TSC is registering pen input.
+ */
+static inline bool tscTouchPenDown(void)
+{
+    return !(REG_KEYXY & KEYXY_TOUCH);
+}
+
+/**
  * @brief Read a single 12-bit measurement from the NDS-mode TSC.
  * 
  * @param command Measurement command.
@@ -53,6 +62,20 @@ u16 tscRead(u32 command);
  * @param count Number of measurements to read.
  */
 void tscMeasure(u32 command, u16 *buffer, u32 count);
+
+/**
+ * @brief Read raw touch data from the NDS-mode TSC.
+ */
+bool tscTouchReadData(touchRawArray* data);
+
+/**
+ * @brief Read temperature from the NDS-mode TSC.
+ *
+ * Note that it is not very accurate.
+ * 
+ * @return s32 Approximate temperature, in 20.12 fixed point, as Celsius degrees.
+ */
+s32 tscReadTemperature(void);
 
 #ifdef __cplusplus
 }

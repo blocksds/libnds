@@ -24,22 +24,32 @@ extern "C" {
 #include <nds/touch.h>
 
 /**
- * @brief Read temperature from the NDS-mode TSC.
- *
- * Note that this does not work on DSi/3DS consoles.
- * It is also not very inaccurate - calibration is required
- * to get a more accurate reading.
- * 
- * @param t1 First measurement output.
- * @param t2 Second measurement output.
- * @return u32 Approximate temperature, in Kelvins.
- */
-u32 touchReadTemperature(int *t1, int *t2);
-
-/**
  * @brief Initialize the touch subsystem (NDS/DSi).
  */
 void touchInit(void);
+
+/**
+ * @brief Apply calibration to raw X/Y touch screen measurements.
+ * 
+ * @param rawx Raw X value
+ * @param rawy Raw Y value
+ * @param px Calibrated X value
+ * @param py Calibrated Y value
+ */
+void touchApplyCalibration(u16 rawx, u16 rawy, u16 *px, u16 *py);
+
+// Do not modify the memory layout; touchReadData() functions rely on it.
+typedef struct {
+    u16 rawX[5];
+    u16 rawY[5];
+    u16 z1[5];
+    u16 z2[5];
+} touchRawArray;
+
+/**
+ * @brief Read a complete, raw touch measurement into the provided buffer.
+ */
+void touchReadData(touchRawArray *data);
 
 /**
  * @brief Read a touch X/Y position into the provided buffer.

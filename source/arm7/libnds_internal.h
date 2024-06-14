@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2024 Adrian "asie" Siekierka
 
 #ifndef ARM7_LIBNDS_INTERNAL_H__
 #define ARM7_LIBNDS_INTERNAL_H__
@@ -11,26 +12,17 @@ void storageMsgHandler(int bytes, void *user_data);
 void storageValueHandler(u32 value, void *user_data);
 void firmwareMsgHandler(int bytes, void *user_data);
 
-#define LIBNDS_TOUCH_INVALID 0xFFFF
+typedef struct {
+    u16 value;      // 1..4095, 0 if invalid
+    u16 noisiness;  // 0..4095, ~15-16 = 1 pixel
+} libnds_touchMeasurementFilterResult;
 
 /**
- * @brief Maximum difference used for pixel readouts.
- * 
- * 2.5 pixels * 16 = 40.
- * Use a slightly smaller range as calibration is usually confined to a smaller window than the full 4096.
- */
-#define LIBNDS_TOUCH_MAX_DIFF_PIXEL 38
-
-/**
- * @brief Maximum difference used for other readouts.
+ * @brief Perform filtering on the raw touch samples provided to return one
+ * averaged sample and an estimate of how noisy it is, while skipping outliers.
  *
- * No particular restriction.
+ * Internal. See touchFilter.c for more information.
  */
-#define LIBNDS_TOUCH_MAX_DIFF_OTHER 0xFFFFFF
-
-/**
- * @brief Perform touch filtering on the raw measurements provided.
- */
-u16 libnds_touchFilter(u16 *measurements, int max_diff);
+libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5]);
 
 #endif // ARM7_LIBNDS_INTERNAL_H__

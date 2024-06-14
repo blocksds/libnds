@@ -122,6 +122,16 @@ static inline bool isHwDebugger(void)
     return __debugger_unit;
 }
 
+/**
+ * @brief Write bytes at a specified address to firmware flash.
+ */
+int writeFirmware(u32 address, void *buffer, u32 length);
+
+/**
+ * @brief Read bytes at a specified address from firmware flash.
+ */
+void readFirmware(u32 address, void *buffer, u32 length);
+
 // ARM9 section
 // ------------
 
@@ -176,9 +186,6 @@ static inline void systemShutDown(void)
 {
     powerOn(PM_SYSTEM_PWR);
 }
-
-void readFirmware(u32 address, void *buffer, u32 length);
-int writeFirmware(u32 address, void *buffer, u32 length);
 
 /// Gets the DS battery level
 ///
@@ -277,18 +284,25 @@ typedef enum {
 #define PM_LED_CONTROL_MASK (3 << 4)
 #define PM_LED_CONTROL(m)   ((m) << 4)
 
-// Install the FIFO power handler.
+/**
+ * @brief Install the system FIFO handlers.
+ * 
+ * This handles power management, DSi SD card access, and firmware flash
+ * access.
+ */
 void installSystemFIFO(void);
-
-// Cause the DS to enter low power mode.
-void systemSleep(void);
 
 // Internal. Check if sleep mode is enabled.
 int sleepEnabled(void);
 
-// Read/write a power management register
+/**
+ * @brief Write to a power management register.
+ */
 int writePowerManagement(int reg, int command);
 
+/**
+ * @brief Read from a power management register.
+ */
 static inline int readPowerManagement(int reg)
 {
     return writePowerManagement(reg | PM_READ_REGISTER, 0);
@@ -304,6 +318,10 @@ static inline void powerOff(uint32_t bits)
     REG_POWERCNT &= ~bits;
 }
 
+/**
+ * @brief Read user settings/personal data from firmware flash to a shared
+ * memory location.
+ */
 bool readUserSettings(void);
 void systemShutDown(void);
 

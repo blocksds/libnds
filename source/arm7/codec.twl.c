@@ -5,10 +5,10 @@
 
 // DSi "codec" Touchscreen/Sound Controller control for ARM7
 
-#include "arm7/libnds_internal.h"
+#include "nds/arm7/codec.h"
 #include "nds/arm7/serial.h"
+#include "nds/arm7/touch.h"
 #include "nds/interrupts.h"
-#include <nds/arm7/codec.h>
 
 static u8 readTSC(u8 reg)
 {
@@ -158,41 +158,33 @@ bool cdcTouchPenDown(void)
         && !(cdcReadReg(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN) & 0x02);
 }
 
-bool cdcTouchRead(touchPosition *pos)
+_Static_assert(sizeof(touchRawArray) == 40, "Incompatible struct size!");
+
+bool cdcTouchReadData(touchRawArray *data)
 {
-    u8 raw[4 * 2 * 5];
-    u16 arrayX[5], arrayY[5], arrayZ1[5], arrayZ2[5];
-
-    pos->rawx = 0;
-    pos->rawy = 0;
-    pos->z1 = 0;
-    pos->z2 = 0;
-
     int oldIME = enterCriticalSection();
-    cdcReadRegArray(CDC_TOUCHDATA, 0x01, raw, sizeof(raw));
+    cdcReadRegArray(CDC_TOUCHDATA, 0x01, &data->rawX[0], 20 * sizeof(u16));
     leaveCriticalSection(oldIME);
 
-    for (int i = 0; i < 5; i++)
+    // "data" consists of 20 halfwords; five for X, five for Y,
+    // five for Z1, five for Z2. However, they are endianness
+    // swapped - let's fix that in a bulk operation for faster
+    // performance.
+    //
+    // For this to work, data->rawX has to be word-aligned.
+    u32 *wordsToSwap = (u32*) &data->rawX[0];
+    for (int i = 0; i < 10; i++, wordsToSwap++)
     {
-        arrayX[i] = (raw[i * 2 + 0] << 8) | raw[i * 2 + 1];
-        arrayY[i] = (raw[i * 2 + 10] << 8) | raw[i * 2 + 11];
-        arrayZ1[i] = (raw[i * 2 + 20] << 8) | raw[i * 2 + 21];
-        arrayZ2[i] = (raw[i * 2 + 30] << 8) | raw[i * 2 + 31];
+        u32 tmp = *wordsToSwap;
 
-        if ((arrayX[i] & 0xF000) || (arrayY[i] & 0xF000))
+        // The halfwords should be 12-bit; if the highest four bits
+        // (byte 0, byte 2 before swapping) are set, the readout is
+        // invalid.
+        if (tmp & 0x00F000F0)
             return false;
+
+        *wordsToSwap = ((tmp & 0xFF00FF) << 8) | ((tmp & 0xFF00FF00) >> 8);
     }
-
-    pos->rawx = libnds_touchFilter(arrayX, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
-    pos->rawy = libnds_touchFilter(arrayY, LIBNDS_TOUCH_MAX_DIFF_PIXEL);
-    pos->z1 = libnds_touchFilter(arrayZ1, LIBNDS_TOUCH_MAX_DIFF_OTHER);
-    pos->z2 = libnds_touchFilter(arrayZ2, LIBNDS_TOUCH_MAX_DIFF_OTHER);
-
-    if (!pos->z1) pos->z2 = 0;
-    else if (!pos->z2) pos->z1 = 0;
-
-    if (!pos->rawx) pos->rawy = 0;
-    else if (!pos->rawy) pos->rawx = 0;
 
     return true;
 }

@@ -18,6 +18,7 @@ extern "C" {
 /// @brief DS firmware flash ARM7 helpers.
 
 #include <nds/ndstypes.h>
+#include <nds/system.h>
 
 // Firmware commands
 #define FIRMWARE_WREN           0x06 ///< Write Enable
@@ -32,11 +33,6 @@ extern "C" {
 #define FIRMWARE_SE             0xD8 ///< Sector Erase
 #define FIRMWARE_DP             0xB9 ///< Deep Power Down
 #define FIRMWARE_RDP            0xAB ///< Release from Deep Power Down
-
-/**
- * @brief Read data from the firmware flash.
- */
-void readFirmware(u32 address, void *destination, u32 size);
 
 /**
  * @brief Read the JEDEC ID of the firmware flash.

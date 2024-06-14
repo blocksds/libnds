@@ -19,6 +19,7 @@ extern "C" {
 /// @brief DSi "codec" Touchscreen/Sound Controller control for ARM7
 
 #include <nds/arm7/serial.h>
+#include <nds/arm7/touch.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/touch.h>
@@ -209,8 +210,16 @@ void cdcWriteReg24(u8 bank, u8 reg, u32 value);
 
 // Touchscreen functions
 void cdcTouchInit(void);
+
+/**
+ * @brief Check if the DSi CODEC is registering pen input.
+ */
 bool cdcTouchPenDown(void);
-bool cdcTouchRead(touchPosition* pos);
+
+/**
+ * @brief Read raw touch data from the DSi CODEC.
+ */
+bool cdcTouchReadData(touchRawArray* data);
 
 #ifdef __cplusplus
 }
