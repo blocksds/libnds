@@ -79,7 +79,8 @@ libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5])
 location_found:
     ;
     // Calculate a slightly weighted average; this saves a division.
-    u16 value = (((v[0] + v[2]) * 5) + (v[1] * 6)) >> 4;
+    // (v[0] * 5 + v[1] * 6 + v[2] * 5) / 16
+    u16 value = (((v[0] + v[1] + v[2]) * 5) + v[1]) >> 4;
     // Skip value 0 when returning - libnds assumes it to be an invalid position.
     result.value = value ? value : 1;
     return result;

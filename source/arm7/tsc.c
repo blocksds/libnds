@@ -8,7 +8,6 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
-#define TSC_MASK_12BIT (0xFFF << 3)
 
 // Internal. Read TSC data to buffer, excluding the first SPI write.
 // No IRQ protection.
@@ -22,7 +21,7 @@ static void __tscReadToBuffer(u32 command, u16 *buffer, u32 count)
         msb = spiRead();
         lsb = spiExchange(command);
 
-        *(buffer++) = ((msb << 5) | (lsb >> 3)) & TSC_MASK_12BIT;
+        *(buffer++) = ((msb << 5) | (lsb >> 3)) & 0xFFF;
     }
 
     // Last measurement
@@ -30,7 +29,7 @@ static void __tscReadToBuffer(u32 command, u16 *buffer, u32 count)
     REG_SPICNT = SPI_ENABLE | SPI_TARGET_TSC;
     lsb = spiRead();
 
-    *(buffer++) = ((msb << 5) | (lsb >> 3)) & TSC_MASK_12BIT;
+    *(buffer++) = ((msb << 5) | (lsb >> 3)) & 0xFFF;
 }
 
 // Internal. Read five measurements from TSC, skipping the first.
@@ -63,7 +62,7 @@ u16 tscRead(u32 command)
 
     leaveCriticalSection(oldIME);
 
-    return ((msb << 5) | (lsb >> 3)) & TSC_MASK_12BIT;
+    return ((msb << 5) | (lsb >> 3)) & 0xFFF;
 }
 
 // Perform a 16 clocks-per-conversion measurement.

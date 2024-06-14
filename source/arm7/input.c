@@ -24,15 +24,15 @@
 
 // The number of frames to debounce/hold pen presses for.
 // Set to 0 to disable.
-#define PEN_DOWN_DEBOUNCE 2
+#define PEN_DOWN_DEBOUNCE 1
 // The shift (1 << N) used for the IIR filter to average noisy samples across
 // time. Set to 0 to disable.
-#define TOUCH_MAX_NOISE_PEN_UP_IIR_SHIFT 6
+#define TOUCH_MAX_NOISE_PEN_UP_IIR_SHIFT 5
 
 // The maximum value of noisiness for pressing a pen down (measurement now valid).
 #define TOUCH_MAX_NOISE_PEN_DOWN 38
 // The minimum value of noisiness for lifting a pen up (measurement no longer valid).
-#define TOUCH_MAX_NOISE_PEN_UP   76
+#define TOUCH_MAX_NOISE_PEN_UP   50
 
 // === Touchscreen filter ===
 
