@@ -30,8 +30,13 @@ BEGIN_ASM_FUNC IntrMain
     stmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
 
     add     r12, r12, #0x210
-    ldmia   r12, {r1, r2}
+    ldmia   r12!, {r1, r2}
     ands    r1, r1, r2
+#ifdef ARM9
+    beq     no_handler
+#else
+    beq     setflagsaux
+#endif
     ldr     r2, =irqTable
 
     // Notify the BIOS
@@ -47,11 +52,12 @@ BEGIN_ASM_FUNC IntrMain
     orr     r3, r3, r1
     str     r3, [r0]
 #ifdef ARM7
-    bne     endsetflags
+    b       findIRQ
 
-    add     r12, r12, #8
-    ldmia   r12, {r1, r2}
+setflagsaux:
+    ldmia   r12!, {r1, r2}
     ands    r1, r1, r2
+    beq     no_handler
     ldr     r2, =irqTableAUX
 
     // Notify the BIOS
@@ -67,16 +73,10 @@ BEGIN_ASM_FUNC IntrMain
     orr     r3, r3, r1
     str     r3, [r0]
 #endif
-endsetflags:
 
     // r1 = interrupt mask
     // r2 = irq table address
     // r0, r3 can be used freely
-
-    // check if mask empty
-    cmp     r1, #0
-    streq   r1, [r12, #4]           // IF Clear
-    beq     no_handler
 
     // find the highest set IRQ bit
 findIRQ:
@@ -107,7 +107,7 @@ findIRQ:
     // compare dummy IRQ address with found IRQ address
     // this skips some setup required for jumping to an IRQ handler
     ldr     r0, =irqDummy
-    str     r1, [r12, #4]           // IF Clear
+    str     r1, [r12, #-4]           // IF Clear
     ldr     r1, [r2]
     cmp     r1, r0
     beq     no_handler
