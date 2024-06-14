@@ -198,16 +198,18 @@ void setVectorBase(int highVector);
 /// exeption occurs.
 ///
 /// See gbatek for more information.
-typedef struct sysVectors_t {
-    VoidFn reset;           ///< CPU reset.
-    VoidFn undefined;       ///< Undefined instruction.
-    VoidFn swi;             ///< Software interrupt.
-    VoidFn prefetch_abort;  ///< Prefetch abort.
-    VoidFn data_abort;      ///< Data abort.
-    VoidFn fiq;             ///< Fast interrupt.
-} sysVectors;
+typedef struct sysVectors {
+    VoidFn reset;             ///< CPU reset.
+    VoidFn undefined;         ///< Undefined instruction.
+    VoidFn swi;               ///< Software interrupt.
+    VoidFn prefetch_abort;    ///< Prefetch abort.
+    VoidFn data_abort;        ///< Data abort.
+    VoidFn address_overflow;  ///< Address exceeds 26 bits. Not used on ARM9.
+    VoidFn irq;               ///< Standard interrupt.
+    VoidFn fiq;               ///< Fast interrupt.
+} sysVectors_t;
 
-extern sysVectors SystemVectors;
+extern sysVectors_t SystemVectors;
 
 void setSDcallback(void (*callback)(int));
 

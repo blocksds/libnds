@@ -23,7 +23,7 @@
     ldr     r15, vec_swi
     ldr     r15, vec_prefetch_abort
     ldr     r15, vec_data_abort
-dummy:      b   dummy
+.Ldummy:    b    .Ldummy
     ldr     r15, vec_irq
     ldr     r15, vec_fiq
 
@@ -43,7 +43,7 @@ vec_irq:
 vec_fiq:
     .word   0xFFFF001C
 
-BEGIN_ASM_FUNC setVectorBase vectors
+BEGIN_ASM_FUNC setVectorBase
 
     // Load the CP15 Control Register
     mrc     CP15_REG1_CONTROL_REGISTER(r1)
