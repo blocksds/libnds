@@ -307,4 +307,8 @@
 #define RTC_CR8             REG_RTCCNT8
 #endif
 
+#ifdef ARM9
+#define HALT_CR             REG_HALTCNT
+#endif
+
 #endif // LIBNDS_NDS_REGISTERS_ALT_H__

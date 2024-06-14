@@ -49,9 +49,9 @@ typedef enum
 
 /// Halt control register.
 ///
-/// Writing 0x40 to HALT_CR activates GBA mode. HALT_CR can only be accessed via
+/// Writing 0x40 to REG_HALTCNT activates GBA mode. REG_HALTCNT can only be accessed via
 /// the BIOS.
-#define HALT_CR (*(vu16*)0x04000300)
+#define REG_HALTCNT (*(vu16*)0x04000300)
 
 /// Power control register.
 ///
