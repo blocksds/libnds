@@ -69,44 +69,64 @@ BEGIN_ASM_FUNC IntrMain
 #endif
 endsetflags:
 
-findIRQ:
+    // r1 = interrupt mask
+    // r2 = irq table address
+    // r0, r3 can be used freely
 
-    ldr     r0, [r2, #4]
-    cmp     r0, #0
-    beq     no_handler
-    ands    r0, r0, r1
-    bne     jump_intr
-    add     r2, r2, #8
-    b       findIRQ
-
-no_handler:
-
-    str     r1, [r12, #4]           // IF Clear
-    ldmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
-    str     r1, [r12, #0x208]       // restore REG_IME
-    mov     pc, lr
-
-jump_intr:
-
-    ldr     r1, [r2]                // user IRQ handler address
+    // check if mask empty
     cmp     r1, #0
-    bne     got_handler
-    mov     r1, r0
-    b       no_handler
+    streq   r1, [r12, #4]           // IF Clear
+    beq     no_handler
+
+    // find the highest set IRQ bit
+findIRQ:
+#ifdef ARM9
+    clz     r0, r1
+    eor     r0, r0, #31
+    add     r2, r2, r0, lsl #2
+#else
+    ldr     r0, =#0xFFFF0000
+    tst     r1, r0
+    mov     r0, r1
+    movne   r0, r0, lsr #16
+    addne   r2, r2, #64
+    tst     r0, #0xFF00
+    movne   r0, r0, lsr #8
+    addne   r2, r2, #32
+    tst     r0, #0xF0
+    movne   r0, r0, lsr #4
+    addne   r2, r2, #16
+    tst     r0, #0xC
+    movne   r0, r0, lsr #2
+    addne   r2, r2, #8
+    tst     r0, #0x2
+    movne   r0, r0, lsr #1
+    addne   r2, r2, #4
+#endif
+
+    // compare dummy IRQ address with found IRQ address
+    // this skips some setup required for jumping to an IRQ handler
+    ldr     r0, =irqDummy
+    str     r1, [r12, #4]           // IF Clear
+    ldr     r1, [r2]
+    cmp     r1, r0
+    beq     no_handler
 
 got_handler:
-
-    str     r0, [r12, #4]           // IF Clear
 
     mrs     r2, cpsr
     mov     r3, r2
     bic     r3, r3, #0xdf           // Enable IRQ & FIQ. Set CPU mode to System
     orr     r3, r3, #0x1f
-    msr     cpsr,r3
+    msr     cpsr, r3
 
     push    {r2, lr}
+#ifdef ARM9
+    blx     r1
+#else
     adr     lr, IntrRet
     bx      r1
+#endif
 
 IntrRet:
 
@@ -115,6 +135,8 @@ IntrRet:
     pop     {r2, lr}
 
     msr     cpsr, r2
+
+no_handler:
 
     ldmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
     msr     spsr, r0                // Restore SPSR
