@@ -2,6 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #include <nds/asminc.h>
 
@@ -24,11 +25,11 @@ BEGIN_ASM_FUNC IntrMain
     cmp     r1, #0
     bxeq    lr
 
-    mov     r0, #0
-    str     r0, [r12, #0x208]       // disable IME
+    str     r12, [r12, #0x208]      // disable IME
     mrs     r0, spsr
     stmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
 
+next_irq_check:
     add     r12, r12, #0x210
     ldmia   r12!, {r1, r2}
     ands    r1, r1, r2
@@ -74,40 +75,47 @@ setflagsaux:
     str     r3, [r0]
 #endif
 
+    // find the highest set IRQ bit
+    // input:
     // r1 = interrupt mask
     // r2 = irq table address
+    // output:
+    // r1 = target interrupt mask
+    // r2 = target irq table address
     // r0, r3 can be used freely
-
-    // find the highest set IRQ bit
 findIRQ:
 #ifdef ARM9
     clz     r0, r1
     eor     r0, r0, #31
-    add     r2, r2, r0, lsl #2
 #else
     ldr     r0, =#0xFFFF0000
     tst     r1, r0
-    mov     r0, r1
-    movne   r0, r0, lsr #16
-    addne   r2, r2, #64
-    tst     r0, #0xFF00
-    movne   r0, r0, lsr #8
-    addne   r2, r2, #32
-    tst     r0, #0xF0
-    movne   r0, r0, lsr #4
-    addne   r2, r2, #16
-    tst     r0, #0xC
-    movne   r0, r0, lsr #2
-    addne   r2, r2, #8
-    tst     r0, #0x2
-    movne   r0, r0, lsr #1
-    addne   r2, r2, #4
+    mov     r0, #0
+    movne   r1, r1, lsr #16
+    addne   r0, r0, #16
+    tst     r1, #0xFF00
+    movne   r1, r1, lsr #8
+    addne   r0, r0, #8
+    tst     r1, #0xF0
+    movne   r1, r1, lsr #4
+    addne   r0, r0, #4
+    tst     r1, #0xC
+    movne   r1, r1, lsr #2
+    addne   r0, r0, #2
+    tst     r1, #0x2
+    movne   r1, r1, lsr #1
+    addne   r0, r0, #1
 #endif
+    mov     r1, #1
+    mov     r1, r1, lsl r0
+    add     r2, r2, r0, lsl #2
+
+    // clear the IRQ now being serviced
+    str     r1, [r12, #-4]
 
     // compare dummy IRQ address with found IRQ address
     // this skips some setup required for jumping to an IRQ handler
     ldr     r0, =irqDummy
-    str     r1, [r12, #-4]           // IF Clear
     ldr     r1, [r2]
     cmp     r1, r0
     beq     no_handler
@@ -115,8 +123,7 @@ findIRQ:
 got_handler:
 
     mrs     r2, cpsr
-    mov     r3, r2
-    bic     r3, r3, #0xdf           // Enable IRQ & FIQ. Set CPU mode to System
+    bic     r3, r2, #0xdf           // Enable IRQ & FIQ. Set CPU mode to System
     orr     r3, r3, #0x1f
     msr     cpsr, r3
 
@@ -135,6 +142,10 @@ IntrRet:
     pop     {r2, lr}
 
     msr     cpsr, r2
+
+    // we might have not finished dealing with all IRQs
+    // to prevent a costly handler roundtrip, check here
+    b       next_irq_check
 
 no_handler:
 
