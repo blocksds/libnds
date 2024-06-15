@@ -1850,8 +1850,6 @@ void glCallList(const void *list)
     while (dmaBusy(0) || dmaBusy(1) || dmaBusy(2) || dmaBusy(3));
 
     // Send the packed list asynchronously via DMA to the FIFO
-    DMA_SRC(0) = (uint32_t)ptr;
-    DMA_DEST(0) = (uint32_t)&GFX_FIFO;
-    DMA_CR(0) = DMA_FIFO | count;
+    dmaSetParams(0, ptr, (void*) &GFX_FIFO, DMA_FIFO | count);
     while (dmaBusy(0));
 }

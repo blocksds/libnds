@@ -47,10 +47,9 @@ void cardStartTransfer(const u8 *command, u32 *destination, int channel, u32 fla
     cardWriteCommand(command);
 
     // Set up a DMA channel to transfer a word every time the card makes one
-    DMA_SRC(channel) = (u32)&REG_CARD_DATA_RD;
-    DMA_DEST(channel) = (u32)destination;
-    DMA_CR(channel) = DMA_ENABLE | DMA_START_CARD | DMA_32_BIT | DMA_REPEAT
-                    | DMA_SRC_FIX | 0x0001;
+    dmaSetParams(channel, (const void*) &REG_CARD_DATA_RD, destination,
+            DMA_ENABLE | DMA_START_CARD | DMA_32_BIT | DMA_REPEAT
+            | DMA_SRC_FIX | 0x0001);
 
     REG_ROMCTRL = flags;
 }
