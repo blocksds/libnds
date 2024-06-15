@@ -13,86 +13,137 @@ extern "C" {
 #include <nds/arm9/dldi_asm.h>
 #include <nds/disc_io.h>
 
-#define FIX_ALL                 0x01
-#define FIX_GLUE                0x02
-#define FIX_GOT                 0x04
-#define FIX_BSS                 0x08
-
 #define DLDI_MAGIC_STRING_LEN   8
 #define DLDI_FRIENDLY_NAME_LEN  48
 
 extern const u32 DLDI_MAGIC_NUMBER;
 
-// I/O interface with DLDI extensions
+/**
+ * @brief DLDI I/O driver interface.
+ */
 typedef struct DLDI_INTERFACE {
+    /**
+     * @brief Magic number, equal to 0xBF8DA5ED.
+     * 
+     * @see dldiIsValid
+     */
     u32 magicNumber;
+    /**
+     * @brief Magic string, equal to " Chishm\0".
+     * 
+     * @see dldiIsValid
+     */
     char magicString [DLDI_MAGIC_STRING_LEN];
+    /**
+     * @brief Version number.
+     */
     u8 versionNumber;
-    u8 driverSize;       // Log-2 of driver size in bytes
+    /**
+     * @brief Log-2 of the driver's size, in bytes.
+     */
+    u8 driverSize;
+    /**
+     * @brief Flags which determine the sections that may have
+     * addresses to be fixed.
+     *
+     * @see FIX_ALL
+     * @see FIX_GLUE
+     * @see FIX_GOT
+     * @see FIX_BSS
+     */
     u8 fixSectionsFlags;
-    u8 allocatedSize;    // Log-2 of the allocated space in bytes
+    /**
+     * @brief Log-2 of the available maximum driver size, in bytes.
+     */
+    u8 allocatedSize;
 
+    /**
+     * @brief User-friendly driver name.
+     */
     char friendlyName [DLDI_FRIENDLY_NAME_LEN];
 
     // Pointers to sections that need address fixing
-    void *dldiStart;
-    void *dldiEnd;
-    void *interworkStart;
-    void *interworkEnd;
-    void *gotStart;
-    void *gotEnd;
-    void *bssStart;
-    void *bssEnd;
+    void *dldiStart; ///< Start of the DLDI driver's text/data section.
+    void *dldiEnd; ///< End of the DLDI driver's text/data section.
+    void *interworkStart; ///< Start of the DLDI driver's ARM interwork section.
+    void *interworkEnd; ///< End of the DLDI driver's ARM interwork section.
+    void *gotStart; ///< Start of the DLDI driver's Global Offset Table section.
+    void *gotEnd; ///< End of the DLDI driver's Global Offset Table section.
+    void *bssStart; ///< Start of the DLDI driver's BSS section.
+    void *bssEnd; ///< End of the DLDI driver's BSS section.
 
-    // Original I/O interface data
+    /**
+     * @brief File system interface flags and functions.
+     */
     DISC_INTERFACE ioInterface;
 } DLDI_INTERFACE;
 
 typedef enum {
-    DLDI_MODE_AUTODETECT = -1, // Look for FEATURE_ARM7_CAPABLE in DLDI header
+    /**
+     * @brief DLDI runtime mode: Look for FEATURE_ARM7_CAPABLE in DLDI header.
+     */
+    DLDI_MODE_AUTODETECT = -1,
+    /**
+     * @brief DLDI runtime mode: Always use the ARM9 CPU.
+     */
     DLDI_MODE_ARM9 = 0,
+    /**
+     * @brief DLDI runtime mode: Always use the ARM7 CPU.
+     */
     DLDI_MODE_ARM7 = 1,
 } DLDI_MODE;
 
-// Pointer to the internal DLDI, not directly usable in libfat. You'll need to
-// set the bus permissions appropriately before using.
+/**
+ * @brief Pointer to the internal DLDI driver.
+ *
+ * Make sure to set the bus permissions appropriately before using.
+ */
 extern const DLDI_INTERFACE* io_dldi_data;
 
-// Set DLDI runtime mode.
+/**
+ * @brief Set the DLDI runtime mode.
+ *
+ * This controls which CPU runs the DLDI driver's code.
+ */
 void dldiSetMode(DLDI_MODE mode);
 
-// Get DLDI runtime mode.
+/**
+ * @brief Get the DLDI runtime mode.
+ */
 DLDI_MODE dldiGetMode(void);
 
-// Return a pointer to the internal IO interface, setting up bus permissions in
-// the process.
+/**
+ * @brief Return a pointer to the internal IO interface and set up the bus
+ * permissions.
+ */
 extern const DISC_INTERFACE* dldiGetInternal(void);
 
-// Determines if an IO driver is a valid DLDI driver.
+/**
+ * @brief Determine if an IO driver is a valid DLDI driver.
+ */
 extern bool dldiIsValid(const DLDI_INTERFACE* io);
 
-// Adjust the pointer addresses within a DLDI driver.
+/**
+ * @brief Adjust the pointer addresses within a DLDI driver.
+ */
 extern void dldiFixDriverAddresses(DLDI_INTERFACE* io);
 
-// Load a DLDI from disc and set up the bus permissions. This returns a type not
-// directly usable in libfat, but it does give extra information, such as a
-// friendly name.
-//
-// To use in libfat:
-//
-//     const DLDI_INTERFACE *loadedDldi = dldi_loadFromFile("file");
-//     loadedDldi->ioInterface.startup();
-//     fatMount(&loadedDldi->ioInterface, "devname", 0);
+/**
+ * @brief Load a DLDI driver from a file and set up the bus permissions.
+ * 
+ * This is not directly usable as a filesystem driver.
+ */
 extern DLDI_INTERFACE *dldiLoadFromFile(const char* path);
 
-// Free resources used by a loaded DLDI.
-//
-// Remember to unmount and shutdown first:
-//
-//     fatUnmount("devname");
-//     loadedDldi->ioInterface.shutdown();
-//     dldiFree(loadedDldi);
-extern void dldiFree (DLDI_INTERFACE* dldi);
+/**
+ * @brief Free the memory used by the DLDI driver.
+ *
+ * Remember to shut down the driver itself first:
+ *
+ *     loadedDldi->ioInterface.shutdown();
+ *     dldiFree(loadedDldi);
+ */
+extern void dldiFree(DLDI_INTERFACE* dldi);
 
 #ifdef __cplusplus
 }
