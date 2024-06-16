@@ -88,11 +88,10 @@ findIRQ:
     clz     r0, r1
     eor     r0, r0, #31
 #else
-    ldr     r0, =#0xFFFF0000
-    tst     r1, r0
     mov     r0, #0
-    movne   r1, r1, lsr #16
-    addne   r0, r0, #16
+    cmp     r1, #0x10000
+    movcs   r1, r1, lsr #16
+    addcs   r0, r0, #16
     tst     r1, #0xFF00
     movne   r1, r1, lsr #8
     addne   r0, r0, #8
@@ -102,9 +101,9 @@ findIRQ:
     tst     r1, #0xC
     movne   r1, r1, lsr #2
     addne   r0, r0, #2
-    tst     r1, #0x2
-    movne   r1, r1, lsr #1
-    addne   r0, r0, #1
+    // r1 is now equal to 0, 1, 2 or 3
+    // if it's equal to 2 or 3, add 1 to r0
+    add     r0, r0, r1, lsr #1
 #endif
     mov     r1, #1
     mov     r1, r1, lsl r0
