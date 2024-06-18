@@ -230,8 +230,6 @@ int atanComp(const void *a, const void *b)
 
 #if 0
 
-#define inttof32(a) intToFixed((a), 12)
-
 s32 atanLerp(s32 par)
 {
     bool neg = false;
