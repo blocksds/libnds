@@ -16,7 +16,7 @@
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 
-#include <keyboardGfx.h>
+#include "keyboardGfx.h"
 
 s16 lastKey = -1;
 

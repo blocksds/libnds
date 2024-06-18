@@ -15,9 +15,8 @@
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 
-#include <default_font.h>
-
 #include "common/libnds_internal.h"
+#include "default_font.h"
 
 PrintConsole defaultConsole = {
     // Font:
