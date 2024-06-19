@@ -5,6 +5,7 @@
 // Copyright (C) 2024 Adrian "asie" Siekierka
 
 #include <nds/asminc.h>
+#include <nds/cpu_asm.h>
 
     .syntax  unified
 
@@ -26,12 +27,14 @@ BEGIN_ASM_FUNC IntrMain
     bxeq    lr
 
     str     r12, [r12, #0x208]      // disable IME
+                                    // (as only bit 0 is used, it's okay to write
+                                    // any value with bit 0 clear)
     mrs     r0, spsr
     stmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
 
 next_irq_check:
     add     r12, r12, #0x210
-    ldmia   r12!, {r1, r2}
+    ldmia   r12!, {r1, r2}          // read IE, IF
     ands    r1, r1, r2
 #ifdef ARM9
     beq     no_handler
@@ -56,7 +59,7 @@ next_irq_check:
     b       findIRQ
 
 setflagsaux:
-    ldmia   r12!, {r1, r2}
+    ldmia   r12!, {r1, r2}           // read AUX IE, IF
     ands    r1, r1, r2
     beq     no_handler
     ldr     r2, =irqTableAUX
@@ -75,15 +78,20 @@ setflagsaux:
     str     r3, [r0]
 #endif
 
-    // find the highest set IRQ bit
+    // find the highest set IRQ bit and adjust the mask/table address
+    // accordingly
+    //
     // input:
     // r1 = interrupt mask
     // r2 = irq table address
+    //
     // output:
     // r1 = target interrupt mask
     // r2 = target irq table address
+    //
     // r0, r3 can be used freely
 findIRQ:
+    // set r0 to the position of the highest bit set in r1
 #ifdef ARM9
     clz     r0, r1
     eor     r0, r0, #31
@@ -105,6 +113,7 @@ findIRQ:
     // if it's equal to 2 or 3, add 1 to r0
     add     r0, r0, r1, lsr #1
 #endif
+    // adjust r1 and r2 based on the bit index in r0
     mov     r1, #1
     mov     r1, r1, lsl r0
     add     r2, r2, r0, lsl #2
@@ -121,9 +130,10 @@ findIRQ:
 
 got_handler:
 
+    // enable IRQ and FIQ, set mode to System
     mrs     r2, cpsr
-    bic     r3, r2, #0xdf           // Enable IRQ & FIQ. Set CPU mode to System
-    orr     r3, r3, #0x1f
+    bic     r3, r2, #(CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS | CPSR_MODE_MASK)
+    orr     r3, r3, #CPSR_MODE_SYSTEM
     msr     cpsr, r3
 
     push    {r2, lr}
@@ -138,6 +148,8 @@ IntrRet:
 
     mov     r12, #0x4000000         // REG_BASE
     str     r12, [r12, #0x208]      // disable IME
+                                    // (as only bit 0 is used, it's okay to write
+                                    // any value with bit 0 clear)
     pop     {r2, lr}
 
     msr     cpsr, r2
