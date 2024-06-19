@@ -131,8 +131,6 @@ extern vuint32 __irq_flagsaux[];
 #define INTR_WAIT_FLAGSAUX  *(__irq_flagsaux)
 #define IRQ_HANDLER         *(__irq_vector)
 
-struct IntTable{IntFn handler; u32 mask;};
-
 /// Initialise the libnds interrupt system.
 ///
 /// This function is called internally (prior to main()) to set up IRQs on the

@@ -23,9 +23,9 @@ void irqDummy(void)
 #define INT_TABLE_SECTION
 #endif
 
-struct IntTable irqTable[MAX_INTERRUPTS] INT_TABLE_SECTION;
+IntFn irqTable[MAX_INTERRUPTS] INT_TABLE_SECTION;
 #ifdef ARM7
-struct IntTable irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
+IntFn irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
 
 static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
@@ -57,10 +57,7 @@ TWL_CODE void irqInitAUX(void)
 {
     // Set all interrupts to dummy functions.
     for (int i = 0; i < MAX_INTERRUPTS_AUX; i++)
-    {
-        irqTableAUX[i].handler = irqDummy;
-        irqTableAUX[i].mask = 0;
-    }
+        irqTableAUX[i] = irqDummy;
 }
 
 VoidFn setPowerButtonCB(VoidFn CB)
@@ -74,24 +71,16 @@ VoidFn setPowerButtonCB(VoidFn CB)
 }
 #endif
 
-static void __irqSet(u32 mask, IntFn handler, struct IntTable irqTable_[], u32 max)
+static void __irqSet(u32 mask, IntFn handler, IntFn irqTable_[], u32 max)
 {
-    if (mask == 0)
-        return;
-
-    u32 i;
-
-    for (i = 0; i < max; i++)
+    // Set every bit in order. Skip bits which are out of bounds.
+    while (mask)
     {
-        if (!irqTable_[i].mask || irqTable_[i].mask == mask)
-            break;
+        u32 i = __builtin_clz(mask) ^ 0x1F;
+        if (i < max)
+            irqTable_[i] = handler;
+        mask &= ~(1 << i);
     }
-
-    if (i == max)
-        return;
-
-    irqTable_[i].handler = handler;
-    irqTable_[i].mask = mask;
 }
 
 void irqSet(u32 mask, IntFn handler)
@@ -132,10 +121,7 @@ void irqInit(void)
 
     // Set all interrupts to dummy functions.
     for (int i = 0; i < MAX_INTERRUPTS; i++)
-    {
-        irqTable[i].handler = irqDummy;
-        irqTable[i].mask = 0;
-    }
+        irqTable[i] = irqDummy;
 
 #ifdef ARM7
     if (isDSiMode())
@@ -146,6 +132,7 @@ void irqInit(void)
         TMIO_init();
     }
 #endif
+
     REG_IME = 1; // Enable interrupts
 }
 
@@ -185,27 +172,11 @@ void irqDisable(uint32_t irq)
     leaveCriticalSection(oldIME);
 }
 
-static void __irqClear(u32 mask, struct IntTable irqTable_[], u32 max)
-{
-    u32 i = 0;
-
-    for (i = 0; i < max; i++)
-    {
-        if (irqTable_[i].mask == mask)
-            break;
-    }
-
-    if (i == max)
-        return;
-
-    irqTable_[i].handler = irqDummy;
-}
-
 void irqClear(u32 mask)
 {
     int oldIME = enterCriticalSection();
 
-    __irqClear(mask, irqTable, MAX_INTERRUPTS);
+    __irqSet(mask, irqDummy, irqTable, MAX_INTERRUPTS);
     irqDisable(mask);
 
     leaveCriticalSection(oldIME);
@@ -226,8 +197,8 @@ TWL_CODE void irqClearAUX(u32 mask)
 {
     int oldIME = enterCriticalSection();
 
-    __irqClear(mask, irqTableAUX, MAX_INTERRUPTS_AUX);
-    irqDisable(mask);
+    __irqSet(mask, irqDummy, irqTableAUX, MAX_INTERRUPTS_AUX);
+    irqDisableAUX(mask);
 
     leaveCriticalSection(oldIME);
 }
