@@ -24,7 +24,7 @@ void resetARM9(u32 address)
     *((vu32 *)0x02FFFE24) = address;
 
     REG_IPC_FIFO_TX = FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT
-                    | FIFO_ARM7_REQUESTS_ARM9_RESET;
+                      | FIFO_ARM7_REQUESTS_ARM9_RESET;
     resetSync();
 }
 #else
@@ -33,7 +33,7 @@ void resetARM7(u32 address)
     *((vu32 *)0x02FFFE34) = address;
 
     REG_IPC_FIFO_TX = FIFO_ADDRESSBIT | FIFO_IMMEDIATEBIT
-                    | FIFO_ARM9_REQUESTS_ARM7_RESET;
+                      | FIFO_ARM9_REQUESTS_ARM7_RESET;
     resetSync();
 }
 #endif

@@ -95,13 +95,15 @@ extern "C" {
 /// @{
 
 /// Register overlay for scroll registers
-typedef struct bg_scroll {
+typedef struct bg_scroll
+{
     u16 x; ///< X scroll
     u16 y; ///< Y scroll
 } bg_scroll;
 
 /// Register overlay for affine matrix registers
-typedef struct bg_transform {
+typedef struct bg_transform
+{
     s16 hdx; ///< The change in x per horizontal pixel
     s16 vdx; ///< The change in x per vertical pixel
     s16 hdy; ///< The change in y per horizontal pixel
@@ -111,7 +113,8 @@ typedef struct bg_transform {
 } bg_transform;
 
 /// Register overlay for background attribute registers.
-typedef struct bg_attribute {
+typedef struct bg_attribute
+{
     u16 control[4];             ///< Background control registers
     bg_scroll scroll[4];        ///< Background scroll registers
     bg_transform bg2_rotation;  ///< Background 2 affine matrix
@@ -139,61 +142,63 @@ typedef struct bg_attribute {
 #define TILE_FLIP_V         BIT(11)
 
 /// Overlay for 8-bit tile map entries
-typedef struct TileMapEntry8 {
-  u8 index;
+typedef struct TileMapEntry8
+{
+    u8 index;
 } TileMapEntry8;
 
 /// Overlay for 16-bit tile map entries
-typedef struct TileMapEntry16 {
-  u16 index     : 10;
-  u16 hflip     : 1;
-  u16 vflip     : 1;
-  u16 palette   : 4;
+typedef struct TileMapEntry16
+{
+    u16 index     : 10;
+    u16 hflip     : 1;
+    u16 vflip     : 1;
+    u16 palette   : 4;
 } PACKED TileMapEntry16;
 
 /// Bit defines for the background control registers
 typedef enum
 {
-   BG_32x32 = (0 << 14), ///< 32 x 32 tile text background
-   BG_64x32 = (1 << 14), ///< 64 x 32 tile text background
-   BG_32x64 = (2 << 14), ///< 32 x 64 tile text background
-   BG_64x64 = (3 << 14), ///< 64 x 64 tile text background
+    BG_32x32 = (0 << 14), ///< 32 x 32 tile text background
+    BG_64x32 = (1 << 14), ///< 64 x 32 tile text background
+    BG_32x64 = (2 << 14), ///< 32 x 64 tile text background
+    BG_64x64 = (3 << 14), ///< 64 x 64 tile text background
 
-   BG_RS_16x16   =  (0 << 14), ///< 16 x 16 tile affine (rotation & scale) background
-   BG_RS_32x32   =  (1 << 14), ///< 32 x 32 tile affine (rotation & scale) background
-   BG_RS_64x64   =  (2 << 14), ///< 64 x 64 tile affine (rotation & scale) background
-   BG_RS_128x128 =  (3 << 14), ///< 128 x 128 tile affine (rotation & scale) background
+    BG_RS_16x16   = (0 << 14),  ///< 16 x 16 tile affine (rotation & scale) background
+    BG_RS_32x32   = (1 << 14),  ///< 32 x 32 tile affine (rotation & scale) background
+    BG_RS_64x64   = (2 << 14),  ///< 64 x 64 tile affine (rotation & scale) background
+    BG_RS_128x128 = (3 << 14),  ///< 128 x 128 tile affine (rotation & scale) background
 
-   BG_BMP8_128x128  = ((0 << 14) | BIT(7)), ///< 128x128 pixel 8-bit bitmap
-   BG_BMP8_256x256  = ((1 << 14) | BIT(7)), ///< 256x256 pixel 8-bit bitmap
-   BG_BMP8_512x256  = ((2 << 14) | BIT(7)), ///< 512x256 pixel 8-bit bitmap
-   BG_BMP8_512x512  = ((3 << 14) | BIT(7)), ///< 512 pixel 8-bit bitma
-   BG_BMP8_1024x512 = BIT(14), ///< 1024x512 pixel 8-bit Large bitmap (Mode 6, main engine)
-   BG_BMP8_512x1024 = 0,       ///< 512x1024 pixel 8-bit Large bitmap (Mode 6, main engine)
+    BG_BMP8_128x128  = ((0 << 14) | BIT(7)), ///< 128x128 pixel 8-bit bitmap
+    BG_BMP8_256x256  = ((1 << 14) | BIT(7)), ///< 256x256 pixel 8-bit bitmap
+    BG_BMP8_512x256  = ((2 << 14) | BIT(7)), ///< 512x256 pixel 8-bit bitmap
+    BG_BMP8_512x512  = ((3 << 14) | BIT(7)), ///< 512 pixel 8-bit bitma
+    BG_BMP8_1024x512 = BIT(14), ///< 1024x512 pixel 8-bit Large bitmap (Mode 6, main engine)
+    BG_BMP8_512x1024 = 0,       ///< 512x1024 pixel 8-bit Large bitmap (Mode 6, main engine)
 
-   BG_BMP16_128x128  = ((0 << 14) | BIT(7) | BIT(2)), ///< 128x128 pixel 16-bit bitmap
-   BG_BMP16_256x256  = ((1 << 14) | BIT(7) | BIT(2)), ///< 256x256 pixel 16-bit bitmap
-   BG_BMP16_512x256  = ((2 << 14) | BIT(7) | BIT(2)), ///< 512x256 pixel 16-bit bitmap
-   BG_BMP16_512x512  = ((3 << 14) | BIT(7) | BIT(2)), ///< 512x512 pixel 16-bit bitmap
+    BG_BMP16_128x128  = ((0 << 14) | BIT(7) | BIT(2)), ///< 128x128 pixel 16-bit bitmap
+    BG_BMP16_256x256  = ((1 << 14) | BIT(7) | BIT(2)), ///< 256x256 pixel 16-bit bitmap
+    BG_BMP16_512x256  = ((2 << 14) | BIT(7) | BIT(2)), ///< 512x256 pixel 16-bit bitmap
+    BG_BMP16_512x512  = ((3 << 14) | BIT(7) | BIT(2)), ///< 512x512 pixel 16-bit bitmap
 
-   BG_MOSAIC_ON   = (BIT(6)),   ///< Mosaic enable
-   BG_MOSAIC_OFF  = (0),        ///< Mosaic disable
+    BG_MOSAIC_ON   = (BIT(6)),   ///< Mosaic enable
+    BG_MOSAIC_OFF  = (0),        ///< Mosaic disable
 
-   BG_PRIORITY_0  = (0), ///< Lower priority will be rendered on top
-   BG_PRIORITY_1  = (1), ///< Lower priority will be rendered on top
-   BG_PRIORITY_2  = (2), ///< Lower priority will be rendered on top
-   BG_PRIORITY_3  = (3), ///< Lower priority will be rendered on top
+    BG_PRIORITY_0  = (0), ///< Lower priority will be rendered on top
+    BG_PRIORITY_1  = (1), ///< Lower priority will be rendered on top
+    BG_PRIORITY_2  = (2), ///< Lower priority will be rendered on top
+    BG_PRIORITY_3  = (3), ///< Lower priority will be rendered on top
 
-   BG_WRAP_OFF    = (0),        ///< Disable wrapping (text backgrounds always wrap)
-   BG_WRAP_ON     = (1 << 13),  ///< Enable wrapping (text backgrounds always wrap)
+    BG_WRAP_OFF    = (0),        ///< Disable wrapping (text backgrounds always wrap)
+    BG_WRAP_ON     = (1 << 13),  ///< Enable wrapping (text backgrounds always wrap)
 
-   BG_PALETTE_SLOT0 = 0,        ///< Use slot 0 of extended palettes
-   BG_PALETTE_SLOT1 = 0,        ///< Use slot 1 of extended palettes
-   BG_PALETTE_SLOT2 = BIT(13),  ///< Use slot 2 of extended palettes
-   BG_PALETTE_SLOT3 = BIT(13),  ///< Use slot 3 of extended palettes
+    BG_PALETTE_SLOT0 = 0,        ///< Use slot 0 of extended palettes
+    BG_PALETTE_SLOT1 = 0,        ///< Use slot 1 of extended palettes
+    BG_PALETTE_SLOT2 = BIT(13),  ///< Use slot 2 of extended palettes
+    BG_PALETTE_SLOT3 = BIT(13),  ///< Use slot 3 of extended palettes
 
-   BG_COLOR_256 = 0x80, ///< 256 color text background
-   BG_COLOR_16  = 0x00  ///< 16x16 color text background
+    BG_COLOR_256 = 0x80, ///< 256 color text background
+    BG_COLOR_16  = 0x00  ///< 16x16 color text background
 } BackgroundControl;
 
 /// @}
@@ -503,8 +508,8 @@ void bgUpdate(void);
 /// @param angle The angle of counter clockwise rotation (0 to 511)
 static inline void bgSetRotate(int id, int angle)
 {
-   bgState[id].angle = angle;
-   bgState[id].dirty = true;
+    bgState[id].angle = angle;
+    bgState[id].dirty = true;
 }
 
 /// Rotates the background counter clockwise by the specified angle.
@@ -600,7 +605,7 @@ static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int t
 {
     sassert(layer >= 0 && layer <= 3, "Only layers 0 - 3 are supported");
     sassert(tileBase >= 0 && tileBase <= 15, "Background tile base is out of range");
-    sassert(mapBase >=0 && mapBase <= 31, "Background Map Base is out of range");
+    sassert(mapBase >= 0 && mapBase <= 31, "Background Map Base is out of range");
     sassert(layer != 0 || !video3DEnabled(),
             "Background 0 is currently being used for 3D display");
     sassert(layer > 1 || type == BgType_Text8bpp || type == BgType_Text4bpp,
@@ -639,8 +644,8 @@ static inline int bgInitSub(int layer, BgType type, BgSize size, int mapBase,
 {
     sassert(layer >= 0 && layer <= 3, "Only layers 0 - 3 are supported");
     sassert(tileBase >= 0 && tileBase <= 15, "Background tile base is out of range");
-    sassert(mapBase >=0 && mapBase <= 31, "Background Map Base is out of range");
-    sassert(layer > 1 || type == BgType_Text8bpp|| type == BgType_Text4bpp,
+    sassert(mapBase >= 0 && mapBase <= 31, "Background Map Base is out of range");
+    sassert(layer > 1 || type == BgType_Text8bpp || type == BgType_Text4bpp,
             "Incorrect background type for mode");
     sassert(tileBase == 0 || type < BgType_Bmp8,
             "Tile base is unused for bitmaps. Can be offset using mapBase * 16KB");

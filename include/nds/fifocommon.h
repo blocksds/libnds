@@ -20,7 +20,8 @@ extern "C" {
 /// @brief Low level FIFO API.
 
 /// Enum values for the different FIFO channels.
-typedef enum {
+typedef enum
+{
     FIFO_PM         = 0,  ///< Channel used for power management
     FIFO_SOUND      = 1,  ///< Channel used for sound access
     FIFO_SYSTEM     = 2,  ///< Channel used for system functions
@@ -42,7 +43,8 @@ typedef enum {
 } FifoChannels;
 
 /// Enum values for the FIFO sound commands.
-typedef enum {
+typedef enum
+{
     SOUND_SET_PAN           = 0 << 20,
     SOUND_SET_VOLUME        = 1 << 20,
     SOUND_SET_FREQ          = 2 << 20,
@@ -60,7 +62,8 @@ typedef enum {
 } FifoSoundCommand;
 
 /// Enum values for the FIFO system commands.
-typedef enum {
+typedef enum
+{
     SYS_REQ_TOUCH,
     SYS_REQ_KEYS,
     SYS_REQ_TIME,
@@ -69,7 +72,8 @@ typedef enum {
     SDMMC_REMOVE
 } FifoSystemCommands;
 
-typedef enum {
+typedef enum
+{
     SDMMC_SD_START,
     SDMMC_SD_STOP,
     SDMMC_SD_STATUS,
@@ -87,13 +91,15 @@ typedef enum {
     SLOT1_CARD_READ,
 } FifoSdmmcCommands;
 
-typedef enum {
+typedef enum
+{
     FW_READ,
     FW_WRITE
 } FifoFirmwareCommands;
 
 /// Enum values for the FIFO power management commands.
-typedef enum {
+typedef enum
+{
     PM_REQ_ON               = 1 << 16,
     PM_REQ_OFF              = 2 << 16,
     PM_REQ_LED              = 3 << 16,
@@ -106,7 +112,8 @@ typedef enum {
 } FifoPMCommands;
 
 /// Enum values for the FIFO wifi commands.
-typedef enum {
+typedef enum
+{
     WIFI_ENABLE,
     WIFI_DISABLE,
     WIFI_SYNC,
@@ -115,7 +122,8 @@ typedef enum {
 
 
 /// Power Management LED blink mode control bits.
-typedef enum {
+typedef enum
+{
     PM_LED_ON       = 0, ///< Steady on
     PM_LED_SLEEP    = 1, ///< Blinking, mostly off
     PM_LED_BLINK    = 3, ///< Blinking, mostly on
@@ -185,7 +193,7 @@ bool fifoSendValue32(u32 channel, u32 value32);
 /// @param data_array Pointer to data array
 ///
 /// @return Returns true if the data message has been sent, false on error.
-bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 * data_array);
+bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array);
 
 /// Sends a special command to the other CPU.
 ///
@@ -207,7 +215,7 @@ bool fifoSendSpecialCommand(u32 cmd);
 ///
 /// @note Setting the handler for a channel feeds the queue of buffered messages
 /// to the new handler if there are any unread messages.
-bool fifoSetAddressHandler(u32 channel, FifoAddressHandlerFunc newhandler, void * userdata);
+bool fifoSetAddressHandler(u32 channel, FifoAddressHandlerFunc newhandler, void *userdata);
 
 /// Sets user value32 message callback.
 ///

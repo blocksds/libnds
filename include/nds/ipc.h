@@ -19,7 +19,8 @@ extern "C" {
 // Synchronization register
 #define REG_IPC_SYNC (*(vuint16 *)0x04000180)
 
-enum IPC_SYNC_BITS {
+enum IPC_SYNC_BITS
+{
     IPC_SYNC_IRQ_ENABLE  = BIT(14),
     IPC_SYNC_IRQ_REQUEST = BIT(13)
 };
@@ -40,7 +41,8 @@ static inline int IPC_GetSync(void)
 #define REG_IPC_FIFO_RX (*(vu32 *)0x4100000)
 #define REG_IPC_FIFO_CR (*(vu16 *)0x4000184)
 
-enum IPC_CONTROL_BITS {
+enum IPC_CONTROL_BITS
+{
     IPC_FIFO_SEND_EMPTY = (1 << 0),
     IPC_FIFO_SEND_FULL  = (1 << 1),
     IPC_FIFO_SEND_IRQ   = (1 << 2),

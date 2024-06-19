@@ -11,7 +11,8 @@
 
 void *__aeabi_read_tp(void);
 
-struct __lock {
+struct __lock
+{
     comutex_t mutex;
     int recursion;
     void *thread_owner;

@@ -19,7 +19,8 @@
 extern "C" {
 #endif
 
-typedef struct MotionCalibration {
+typedef struct MotionCalibration
+{
     short xoff, yoff, zoff, goff;
     short xsens, ysens, zsens, gsens;
 } MotionCalibration;

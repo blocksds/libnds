@@ -11,13 +11,14 @@ bool readUserSettings(void)
 {
     PERSONAL_DATA slots[2];
 
-    struct PACKED {
+    struct PACKED
+    {
         short count;
         short crc;
     } slot1Footer, slot2Footer;
 
     uint16_t userSettingsBase;
-    readFirmware(0x20, &userSettingsBase,2);
+    readFirmware(0x20, &userSettingsBase, 2);
 
     uint32_t slot1Address = (uint32_t)userSettingsBase * 8;
     uint32_t slot2Address = (uint32_t)userSettingsBase * 8 + 0x100;

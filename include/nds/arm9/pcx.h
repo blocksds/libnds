@@ -17,21 +17,21 @@ extern "C" {
 
 typedef struct PCXHeader
 {
-   char      manufacturer;  // Should be 0
-   char      version;       // Should be 5
-   char      encoding;      // Should be 1
-   char      bitsPerPixel;  // Should be 8
-   short int xmin,ymin;     // Coordinates for top left,bottom right
-   short int xmax,ymax;
-   short int hres;          // Resolution
-   short int vres;
-   char      palette16[48]; // 16 color palette if 16 color image
-   char      reserved;      // Ignore
-   char      colorPlanes;   // Ignore
-   short int bytesPerLine;
-   short int paletteYype;   // Should be 2
-   char      filler[58];    // Ignore
-}__attribute__ ((packed)) PCXHeader, *pPCXHeader;
+    char      manufacturer;  // Should be 0
+    char      version;       // Should be 5
+    char      encoding;      // Should be 1
+    char      bitsPerPixel;  // Should be 8
+    short int xmin, ymin;    // Coordinates for top left,bottom right
+    short int xmax, ymax;
+    short int hres;          // Resolution
+    short int vres;
+    char      palette16[48]; // 16 color palette if 16 color image
+    char      reserved;      // Ignore
+    char      colorPlanes;   // Ignore
+    short int bytesPerLine;
+    short int paletteYype;   // Should be 2
+    char      filler[58];    // Ignore
+} __attribute__((packed)) PCXHeader, *pPCXHeader;
 
 /// Loads an image structure with data from PCX formatted data.
 ///

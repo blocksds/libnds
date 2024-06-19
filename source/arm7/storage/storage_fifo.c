@@ -35,7 +35,7 @@ void storageMsgHandler(int bytes, void *user_data)
     FifoMessage msg;
     int retval = 0;
 
-    fifoGetDatamsg(FIFO_STORAGE, bytes, (u8*)&msg);
+    fifoGetDatamsg(FIFO_STORAGE, bytes, (u8 *)&msg);
 
     fifoIrqDisable();
 
@@ -59,8 +59,8 @@ void storageMsgHandler(int bytes, void *user_data)
             if (dldi_io)
             {
                 retval = dldi_io->readSectors(msg.sdParams.startsector,
-                                            msg.sdParams.numsectors,
-                                            msg.sdParams.buffer);
+                                              msg.sdParams.numsectors,
+                                              msg.sdParams.buffer);
             }
             break;
 
@@ -68,8 +68,8 @@ void storageMsgHandler(int bytes, void *user_data)
             if (dldi_io)
             {
                 retval = dldi_io->writeSectors(msg.sdParams.startsector,
-                                            msg.sdParams.numsectors,
-                                            msg.sdParams.buffer);
+                                               msg.sdParams.numsectors,
+                                               msg.sdParams.buffer);
             }
             break;
         case SLOT1_CARD_READ:

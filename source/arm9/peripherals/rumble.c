@@ -7,13 +7,15 @@
 #include <nds/system.h>
 #include <nds/arm9/rumble.h>
 
-bool isRumbleInserted(void) {
+bool isRumbleInserted(void)
+{
     if (!peripheralSlot2IsDetected())
         rumbleInit();
     return peripheralSlot2GetSupportMask() & SLOT2_PERIPHERAL_RUMBLE_ANY;
 }
 
-uint8_t rumbleGetMaxRawStrength(void) {
+uint8_t rumbleGetMaxRawStrength(void)
+{
     uint32_t mask = peripheralSlot2GetSupportMask();
     if (mask & SLOT2_PERIPHERAL_RUMBLE_EZ)
         return 3;
@@ -22,7 +24,8 @@ uint8_t rumbleGetMaxRawStrength(void) {
     return 0;
 }
 
-bool rumbleIsEdgeActivated(void) {
+bool rumbleIsEdgeActivated(void)
+{
     return peripheralSlot2GetSupportMask() & SLOT2_PERIPHERAL_RUMBLE_PAK;
 }
 
@@ -31,18 +34,25 @@ bool rumbleIsEdgeActivated(void) {
 extern void slot2EzCommand(uint32_t address, uint16_t value);
 static const uint8_t ez_rumble_table[] = {0x08, 0xF0, 0xF2, 0xF1};
 
-void setRumble(uint8_t strength) {
+void setRumble(uint8_t strength)
+{
     uint32_t mask = peripheralSlot2GetSupportMask();
     peripheralSlot2Open(SLOT2_PERIPHERAL_RUMBLE_ANY);
 
-    if (mask & SLOT2_PERIPHERAL_RUMBLE_GPIO) {
+    if (mask & SLOT2_PERIPHERAL_RUMBLE_GPIO)
+    {
         GPIO_DATA = (GPIO_DATA & ~0x8) | (strength ? 0x8 : 0x0);
-    } else if (mask & SLOT2_PERIPHERAL_RUMBLE_PAK) {
-        if (mask & SLOT2_PERIPHERAL_RUMBLE_EZ) {
+    }
+    else if (mask & SLOT2_PERIPHERAL_RUMBLE_PAK)
+    {
+        if (mask & SLOT2_PERIPHERAL_RUMBLE_EZ)
+        {
             slot2EzCommand(0x9E20000, ez_rumble_table[strength > 3 ? 3 : strength]);
         }
         RUMBLE_PAK_CTRL = strength ? 0x2 : 0x0;
-    } else if (mask & SLOT2_PERIPHERAL_SLIDE_MAGKID) {
+    }
+    else if (mask & SLOT2_PERIPHERAL_SLIDE_MAGKID)
+    {
         // TODO: Untested.
         RUMBLE_PAK_CTRL = strength ? 0x100 : 0x000;
     }

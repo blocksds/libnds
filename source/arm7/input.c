@@ -60,9 +60,11 @@ static u16 inputTouchUpdate(touchPosition *tempPos)
 
         penDown = false;
         libnds_touchMeasurementFilterResult rawXresult = libnds_touchMeasurementFilter(data.rawX);
-        if (!rawXresult.value) goto noPenDown;
+        if (!rawXresult.value)
+            goto noPenDown;
         libnds_touchMeasurementFilterResult rawYresult = libnds_touchMeasurementFilter(data.rawY);
-        if (!rawYresult.value) goto noPenDown;
+        if (!rawYresult.value)
+            goto noPenDown;
 
         // Valid sample read.
         u16 noisiness = rawXresult.noisiness > rawYresult.noisiness ? rawXresult.noisiness : rawYresult.noisiness;
@@ -84,10 +86,10 @@ static u16 inputTouchUpdate(touchPosition *tempPos)
             {
                 lastTouchPosition.rawx =
                     ((rawXresult.value * (TOUCH_MAX_NOISE_PEN_UP_IIR_RATIO - n))
-                    + (lastTouchPosition.rawx * n)) >> TOUCH_MAX_NOISE_PEN_UP_IIR_SHIFT;
+                     + (lastTouchPosition.rawx * n)) >> TOUCH_MAX_NOISE_PEN_UP_IIR_SHIFT;
                 lastTouchPosition.rawy =
                     ((rawYresult.value * (TOUCH_MAX_NOISE_PEN_UP_IIR_RATIO - n))
-                    + (lastTouchPosition.rawy * n)) >> TOUCH_MAX_NOISE_PEN_UP_IIR_SHIFT;
+                     + (lastTouchPosition.rawy * n)) >> TOUCH_MAX_NOISE_PEN_UP_IIR_SHIFT;
             }
 #else
             lastTouchPosition.rawx = rawXresult.value;
@@ -117,7 +119,10 @@ noPenDown:
                 penDownDebounce = PEN_DOWN_DEBOUNCE;
         }
     }
-    else penDownDebounce--;
+    else
+    {
+        penDownDebounce--;
+    }
 #else
     lastPenDown = penDown;
 #endif

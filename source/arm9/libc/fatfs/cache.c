@@ -8,7 +8,8 @@
 
 #include "ff.h"
 
-typedef struct {
+typedef struct
+{
     uint8_t  valid;
     uint8_t  pdrv;
     LBA_t    sector;
@@ -24,8 +25,8 @@ static uint8_t *cache_mem;
 static uint32_t cache_num_sectors;
 static uint32_t dldi_stub_space_sectors;
 
-extern uint8_t* dldiGetStubDataEnd(void);
-extern uint8_t* dldiGetStubEnd(void);
+extern uint8_t *dldiGetStubDataEnd(void);
+extern uint8_t *dldiGetStubEnd(void);
 
 int cache_init(int32_t num_sectors)
 {
@@ -42,11 +43,13 @@ int cache_init(int32_t num_sectors)
     dldi_stub_space_sectors = stub_space_sectors < 0 ? 0 : stub_space_sectors;
 
     // If num_sectors is negative, use the DLDI stub space.
-    if (num_sectors < 0) {
+    if (num_sectors < 0)
+    {
         num_sectors = stub_space_sectors;
     }
 
-    if (num_sectors > 0) {
+    if (num_sectors > 0)
+    {
         cache_entries = calloc(num_sectors, sizeof(cache_entry_t));
         if (cache_entries == NULL)
             return -1;
@@ -69,7 +72,9 @@ int cache_init(int32_t num_sectors)
         }
 
         cache_num_sectors = num_sectors;
-    } else {
+    }
+    else
+    {
         cache_num_sectors = 0;
     }
 

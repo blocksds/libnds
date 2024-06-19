@@ -74,12 +74,12 @@ static_assert(offsetof(Tmio, sd_fifo32) == 0x10C,
               "Error: Member sd_fifo32 of Tmio is not at offset 0x10C!");
 #endif
 
-static inline Tmio* getTmioRegs(const u8 controller)
+static inline Tmio *getTmioRegs(const u8 controller)
 {
     return (controller == 0 ? (Tmio *)TMIO1_REGS_BASE : (Tmio *)TMIO2_REGS_BASE);
 }
 
-static inline vu32* getTmioFifo(Tmio *const regs)
+static inline vu32 *getTmioFifo(Tmio *const regs)
 {
     return &regs->sd_fifo32;
 }
@@ -154,10 +154,10 @@ static inline vu32* getTmioFifo(Tmio *const regs)
 
 #define SD_STATUS_MASK_ALL          (0xFFFFFFFFu)
 #define SD_STATUS_MASK_DEFAULT      ((1u<<27) | SD_STATUS_TX_REQ | SD_STATUS_RX_RDY | \
-                                    SD_STATUS_DAT3_INSERT | SD_STATUS_DAT3_REMOVE)
+                                     SD_STATUS_DAT3_INSERT | SD_STATUS_DAT3_REMOVE)
 #define SD_STATUS_MASK_ERR          (SD_STATUS_ERR_ILL_ACC | SD_STATUS_ERR_CMD_TIMEOUT | SD_STATUS_ERR_TX_UNDERF | \
-                                    SD_STATUS_ERR_RX_OVERF | SD_STATUS_ERR_DATA_TIMEOUT | SD_STATUS_ERR_STOP_BIT | \
-                                    SD_STATUS_ERR_CRC | SD_STATUS_ERR_CMD_IDX)
+                                     SD_STATUS_ERR_RX_OVERF | SD_STATUS_ERR_DATA_TIMEOUT | SD_STATUS_ERR_STOP_BIT | \
+                                     SD_STATUS_ERR_CRC | SD_STATUS_ERR_CMD_IDX)
 
 // REG_SD_CLK_CTRL
 #define SD_CLK_DIV_2             (0u)    // Clock divider 2.

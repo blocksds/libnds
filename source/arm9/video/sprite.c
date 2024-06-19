@@ -13,7 +13,8 @@
 SpriteEntry OamMemorySub[128];
 SpriteEntry OamMemory[128];
 
-OamState oamMain = {
+OamState oamMain =
+{
     .gfxOffsetStep = -1,
     .firstFree = 0,
     .allocBufferSize = 32,
@@ -22,7 +23,8 @@ OamState oamMain = {
     .spriteMapping = SpriteMapping_1D_128
 };
 
-OamState oamSub = {
+OamState oamSub =
+{
     .gfxOffsetStep = -1,
     .firstFree = 0,
     .allocBufferSize = 32,

@@ -27,7 +27,8 @@ typedef bool (*FN_MEDIUM_WRITESECTORS)(sec_t sector, sec_t numSectors, const voi
 typedef bool (*FN_MEDIUM_CLEARSTATUS)(void);
 typedef bool (*FN_MEDIUM_SHUTDOWN)(void);
 
-typedef struct DISC_INTERFACE_STRUCT {
+typedef struct DISC_INTERFACE_STRUCT
+{
     /**
      * @brief Four-byte identifier of the device type implemented by this interface.
      */

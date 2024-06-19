@@ -94,24 +94,28 @@ typedef short int v10;
 typedef unsigned short rgb;
 
 /// Holds a 3x3 matrix
-typedef struct m3x3 {
+typedef struct m3x3
+{
     int m[9]; ///< Array that holds the matrix
 } m3x3;
 
 /// Holds a 4x4 matrix
-typedef struct m4x4 {
+typedef struct m4x4
+{
     int m[16]; ///< Array that holds the matrix
 } m4x4;
 
 /// Holds a 4x3 matrix
-typedef struct m4x3 {
+typedef struct m4x3
+{
     int m[12]; ///< Array that holds the matrix
 } m4x3;
 
 /// Holds a vector.
 ///
 /// Related functions: glScalev(), glTranslatev()
-typedef struct GLvector {
+typedef struct GLvector
+{
     int x, y, z;
 } GLvector;
 
@@ -121,7 +125,8 @@ typedef struct GLvector {
 /// Polygon drawing modes.
 ///
 /// Related functions: glBegin()
-typedef enum {
+typedef enum
+{
     /// Draw triangles with each 3 vertices defining a triangle.
     GL_TRIANGLES      = 0,
     /// Draw quads with each 4 vertices defining a quad.
@@ -141,7 +146,8 @@ typedef enum {
 /// Matrix modes.
 ///
 /// Related functions: glMatrixMode()
-typedef enum {
+typedef enum
+{
     GL_PROJECTION     = 0, ///< Projection matrix
     GL_POSITION       = 1, ///< Position matrix
     GL_MODELVIEW      = 2, ///< Modelview matrix
@@ -151,7 +157,8 @@ typedef enum {
 /// Material types.
 ///
 /// Related functions: glMaterialf()
-typedef enum {
+typedef enum
+{
     /// Ambient color for the material (color when the normal is not facing the light).
     GL_AMBIENT             = 0x01,
     /// Diffuse color for the material (color when the normal is facing the light).
@@ -169,7 +176,8 @@ typedef enum {
 /// Polygon rendering attributes.
 ///
 /// Related functions: glPolyFmt(), glInit(), POLY_ALPHA(), POLY_ID()
-enum GL_POLY_FORMAT_ENUM {
+enum GL_POLY_FORMAT_ENUM
+{
     POLY_FORMAT_LIGHT0     = (1 << 0), ///< Enable light number 0
     POLY_FORMAT_LIGHT1     = (1 << 1), ///< Enable light number 1
     POLY_FORMAT_LIGHT2     = (1 << 2), ///< Enable light number 2
@@ -210,7 +218,8 @@ enum GL_POLY_FORMAT_ENUM {
 /// Possibles size of a texture (horizontal and vertical).
 ///
 /// Related functions: glTexImage2D(), glTexParameter()
-enum GL_TEXTURE_SIZE_ENUM {
+enum GL_TEXTURE_SIZE_ENUM
+{
     TEXTURE_SIZE_INVALID = -1, ///< An invalid number of texels
     TEXTURE_SIZE_8       =  0, ///< 8 texels
     TEXTURE_SIZE_16      =  1, ///< 16 texels
@@ -225,7 +234,8 @@ enum GL_TEXTURE_SIZE_ENUM {
 /// Texture parameters such as texture wrapping and texture coord wrapping.
 ///
 /// Related functions: glTexImage2D(), glTexParameter()
-typedef enum  {
+typedef enum
+{
     /// Wrap (repeat) texture on S axis.
     GL_TEXTURE_WRAP_S = (1 << 16),
     /// Wrap (repeat) texture on T axis.
@@ -250,7 +260,8 @@ typedef enum  {
 /// Texture formats.
 ///
 /// Related functions: glTexImage2D(), glTexParameter()
-typedef enum {
+typedef enum
+{
     GL_NOTEXTURE  = 0, ///< No texture is used - useful for making palettes
     GL_RGB32_A3   = 1, ///< 32 color palette, 3 bits of alpha
     GL_RGB4       = 2, ///< 4 color palette
@@ -269,7 +280,8 @@ typedef enum {
 /// Enums for texture palette data retrieval
 ///
 /// Related functions: glGetColorTableParameterEXT()
-enum GL_TEXTURE_PALETTE_PARAM_ENUM {
+enum GL_TEXTURE_PALETTE_PARAM_ENUM
+{
     GL_COLOR_TABLE_FORMAT_EXT = 0, ///< Retrieve the palette address in memory
     GL_COLOR_TABLE_WIDTH_EXT  = 1  ///< Retrieve the size of the palette
 };
@@ -277,7 +289,8 @@ enum GL_TEXTURE_PALETTE_PARAM_ENUM {
 /// 3D display control register bits.
 ///
 /// Related functions: glEnable(), glDisable(), glInit()
-enum DISP3DCNT_ENUM {
+enum DISP3DCNT_ENUM
+{
     /// Enable/disable textures on the geometry engine
     GL_TEXTURE_2D      = (1 << 0),
     /// Enable = Highlight shading; disable = Toon shading
@@ -318,7 +331,8 @@ enum DISP3DCNT_ENUM {
 /// Enums for reading information from the geometry engine.
 ///
 /// Related functions: glGetInt(), glGetFixed()
-typedef enum {
+typedef enum
+{
     /// Returns a count of vertexes currently stored in hardware vertex ram. Use glGetInt()
     GL_GET_VERTEX_RAM_COUNT,
     /// Returns a count of polygons currently stored in hardware polygon ram. Use glGetInt()
@@ -341,7 +355,8 @@ typedef enum {
 /// Arguments for glFlush().
 ///
 /// Related functions: glEnable(), glDisable(), glInit()
-enum GLFLUSH_ENUM {
+enum GLFLUSH_ENUM
+{
     /// Enable manual sorting of translucent polygons, otherwise uses Y-sorting
     GL_TRANS_MANUALSORT = (1 << 0),
     /// Enable W depth buffering of vertices, otherwise uses Z depth buffering
@@ -351,7 +366,8 @@ enum GLFLUSH_ENUM {
 // Structures specific to allocating and deallocating texture and palette VRAM
 // ---------------------------------------------------------------------------
 
-typedef struct s_SingleBlock {
+typedef struct s_SingleBlock
+{
     uint32_t indexOut;
     uint8_t *AddrSet;
 
@@ -362,7 +378,8 @@ typedef struct s_SingleBlock {
     uint32_t blockSize;
 } s_SingleBlock;
 
-typedef struct s_vramBlock {
+typedef struct s_vramBlock
+{
     uint8_t *startAddr, *endAddr;
     struct s_SingleBlock *firstBlock;
     struct s_SingleBlock *firstEmpty;
@@ -379,7 +396,8 @@ typedef struct s_vramBlock {
     uint32_t deallocCount;
 } s_vramBlock;
 
-typedef struct gl_texture_data {
+typedef struct gl_texture_data
+{
     void *vramAddr;       // Address to the texture loaded into VRAM
     uint32_t texIndex;    // The index in the Memory Block
     uint32_t texIndexExt; // The secondary index in the memory block (for GL_COMPRESSED)
@@ -388,7 +406,8 @@ typedef struct gl_texture_data {
     uint32_t texSize;     // The size (in blocks) of the texture
 } gl_texture_data;
 
-typedef struct gl_palette_data {
+typedef struct gl_palette_data
+{
     void *vramAddr;         // Address to the palette loaded into VRAM
     uint32_t palIndex;      // The index in the memory block
     uint16_t addr;          // The offset address for texture palettes in VRAM
@@ -401,7 +420,8 @@ typedef struct gl_palette_data {
 // compilation units without problem. This is automatically done by glInit() so
 // don't worry too much about it. This is only an issue because of the mix of
 // inlined/real functions.
-typedef struct gl_hidden_globals {
+typedef struct gl_hidden_globals
+{
     GL_MATRIX_MODE_ENUM matrixMode; // Holds the current Matrix Mode
     s_vramBlock *vramBlocks[2]; // One for textures and one for palettes
     int vramLock[2]; // Holds the current lock state of the VRAM banks
@@ -690,7 +710,7 @@ void glCallList(const void *list);
 int glInit_C(void);
 
 // Private: This returns a pointer to the globals for videoGL
-gl_hidden_globals* glGetGlobals(void);
+gl_hidden_globals *glGetGlobals(void);
 
 #ifdef __cplusplus
 }
@@ -1358,8 +1378,8 @@ static inline int glInit(void)
 static inline void glClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
     glGlob->clearColor = (glGlob->clearColor & 0xFFE08000)
-                       | (0x7FFF & RGB15(red, green, blue))
-                       | ((alpha & 0x1F) << 16);
+                         | (0x7FFF & RGB15(red, green, blue))
+                         | ((alpha & 0x1F) << 16);
     GFX_CLEAR_COLOR = glGlob->clearColor;
 }
 

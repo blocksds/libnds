@@ -134,7 +134,8 @@ extern u16 mosaicShadowSub;
 #define VRAM_OFFSET(n)  ((n) << 3)
 
 /// Allowed VRAM bank A modes
-typedef enum {
+typedef enum
+{
     VRAM_A_LCD                    = 0,                  ///< LCD
     VRAM_A_MAIN_BG                = 1,                  ///< Main engine background slot 0
     VRAM_A_MAIN_BG_0x06000000     = 1 | VRAM_OFFSET(0), ///< Main engine background slot 0
@@ -152,7 +153,8 @@ typedef enum {
 } VRAM_A_TYPE;
 
 /// Allowed VRAM bank B modes
-typedef enum {
+typedef enum
+{
     VRAM_B_LCD                    = 0,                  ///< LCD
     VRAM_B_MAIN_BG                = 1 | VRAM_OFFSET(1), ///< Main engine background slot 1
     VRAM_B_MAIN_BG_0x06000000     = 1 | VRAM_OFFSET(0), ///< Main engine background slot 0
@@ -170,7 +172,8 @@ typedef enum {
 } VRAM_B_TYPE;
 
 /// Allowed VRAM bank C modes
-typedef enum {
+typedef enum
+{
     VRAM_C_LCD                = 0,                  ///< LCD
     VRAM_C_MAIN_BG            = 1 | VRAM_OFFSET(2), ///< Main engine background slot 2
     VRAM_C_MAIN_BG_0x06000000 = 1 | VRAM_OFFSET(0), ///< Main engine background slot 0
@@ -190,7 +193,8 @@ typedef enum {
 } VRAM_C_TYPE;
 
 /// Allowed VRAM bank D modes
-typedef enum {
+typedef enum
+{
     VRAM_D_LCD                   = 0,                  ///< LCD
     VRAM_D_MAIN_BG               = 1 | VRAM_OFFSET(3), ///< Main engine background slot 3
     VRAM_D_MAIN_BG_0x06000000    = 1 | VRAM_OFFSET(0), ///< Main engine background slot 0
@@ -210,7 +214,8 @@ typedef enum {
 } VRAM_D_TYPE;
 
 /// Allowed VRAM bank E modes
-typedef enum {
+typedef enum
+{
     VRAM_E_LCD                    = 0, ///< LCD
     VRAM_E_MAIN_BG                = 1, ///< Main engine background first half of slot 0
     VRAM_E_MAIN_BG_0x06000000     = 1, ///< Main engine background first half of slot 0
@@ -221,7 +226,8 @@ typedef enum {
 } VRAM_E_TYPE;
 
 /// Allowed VRAM bank F modes
-typedef enum {
+typedef enum
+{
     VRAM_F_LCD                    = 0,                  ///< LCD
     VRAM_F_MAIN_BG                = 1,                  ///< Main engine background first part of slot 0
     VRAM_F_MAIN_BG_0x06000000     = 1 | VRAM_OFFSET(0), ///< Main engine background first part of slot 0
@@ -245,7 +251,8 @@ typedef enum {
 } VRAM_F_TYPE;
 
 /// Allowed VRAM bank G modes
-typedef enum {
+typedef enum
+{
     VRAM_G_LCD                    = 0,                  ///< LCD
     VRAM_G_MAIN_BG                = 1,                  ///< Main engine background first part of slot 0
     VRAM_G_MAIN_BG_0x06000000     = 1 | VRAM_OFFSET(0), ///< Main engine background first part of slot 0
@@ -269,7 +276,8 @@ typedef enum {
 } VRAM_G_TYPE;
 
 /// Allowed VRAM bank H modes
-typedef enum {
+typedef enum
+{
     VRAM_H_LCD                = 0, ///< LCD
     VRAM_H_SUB_BG             = 1, ///< Sub engine background first 2 parts of slot 0
     VRAM_H_SUB_BG_0x06200000  = 1, ///< Sub engine background first 2 parts of slot 0
@@ -277,7 +285,8 @@ typedef enum {
 } VRAM_H_TYPE;
 
 /// Allowed VRAM bank I modes
-typedef enum {
+typedef enum
+{
     VRAM_I_LCD                    = 0, ///< LCD
     VRAM_I_SUB_BG_0x06208000      = 1, ///< Sub engine background thirth part of slot 0
     VRAM_I_SUB_SPRITE             = 2, ///< Sub engine sprites
@@ -322,7 +331,7 @@ typedef _palette _ext_palette[16];
 u32 vramSetPrimaryBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE d);
 
 // Same as vramSetPrimaryBanks(), but deprecated.
-__attribute__ ((deprecated))
+__attribute__((deprecated))
 static inline u32 vramSetMainBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c,
                                    VRAM_D_TYPE d)
 {
@@ -354,7 +363,7 @@ static inline void vramRestorePrimaryBanks(u32 vramTemp)
 }
 
 // Same as vramRestorePrimaryBanks(), but deprecated.
-__attribute__ ((deprecated))
+__attribute__((deprecated))
 static inline void vramRestoreMainBanks(u32 vramTemp)
 {
     VRAM_CR = vramTemp;

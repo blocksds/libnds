@@ -18,7 +18,8 @@
 #include "common/libnds_internal.h"
 #include "default_font.h"
 
-PrintConsole defaultConsole = {
+PrintConsole defaultConsole =
+{
     // Font:
     {
         (u16 *)default_fontTiles, // font gfx

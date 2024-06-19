@@ -11,9 +11,11 @@
 
 #define NDMA_CHANNEL 1
 
-static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count) {
+static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count)
+{
 #ifdef NDMA_CHANNEL
-    if (!(((uintptr_t) buf) & 0x3)) {
+    if (!(((uintptr_t) buf) & 0x3))
+    {
         NDMA_SRC(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
         NDMA_DEST(NDMA_CHANNEL) = (u32) buf;
         NDMA_BLENGTH(NDMA_CHANNEL) = 512 / 4;
@@ -31,9 +33,11 @@ static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count) {
     }
 }
 
-static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count) {
+static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count)
+{
 #ifdef NDMA_CHANNEL
-    if (!(((uintptr_t) buf) & 0x3)) {
+    if (!(((uintptr_t) buf) & 0x3))
+    {
         NDMA_SRC(NDMA_CHANNEL) = (u32) buf;
         NDMA_DEST(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
         NDMA_BLENGTH(NDMA_CHANNEL) = 512 / 4;
@@ -61,19 +65,19 @@ int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg)
     switch (msg->type)
     {
         case SDMMC_SD_READ_SECTORS:
-			retval = sdmmcReadSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
-                                       msg->sdParams.buffer, msg->sdParams.numsectors);
+            retval = sdmmcReadSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
+                                      msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
         case SDMMC_SD_WRITE_SECTORS:
-			retval = sdmmcWriteSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
+            retval = sdmmcWriteSectors(SDMMC_DEV_CARD, msg->sdParams.startsector,
                                        msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
         case SDMMC_NAND_READ_SECTORS:
-			retval = sdmmcReadSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
-                                       msg->sdParams.buffer, msg->sdParams.numsectors);
+            retval = sdmmcReadSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
+                                      msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
         case SDMMC_NAND_WRITE_SECTORS:
-			retval = sdmmcWriteSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
+            retval = sdmmcWriteSectors(SDMMC_DEV_eMMC, msg->sdParams.startsector,
                                        msg->sdParams.buffer, msg->sdParams.numsectors);
             break;
     }
@@ -87,30 +91,30 @@ int sdmmcValueHandler(u32 value, void *user_data)
 
     int result = 0;
 
-    switch(value)
+    switch (value)
     {
-		case SDMMC_SD_STATUS:
+        case SDMMC_SD_STATUS:
             result = SDMMC_getDiskStatus(SDMMC_DEV_CARD);
             break;
 
-		case SDMMC_NAND_STATUS:
+        case SDMMC_NAND_STATUS:
             result = SDMMC_getDiskStatus(SDMMC_DEV_eMMC);
             break;
 
         case SDMMC_SD_START:
-			result = SDMMC_init(SDMMC_DEV_CARD);
-			break;
+            result = SDMMC_init(SDMMC_DEV_CARD);
+            break;
 
         case SDMMC_NAND_START:
-			result = SDMMC_init(SDMMC_DEV_eMMC);
-			break;
+            result = SDMMC_init(SDMMC_DEV_eMMC);
+            break;
 
         case SDMMC_SD_STOP:
-			result = SDMMC_deinit(SDMMC_DEV_CARD);
+            result = SDMMC_deinit(SDMMC_DEV_CARD);
             break;
 
         case SDMMC_NAND_STOP:
-			break;
+            break;
 
         case SDMMC_SD_SIZE:
             result = SDMMC_getSectors(SDMMC_DEV_CARD);

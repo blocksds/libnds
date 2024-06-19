@@ -19,7 +19,8 @@ extern "C" {
 /// @brief Contains a struct with touch screen data.
 
 /// Holds data related to the touch screen.
-typedef struct touchPosition {
+typedef struct touchPosition
+{
     u16 rawx; ///< Raw x value from the A2D
     u16 rawy; ///< Raw y value from the A2D
     u16 px;   ///< Processed pixel X value

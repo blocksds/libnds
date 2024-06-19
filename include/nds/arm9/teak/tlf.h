@@ -70,7 +70,8 @@ extern "C" {
 /// TLF section headers.
 
 /// TLF section header description
-typedef struct {
+typedef struct
+{
     uint16_t address;       ///< Address as seen from the DSP (in words)
     uint16_t size;          ///< Size in bytes
     uint8_t type;           ///< TLF_SEGMENT_CODE or TLF_SEGMENT_DATA
@@ -88,7 +89,8 @@ static_assert(sizeof(tlf_section_header) == 12);
 #define TLF_SEGMENT_DATA 1
 
 /// TLF file header
-typedef struct {
+typedef struct
+{
     uint32_t magic;               ///< Magic number: TLF_MAGIC
     uint8_t version;              ///< Version number (currently 0)
     uint8_t num_sections;         ///< Number of sections in the file

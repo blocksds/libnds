@@ -21,11 +21,11 @@ extern "C" {
 /// The types of decompression available.
 typedef enum
 {
-   LZ77,        ///< LZ77 decompression.
-   LZ77Vram,    ///< VRAM safe LZ77 decompression.
-   HUFF,        ///< VRAM safe huff decompression.
-   RLE,         ///< Run length encoded decompression.
-   RLEVram      ///< VRAM safe run length encoded decompression.
+    LZ77,       ///< LZ77 decompression.
+    LZ77Vram,   ///< VRAM safe LZ77 decompression.
+    HUFF,       ///< VRAM safe huff decompression.
+    RLE,        ///< Run length encoded decompression.
+    RLEVram     ///< VRAM safe run length encoded decompression.
 } DecompressType;
 
 /// Decompresses data using the suported type.

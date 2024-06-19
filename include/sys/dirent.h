@@ -14,7 +14,8 @@ extern "C" {
 /// UTF-8 necessitates a maximum of three bytes for any UTF-16 codepoint.
 #define MAXNAMLEN (255 * 3)
 
-struct dirent {
+struct dirent
+{
     /// Inode number. Implementation-defined.
     ///
     /// For FAT filesystems, this stores the cluster the file is located on.
@@ -37,7 +38,8 @@ struct dirent {
     unsigned short d_reclen;
 };
 
-typedef struct {
+typedef struct
+{
     // Buffer containing the returned directory entry.
     struct dirent dirent;
 

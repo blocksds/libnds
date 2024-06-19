@@ -17,7 +17,8 @@ extern "C" {
 #endif
 
 /// A node of the linked list.
-typedef struct LinkedList {
+typedef struct LinkedList
+{
     struct LinkedList *next; ///< A pointer to the next node.
     struct LinkedList *prev; ///< A pointer to the previous node.
     void *data;              ///< A pointer to some data.
@@ -33,7 +34,7 @@ typedef struct LinkedList {
 /// @param data A pointer to the data you want to store.
 /// @return A pointer to the new node, which is also the new front, or NULL if
 /// there is not enough memory.
-LinkedList* linkedlistAdd(LinkedList **front, void* data);
+LinkedList *linkedlistAdd(LinkedList **front, void *data);
 
 /// Removes a node from a linked list.
 ///

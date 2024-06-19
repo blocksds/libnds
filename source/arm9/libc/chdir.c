@@ -49,9 +49,12 @@ int chdir(const char *path)
         memcpy(drive, path, size);
         drive[size - 1] = '\0';
 
-        if (!strcmp("nitro:", drive)) {
+        if (!strcmp("nitro:", drive))
+        {
             current_drive_is_nitrofs = true;
-        } else {
+        }
+        else
+        {
             current_drive_is_nitrofs = false;
             result = f_chdrive(drive);
             if (result != FR_OK)

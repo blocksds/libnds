@@ -48,7 +48,7 @@ static inline bool tscTouchPenDown(void)
 
 /**
  * @brief Read a single 12-bit measurement from the NDS-mode TSC.
- * 
+ *
  * @param command Measurement command.
  * @return u16 Measured value, from 0 to 4095.
  */
@@ -56,7 +56,7 @@ u16 tscRead(u32 command);
 
 /**
  * @brief Read multiple 12-bit measurements from the NDS-mode TSC.
- * 
+ *
  * @param command Measurement command.
  * @param buffer Output buffer.
  * @param count Number of measurements to read.
@@ -66,13 +66,13 @@ void tscMeasure(u32 command, u16 *buffer, u32 count);
 /**
  * @brief Read raw touch data from the NDS-mode TSC.
  */
-bool tscTouchReadData(touchRawArray* data);
+bool tscTouchReadData(touchRawArray *data);
 
 /**
  * @brief Read temperature from the NDS-mode TSC.
  *
  * Note that it is not very accurate.
- * 
+ *
  * @return s32 Approximate temperature, in 20.12 fixed point, as Celsius degrees.
  */
 s32 tscReadTemperature(void);

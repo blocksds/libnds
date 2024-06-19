@@ -20,7 +20,7 @@ extern "C" {
  * @param src Source address
  * @param n Number of bytes to copy
  */
-void __ndsabi_memcpy2(void* __restrict__ dest, const void* __restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
+void __ndsabi_memcpy2(void *__restrict__ dest, const void *__restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
 
 /**
  * Copies n bytes from src to dest (forward)
@@ -29,7 +29,7 @@ void __ndsabi_memcpy2(void* __restrict__ dest, const void* __restrict__ src, siz
  * @param src Source address
  * @param n Number of bytes to copy
  */
-void __ndsabi_memcpy1(void* __restrict__ dest, const void* __restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
+void __ndsabi_memcpy1(void *__restrict__ dest, const void *__restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
 
 /**
  * Copies n bytes from src to dest (backwards)
@@ -38,7 +38,7 @@ void __ndsabi_memcpy1(void* __restrict__ dest, const void* __restrict__ src, siz
  * @param src Source address
  * @param n Number of bytes to copy
  */
-void __ndsabi_rmemcpy1(void* __restrict__ dest, const void* __restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
+void __ndsabi_rmemcpy1(void *__restrict__ dest, const void *__restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
 
 /**
  * Copies n bytes from src to dest (backwards)
@@ -46,7 +46,7 @@ void __ndsabi_rmemcpy1(void* __restrict__ dest, const void* __restrict__ src, si
  * @param src Source address
  * @param n Number of bytes to copy
  */
-void __ndsabi_rmemcpy(void* __restrict__ dest, const void* __restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
+void __ndsabi_rmemcpy(void *__restrict__ dest, const void *__restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
 
 /**
  * Copies n bytes in multiples of 16 bytes from src to dest (forward) using FIQ mode
@@ -55,7 +55,7 @@ void __ndsabi_rmemcpy(void* __restrict__ dest, const void* __restrict__ src, siz
  * @param src Source address
  * @param n Number of bytes to copy, must be a multiple of 16
  */
-void __ndsabi_fiq_memcpy4x4(void* __restrict__ dest, const void* __restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
+void __ndsabi_fiq_memcpy4x4(void *__restrict__ dest, const void *__restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
 
 /**
  * Copies n bytes from src to dest (forward) using FIQ mode
@@ -64,7 +64,7 @@ void __ndsabi_fiq_memcpy4x4(void* __restrict__ dest, const void* __restrict__ sr
  * @param src Source address
  * @param n Number of bytes to copy
  */
-void __ndsabi_fiq_memcpy4(void* __restrict__ dest, const void* __restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
+void __ndsabi_fiq_memcpy4(void *__restrict__ dest, const void *__restrict__ src, size_t n) __attribute__((nonnull(1, 2)));
 
 /**
  * Fills dest with n bytes of c
@@ -74,7 +74,7 @@ void __ndsabi_fiq_memcpy4(void* __restrict__ dest, const void* __restrict__ src,
  * @param n Number of bytes to set
  * @param c Value to set
  */
-void __ndsabi_lwordset4(void* dest, size_t n, long long c) __attribute__((nonnull(1)));
+void __ndsabi_lwordset4(void *dest, size_t n, long long c) __attribute__((nonnull(1)));
 
 /**
  * Fills dest with n bytes of c
@@ -84,14 +84,15 @@ void __ndsabi_lwordset4(void* dest, size_t n, long long c) __attribute__((nonnul
  * @param n Number of bytes to set
  * @param c Value to set
  */
-void __ndsabi_wordset4(void* dest, size_t n, int c) __attribute__((nonnull(1)));
+void __ndsabi_wordset4(void *dest, size_t n, int c) __attribute__((nonnull(1)));
 
 /**
  * Coroutine state
  * @param arm_sp Pointer to coroutine stack
  * @param joined Flag if the coroutine has joined
  */
-typedef struct {
+typedef struct
+{
     uint32_t arm_sp : 31;
     uint32_t joined : 1;
     uint32_t arg;

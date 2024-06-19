@@ -118,7 +118,8 @@ typedef uint32_t IRQ_MASKSAUX;
 #define REG_IME     (*(vuint32 *)0x04000208)
 
 /// Values allowed for REG_IME
-enum IME_VALUE {
+enum IME_VALUE
+{
     IME_DISABLE = 0, ///< Disable all interrupts.
     IME_ENABLE = 1,  ///< Enable all interrupts not masked out in REG_IE
 };

@@ -14,7 +14,8 @@ extern "C" {
 
 #include <sys/signal.h>
 
-typedef struct {
+typedef struct
+{
     unsigned int reg_r0;
     unsigned int reg_r1;
     unsigned int reg_r2;
@@ -34,8 +35,9 @@ typedef struct {
     unsigned int reg_cpsr;
 } mcontext_t;
 
-typedef struct ucontext_t {
-    struct ucontext_t* uc_link;
+typedef struct ucontext_t
+{
+    struct ucontext_t *uc_link;
     stack_t uc_stack;
     mcontext_t uc_mcontext;
 } ucontext_t;

@@ -68,7 +68,8 @@ u16 tscRead(u32 command)
 // Perform a 16 clocks-per-conversion measurement.
 void tscMeasure(u32 command, u16 *buffer, u32 count)
 {
-    if (!count) return;
+    if (!count)
+        return;
 
     u32 oldIME = enterCriticalSection();
 

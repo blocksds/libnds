@@ -21,7 +21,8 @@ extern "C" {
 #include <nds/ndstypes.h>
 
 /// Context that holds information about an active SHA1 calculation.
-typedef struct swiSHA1context {
+typedef struct swiSHA1context
+{
     u32 state[5];       ///< Intermediate digest state
     u32 total[2];       ///< Number of bytes processed
     u8  buffer[64];     ///< Data block being processed

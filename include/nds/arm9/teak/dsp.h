@@ -41,7 +41,8 @@ extern "C" {
 #define DSP_PCFG_RLEN_SHIFT     2
 #define DSP_PCFG_RLEN_MASK      (3 << DSP_PCFG_RLEN_SHIFT)
 
-typedef enum {
+typedef enum
+{
     DSP_PCFG_RLEN_1 = 0 << DSP_PCFG_RLEN_SHIFT,
     DSP_PCFG_RLEN_8 = 1 << DSP_PCFG_RLEN_SHIFT,
     DSP_PCFG_RLEN_16 = 2 << DSP_PCFG_RLEN_SHIFT,
@@ -59,7 +60,8 @@ typedef enum {
 #define DSP_PCFG_MEMSEL_SHIFT   12
 #define DSP_PCFG_MEMSEL_MASK    (0xF << DSP_PCFG_MEMSEL_SHIFT)
 
-typedef enum {
+typedef enum
+{
     DSP_PCFG_MEMSEL_DATA = 0 << DSP_PCFG_MEMSEL_SHIFT,
     DSP_PCFG_MEMSEL_MMIO = 1 << DSP_PCFG_MEMSEL_SHIFT,
     DSP_PCFG_MEMSEL_PROG = 5 << DSP_PCFG_MEMSEL_SHIFT
@@ -125,7 +127,8 @@ void dspPowerOn(void);
 void dspPowerOff(void);
 
 /// Possible error codes returned by dspExecuteTLF() and dspExecuteDefaultTLF().
-typedef enum {
+typedef enum
+{
     DSP_EXEC_OK = 0,            ///< No error
     DSP_NOT_AVAILABLE = -1,     ///< DSP or NWRAM not available in SCFG_EXT or MBK9
     DSP_TLF_BAD_MAGIC = -2,     ///< Invalid TLF magic value

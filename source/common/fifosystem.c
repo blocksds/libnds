@@ -86,7 +86,8 @@ static inline void FIFO_BUFFER_SETNEXT(u32 index, u32 next)
                              (fifo_buffer[index * 2] & ~FIFO_BUFFER_NEXTMASK);
 }
 
-typedef struct fifo_queue {
+typedef struct fifo_queue
+{
     vu16 head;
     vu16 tail;
 } fifo_queue;
@@ -120,7 +121,8 @@ static u32 fifo_buffer_wait_block(void)
 {
     u32 block;
 
-    do {
+    do
+    {
         block = fifo_buffer_alloc_block();
 
         if (block == FIFO_BUFFER_TERMINATE)
@@ -130,7 +132,7 @@ static u32 fifo_buffer_wait_block(void)
             swiIntrWait(0, IRQ_FIFO_EMPTY);
             REG_IME = 0;
         }
-    } while(block == FIFO_BUFFER_TERMINATE);
+    } while (block == FIFO_BUFFER_TERMINATE);
 
     return block;
 }
@@ -290,7 +292,7 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         }
         else
         {
-            FIFO_BUFFER_SETNEXT(fifo_send_queue.tail,next);
+            FIFO_BUFFER_SETNEXT(fifo_send_queue.tail, next);
         }
         FIFO_BUFFER_DATA(next) = wordlist[count];
         count++;
@@ -679,7 +681,7 @@ static void fifoInternalSendInterrupt(void)
     }
     else
     {
-        u32 head,next;
+        u32 head, next;
 
         head = fifo_send_queue.head;
 

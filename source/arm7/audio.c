@@ -48,7 +48,7 @@ void micSwapHandler(u8 *buffer, int length)
 {
     FifoMessage msg;
     msg.type = MIC_BUFFER_FULL_MESSAGE;
-    msg.MicBufferFull.buffer = (void*)buffer;
+    msg.MicBufferFull.buffer = (void *)buffer;
     msg.MicBufferFull.length = (u32)length;
 
     fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8 *)&msg);
@@ -62,7 +62,7 @@ void soundDataHandler(int bytes, void *user_data)
 
     FifoMessage msg;
 
-    fifoGetDatamsg(FIFO_SOUND, bytes, (u8*)&msg);
+    fifoGetDatamsg(FIFO_SOUND, bytes, (u8 *)&msg);
 
     if (msg.type == SOUND_PLAY_MESSAGE)
     {
@@ -75,9 +75,9 @@ void soundDataHandler(int bytes, void *user_data)
             SCHANNEL_LENGTH(channel) = msg.SoundPlay.dataSize;
             SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPlay.freq);
             SCHANNEL_CR(channel) = SCHANNEL_ENABLE | SOUND_VOL(msg.SoundPlay.volume)
-                                 | SOUND_PAN(msg.SoundPlay.pan)
-                                 | (msg.SoundPlay.format << 29)
-                                 | (msg.SoundPlay.loop ?  SOUND_REPEAT : SOUND_ONE_SHOT);
+                                   | SOUND_PAN(msg.SoundPlay.pan)
+                                   | (msg.SoundPlay.format << 29)
+                                   | (msg.SoundPlay.loop ?  SOUND_REPEAT : SOUND_ONE_SHOT);
         }
     }
     else if (msg.type == SOUND_PSG_MESSAGE)
@@ -87,8 +87,8 @@ void soundDataHandler(int bytes, void *user_data)
         if (channel >= 0)
         {
             SCHANNEL_CR(channel) = SCHANNEL_ENABLE | msg.SoundPsg.volume
-                                 | SOUND_PAN(msg.SoundPsg.pan) | SOUND_FORMAT_PSG
-                                 | (msg.SoundPsg.dutyCycle << 24);
+                                   | SOUND_PAN(msg.SoundPsg.pan) | SOUND_FORMAT_PSG
+                                   | (msg.SoundPsg.dutyCycle << 24);
             SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPsg.freq);
         }
     }
@@ -99,7 +99,7 @@ void soundDataHandler(int bytes, void *user_data)
         if (channel >= 0)
         {
             SCHANNEL_CR(channel) = SCHANNEL_ENABLE | msg.SoundPsg.volume
-                                 | SOUND_PAN(msg.SoundPsg.pan) | SOUND_FORMAT_PSG;
+                                   | SOUND_PAN(msg.SoundPsg.pan) | SOUND_FORMAT_PSG;
             SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPsg.freq);
         }
     }

@@ -31,7 +31,8 @@ int fatfs_error_to_posix(FRESULT error)
     // The following errno codes have been picked so that they make some sort of
     // sense, but also so that they can be told apart.
 
-    const FRESULT codes[] = {
+    const FRESULT codes[] =
+    {
         // Succeeded
         [FR_OK] = 0,
         // A hard error occurred in the low level disk I/O layer
@@ -376,7 +377,8 @@ int fatInitLookupCache(int fd, uint32_t max_buffer_size)
     f->cltbl[0] = max_buffer_size / sizeof(DWORD);
 
     FRESULT ret = f_lseek(f, CREATE_LINKMAP);
-    if (ret == FR_NOT_ENOUGH_CORE) {
+    if (ret == FR_NOT_ENOUGH_CORE)
+    {
         return f->cltbl[0];
     }
 

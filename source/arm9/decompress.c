@@ -32,7 +32,8 @@ static uint32_t decompress_read_32(uint32_t *source)
     return *source;
 }
 
-TDecompressionStream decomStream = {
+TDecompressionStream decomStream =
+{
     decompress_get_header,
     NULL, // The close callback can be omitted
     decompress_read_8,
@@ -79,7 +80,8 @@ void decompressStream(const void *data, void *dst, DecompressType type,
 
     sassert(type != HUFF, "HUFF not supported, use decompresStreamStruct()");
 
-    TDecompressionStream decompresStream = {
+    TDecompressionStream decompresStream =
+    {
         getHeaderCB,
         NULL,
         readCB,

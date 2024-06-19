@@ -211,7 +211,8 @@ void setVectorBase(int highVector);
 /// exeption occurs.
 ///
 /// See gbatek for more information.
-typedef struct sysVectors {
+typedef struct sysVectors
+{
     VoidFn reset;             ///< CPU reset.
     VoidFn undefined;         ///< Undefined instruction.
     VoidFn swi;               ///< Software interrupt.

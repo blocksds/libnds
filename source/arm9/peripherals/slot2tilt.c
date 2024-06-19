@@ -17,7 +17,8 @@
 #define TILT_Y_LOW   (*(vuint8 *)0x0A008400)
 #define TILT_Y_HIGH  (*(vuint8 *)0x0A008500)
 
-bool peripheralSlot2TiltStart(void) {
+bool peripheralSlot2TiltStart(void)
+{
     if (!peripheralSlot2Open(SLOT2_PERIPHERAL_TILT))
         return false;
 
@@ -26,7 +27,8 @@ bool peripheralSlot2TiltStart(void) {
     return true;
 }
 
-bool peripheralSlot2TiltRead(slot2TiltPosition *data) {
+bool peripheralSlot2TiltRead(slot2TiltPosition *data)
+{
     if (!peripheralSlot2Open(SLOT2_PERIPHERAL_TILT))
         return false;
 

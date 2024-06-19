@@ -29,7 +29,8 @@ static inline bool cdcIsAvailable(void)
     return isDSiMode() && (__DSiHeader->appflags & 0x01);
 }
 
-enum cdcBanks {
+enum cdcBanks
+{
     CDC_CONTROL     = 0x00, ///< Chip control
     CDC_SOUND       = 0x01, ///< ADC/DAC control
     CDC_TOUCHCNT    = 0x03, ///< TSC control
@@ -38,7 +39,8 @@ enum cdcBanks {
 
 // TODO: These lists are incomplete.
 
-enum cdcControlRegister {
+enum cdcControlRegister
+{
     CDC_CONTROL_RESET = 0x01,
     CDC_CONTROL_CLOCK_MUX = 0x04,
     CDC_CONTROL_PLL_PR = 0x05,
@@ -63,12 +65,14 @@ enum cdcControlRegister {
     CDC_CONTROL_ADC_VOL_COARSE = 0x53
 };
 
-enum cdcSoundRegister {
+enum cdcSoundRegister
+{
     CDC_SOUND_MIC_BIAS = 0x2E,
     CDC_SOUND_MIC_GAIN = 0x2F
 };
 
-enum cdcTouchCntRegister {
+enum cdcTouchCntRegister
+{
     CDC_TOUCHCNT_SAR_ADC_CTRL1 = 0x02,
     CDC_TOUCHCNT_SAR_ADC_CTRL2 = 0x03,
     CDC_TOUCHCNT_PRECHARGE_SENSE = 0x04,
@@ -219,7 +223,7 @@ bool cdcTouchPenDown(void);
 /**
  * @brief Read raw touch data from the DSi CODEC.
  */
-bool cdcTouchReadData(touchRawArray* data);
+bool cdcTouchReadData(touchRawArray *data);
 
 #ifdef __cplusplus
 }

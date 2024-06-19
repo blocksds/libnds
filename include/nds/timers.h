@@ -90,7 +90,8 @@ extern "C" {
 #define TIMER_CASCADE   (1 << 2)
 
 /// Allowable timer clock dividers.
-typedef enum {
+typedef enum
+{
     ClockDivider_1 = 0,     ///< Divides the timer clock by 1 (~33513.982 kHz)
     ClockDivider_64 = 1,    ///< Divides the timer clock by 64 (~523.657 kHz)
     ClockDivider_256 = 2,   ///< Divides the timer clock by 256 (~130.914 kHz)

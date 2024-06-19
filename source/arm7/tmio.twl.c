@@ -181,7 +181,7 @@ static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf,
                 {
                     do
                     {
-                        *((u32*)buf) = *fifo;
+                        *((u32 *)buf) = *fifo;
                         buf += 4;
                     } while (buf < blockEnd);
                 }
@@ -191,9 +191,9 @@ static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf,
                     {
                         const u32 tmp = *fifo;
                         buf[0] = tmp;
-                        buf[1] = tmp>>8;
-                        buf[2] = tmp>>16;
-                        buf[3] = tmp>>24;
+                        buf[1] = tmp >> 8;
+                        buf[2] = tmp >> 16;
+                        buf[3] = tmp >> 24;
                         buf += 4;
                     } while (buf < blockEnd);
                 }
@@ -218,7 +218,7 @@ static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf,
                 {
                     do
                     {
-                        *fifo = *((u32*)buf);
+                        *fifo = *((u32 *)buf);
                         buf += 4;
                     } while (buf < blockEnd);
                 }
@@ -227,9 +227,9 @@ static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf,
                     do
                     {
                         u32 tmp = buf[0];
-                        tmp |= (u32)buf[1]<<8;
-                        tmp |= (u32)buf[2]<<16;
-                        tmp |= (u32)buf[3]<<24;
+                        tmp |= (u32)buf[1] << 8;
+                        tmp |= (u32)buf[2] << 16;
+                        tmp |= (u32)buf[3] << 24;
                         *fifo = tmp;
                         buf += 4;
                     } while (buf < blockEnd);

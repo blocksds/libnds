@@ -52,13 +52,13 @@ int cardEepromGetType(void)
     int sr = cardEepromCommand(SPI_EEPROM_RDSR);
     int id = cardEepromReadID();
 
-    if (( sr == 0xff && id == 0xffffff) || (sr == 0 && id == 0))
+    if ((sr == 0xff && id == 0xffffff) || (sr == 0 && id == 0))
         return -1;
     if (sr == 0xf0 && id == 0xffffff)
         return 1;
     if (sr == 0x00 && id == 0xffffff)
         return 2;
-    if (id != 0xffffff || ( sr == 0x02 && id == 0xffffff))
+    if (id != 0xffffff || (sr == 0x02 && id == 0xffffff))
         return 3;
 
     return 0;
@@ -169,11 +169,11 @@ uint32_t cardEepromGetSize(void)
         {
             int sr = cardEepromCommand(SPI_EEPROM_RDSR);
             if (sr == 2)
-                return 128*1024; // 1Mbit (128KByte)
+                return 128 * 1024; // 1Mbit (128KByte)
         }
 
 
-        return 256*1024; // 2Mbit (256KByte)
+        return 256 * 1024; // 2Mbit (256KByte)
     }
 
     return 0;
@@ -230,7 +230,8 @@ void cardWriteEeprom(uint32_t address, uint8_t *data, uint32_t length, uint32_t 
     {
         // Set WEL (Write Enable Latch)
         REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
-        REG_AUXSPIDATA = 0x06; eepromWaitBusy();
+        REG_AUXSPIDATA = 0x06;
+        eepromWaitBusy();
         REG_AUXSPICNT = /*MODE*/ 0x40;
 
         // program maximum of 32 bytes
@@ -276,7 +277,8 @@ void cardWriteEeprom(uint32_t address, uint8_t *data, uint32_t length, uint32_t 
         REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
         REG_AUXSPIDATA = 0x05;
         eepromWaitBusy();
-        do {
+        do
+        {
             REG_AUXSPIDATA = 0;
             eepromWaitBusy();
         } while (REG_AUXSPIDATA & 0x01); // WIP (Write In Progress) ?

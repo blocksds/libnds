@@ -89,7 +89,8 @@ ARM_CODE void _exit(int rc)
 uintptr_t __stack_chk_guard = 0x00000aff;
 
 __attribute__((noreturn))
-THUMB_CODE void __stack_chk_fail(void) {
+THUMB_CODE void __stack_chk_fail(void)
+{
     // This function causes an undefined instruction exception to crash the CPU
     // in a controlled way.
     //

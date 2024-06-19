@@ -23,7 +23,8 @@ extern "C" {
 typedef void (* MicCallback)(void *completedBuffer, int length);
 
 /// Sound formats used by the DS
-typedef enum {
+typedef enum
+{
     SoundFormat_16Bit = 1, ///< 16-bit PCM
     SoundFormat_8Bit = 0,  ///< 8-bit PCM
     SoundFormat_PSG = 3,   ///< PSG (Programmable Sound Generator)
@@ -31,13 +32,15 @@ typedef enum {
 } SoundFormat;
 
 /// Microphone recording formats DS
-typedef enum {
+typedef enum
+{
     MicFormat_8Bit = 1, ///< 8-bit PCM
     MicFormat_12Bit = 0 ///< 12-bit PCM
 } MicFormat;
 
 /// PSG Duty cycles used by the PSG hardware
-typedef enum {
+typedef enum
+{
     DutyCycle_0  = 7, ///< 0.0% duty cycle
     DutyCycle_12 = 0, ///< 12.5% duty cycle
     DutyCycle_25 = 1, ///< 25.0% duty cycle

@@ -31,7 +31,8 @@ void cardPolledTransfer(u32 flags, u32 *destination, u32 length, const u8 *comma
     REG_ROMCTRL = flags;
     u32 *target = destination + length;
 
-    do {
+    do
+    {
         // Read data if available
         if (REG_ROMCTRL & CARD_DATA_READY)
         {
@@ -48,8 +49,8 @@ void cardStartTransfer(const u8 *command, u32 *destination, int channel, u32 fla
 
     // Set up a DMA channel to transfer a word every time the card makes one
     dmaSetParams(channel, (const void*) &REG_CARD_DATA_RD, destination,
-            DMA_ENABLE | DMA_START_CARD | DMA_32_BIT | DMA_REPEAT
-            | DMA_SRC_FIX | 0x0001);
+                 DMA_ENABLE | DMA_START_CARD | DMA_32_BIT | DMA_REPEAT
+                 | DMA_SRC_FIX | 0x0001);
 
     REG_ROMCTRL = flags;
 }
@@ -98,7 +99,7 @@ void cardReadHeader(u8 *header)
     while (REG_ROMCTRL & CARD_BUSY);
 
     uint32_t flags = CARD_ACTIVATE | CARD_nRESET | CARD_CLK_SLOW
-                   | CARD_BLK_SIZE(1) | CARD_DELAY1(0x1FFF) | CARD_DELAY2(0x3F);
+                     | CARD_BLK_SIZE(1) | CARD_DELAY1(0x1FFF) | CARD_DELAY2(0x3F);
 
     cardParamCommand(CARD_CMD_HEADER_READ, 0, flags, (u32 *)header, 512 / 4);
 }
@@ -116,10 +117,11 @@ void cardReset(void)
 
     cardWriteCommand(cmdData);
     REG_ROMCTRL = CARD_ACTIVATE | CARD_nRESET | CARD_CLK_SLOW | CARD_BLK_SIZE(5)
-                | CARD_DELAY2(0x18);
+                  | CARD_DELAY2(0x18);
     u32 read = 0;
 
-    do {
+    do
+    {
         if (REG_ROMCTRL & CARD_DATA_READY)
         {
             if (read < 0x2000)
@@ -165,9 +167,12 @@ void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
         while (!(offset & NDS_CARD_READ_ALIGN) && !(((uint32_t) pc) & NDS_CARD_READ_ALIGN) && len >= NDS_CARD_READ_SIZE)
         {
             size_t len_aligned;
-            if (NDS_CARD_READ_SIZE == NDS_CARD_BLOCK_SIZE) {
+            if (NDS_CARD_READ_SIZE == NDS_CARD_BLOCK_SIZE)
+            {
                 len_aligned = NDS_CARD_BLOCK_SIZE;
-            } else {
+            }
+            else
+            {
                 len_aligned = len & NDS_CARD_READ_ALIGN_MASK;
                 if (len_aligned > NDS_CARD_BLOCK_SIZE)
                     len_aligned = NDS_CARD_BLOCK_SIZE;
@@ -185,7 +190,8 @@ void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
             offset += len_aligned;
             len -= len_aligned;
 
-            if (!len) break;
+            if (!len)
+                break;
         }
 
         // slow buffered read: approximate to word alignment, then memcpy

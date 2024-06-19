@@ -75,7 +75,8 @@ typedef enum
 } ObjBlendMode;
 
 /// The shape of the sprite
-typedef enum {
+typedef enum
+{
     OBJSHAPE_SQUARE,    ///< Sprite shape is NxN (Height == Width).
     OBJSHAPE_WIDE,      ///< Sprite shape is NxM with N > M (Height < Width).
     OBJSHAPE_TALL,      ///< Sprite shape is NxM with N < M (Height > Width).
@@ -83,7 +84,8 @@ typedef enum {
 } ObjShape;
 
 /// The size of the sprite
-typedef enum {
+typedef enum
+{
     OBJSIZE_8,          ///< Major sprite size is 8px.
     OBJSIZE_16,         ///< Major sprite size is 16px.
     OBJSIZE_32,         ///< Major sprite size is 32px.
@@ -91,13 +93,15 @@ typedef enum {
 } ObjSize;
 
 /// The color mode of the sprite
-typedef enum {
+typedef enum
+{
     OBJCOLOR_16,        ///< Sprite has 16 colors.
     OBJCOLOR_256,       ///< Sprite has 256 colors.
 } ObjColMode;
 
 /// The priority of the sprite
-typedef enum {
+typedef enum
+{
     OBJPRIORITY_0,      ///< Sprite priority level 0 - highest.
     OBJPRIORITY_1,      ///< Sprite priority level 1.
     OBJPRIORITY_2,      ///< Sprite priority level 2.
@@ -107,16 +111,21 @@ typedef enum {
 /// A bitfield of sprite attributes
 typedef union SpriteEntry
 {
-    struct {
-        struct {
+    struct
+    {
+        struct
+        {
             u16 y                           : 8; ///< Sprite Y position.
-            union {
-                struct {
+            union
+            {
+                struct
+                {
                     u8                      : 1;
                     bool isHidden           : 1; ///< Sprite is hidden (isRotoscale cleared).
                     u8                      : 6;
                 };
-                struct {
+                struct
+                {
                     bool isRotateScale      : 1; ///< Sprite uses affine parameters if set.
                     bool isSizeDouble       : 1; ///< Sprite bounds is doubled (isRotoscale set).
                     ObjBlendMode blendMode  : 2; ///< Sprite object mode.
@@ -127,21 +136,27 @@ typedef union SpriteEntry
             };
         };
 
-        union {
-            struct {
+        union
+        {
+            struct
+            {
                 u16 x                    : 9; ///< Sprite X position.
                 u8                       : 7;
             };
-            struct {
+            struct
+            {
                 u8                       : 8;
-                union {
-                    struct {
+                union
+                {
+                    struct
+                    {
                         u8               : 4;
                         bool hFlip       : 1; ///< Flip sprite horizontally (isRotoscale cleared).
                         bool vFlip       : 1; ///< Flip sprite vertically (isRotoscale cleared).
                         u8               : 2;
                     };
-                    struct {
+                    struct
+                    {
                         u8               : 1;
                         u8 rotationIndex : 5; ///< Affine parameter number to use (isRotoscale set).
                         ObjSize size     : 2; ///< Sprite size.
@@ -150,7 +165,8 @@ typedef union SpriteEntry
             };
         };
 
-        struct {
+        struct
+        {
             u16 gfxIndex         : 10; ///< Upper-left tile index.
             ObjPriority priority : 2;  ///< Sprite priority.
             u8 palette           : 4;  ///< Sprite palette to use in paletted color modes.
@@ -159,7 +175,8 @@ typedef union SpriteEntry
         u16 attribute3; // Unused. Four of those are used as a sprite rotation matrix
     };
 
-    struct {
+    struct
+    {
         uint16_t attribute[3];
         uint16_t filler;
     };
@@ -253,16 +270,17 @@ typedef enum
 } SpriteMapping;
 
 /// Color formats for sprite graphics.
-typedef enum {
-   SpriteColorFormat_16Color = OBJCOLOR_16,     ///< 16 colors per sprite
-   SpriteColorFormat_256Color = OBJCOLOR_256,   ///< 256 colors per sprite
-   SpriteColorFormat_Bmp = OBJMODE_BITMAP       ///< 16-bit sprites
+typedef enum
+{
+    SpriteColorFormat_16Color = OBJCOLOR_16,     ///< 16 colors per sprite
+    SpriteColorFormat_256Color = OBJCOLOR_256,   ///< 256 colors per sprite
+    SpriteColorFormat_Bmp = OBJMODE_BITMAP       ///< 16-bit sprites
 } SpriteColorFormat;
 
 typedef struct AllocHeader
 {
-   u16 nextFree;
-   u16 size;
+    u16 nextFree;
+    u16 size;
 } AllocHeader;
 
 /// Holds the state for a 2D sprite engine.
@@ -337,7 +355,7 @@ u16 *oamAllocateGfx(OamState *oam, SpriteSize size, SpriteColorFormat colorForma
 ///
 /// @param oam Must be &oamMain or &oamSub.
 /// @param gfxOffset A VRAM offset obtained from oamAllocateGfx.
-void oamFreeGfx(OamState *oam, const void* gfxOffset);
+void oamFreeGfx(OamState *oam, const void *gfxOffset);
 
 /// Sets engine A global sprite mosaic.
 ///
@@ -347,7 +365,7 @@ static inline void oamSetMosaic(unsigned int dx, unsigned int dy)
 {
     sassert(dx < 16 && dy < 16, "Mosaic range must be 0 to 15");
 
-    mosaicShadow = (mosaicShadow & 0x00ff) | (dx << 8)| (dy << 12);
+    mosaicShadow = (mosaicShadow & 0x00ff) | (dx << 8) | (dy << 12);
     REG_MOSAIC = mosaicShadow;
 }
 
@@ -359,7 +377,7 @@ static inline void oamSetMosaicSub(unsigned int dx, unsigned int dy)
 {
     sassert(dx < 16 && dy < 16, "Mosaic range must be 0 to 15");
 
-    mosaicShadowSub = (mosaicShadowSub & 0x00ff) | (dx << 8)| (dy << 12);
+    mosaicShadowSub = (mosaicShadowSub & 0x00ff) | (dx << 8) | (dy << 12);
     REG_MOSAIC_SUB = mosaicShadowSub;
 }
 
@@ -394,7 +412,7 @@ void oamSet(OamState *oam, int id,  int x, int y, int priority,
 /// @param id The OAM number to be set [0 - 127].
 /// @param x The x location of the sprite in pixels.
 /// @param y The y location of the sprite in pixels.
-static inline void oamSetXY(OamState* oam, int id, int x, int y)
+static inline void oamSetXY(OamState *oam, int id, int x, int y)
 {
     sassert(oam == &oamMain || oam == &oamSub,
             "oamSetXY() oam must be &oamMain or &oamSub");
@@ -470,7 +488,7 @@ static inline void oamSetAlpha(OamState *oam, int id, int alpha)
 /// @param format The color format of the sprite.
 /// @param gfxOffset The VRAM address of the sprite graphics (not an offset).
 static inline void oamSetGfx(OamState *oam, int id, SpriteSize size,
-                             SpriteColorFormat format, const void* gfxOffset)
+                             SpriteColorFormat format, const void *gfxOffset)
 {
     sassert(oam == &oamMain || oam == &oamSub,
             "oamSetGfx() oam must be &oamMain or &oamSub");

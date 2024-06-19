@@ -50,7 +50,8 @@ bool peripheralSlot2Init(uint32_t peripheral_mask);
 /// Initialize any Slot-2 peripheral.
 ///
 /// @return True if a peripheral was detected, false otherwise.
-static inline bool peripheralSlot2InitDefault(void) {
+static inline bool peripheralSlot2InitDefault(void)
+{
     return peripheralSlot2Init(SLOT2_PERIPHERAL_ANY);
 }
 

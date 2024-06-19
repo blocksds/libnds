@@ -25,7 +25,8 @@
 //
 // The only mandatory chunk inside the "GRF " is "HDR ".
 
-typedef struct {
+typedef struct
+{
     uint32_t    id;
     uint32_t    size;
     uint8_t     data[];
@@ -261,6 +262,6 @@ GRFError grfLoadPath(const char *path, GRFHeader *header,
                      void **mapDst, size_t *mapSize,
                      void **palDst, size_t *palSize)
 {
-     return grfLoadPathEx(path, header, gfxDst, gfxSize, mapDst, mapSize,
-                          palDst, palSize, NULL, NULL, NULL, NULL);
+    return grfLoadPathEx(path, header, gfxDst, gfxSize, mapDst, mapSize,
+                         palDst, palSize, NULL, NULL, NULL, NULL);
 }

@@ -106,8 +106,8 @@ s16 micReadData16(void)
     return smp;
 }
 
-static u8* microphone_front_buffer;
-static u8* microphone_back_buffer;
+static u8 *microphone_front_buffer;
+static u8 *microphone_back_buffer;
 static int microphone_buffer_length = 0;
 static int sampleCount = 0;
 static bool eightBit = true;
@@ -156,11 +156,11 @@ void micTimerHandler(void)
 
     if (eightBit)
     {
-        *(microphone_back_buffer+sampleCount) = micReadData8() ^ 0x80;
+        *(microphone_back_buffer + sampleCount) = micReadData8() ^ 0x80;
     }
     else
     {
-        *(s16*)(microphone_back_buffer + sampleCount * 2) = micReadData16();
+        *(s16 *)(microphone_back_buffer + sampleCount * 2) = micReadData16();
     }
 
     sampleCount++;

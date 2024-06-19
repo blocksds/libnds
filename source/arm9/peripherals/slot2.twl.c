@@ -14,7 +14,8 @@
 #define TWL_RAM_TEST1 *((volatile uint32_t*) 0xCFFFE2C)
 #define TWL_RAM_TEST2 *((volatile uint32_t*) 0xDFFFE2C)
 
-bool slot2DetectTWLDebugRam(void) {
+bool slot2DetectTWLDebugRam(void)
+{
     bool result = false;
 
     // Configure faux Slot-2 RAM
@@ -24,7 +25,8 @@ bool slot2DetectTWLDebugRam(void) {
     uint32_t old_test2 = TWL_RAM_TEST2;
     TWL_RAM_TEST1 = 0x0000;
     TWL_RAM_TEST2 = 0xFFFF;
-    if (TWL_RAM_TEST1 == 0x0000 && TWL_RAM_TEST2 == 0xFFFF) {
+    if (TWL_RAM_TEST1 == 0x0000 && TWL_RAM_TEST2 == 0xFFFF)
+    {
         result = true;
     }
     TWL_RAM_TEST1 = old_test1;

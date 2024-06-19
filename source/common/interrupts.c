@@ -32,7 +32,7 @@ static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 TWL_CODE void i2cIRQHandler(void)
 {
     int cause = (i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & 0x3)
-              | (i2cReadRegister(I2C_GPIO, 0x02) << 2);
+                | (i2cReadRegister(I2C_GPIO, 0x02) << 2);
 
     switch (cause & 3)
     {
@@ -48,7 +48,7 @@ TWL_CODE void i2cIRQHandler(void)
             }
             break;
         case 2:
-            writePowerManagement(PM_CONTROL_REG,PM_SYSTEM_PWR);
+            writePowerManagement(PM_CONTROL_REG, PM_SYSTEM_PWR);
             break;
     }
 }
@@ -164,7 +164,7 @@ void irqDisable(uint32_t irq)
         REG_DISPSTAT &= ~DISP_HBLANK_IRQ;
     if (irq & IRQ_VCOUNT)
         REG_DISPSTAT &= ~DISP_YTRIGGER_IRQ;
-    if(irq & IRQ_IPC_SYNC)
+    if (irq & IRQ_IPC_SYNC)
         REG_IPC_SYNC &= ~IPC_SYNC_IRQ_ENABLE;
 
     REG_IE &= ~irq;

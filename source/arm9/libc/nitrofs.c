@@ -196,7 +196,7 @@ static int32_t nitrofs_dir_step(uint16_t dir, const char *name)
     {
         uint8_t type = state.buffer[state.position];
         uint8_t len = type & 0x7F;
-        if (len == name_len && !memcmp(name, (const char*) (state.buffer + state.position + 1), len))
+        if (len == name_len && !memcmp(name, (const char *)(state.buffer + state.position + 1), len))
             return nitrofs_dir_state_index(&state);
     } while (nitrofs_dir_state_next(&state));
 
@@ -231,12 +231,16 @@ int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
 {
 #ifdef ENABLE_DOTDOT_EMULATION
     // Emit dot and dot-dot entries, if requested.
-    if (state->dotdot_offset < 0) {
-        if (state->dotdot_offset == -2) {
+    if (state->dotdot_offset < 0)
+    {
+        if (state->dotdot_offset == -2)
+        {
             ent->d_name[0] = '.';
             ent->d_name[1] = 0;
             ent->d_ino = state->dir_opened;
-        } else if (state->dotdot_offset == -1) {
+        }
+        else if (state->dotdot_offset == -1)
+        {
             ent->d_name[0] = '.';
             ent->d_name[1] = '.';
             ent->d_name[2] = 0;
@@ -255,7 +259,7 @@ int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
         return -1;
     if (len > sizeof(ent->d_name))
         len = sizeof(ent->d_name);
-    strncpy(ent->d_name, (const char*) (state->buffer + state->position + 1), len);
+    strncpy(ent->d_name, (const char *)(state->buffer + state->position + 1), len);
     ent->d_name[sizeof(ent->d_name) - 1] = '\0';
 
     ent->d_type = (type & 0x80) ? DT_DIR : DT_REG;
@@ -288,7 +292,7 @@ int32_t nitrofs_path_resolve(const char *path)
         entry = nitrofs_local.current_dir;
     }
 
-    char *sep = (char*) path;
+    char *sep = (char *) path;
     while (sep)
     {
         sep = strchr(path, '/');
@@ -425,7 +429,7 @@ int nitrofs_chdir(const char *path)
 
 ssize_t nitrofs_read(int fd, void *ptr, size_t len)
 {
-    nitrofs_file_t *f = (nitrofs_file_t*) FD_DESC(fd);
+    nitrofs_file_t *f = (nitrofs_file_t *) FD_DESC(fd);
     size_t remaining = f->endofs - f->position;
     if (len > remaining)
         len = remaining;
@@ -440,7 +444,7 @@ ssize_t nitrofs_read(int fd, void *ptr, size_t len)
 
 off_t nitrofs_lseek(int fd, off_t offset, int whence)
 {
-    nitrofs_file_t *f = (nitrofs_file_t*) FD_DESC(fd);
+    nitrofs_file_t *f = (nitrofs_file_t *) FD_DESC(fd);
     size_t new_position;
 
     if (whence == SEEK_END)
@@ -465,7 +469,7 @@ off_t nitrofs_lseek(int fd, off_t offset, int whence)
 
 int nitrofs_close(int fd)
 {
-    nitrofs_file_t *f = (nitrofs_file_t*) FD_DESC(fd);
+    nitrofs_file_t *f = (nitrofs_file_t *) FD_DESC(fd);
     free(f);
     return 0;
 }
@@ -658,7 +662,7 @@ bool nitroFSInit(const char *basepath)
             // If not reading from DLDI, we could still be reading from Slot-2.
             // Figure this out by comparing NitroFS header data between the two.
             sysSetCartOwner(BUS_OWNER_ARM9);
-            nitrofs_local.use_slot2 = !memcmp(((uint16_t*) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
+            nitrofs_local.use_slot2 = !memcmp(((uint16_t *) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
         }
         else
         {
@@ -693,7 +697,8 @@ bool nitroFSInit(const char *basepath)
     return true;
 }
 
-int nitroFSInitLookupCache(uint32_t max_buffer_size) {
+int nitroFSInitLookupCache(uint32_t max_buffer_size)
+{
     if (!nitrofs_local.fat_offset || !nitrofs_local.file)
         return 0;
     return fatInitLookupCacheFile(nitrofs_local.file, max_buffer_size);

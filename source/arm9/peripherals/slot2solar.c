@@ -10,7 +10,8 @@
 
 #define GPIO_DATA (*(vuint16 *)0x080000C4)
 
-int peripheralSlot2SolarScanFast(void) {
+int peripheralSlot2SolarScanFast(void)
+{
     if (!peripheralSlot2Open(SLOT2_PERIPHERAL_SOLAR_GPIO))
         return -1;
 
@@ -22,7 +23,8 @@ int peripheralSlot2SolarScanFast(void) {
 
     // count
     int result = 0;
-    do {
+    do
+    {
         // increment binary counter
         GPIO_DATA = 0x01;
         GPIO_DATA = 0x00;

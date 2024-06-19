@@ -42,7 +42,8 @@ typedef enum
 } KeyboardState;
 
 /// Defines a key mapping.
-typedef struct KeyMap {
+typedef struct KeyMap
+{
     const u16 *mapDataPressed;  ///< The map for keys pressed
     const u16 *mapDataReleased; ///< The map for keys released
     const s16 *keymap; ///< The lookup table for x y grid location to corresponding key
@@ -51,7 +52,8 @@ typedef struct KeyMap {
 } KeyMap;
 
 /// Describes a keyboard.
-typedef struct Keyboard {
+typedef struct Keyboard
+{
     int background;      ///< Background use, after init() this contains the background ID
     int keyboardOnSub;   ///< boolean to determine if keyboard is on sub screen or main
     int offset_x;        ///< X offset of the map, can be used to center a custom keyboard
@@ -123,7 +125,8 @@ Keyboard *keyboardGetDefault(void);
 /// @param loadGraphics If true the keyboard graphics will be loaded.
 /// @return Returns the initialized keyboard struct.
 static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
-                                     int mapBase, int tileBase, bool mainDisplay, bool loadGraphics) {
+                                     int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
+{
     Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize size,
                                 int mapBase, int tileBase, bool mainDisplay, bool loadGraphics);
 
@@ -138,7 +141,7 @@ static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type,
 /// ```
 ///
 /// @return A pointer to the current keyboard.
-Keyboard* keyboardDemoInit(void);
+Keyboard *keyboardDemoInit(void);
 
 /// De-initializes the keyboard system, if initialized.
 ///

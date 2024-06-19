@@ -11,7 +11,8 @@ extern "C" {
 
 #include <sys/types.h>
 
-struct statvfs {
+struct statvfs
+{
     unsigned long f_bsize;
     unsigned long f_frsize;
     fsblkcnt_t f_blocks;
@@ -28,7 +29,7 @@ struct statvfs {
 #define ST_RDONLY 0x1
 #define ST_NOSUID 0x2
 
-int statvfs(const char * __restrict__ path, struct statvfs * __restrict__ buf);
+int statvfs(const char *__restrict__ path, struct statvfs *__restrict__ buf);
 int fstatvfs(int fd, struct statvfs *buf);
 
 #ifdef __cplusplus

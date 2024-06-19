@@ -42,10 +42,13 @@ static u32 sdmmc_fifo_sectors(uint32_t cmd, sec_t sector, sec_t numSectors, void
 
     fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
 
-    if (write) {
+    if (write)
+    {
         DC_InvalidateRange(buffer, numSectors * 512);
         fifoWaitValue32Async(FIFO_STORAGE);
-    } else {
+    }
+    else
+    {
         fifoWaitValue32Async(FIFO_STORAGE);
         DC_InvalidateRange(buffer, numSectors * 512);
     }
@@ -122,12 +125,12 @@ bool sdmmc_ReadSectors(sec_t sector, sec_t numSectors, void *buffer)
 
 bool nand_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_SECTORS, sector, numSectors, (void*) buffer, true) == 0;
+    return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_SECTORS, sector, numSectors, (void *) buffer, true) == 0;
 }
 
 bool sdmmc_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_SD_WRITE_SECTORS, sector, numSectors, (void*) buffer, true) == 0;
+    return sdmmc_fifo_sectors(SDMMC_SD_WRITE_SECTORS, sector, numSectors, (void *) buffer, true) == 0;
 }
 
 /* const DISC_INTERFACE __io_dsinand = {
@@ -141,7 +144,8 @@ bool sdmmc_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
     &sdmmc_Shutdown
 }; */
 
-const DISC_INTERFACE __io_dsisd = {
+const DISC_INTERFACE __io_dsisd =
+{
     DEVICE_TYPE_DSI_SD,
     FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,
     &sdmmc_Startup,

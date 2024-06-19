@@ -36,7 +36,8 @@ static inline void i2cWaitBusy(void)
     while (REG_I2CCNT & I2CCNT_BUSY);
 }
 
-enum i2cDevices {
+enum i2cDevices
+{
     I2C_CAM0    = 0x7A,
     I2C_CAM1    = 0x78,
     I2C_UNK1    = 0xA0,

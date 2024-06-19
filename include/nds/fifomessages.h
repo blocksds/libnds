@@ -15,7 +15,8 @@ extern "C" {
 
 // internal fifo messages used by libnds.
 
-typedef enum {
+typedef enum
+{
     SOUND_PLAY_MESSAGE = 0x1234,
     SOUND_PSG_MESSAGE,
     SOUND_NOISE_MESSAGE,
@@ -32,12 +33,15 @@ typedef enum {
     CAMERA_APT_WRITE_MCU
 } FifoMessageType;
 
-typedef struct FifoMessage {
+typedef struct FifoMessage
+{
     u16 type;
 
-    union {
+    union
+    {
 
-        struct {
+        struct
+        {
             const void *data;
             u32 dataSize;
             u16 loopPoint;
@@ -49,7 +53,8 @@ typedef struct FifoMessage {
             u8 channel;
         } SoundPlay;
 
-        struct {
+        struct
+        {
             u16 freq;
             u8 dutyCycle;
             u8 volume;
@@ -57,47 +62,55 @@ typedef struct FifoMessage {
             u8 channel;
         } SoundPsg;
 
-        struct {
-            void* buffer;
+        struct
+        {
+            void *buffer;
             u32 bufferLength;
             u16 freq;
             u8 format;
         } MicRecord;
 
-        struct {
+        struct
+        {
             void *buffer;
             u32 length;
         } MicBufferFull;
 
-        struct {
+        struct
+        {
             touchPosition touch;
             u16 keys;
         } SystemInput;
 
-        struct {
+        struct
+        {
             void *io_interface;
         } dldiStartupParams;
 
-        struct {
+        struct
+        {
             void *buffer;
             u32 startsector;
             u32 numsectors;
         } sdParams;
 
-        struct {
+        struct
+        {
             void *buffer;
             u32 offset;
             u32 size;
             u32 flags;
         } cardParams;
 
-        struct {
+        struct
+        {
             void *buffer;
             u32 address;
             u32 length;
         } blockParams;
 
-        struct {
+        struct
+        {
             u16 reg;
             u16 value;
             u8 device;

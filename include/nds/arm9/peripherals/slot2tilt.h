@@ -16,7 +16,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct slot2TiltPosition {
+typedef struct slot2TiltPosition
+{
     u16 x;   ///< Raw X value
     u16 y;   ///< Raw Y value
 } slot2TiltPosition;

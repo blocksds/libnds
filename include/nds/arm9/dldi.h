@@ -21,19 +21,20 @@ extern const u32 DLDI_MAGIC_NUMBER;
 /**
  * @brief DLDI I/O driver interface.
  */
-typedef struct DLDI_INTERFACE {
+typedef struct DLDI_INTERFACE
+{
     /**
      * @brief Magic number, equal to 0xBF8DA5ED.
-     * 
+     *
      * @see dldiIsValid
      */
     u32 magicNumber;
     /**
      * @brief Magic string, equal to " Chishm\0".
-     * 
+     *
      * @see dldiIsValid
      */
-    char magicString [DLDI_MAGIC_STRING_LEN];
+    char magicString[DLDI_MAGIC_STRING_LEN];
     /**
      * @brief Version number.
      */
@@ -60,7 +61,7 @@ typedef struct DLDI_INTERFACE {
     /**
      * @brief User-friendly driver name.
      */
-    char friendlyName [DLDI_FRIENDLY_NAME_LEN];
+    char friendlyName[DLDI_FRIENDLY_NAME_LEN];
 
     // Pointers to sections that need address fixing
     void *dldiStart; ///< Start of the DLDI driver's text/data section.
@@ -78,7 +79,8 @@ typedef struct DLDI_INTERFACE {
     DISC_INTERFACE ioInterface;
 } DLDI_INTERFACE;
 
-typedef enum {
+typedef enum
+{
     /**
      * @brief DLDI runtime mode: Look for FEATURE_ARM7_CAPABLE in DLDI header.
      */
@@ -98,7 +100,7 @@ typedef enum {
  *
  * Make sure to set the bus permissions appropriately before using.
  */
-extern const DLDI_INTERFACE* io_dldi_data;
+extern const DLDI_INTERFACE *io_dldi_data;
 
 /**
  * @brief Set the DLDI runtime mode.
@@ -116,24 +118,24 @@ DLDI_MODE dldiGetMode(void);
  * @brief Return a pointer to the internal IO interface and set up the bus
  * permissions.
  */
-extern const DISC_INTERFACE* dldiGetInternal(void);
+extern const DISC_INTERFACE *dldiGetInternal(void);
 
 /**
  * @brief Determine if an IO driver is a valid DLDI driver.
  */
-extern bool dldiIsValid(const DLDI_INTERFACE* io);
+extern bool dldiIsValid(const DLDI_INTERFACE *io);
 
 /**
  * @brief Adjust the pointer addresses within a DLDI driver.
  */
-extern void dldiFixDriverAddresses(DLDI_INTERFACE* io);
+extern void dldiFixDriverAddresses(DLDI_INTERFACE *io);
 
 /**
  * @brief Load a DLDI driver from a file and set up the bus permissions.
- * 
+ *
  * This is not directly usable as a filesystem driver.
  */
-extern DLDI_INTERFACE *dldiLoadFromFile(const char* path);
+extern DLDI_INTERFACE *dldiLoadFromFile(const char *path);
 
 /**
  * @brief Free the memory used by the DLDI driver.
@@ -143,7 +145,7 @@ extern DLDI_INTERFACE *dldiLoadFromFile(const char* path);
  *     loadedDldi->ioInterface.shutdown();
  *     dldiFree(loadedDldi);
  */
-extern void dldiFree(DLDI_INTERFACE* dldi);
+extern void dldiFree(DLDI_INTERFACE *dldi);
 
 #ifdef __cplusplus
 }

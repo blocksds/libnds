@@ -130,10 +130,10 @@ void aptCameraInit(u8 device)
     aptMcuSetBits(device, MCUREG_APT_SEQ_CAP_MODE, MCUREG_APT_SEQ_CAP_MODE_VIDEO_ENABLE);
     aptMcuWrite(device, MCUREG_APT_MODE_A_OUTPUT_FORMAT,
                 MCUREG_APT_MODE_OUTPUT_FORMAT_YUV
-                    | MCUREG_APT_MODE_OUTPUT_FORMAT_SWAP_LUMA_CHROMA);
+                | MCUREG_APT_MODE_OUTPUT_FORMAT_SWAP_LUMA_CHROMA);
     aptMcuWrite(device, MCUREG_APT_MODE_B_OUTPUT_FORMAT,
                 MCUREG_APT_MODE_OUTPUT_FORMAT_YUV
-                    | MCUREG_APT_MODE_OUTPUT_FORMAT_SWAP_LUMA_CHROMA);
+                | MCUREG_APT_MODE_OUTPUT_FORMAT_SWAP_LUMA_CHROMA);
 
     // Match PLL to console timings
     aptI2cWrite(device, I2CREG_APT_PLL_CNT,
@@ -197,8 +197,8 @@ void aptCameraInit(u8 device)
     aptI2cSetBits(device, I2CREG_APT_CLOCKS_CNT, 1 << 5);
     aptMcuWrite(device, MCUREG_APT_SEQ_CAP_MODE,
                 0x40 | MCUREG_APT_SEQ_CAP_MODE_VIDEO_HG_ENABLE
-                    | MCUREG_APT_SEQ_CAP_MODE_VIDEO_AWB_ENABLE
-                    | MCUREG_APT_SEQ_CAP_MODE_VIDEO_ENABLE);
+                | MCUREG_APT_SEQ_CAP_MODE_VIDEO_AWB_ENABLE
+                | MCUREG_APT_SEQ_CAP_MODE_VIDEO_ENABLE);
     aptMcuWrite(device, MCUREG_APT_SEQ_PREVIEW1_AWB, 0x01);
     if (device == I2C_CAM0)
     {

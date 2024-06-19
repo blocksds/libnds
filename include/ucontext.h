@@ -19,14 +19,14 @@ extern "C" {
  * @param ucp Pointer to context structure
  * @return 0
  */
-int getcontext(ucontext_t* ucp) __attribute__((nonnull(1)));
+int getcontext(ucontext_t *ucp) __attribute__((nonnull(1)));
 
 /**
  * Sets the current context to ucp
  * @param ucp Pointer to context structure
  * @return Does not return
  */
-int setcontext(const ucontext_t* ucp) __attribute__((noreturn, nonnull(1)));
+int setcontext(const ucontext_t *ucp) __attribute__((noreturn, nonnull(1)));
 
 /**
  * Writes current context into oucp, and switches to ucp
@@ -34,7 +34,7 @@ int setcontext(const ucontext_t* ucp) __attribute__((noreturn, nonnull(1)));
  * @param ucp Context to swap to
  * @return Although technically this does not return, it will appear to return 0 when switching to oucp
  */
-int swapcontext(ucontext_t* __restrict__ oucp, const ucontext_t* __restrict__ ucp) __attribute__((nonnull(1, 2)));
+int swapcontext(ucontext_t *__restrict__ oucp, const ucontext_t *__restrict__ ucp) __attribute__((nonnull(1, 2)));
 
 /**
  * Modifies context ucp to invoke func with setcontext. Before invoking, the caller must allocate a new stack for this
@@ -44,7 +44,7 @@ int swapcontext(ucontext_t* __restrict__ oucp, const ucontext_t* __restrict__ uc
  * @param argc Number of arguments passed to func
  * @param ... List of arguments to be passed to func
  */
-void makecontext(ucontext_t* ucp, void(*func)(void), int argc, ...) __attribute__((nonnull(1, 2)));
+void makecontext(ucontext_t *ucp, void(*func)(void), int argc, ...) __attribute__((nonnull(1, 2)));
 
 #ifdef __cplusplus
 }

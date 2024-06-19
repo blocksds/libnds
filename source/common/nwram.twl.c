@@ -43,8 +43,8 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
             length >>= NWRAM_A_SLOT_SHIFT;
             end = start + length;
             REG_MBK6 = (start << MBK6_START_ADDR_SHIFT)
-                     | (imageSize << MBK6_IMAGE_SIZE_SHIFT)
-                     | (end << MBK6_END_ADDR_SHIFT);
+                       | (imageSize << MBK6_IMAGE_SIZE_SHIFT)
+                       | (end << MBK6_END_ADDR_SHIFT);
             break;
 
         case NWRAM_BLOCK_B:
@@ -52,8 +52,8 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
             length >>= NWRAM_BC_SLOT_SHIFT;
             end = start + length;
             REG_MBK7 = (start << MBK7_START_ADDR_SHIFT)
-                     | (imageSize << MBK7_IMAGE_SIZE_SHIFT)
-                     | (end << MBK7_END_ADDR_SHIFT);
+                       | (imageSize << MBK7_IMAGE_SIZE_SHIFT)
+                       | (end << MBK7_END_ADDR_SHIFT);
             break;
 
         case NWRAM_BLOCK_C:
@@ -61,8 +61,8 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
             length >>= NWRAM_BC_SLOT_SHIFT;
             end = start + length;
             REG_MBK8 = (start << MBK8_START_ADDR_SHIFT)
-                     | (imageSize << MBK8_IMAGE_SIZE_SHIFT)
-                     | (end << MBK8_END_ADDR_SHIFT);
+                       | (imageSize << MBK8_IMAGE_SIZE_SHIFT)
+                       | (end << MBK8_END_ADDR_SHIFT);
             break;
     }
 }

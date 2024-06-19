@@ -135,7 +135,7 @@ void firmwareMsgHandler(int bytes, void *user_data)
 
     int response = -1;
 
-    fifoGetDatamsg(FIFO_FIRMWARE, bytes, (u8*)&msg);
+    fifoGetDatamsg(FIFO_FIRMWARE, bytes, (u8 *)&msg);
 
     switch (msg.type)
     {

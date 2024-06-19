@@ -14,13 +14,15 @@ extern "C" {
 
 #include <nds/ndstypes.h>
 
-typedef struct swiRSAHeapContext {
+typedef struct swiRSAHeapContext
+{
     void *heapStart;
     void *heapEnd;
     size_t heapSize;
 } swiRSAHeapContext_t;
 
-typedef struct swiRSAbuffers {
+typedef struct swiRSAbuffers
+{
     void *dst;
     const void *sig;
     const void *key;

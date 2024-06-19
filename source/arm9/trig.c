@@ -54,7 +54,8 @@
 
 // The size of the LUTs are one bigger than normal for the compare functions
 // used by bsearch(). A 1.15 fixed point LUT.
-const u16 SIN_LUT[LUT_SIZE + 1] = {
+const u16 SIN_LUT[LUT_SIZE + 1] =
+{
     0,     402,   804,   1206,  1607,  2009,  2410,  2811,  3211,  3611,  4011,  4409,
     4808,  5205,  5602,  5997,  6392,  6786,  7179,  7571,  7961,  8351,  8739,  9126,
     9512,  9896,  10278, 10659, 11039, 11416, 11793, 12167, 12539, 12910, 13278, 13645,
@@ -69,7 +70,8 @@ const u16 SIN_LUT[LUT_SIZE + 1] = {
 };
 
 // A 16.16 fixed point LUT
-const s32 TAN_LUT[LUT_SIZE + 1] = {
+const s32 TAN_LUT[LUT_SIZE + 1] =
+{
     0,      804,    1608,   2413,    3219,    4026,    4834,    5643,    6454,   7267,
     8083,   8900,   9721,   10544,   11371,   12201,   13035,   13874,   14716,  15563,
     16415,  17273,  18136,  19005,   19880,   20761,   21650,   22545,   23449,  24360,

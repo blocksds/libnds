@@ -14,7 +14,8 @@ extern "C" {
 
 #include <nds/ndstypes.h>
 
-typedef struct aes_keyslot {
+typedef struct aes_keyslot
+{
     vu8 normalkey[16];
     vu8 key_x[16];
     vu8 key_y[16];

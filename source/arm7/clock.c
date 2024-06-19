@@ -193,7 +193,8 @@ static void syncRTC(void)
 #define leapday(m, y) ((m) == 1 && leap(y))
 
 /* Accumulated number of days from 01-Jan up to start of current month. */
-static const short ydays[] = {
+static const short ydays[] =
+{
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
 };
 
@@ -229,7 +230,8 @@ static bool __is_valid_time_date(rtcTimeAndDate *rtc)
     if ((rtc->month < 1) || (rtc->month > 12))
         return false;
 
-    const uint8_t numdays[12] = {
+    const uint8_t numdays[12] =
+    {
         31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
     uint32_t days = numdays[rtc->month - 1];
@@ -293,7 +295,8 @@ int rtcTimeSet(rtcTime *rtc)
     if (!__is_valid_time(rtc))
         return -1;
 
-    uint8_t command[4] = {
+    uint8_t command[4] =
+    {
         WRITE_TIME,
         rtc->hours,
         rtc->minutes,
@@ -336,7 +339,8 @@ int rtcTimeAndDateSet(rtcTimeAndDate *rtc)
     if (!__is_valid_time_date(rtc))
         return -1;
 
-    uint8_t command[8] = {
+    uint8_t command[8] =
+    {
         WRITE_TIME_AND_DATE,
         rtc->year,
         rtc->month,

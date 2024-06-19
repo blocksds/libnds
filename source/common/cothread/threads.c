@@ -185,7 +185,7 @@ static void cothread_list_remove_ctx(cothread_info_t *ctx)
 
     cothread_info_t *p = &cothread_list;
 
-    for ( ; p->next != NULL; p = p->next)
+    for (; p->next != NULL; p = p->next)
     {
         if (p->next == ctx)
         {
@@ -519,7 +519,8 @@ next_thread:
 }
 
 #ifdef ARM9
-typedef struct {
+typedef struct
+{
     int argc;
     char **argv;
 } main_args_t;

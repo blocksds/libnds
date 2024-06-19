@@ -12,7 +12,7 @@
 /// other homebrew programs or official code requires restoring the PLL-enabled
 /// state, as their changes between 47 and 32 kHz only modify PLL/DAC/ADC clock
 /// multiplier/divider configuration.
-/// 
+///
 /// TODO: Consider adding way to re-intiialize clock divider configuration when
 ///       returning to loader.
 /// TODO: Further testing.
@@ -72,11 +72,14 @@ bool soundExtSetFrequencyTWL(unsigned int freq_khz)
     //          PLL_CLK = MCLK * 15 / 2 ~= 91.40 MHz
     // The NDAC divider has to be adjusted to result in a matched ratio;
     // the output frequency is always MCLK / 256.
-    if (is_high_freq) {
+    if (is_high_freq)
+    {
         // Configure a PLL multiplier/divider of 15/2, and a NDAC/NADC divider of 5.
         cdcWriteReg(CDC_CONTROL, CDC_CONTROL_PLL_J, 15);
         cdcWriteReg(CDC_CONTROL, CDC_CONTROL_DAC_NDAC, CDC_CONTROL_CLOCK_ENABLE(5));
-    } else {
+    }
+    else
+    {
         // Configure a PLL multiplier/divider of 21/2, and a NDAC/NADC divider of 7.
         cdcWriteReg(CDC_CONTROL, CDC_CONTROL_DAC_NDAC, CDC_CONTROL_CLOCK_ENABLE(7));
         cdcWriteReg(CDC_CONTROL, CDC_CONTROL_PLL_J, 21);

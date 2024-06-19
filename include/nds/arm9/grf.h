@@ -28,7 +28,8 @@ extern "C" {
 #include <stdint.h>
 
 /// Header chunk of a GRF file.
-typedef struct {
+typedef struct
+{
     uint16_t gfxAttr;  ///< BPP of graphics (or GRFTextureTypes). 0 if not present.
     uint16_t mapAttr;  ///< BPP of map (16 or 8 for affine). 0 if not present.
     uint16_t mmapAttr; ///< BPP of metamap (16). 0 if not present.
@@ -47,7 +48,8 @@ typedef enum
 } GRFTextureTypes;
 
 /// Possible errors that can happen while reading GRF files.
-typedef enum {
+typedef enum
+{
     GRF_NO_ERROR                = 0,  ///< No error happened
     GRF_NULL_POINTER            = -1, ///< NULL pointer passed as argument
     GRF_FILE_NOT_OPENED         = -2, ///< Failed to open file with fopen()

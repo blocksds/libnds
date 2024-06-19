@@ -94,7 +94,7 @@ typedef struct UnpackStruct
     /// Bits 0-30 are added to all non-zero destination writes. If bit 31 is
     /// set they are added to zeroes too.
     uint32_t dataOffset;
-} PACKED TUnpackStruct, __attribute__((deprecated)) * PUnpackStruct;
+} PACKED TUnpackStruct, __attribute__((deprecated)) *PUnpackStruct;
 
 /// Resets the DS.
 __attribute__((always_inline, noreturn))

@@ -49,7 +49,7 @@ extern "C" {
 
 /// Function type used by the PrintConsole struct to send characters to the
 /// console.
-typedef bool (* ConsolePrint)(void* con, char c);
+typedef bool (* ConsolePrint)(void *con, char c);
 
 /// Function type used by libnds to redirect characters sent to stdout and
 /// stderr (skipping the call to the ConsolePrint handler).
@@ -198,7 +198,7 @@ PrintConsole *consoleGetDefault(void);
 /// @param console A pointer to the console struct (must have been initialized
 ///                with consoleInit(PrintConsole* console)
 /// @return A pointer to the previous console.
-PrintConsole *consoleSelect(PrintConsole* console);
+PrintConsole *consoleSelect(PrintConsole *console);
 
 /// Initialise the console.
 ///

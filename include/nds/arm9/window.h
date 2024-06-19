@@ -24,11 +24,12 @@ extern "C" {
 #include <nds/ndstypes.h>
 
 /// The supported windows
-typedef enum {
-  WINDOW_0    = DISPLAY_WIN0_ON,    ///< Window 0
-  WINDOW_1    = DISPLAY_WIN1_ON,    ///< Window 1
-  WINDOW_OBJ  = DISPLAY_SPR_WIN_ON, ///< Object window
-  WINDOW_OUT  = BIT(16),            ///< Area outside all windows
+typedef enum
+{
+    WINDOW_0    = DISPLAY_WIN0_ON,    ///< Window 0
+    WINDOW_1    = DISPLAY_WIN1_ON,    ///< Window 1
+    WINDOW_OBJ  = DISPLAY_SPR_WIN_ON, ///< Object window
+    WINDOW_OUT  = BIT(16),            ///< Area outside all windows
 } WINDOW;
 
 #define WINDOW_MASK  (WINDOW_0 | WINDOW_1 | WINDOW_OBJ)
@@ -99,13 +100,13 @@ void bgWindowDisable(int id, WINDOW window);
 ///
 /// @param oam Must be &oamMain or &oamSub.
 /// @param w The window to enable.
-void oamWindowEnable(OamState* oam, WINDOW w);
+void oamWindowEnable(OamState *oam, WINDOW w);
 
 /// Disables the specified OAM window.
 ///
 /// @param oam Must be &oamMain or &oamSub.
 /// @param w The window to disable.
-void oamWindowDisable(OamState* oam, WINDOW w);
+void oamWindowDisable(OamState *oam, WINDOW w);
 
 #ifdef __cplusplus
 }

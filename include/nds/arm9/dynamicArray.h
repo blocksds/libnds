@@ -43,7 +43,7 @@ void DynamicArrayDelete(DynamicArray *v);
 /// @param v The array to get from.
 /// @param index The index of the data to get.
 /// @return The data or NULL if v is NULL or the index is out of range.
-void* DynamicArrayGet(DynamicArray *v, unsigned int index);
+void *DynamicArrayGet(DynamicArray *v, unsigned int index);
 
 /// Sets the entry to the supplied value.
 ///
@@ -53,7 +53,7 @@ void* DynamicArrayGet(DynamicArray *v, unsigned int index);
 /// @param item The data to set.
 /// @return Returns false if v is NULL or there isn't enough memory, true
 /// otherwise.
-bool DynamicArraySet(DynamicArray *v, unsigned int index, void* item);
+bool DynamicArraySet(DynamicArray *v, unsigned int index, void *item);
 
 #ifdef __cplusplus
 }

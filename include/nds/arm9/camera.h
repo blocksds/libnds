@@ -43,7 +43,8 @@ extern "C" {
 
 #define CAMERA_CMD_FIFO(command, arg) ((command) << 22 | (arg))
 
-typedef enum {
+typedef enum
+{
     CAMERA_INNER = 0,
     CAMERA_OUTER = 1,
     CAMERA_NONE = 2

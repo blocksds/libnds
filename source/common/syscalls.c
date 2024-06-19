@@ -12,7 +12,7 @@ int swiDecompressLZSSVram(const void *source, void *destination,
                           uint32_t toGetSize, TDecompressionStream *stream)
 {
     if (isDSiMode())
-        return swiDecompressLZSSVramTWL(source,destination,toGetSize,stream);
+        return swiDecompressLZSSVramTWL(source, destination, toGetSize, stream);
     else
-        return swiDecompressLZSSVramNTR(source,destination,toGetSize,stream);
+        return swiDecompressLZSSVramNTR(source, destination, toGetSize, stream);
 }

@@ -211,7 +211,7 @@ static u32 initIdentState(SdmmcDev *const dev, const u8 devType, u32 *const rcaO
         // Set the RCA of the (e)MMC to 1. 0 is reserved.
         // The RCA is in the upper 16 bits of the argument.
         rca = 1;
-        u32 res = TMIO_sendCommand(port, MMC_SET_RELATIVE_ADDR, rca<<16);
+        u32 res = TMIO_sendCommand(port, MMC_SET_RELATIVE_ADDR, rca << 16);
         if (res != 0)
             return SDMMC_ERR_SET_SEND_RCA;
     }
@@ -223,11 +223,11 @@ static u32 initIdentState(SdmmcDev *const dev, const u8 devType, u32 *const rcaO
             return SDMMC_ERR_SET_SEND_RCA;
 
         // RCA in upper 16 bits. Discards lower status bits of R6 response.
-        rca = port->resp[0]>>16;
+        rca = port->resp[0] >> 16;
     }
 
     dev->rca = rca;
-    *rcaOut = rca<<16;
+    *rcaOut = rca << 16;
 
     return SDMMC_ERR_NONE;
 }
@@ -240,7 +240,7 @@ static inline u32 extractBits(const u32 resp[4], const u32 start, const u32 size
     const u32 off = 3 - (start / 32);
     const u32 shift = start & 31u;
 
-    u32 res = resp[off]>>shift;
+    u32 res = resp[off] >> shift;
     if (size + shift > 32)
         res |= resp[off - 1] << ((32u - shift) & 31u);
 
@@ -750,7 +750,7 @@ u32 SDMMC_writeSectors(const u8 devNum, u32 sect, const void *const buf, const u
 
     // Set source buffer and sector count.
     TmioPort *const port = &dev->port;
-    TMIO_setBuffer(port, (void*)buf, count);
+    TMIO_setBuffer(port, (void *)buf, count);
 
     // Write a single 512 bytes block. Same CMD for (e)MMC/SD.
     // Write multiple 512 bytes blocks. Same CMD for (e)MMC/SD.

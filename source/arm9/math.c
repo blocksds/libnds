@@ -9,14 +9,15 @@
 
 ARM_CODE float hw_sqrtf(float x)
 {
-    union {
+    union
+    {
         float f;
         u32 i;
     } xu;
 
     xu.f = x;
     u32 mantissa32 = xu.i & ((1 << 23) - 1); // extracts mantissa via bitmask
-    mantissa32 += (1 << 23); // adds implicit bit to mantissa.
+    mantissa32 += 1 << 23; // adds implicit bit to mantissa.
     // If you were planning to handle subnormal numbers
     // you would check if the number is subnormal before
     // adding the implicit bit.
@@ -27,7 +28,7 @@ ARM_CODE float hw_sqrtf(float x)
     // performance-critical code has subnormals turned off
     // due to -ffast-math
     u64 mantissa = mantissa32; // cast so that the shift doesnt go wrong
-    mantissa <<= (((xu.i & (1 << 23)) == 0) + 25);
+    mantissa <<= ((xu.i & (1 << 23)) == 0) + 25;
     // applies additional shift depending on whether exponent is even or odd
     // 25 is 23+2, the +2 is necessary for rounding
     REG_SQRT_PARAM = mantissa;
@@ -38,8 +39,8 @@ ARM_CODE float hw_sqrtf(float x)
     // starts hardware squareroot
     // It is critical that this happens as early as possible so that
     // we have time to do other stuff in the meantime
-    u32 raw_exponent = (xu.i & (255 << 23));
-    u32 sign = (xu.i & (1 << 31));
+    u32 raw_exponent = xu.i & (255 << 23);
+    u32 sign = xu.i & (1 << 31);
     // check if exponent is 0
     if (raw_exponent != 0)
     {
@@ -72,7 +73,7 @@ ARM_CODE float hw_sqrtf(float x)
         // use a division by 2.
         // arithmetic shift and division have different rounding behavior
         // but in this case it doesnt matter
-        exponent = ((exponent + (127 << 23)) & (0xff << 23));
+        exponent = (exponent + (127 << 23)) & (0xff << 23);
         // add bias again and bitmask the exponent
         while (REG_SQRTCNT & SQRT_BUSY);
         // waits for square root operation to complete

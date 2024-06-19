@@ -20,7 +20,8 @@ extern "C" {
 /// Common values that can be used on both the ARM9 and ARM7.
 
 /// Enum values for the keypad buttons.
-typedef enum KEYPAD_BITS {
+typedef enum KEYPAD_BITS
+{
     KEY_A      = BIT(0),  ///< Keypad A button.
     KEY_B      = BIT(1),  ///< Keypad B button.
     KEY_SELECT = BIT(2),  ///< Keypad SELECT button.

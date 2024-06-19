@@ -95,7 +95,8 @@ const char *fatGetDefaultDrive(void);
 /// @return 0 if the initialization was successful, a non-zero value on error.
 int fatInitLookupCache(int fd, uint32_t max_buffer_size);
 
-static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size) {
+static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size)
+{
     return fatInitLookupCache(fileno(file), max_buffer_size);
 }
 

@@ -118,9 +118,9 @@ ARM_CODE void gluLookAtf32(int eyex, int eyey, int eyez,
     MATRIX_MULT4x3 = up[2];
     MATRIX_MULT4x3 = forward[2];
 
-    MATRIX_MULT4x3 = -dotf32(eye,side);
-    MATRIX_MULT4x3 = -dotf32(eye,up);
-    MATRIX_MULT4x3 = -dotf32(eye,forward);
+    MATRIX_MULT4x3 = -dotf32(eye, side);
+    MATRIX_MULT4x3 = -dotf32(eye, up);
+    MATRIX_MULT4x3 = -dotf32(eye, forward);
 }
 
 ARM_CODE void glFrustumf32(int left, int right, int bottom, int top,
@@ -1476,7 +1476,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
     uint32_t size = 0;
     // Represents the number of bits per pixels for each format
-    uint32_t typeSizes[9] = {
+    uint32_t typeSizes[9] =
+    {
         0, 8, 2, 4, 8, 3, 8, 16, 16
     };
 
@@ -1627,7 +1628,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
                 // Retrieve the tile location in VRAM_A or VRAM_C
                 vramACAddr = (uint8_t *)(offset >= 0x10000 ? VRAM_C : VRAM_A)
-                           + ((offset & 0xFFFF) << 1);
+                             + ((offset & 0xFFFF) << 1);
 
                 vramACFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
                                                        vramACAddr, size, 3);
@@ -1813,7 +1814,7 @@ void glGetInt(GL_GET_ENUM param, int *i)
         case GL_GET_TEXTURE_HEIGHT:
             tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
             if (tex)
-                *i = 8 << ((tex->texFormat >> 23 ) & 7);
+                *i = 8 << ((tex->texFormat >> 23) & 7);
             break;
 
         default:
@@ -1828,7 +1829,7 @@ void glTexCoord2f(float s, float t)
     {
         int x = (tex->texFormat >> 20) & 7;
         int y = (tex->texFormat >> 23) & 7;
-        glTexCoord2t16(floattot16(s * (8 << x)), floattot16(t * (8<<y)));
+        glTexCoord2t16(floattot16(s * (8 << x)), floattot16(t * (8 << y)));
     }
 }
 

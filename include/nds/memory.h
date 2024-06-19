@@ -116,7 +116,8 @@ extern "C" {
 /// GBA file header format.
 ///
 /// See gbatek for more info.
-typedef struct sGBAHeader {
+typedef struct sGBAHeader
+{
     u32 entryPoint;   ///< 32 bits ARM opcode to jump to executable code
     u8 logo[156];     ///< Nintendo logo needed for booting the game
     char title[12];   ///< Game title
@@ -136,7 +137,8 @@ typedef struct sGBAHeader {
 /// NDS file header format
 ///
 /// See gbatek for more info.
-typedef struct sNDSHeader {
+typedef struct sNDSHeader
+{
     char gameTitle[12];       ///< 12 characters for the game title.
     char gameCode[4];         ///< 4 characters for the game code.
     char makercode[2];        ///< Identifies the (commercial) developer.
@@ -190,7 +192,8 @@ typedef struct sNDSHeader {
 
 } tNDSHeader;
 
-typedef struct __DSiHeader {
+typedef struct __DSiHeader
+{
     tNDSHeader ndshdr;
     u32 debugRomSource;       ///< Debug ROM offset.
     u32 debugRomSize;         ///< Debug size.
@@ -270,13 +273,14 @@ typedef struct __DSiHeader {
 /// NDS banner format.
 ///
 /// See gbatek for more information.
-typedef struct sNDSBanner {
-  u16 version;        ///< Version of the banner.
-  u16 crc;            ///< 16 bit crc/checksum of the banner.
-  u8 reserved[28];
-  u8 icon[512];       ///< 32 * 32 icon of the game with 4 bit per pixel.
-  u16 palette[16];    ///< The pallete of the icon.
-  u16 titles[6][128]; ///< Title of the game in 6 different languages.
+typedef struct sNDSBanner
+{
+    u16 version;        ///< Version of the banner.
+    u16 crc;            ///< 16 bit crc/checksum of the banner.
+    u8 reserved[28];
+    u8 icon[512];       ///< 32 * 32 icon of the game with 4 bit per pixel.
+    u16 palette[16];    ///< The pallete of the icon.
+    u16 titles[6][128]; ///< Title of the game in 6 different languages.
 } tNDSBanner;
 
 #ifdef ARM9
@@ -313,8 +317,8 @@ static inline void sysSetCardOwner(bool arm9)
 static inline void sysSetBusOwners(bool arm9rom, bool arm9card)
 {
     REG_EXMEMCNT = (REG_EXMEMCNT & ~(ARM7_OWNS_CARD | ARM7_OWNS_ROM))
-                    | (arm9card ? 0 : ARM7_OWNS_CARD)
-                    | (arm9rom ? 0 : ARM7_OWNS_ROM);
+                   | (arm9card ? 0 : ARM7_OWNS_CARD)
+                   | (arm9rom ? 0 : ARM7_OWNS_ROM);
 }
 #endif // ARM9
 

@@ -18,7 +18,8 @@
 const u32 DLDI_MAGIC_NUMBER = 0xBF8DA5ED;
 
 // Stored backwards to prevent it being picked up by DLDI patchers
-const char DLDI_MAGIC_STRING_BACKWARDS[DLDI_MAGIC_STRING_LEN] = {
+const char DLDI_MAGIC_STRING_BACKWARDS[DLDI_MAGIC_STRING_LEN] =
+{
     '\0', 'm', 'h', 's', 'i',  'h', 'C', ' '
 };
 
@@ -135,7 +136,8 @@ bool dldi_arm7_shutdown(void)
 }
 
 // Driver that sends commands to the ARM7 to perform operations
-DISC_INTERFACE __io_dldi_arm7_interface = {
+DISC_INTERFACE __io_dldi_arm7_interface =
+{
     0, // Filled at runtime
     0, // Filled at runtime
     &dldi_arm7_startup,
@@ -216,7 +218,7 @@ bool dldiIsValid(const DLDI_INTERFACE *io)
     return true;
 }
 
-void* dldiGetStubDataEnd(void)
+void *dldiGetStubDataEnd(void)
 {
     // Filter out invalid BSS pointers.
     return ((uintptr_t)_io_dldi_stub.bssEnd) < 0x10000000 && _io_dldi_stub.bssEnd > _io_dldi_stub.dldiEnd
@@ -224,7 +226,7 @@ void* dldiGetStubDataEnd(void)
         : _io_dldi_stub.dldiEnd;
 }
 
-void* dldiGetStubEnd(void)
+void *dldiGetStubEnd(void)
 {
     return &__dldi_end;
 }

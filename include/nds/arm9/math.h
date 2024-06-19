@@ -343,7 +343,7 @@ static inline uint32_t sqrt64(uint64_t a)
 ///
 /// @warning Subnormal floats are treated as if they were zero.
 /// @warning Not safe to call inside an interrupt handler.
-/// 
+///
 /// @param valid 32 bit non-negative floating point value.
 /// @return 32 bit floating point value
 ARM_CODE float hw_sqrtf(float x);

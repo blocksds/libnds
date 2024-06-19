@@ -30,7 +30,7 @@ void touchInit(void);
 
 /**
  * @brief Apply calibration to raw X/Y touch screen measurements.
- * 
+ *
  * @param rawx Raw X value
  * @param rawy Raw Y value
  * @param px Calibrated X value
@@ -39,7 +39,8 @@ void touchInit(void);
 void touchApplyCalibration(u16 rawx, u16 rawy, u16 *px, u16 *py);
 
 // Do not modify the memory layout; touchReadData() functions rely on it.
-typedef struct {
+typedef struct
+{
     u16 rawX[5];
     u16 rawY[5];
     u16 z1[5];

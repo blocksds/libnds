@@ -21,7 +21,8 @@ extern "C" {
 /// Initialize the rumble device.
 ///
 /// @deprecated Use of peripheralSlot2Init() is recommended instead.
-static inline void rumbleInit(void) {
+static inline void rumbleInit(void)
+{
     peripheralSlot2InitDefault();
 }
 
@@ -58,7 +59,8 @@ void setRumble(uint8_t rawStrength);
 /// Emit a single, fast rumble tick.
 ///
 /// @param rawStrength The raw rumble strength (rumbleGetMaxRawStrength()).
-static inline void rumbleTick(uint8_t rawStrength) {
+static inline void rumbleTick(uint8_t rawStrength)
+{
     setRumble(rawStrength);
     setRumble(0);
 }

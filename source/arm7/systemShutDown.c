@@ -13,7 +13,7 @@ void systemShutDown(void)
 {
     if (!isDSiMode())
     {
-        writePowerManagement(PM_CONTROL_REG,PM_SYSTEM_PWR);
+        writePowerManagement(PM_CONTROL_REG, PM_SYSTEM_PWR);
     }
     else
     {

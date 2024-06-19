@@ -216,7 +216,8 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState)
     return 0;
 }
 
-static const char *registerNames[] = {
+static const char *registerNames[] =
+{
     "r0",  "r1",  "r2",  "r3",  "r4",  "r5", "r6",  "r7",
     "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
 };
@@ -267,7 +268,7 @@ void guruMeditationDump(void)
             is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
 
         bool is_itcm = codeAddress > (u32)__itcm_start
-                     && codeAddress < (u32)(__itcm_start + 32768);
+                       && codeAddress < (u32)(__itcm_start + 32768);
 
         // If it's in a code region, try to decode the instruction. This will
         // let us know exactly which address was trying to be accessed.
