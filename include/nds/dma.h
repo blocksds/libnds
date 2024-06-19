@@ -66,18 +66,25 @@ extern "C" {
 #define DMA_BUSY            BIT(31)
 #define DMA_IRQ_REQ         BIT(30)
 
-#define DMA_START_NOW       0
-#define DMA_START_CARD      (5 << 27)
+#define DMA_START_NOW       0         ///< Start DMA immediately
 
 #ifdef ARM7
-#    define DMA_START_VBL   BIT(27)
+#    define DMA_START_VBL   (1 << 28) ///< Auto-start DMA on vertical blank
+#    define DMA_START_SLOT1 (2 << 28) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_CARD  (2 << 28) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_WIFI  (3 << 28) ///< Auto-start DMA on NTR Wi-Fi interrupt request (DMA0/DMA2 only)
+#    define DMA_START_SLOT2 (3 << 28) ///< Auto-start DMA on Slot-2 interrupt request (DMA1/DMA3 only)
 #endif
 
 #ifdef ARM9
-#    define DMA_START_HBL   BIT(28)
-#    define DMA_START_VBL   BIT(27)
-#    define DMA_START_FIFO  (7 << 27)
-#    define DMA_DISP_FIFO   (4 << 27)
+#    define DMA_START_VBL   (1 << 27) ///< Auto-start DMA on each frame's vertical blank
+#    define DMA_START_HBL   (2 << 27) ///< Auto-start DMA on each visible scanline's horizontal blank
+#    define DMA_START_LINE  (3 << 27) ///< Auto-start DMA on the beginning of each visible scanline
+#    define DMA_DISP_FIFO   (4 << 27) ///< Auto-start DMA on display FIFO fill (8 pixels at a time)
+#    define DMA_START_CARD  (5 << 27) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_SLOT1 (5 << 27) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_SLOT2 (6 << 27) ///< Auto-start DMA on Slot-2 interrupt request
+#    define DMA_START_FIFO  (7 << 27) ///< Auto-start DMA for 3D geometry FIFO queue
 #endif
 
 #define DMA_16_BIT          0
@@ -241,7 +248,7 @@ static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
     while (DMA_CR(3) & DMA_BUSY);
 }
 
-/// Determines if the specified channel is busy
+/// Determines if the specified channel is busy.
 //
 /// @param channel The DMA channel to check (0 - 3).
 /// @return Non zero if busy, 0 if channel is free.
