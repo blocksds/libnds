@@ -70,15 +70,20 @@ extern "C" {
 
 #ifdef ARM7
 #    define DMA_START_VBL   (1 << 28) ///< Auto-start DMA on vertical blank
+#    define DMA_START_SLOT1 (2 << 28) ///< Auto-start DMA on Slot-1 card transfer
 #    define DMA_START_CARD  (2 << 28) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_WIFI  (3 << 28) ///< Auto-start DMA on NTR Wi-Fi interrupt request (DMA0/DMA2 only)
+#    define DMA_START_SLOT2 (3 << 28) ///< Auto-start DMA on Slot-2 interrupt request (DMA1/DMA3 only)
 #endif
 
 #ifdef ARM9
-#    define DMA_START_VBL   (1 << 27) ///< Auto-start DMA on vertical blank
-#    define DMA_START_HBL   (2 << 27) ///< Auto-start DMA on horizontal blank
-#    define DMA_START_LINE  (3 << 27) ///< Auto-start DMA on the beginning of each drawn scanline
+#    define DMA_START_VBL   (1 << 27) ///< Auto-start DMA on each frame's vertical blank
+#    define DMA_START_HBL   (2 << 27) ///< Auto-start DMA on each visible scanline's horizontal blank
+#    define DMA_START_LINE  (3 << 27) ///< Auto-start DMA on the beginning of each visible scanline
 #    define DMA_DISP_FIFO   (4 << 27) ///< Auto-start DMA on display FIFO fill (8 pixels at a time)
 #    define DMA_START_CARD  (5 << 27) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_SLOT1 (5 << 27) ///< Auto-start DMA on Slot-1 card transfer
+#    define DMA_START_SLOT2 (6 << 27) ///< Auto-start DMA on Slot-2 interrupt request
 #    define DMA_START_FIFO  (7 << 27) ///< Auto-start DMA for 3D geometry FIFO queue
 #endif
 
