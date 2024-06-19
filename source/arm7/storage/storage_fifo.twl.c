@@ -23,9 +23,12 @@ static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count) {
         u32 result = SDMMC_readSectors(devNum, sect, NULL, count);
         NDMA_CR(NDMA_CHANNEL) = 0;
         return result;
-    } else
+    }
+    else
 #endif
-    return SDMMC_readSectors(devNum, sect, buf, count);
+    {
+        return SDMMC_readSectors(devNum, sect, buf, count);
+    }
 }
 
 static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count) {
@@ -40,9 +43,12 @@ static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count
         u32 result = SDMMC_writeSectors(devNum, sect, NULL, count);
         NDMA_CR(NDMA_CHANNEL) = 0;
         return result;
-    } else
+    }
+    else
 #endif
-    return SDMMC_writeSectors(devNum, sect, buf, count);
+    {
+        return SDMMC_writeSectors(devNum, sect, buf, count);
+    }
 }
 
 int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg)

@@ -3,9 +3,9 @@
 // Copyright (c) 2023 Antonio Niño Díaz
 
 #include <errno.h>
+#include <sys/_timeval.h>
 #include <sys/stat.h>
 #include <sys/times.h>
-#include <sys/_timeval.h>
 #include <time.h>
 
 #include "../libnds_internal.h"
@@ -19,15 +19,58 @@
 void _exit(int rc);
 
 // Single-process system; assume a PID, GID and UID of 1.
-pid_t getpid(void) { return 1; }
-gid_t getgid(void) { return 1; }
-gid_t getegid(void) { return 1; }
-uid_t getuid(void) { return 1; }
-uid_t geteuid(void) { return 1; }
-int setgid(gid_t gid) { (void)gid; errno = EINVAL; return -1; }
-int setegid(gid_t gid) { (void)gid; errno = EINVAL; return -1; }
-int setuid(uid_t uid) { (void)uid; errno = EINVAL; return -1; }
-int seteuid(uid_t uid) { (void)uid; errno = EINVAL; return -1; }
+pid_t getpid(void)
+{
+    return 1;
+}
+
+gid_t getgid(void)
+{
+    return 1;
+}
+
+gid_t getegid(void)
+{
+    return 1;
+}
+
+uid_t getuid(void)
+{
+    return 1;
+}
+
+uid_t geteuid(void)
+{
+    return 1;
+}
+
+int setgid(gid_t gid)
+{
+    (void)gid;
+    errno = EINVAL;
+    return -1;
+}
+
+int setegid(gid_t gid)
+{
+    (void)gid;
+    errno = EINVAL;
+    return -1;
+}
+
+int setuid(uid_t uid)
+{
+    (void)uid;
+    errno = EINVAL;
+    return -1;
+}
+
+int seteuid(uid_t uid)
+{
+    (void)uid;
+    errno = EINVAL;
+    return -1;
+}
 
 int kill(pid_t pid, int sig)
 {
@@ -72,7 +115,7 @@ int gettimeofday(struct timeval *tp, void *tz)
     return 0;
 }
 
-int execve(const char *name, char * const *argv, char * const *env)
+int execve(const char *name, char *const *argv, char *const *env)
 {
     (void)name;
     (void)argv;

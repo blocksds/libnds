@@ -197,8 +197,7 @@ void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype)
         eepromWaitBusy();
     }
 
-
-    REG_AUXSPIDATA = (address) & 0xFF;
+    REG_AUXSPIDATA = address & 0xFF;
     eepromWaitBusy();
 
     while (length > 0)
