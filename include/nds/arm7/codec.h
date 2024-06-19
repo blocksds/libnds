@@ -3,8 +3,6 @@
 //
 // Copyright (C) 2017 fincs
 
-// DSi "codec" Touchscreen/Sound Controller control for ARM7
-
 #ifndef LIBNDS_NDS_ARM7_CODEC_H__
 #define LIBNDS_NDS_ARM7_CODEC_H__
 
@@ -16,7 +14,12 @@ extern "C" {
 #error DSi TSC is only available on the ARM7
 #endif
 
+/// @file nds/arm7/codec.h
+///
+/// @brief DSi "codec" Touchscreen/Sound Controller control for ARM7
+
 #include <nds/arm7/serial.h>
+#include <nds/arm7/touch.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/touch.h>
@@ -27,10 +30,10 @@ static inline bool cdcIsAvailable(void)
 }
 
 enum cdcBanks {
-    CDC_CONTROL     = 0x00, // Chip control
-    CDC_SOUND       = 0x01, // ADC/DAC control
-    CDC_TOUCHCNT    = 0x03, // TSC control
-    CDC_TOUCHDATA    = 0xFC, // TSC data buffer
+    CDC_CONTROL     = 0x00, ///< Chip control
+    CDC_SOUND       = 0x01, ///< ADC/DAC control
+    CDC_TOUCHCNT    = 0x03, ///< TSC control
+    CDC_TOUCHDATA    = 0xFC, ///< TSC data buffer
 };
 
 // TODO: These lists are incomplete.
@@ -207,8 +210,16 @@ void cdcWriteReg24(u8 bank, u8 reg, u32 value);
 
 // Touchscreen functions
 void cdcTouchInit(void);
+
+/**
+ * @brief Check if the DSi CODEC is registering pen input.
+ */
 bool cdcTouchPenDown(void);
-bool cdcTouchRead(touchPosition* pos);
+
+/**
+ * @brief Read raw touch data from the DSi CODEC.
+ */
+bool cdcTouchReadData(touchRawArray* data);
 
 #ifdef __cplusplus
 }

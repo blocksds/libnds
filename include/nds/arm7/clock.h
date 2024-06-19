@@ -24,6 +24,26 @@ extern "C" {
 #include <nds/arm7/serial.h>
 #include <nds/system.h>
 
+// RTC control registers
+#define REG_RTCCNT              (*(vu16 *)0x04000138)
+#define REG_RTCCNT8             (*(vu8 *)0x04000138)
+
+// Pin defines on REG_RTCCNT
+
+#define RTCCNT_SIO     (1 << 0)
+#define RTCCNT_SIO_OUT (1 << 4)
+#define RTCCNT_SCK     (1 << 1)
+#define RTCCNT_SCK_OUT (1 << 5)
+#define RTCCNT_CS      (1 << 2)
+#define RTCCNT_CS_OUT  (1 << 6)
+
+#define RTCCNT_CS_0    (RTCCNT_CS_OUT)
+#define RTCCNT_CS_1    (RTCCNT_CS_OUT | RTCCNT_CS)
+#define RTCCNT_SCK_0   (RTCCNT_SCK_OUT)
+#define RTCCNT_SCK_1   (RTCCNT_SCK_OUT | RTCCNT_SCK)
+#define RTCCNT_SIO_0   (RTCCNT_SIO_OUT)
+#define RTCCNT_SIO_1   (RTCCNT_SIO_OUT | RTCCNT_SIO)
+
 // RTC registers
 #define WRITE_STATUS_REG1   0x60
 #define READ_STATUS_REG1    0x61

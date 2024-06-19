@@ -96,7 +96,11 @@
 /// - @ref nds/arm7/clock.h "RTC utilities"
 /// - @ref nds/arm7/input.h "Keypad and touch pad ARM7 helpers"
 /// - @ref nds/arm7/audio.h "Audio and microphone helpers"
-/// - @ref nds/arm7/tmio.h "TMIO ARM7 module"
+/// - @ref nds/arm7/touch.h "Touch screen helpers"
+/// - @ref nds/arm7/serial.h "SPI bus controller"
+/// - @ref nds/arm7/firmware.h "Firmware flash access helpers"
+/// - @ref nds/arm7/tsc.h "DS Touchscreen/Sound controller helpers"
+/// - @ref nds/arm7/tmio.h "DSi TMIO ARM7 module"
 /// - @ref nds/arm7/gpio.h "DSi GPIO ARM7 definitions and helpers"
 ///
 /// @section debug_api Debugging
@@ -182,6 +186,7 @@ extern "C" {
 #    include <nds/arm7/camera.h>
 #    include <nds/arm7/clock.h>
 #    include <nds/arm7/codec.h>
+#    include <nds/arm7/firmware.h>
 #    include <nds/arm7/gpio.h>
 #    include <nds/arm7/i2c.h>
 #    include <nds/arm7/input.h>
@@ -189,6 +194,7 @@ extern "C" {
 #    include <nds/arm7/serial.h>
 #    include <nds/arm7/tmio.h>
 #    include <nds/arm7/touch.h>
+#    include <nds/arm7/tsc.h>
 #endif // ARM7
 
 #ifdef __cplusplus

@@ -18,14 +18,16 @@ extern "C" {
 #error Serial header is for ARM7 only
 #endif
 
+/// @file nds/arm7/serial.h
+///
+/// @brief SPI bus controller ARM7 helpers.
+
 #include <nds/bios.h>
 #include <nds/input.h>
 
 // 'Networking'
 #define REG_RCNT                (*(vu16 *)0x04000134)
 #define REG_KEYXY               (*(vu16 *)0x04000136)
-#define RTC_CR                  (*(vu16 *)0x04000138)
-#define RTC_CR8                 (*(vu8 *)0x04000138)
 
 #define REG_SIOCNT              (*(vu16 *)0x04000128)
 
@@ -39,7 +41,6 @@ extern "C" {
 #define SIO_MULTI_2             (*(vu16 *)0x04000124)
 #define SIO_MULTI_3             (*(vu16 *)0x04000126)
 #define SIO_MULTI_SEND          (*(vu16 *)0x0400012A)
-
 
 // SPI chain registers
 #define REG_SPICNT              (*(vu16 *)0x040001C0)
@@ -66,36 +67,39 @@ extern "C" {
 #define SPI_DEVICE_TOUCH        (2 << 8)
 #define SPI_DEVICE_MICROPHONE   (2 << 8)
 
+// SPI target: device + frequency
+#define SPI_TARGET_POWER    (SPI_DEVICE_POWER    | SPI_BAUD_1MHz)
+#define SPI_TARGET_FIRMWARE (SPI_DEVICE_FIRMWARE | SPI_BAUD_4MHz)
+#define SPI_TARGET_TSC      (SPI_DEVICE_TOUCH    | SPI_BAUD_2MHz)
+#define SPI_TARGET_CODEC    (SPI_DEVICE_TOUCH    | SPI_BAUD_4MHz)
+
 // When used, the /CS line will stay low after the transfer ends
 // i.e. when we're part of a continuous transfer
 #define SPI_CONTINUOUS          BIT(11)
 
-// FIXME: does this stuff really belong in serial.h?
-
-// Firmware commands
-#define FIRMWARE_WREN           0x06
-#define FIRMWARE_WRDI           0x04
-#define FIRMWARE_RDID           0x9F
-#define FIRMWARE_RDSR           0x05
-#define FIRMWARE_READ           0x03
-#define FIRMWARE_PW             0x0A
-#define FIRMWARE_PP             0x02
-#define FIRMWARE_FAST           0x0B
-#define FIRMWARE_PE             0xDB
-#define FIRMWARE_SE             0xD8
-#define FIRMWARE_DP             0xB9
-#define FIRMWARE_RDP            0xAB
-
-static inline void SerialWaitBusy(void)
+/**
+ * @brief Wait until the SPI bus is available.
+ */
+static inline void spiWaitBusy(void)
 {
     while (REG_SPICNT & SPI_BUSY);
 }
+#define SerialWaitBusy spiWaitBusy
 
-// Read the firmware
-void readFirmware(u32 address, void *destination, u32 size);
+static inline u8 spiExchange(u8 value)
+{
+    REG_SPIDATA = value;
+    spiWaitBusy();
+    return REG_SPIDATA & 0xFF;
+}
 
-// Read internal flash JEDEC values
-int readFirmwareJEDEC(u8 *destination, u32 size);
+static inline void spiWrite(u8 value)
+{
+    REG_SPIDATA = value;
+    spiWaitBusy();
+}
+
+#define spiRead() spiExchange(0)
 
 #ifdef __cplusplus
 }

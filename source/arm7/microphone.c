@@ -6,6 +6,9 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2005 Chris Double (doublec)
 
+#include "nds/arm7/serial.h"
+#include "nds/arm7/tsc.h"
+#include "nds/system.h"
 #include <nds/arm7/audio.h>
 #include <nds/arm7/codec.h>
 #include <nds/fifocommon.h>
@@ -24,81 +27,29 @@ s16 micReadData16_TWL(void);
 // Turn on the Microphone Amp. Code based on neimod's example.
 void micSetAmp_NTR(u8 control, u8 gain)
 {
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
-    REG_SPIDATA = PM_AMP_OFFSET;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_POWER | SPI_CONTINUOUS;
+    spiWrite(PM_AMP_OFFSET);
 
-    SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_POWER;
+    spiWrite(control);
 
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz;
-    REG_SPIDATA = control;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_POWER | SPI_CONTINUOUS;
+    spiWrite(PM_GAIN_OFFSET);
 
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz | SPI_CONTINUOUS;
-    REG_SPIDATA = PM_GAIN_OFFSET;
-
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_POWER | SPI_BAUD_1MHz;
-    REG_SPIDATA = gain;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_POWER;
+    spiWrite(gain);
 }
 
-// Read a byte from the microphone. Code based on neimod's example.
-u8 micReadData8_NTR(void)
+static inline u8 micReadData8_NTR(void)
 {
-    u16 result, result2;
-
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_MICROPHONE | SPI_BAUD_2MHz | SPI_CONTINUOUS;
-    REG_SPIDATA = 0xEC;  // Touchscreen command format for AUX
-
-    SerialWaitBusy();
-
-    REG_SPIDATA = 0x00;
-
-    SerialWaitBusy();
-
-    result = REG_SPIDATA;
-
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_TOUCH | SPI_BAUD_2MHz;
-    REG_SPIDATA = 0x00;
-
-    SerialWaitBusy();
-
-    result2 = REG_SPIDATA;
-
-    return (((result & 0x7F) << 1) | ((result2 >> 7) & 1));
+    return tscRead(TSC_MEASURE_AUX | TSC_CONVERT_8BIT | TSC_POWER_AUTO) >> 4;
 }
 
-// Read a short from the microphone. Code based on neimod's example.
-u16 micReadData12_NTR(void)
+static inline u16 micReadData12_NTR(void)
 {
-    u16 result, result2;
-
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_MICROPHONE | SPI_BAUD_2MHz | SPI_CONTINUOUS;
-    REG_SPIDATA = 0xE4; // Touchscreen command format for AUX, 12bit
-
-    SerialWaitBusy();
-
-    REG_SPIDATA = 0x00;
-
-    SerialWaitBusy();
-
-    result = REG_SPIDATA;
-
-    REG_SPICNT = SPI_ENABLE | SPI_DEVICE_TOUCH | SPI_BAUD_2MHz;
-    REG_SPIDATA = 0x00;
-
-    SerialWaitBusy();
-
-    result2 = REG_SPIDATA;
-
-    return (((result & 0x7F) << 5) | ((result2 >> 3) & 0x1F));
+    return tscRead(TSC_MEASURE_AUX | TSC_CONVERT_12BIT | TSC_POWER_AUTO);
 }
 
 void micSetAmp(u8 control, u8 gain)

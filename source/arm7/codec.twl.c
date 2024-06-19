@@ -5,36 +5,31 @@
 
 // DSi "codec" Touchscreen/Sound Controller control for ARM7
 
-#include <nds/arm7/codec.h>
+#include "nds/arm7/codec.h"
+#include "nds/arm7/serial.h"
+#include "nds/arm7/touch.h"
+#include "nds/interrupts.h"
 
 static u8 readTSC(u8 reg)
 {
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = 1 | (reg << 1);
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(1 | (reg << 1));
 
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = 0;
-
-    SerialWaitBusy();
-
-    return REG_SPIDATA;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    return spiRead();
 }
 
 static void writeTSC(u8 reg, u8 value)
 {
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = reg << 1;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(reg << 1);
 
-    SerialWaitBusy();
-
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = value;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    spiWrite(value);
 }
 
 static void bankSwitchTSC(u8 bank)
@@ -58,26 +53,16 @@ void cdcReadRegArray(u8 bank, u8 reg, void *data, u8 size)
     u8 *out = (u8 *)data;
     bankSwitchTSC(bank);
 
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = 1 | (reg << 1);
-
-    SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(1 | (reg << 1));
 
     for (; size > 1; size--)
-    {
-        REG_SPIDATA = 0;
-        SerialWaitBusy();
-        *out++ = REG_SPIDATA;
-    }
+        *out++ = spiRead();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = 0;
-
-    SerialWaitBusy();
-
-    *out++ = REG_SPIDATA;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    *out++ = spiRead();
 }
 
 u16 cdcReadReg16(u8 bank, u8 reg)
@@ -111,21 +96,16 @@ void cdcWriteRegArray(u8 bank, u8 reg, const void *data, u8 size)
     const u8 *in = data;
     bankSwitchTSC(bank);
 
-    SerialWaitBusy();
+    spiWaitBusy();
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH | SPI_CONTINUOUS;
-    REG_SPIDATA = reg << 1;
-
-    SerialWaitBusy();
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC | SPI_CONTINUOUS;
+    spiWrite(reg << 1);
 
     for (; size > 1; size--)
-    {
-        REG_SPIDATA = *in++;
-        SerialWaitBusy();
-    }
+        spiWrite(*in++);
 
-    REG_SPICNT = SPI_ENABLE | SPI_BAUD_4MHz | SPI_DEVICE_TOUCH;
-    REG_SPIDATA = *in++;
+    REG_SPICNT = SPI_ENABLE | SPI_TARGET_CODEC;
+    spiWrite(*in++);
 }
 
 void cdcWriteReg16(u8 bank, u8 reg, u16 value)
@@ -178,47 +158,33 @@ bool cdcTouchPenDown(void)
         && !(cdcReadReg(CDC_TOUCHCNT, CDC_TOUCHCNT_TWL_PEN_DOWN) & 0x02);
 }
 
-bool cdcTouchRead(touchPosition *pos)
+_Static_assert(sizeof(touchRawArray) == 40, "Incompatible struct size!");
+
+bool cdcTouchReadData(touchRawArray *data)
 {
-    u8 raw[4 * 2 * 5];
-    u16 arrayX[5], arrayY[5], arrayZ1[5], arrayZ2[5];
-    u32 sumX, sumY, sumZ1, sumZ2;
+    int oldIME = enterCriticalSection();
+    cdcReadRegArray(CDC_TOUCHDATA, 0x01, &data->rawX[0], 20 * sizeof(u16));
+    leaveCriticalSection(oldIME);
 
-    cdcReadRegArray(CDC_TOUCHDATA, 0x01, raw, sizeof(raw));
-
-    for (int i = 0; i < 5; i ++)
+    // "data" consists of 20 halfwords; five for X, five for Y,
+    // five for Z1, five for Z2. However, they are endianness
+    // swapped - let's fix that in a bulk operation for faster
+    // performance.
+    //
+    // For this to work, data->rawX has to be word-aligned.
+    u32 *wordsToSwap = (u32*) &data->rawX[0];
+    for (int i = 0; i < 10; i++, wordsToSwap++)
     {
-        arrayX[i] = (raw[i * 2 + 0] << 8) | raw[i * 2 + 1];
-        arrayY[i] = (raw[i * 2 + 10] << 8) | raw[i * 2 + 11];
-        arrayZ1[i] = (raw[i * 2 + 20] << 8) | raw[i * 2 + 21];
-        arrayZ2[i] = (raw[i * 2 + 30] << 8) | raw[i * 2 + 31];
+        u32 tmp = *wordsToSwap;
 
-        if ((arrayX[i] & 0xF000) || (arrayY[i] & 0xF000))
-        {
-            pos->rawx = 0;
-            pos->rawy = 0;
+        // The halfwords should be 12-bit; if the highest four bits
+        // (byte 0, byte 2 before swapping) are set, the readout is
+        // invalid.
+        if (tmp & 0x00F000F0)
             return false;
-        }
+
+        *wordsToSwap = ((tmp & 0xFF00FF) << 8) | ((tmp & 0xFF00FF00) >> 8);
     }
-
-    // TODO: For now we just average all values without removing inaccurate values
-    sumX = 0;
-    sumY = 0;
-    sumZ1 = 0;
-    sumZ2 = 0;
-
-    for (int i = 0; i < 5; i ++)
-    {
-        sumX += arrayX[i];
-        sumY += arrayY[i];
-        sumZ1 += arrayZ1[i];
-        sumZ2 += arrayZ2[i];
-    }
-
-    pos->rawx = sumX / 5;
-    pos->rawy = sumY / 5;
-    pos->z1 = sumZ1 / 5;
-    pos->z2 = sumZ2 / 5;
 
     return true;
 }
