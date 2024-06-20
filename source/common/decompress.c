@@ -5,9 +5,11 @@
 
 #include <stdlib.h>
 
-#include <nds/arm9/decompress.h>
+#ifdef ARM9
 #include <nds/arm9/sassert.h>
+#endif
 #include <nds/bios.h>
+#include <nds/decompress.h>
 
 static int decompress_get_header(uint8_t *source, uint16_t *dest, uint32_t arg)
 {
@@ -76,9 +78,9 @@ void decompressStream(const void *data, void *dst, DecompressType type,
 #ifdef ARM9
     sassert(type != LZ77 && type != RLE,
             "LZ77 and RLE do not support streaming, use Vram versions");
-#endif
 
     sassert(type != HUFF, "HUFF not supported, use decompresStreamStruct()");
+#endif
 
     TDecompressionStream decompresStream =
     {
@@ -108,10 +110,10 @@ void decompressStreamStruct(const void *data, void *dst, DecompressType type,
 #ifdef ARM9
     sassert(type != LZ77 && type != RLE,
             "LZ77 and RLE do not support streaming, use Vram versions");
-#endif
 
     sassert(ds->getSize != NULL, "getSize() callback is required");
     sassert(ds->readByte != NULL, "readByte() callback is required");
+#endif
 
     switch (type)
     {
@@ -120,8 +122,10 @@ void decompressStreamStruct(const void *data, void *dst, DecompressType type,
             break;
         case HUFF:
         {
+#ifdef ARM9
             sassert(param != NULL, "Temporary buffer required for HUFF");
             sassert(ds->readWord != NULL, "readWord() callback required for HUFF");
+#endif
 
             swiDecompressHuffman(data, dst, (uintptr_t)param, ds);
             break;

@@ -73,12 +73,12 @@
 /// - @ref nds/arm9/teak/tlf.h "TLF format description"
 ///
 /// @section utility_api Utility
-/// - @ref nds/arm9/decompress.h "Decompression"
 /// - @ref nds/arm9/image.h "Image Manipulation"
 /// - @ref nds/arm9/grf.h "GRF file loader"
 /// - @ref nds/arm9/pcx.h "PCX file loader"
 /// - @ref nds/arm9/dynamicArray.h "General Purpose dynamic array implementation"
 /// - @ref nds/arm9/linkedlist.h "General purpose linked list implementation"
+/// - @ref nds/decompress.h "Decompression"
 /// - @ref nds/sha1.h "DSi SHA1 functions"
 ///
 /// @section peripheral_api Custom Peripherals
@@ -105,9 +105,9 @@
 ///
 /// @section debug_api Debugging
 /// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"
-/// - @ref nds/debug.h "Send message to NO$GBA"
+/// - @ref nds/arm9/exceptions.h "Exception handling"
 /// - @ref nds/arm9/sassert.h "Simple assert"
-/// - @ref nds/arm9/exceptions.h "ARM9 exception handler"
+/// - @ref nds/debug.h "Send message to NO$GBA"
 
 #ifndef LIBNDS_NDS_H__
 #define LIBNDS_NDS_H__
@@ -128,6 +128,7 @@ extern "C" {
 #include <nds/cothread.h>
 #include <nds/cpu.h>
 #include <nds/debug.h>
+#include <nds/decompress.h>
 #include <nds/dma.h>
 #include <nds/fifocommon.h>
 #include <nds/input.h>
@@ -149,7 +150,6 @@ extern "C" {
 #    include <nds/arm9/cache.h>
 #    include <nds/arm9/camera.h>
 #    include <nds/arm9/console.h>
-#    include <nds/arm9/decompress.h>
 #    include <nds/arm9/dynamicArray.h>
 #    include <nds/arm9/exceptions.h>
 #    include <nds/arm9/guitarGrip.h>
