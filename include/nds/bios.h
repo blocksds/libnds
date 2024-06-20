@@ -263,10 +263,10 @@ static inline int swiIsDebugger(void)
 /// @param destination Destination address (word aligned).
 /// @param params Pointer to an UnpackStruct.
 __attribute__((always_inline))
-static inline void swiUnpackBits(const uint8_t *source, uint32_t *destination, TUnpackStruct *params)
+static inline void swiUnpackBits(const void *source, void *destination, TUnpackStruct *params)
 {
-    register const uint8_t* r0 asm("r0") = source;
-    register uint32_t* r1 asm("r1") = destination;
+    register const void* r0 asm("r0") = source;
+    register void* r1 asm("r1") = destination;
     register const TUnpackStruct* r2 asm("r2") = params;
     asm volatile inline ("swi 0x10 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2) :: "r3", "memory");
 }

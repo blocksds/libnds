@@ -11,6 +11,7 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
 #include <nds/arm9/video.h>
+#include <nds/bios.h>
 #include <nds/debug.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
@@ -27,8 +28,7 @@ PrintConsole defaultConsole =
         0,                        // font color count
         1,                        // bpp
         32,                       // first ascii character in the set
-        96,                       // number of characters in the font set
-        true                      // convert single color
+        96                        // number of characters in the font set
     },
     0,  // font background map
     0,  // font background gfx
@@ -324,69 +324,49 @@ void consoleLoadFont(PrintConsole *console)
     // Check which display is being utilized
     if (console->fontBgGfx < BG_GFX_SUB)
         palette = BG_PALETTE;
+    
+    console->fontCurPal <<= 12;
 
-    if (console->font.bpp == 1 || console->font.bpp == 4)
+    if (console->font.bpp <= 2)
     {
-        if (console->font.bpp == 4 && !console->font.convertSingleColor)
+        TUnpackStruct config = {
+            console->font.numChars * 8 * console->font.bpp,
+            console->font.bpp,
+            4,
+            16 - (1 << console->font.bpp)
+        };
+
+        swiUnpackBits(console->font.gfx, console->fontBgGfx, &config);
+    }
+    else if (console->font.bpp == 4)
+    {
+        if (console->font.gfx)
+            dmaCopy(console->font.gfx, console->fontBgGfx,
+                    console->font.numChars * 64 / 2);
+    }
+    else if (console->font.bpp == 8)
+    {
+        if (console->font.gfx)
+            dmaCopy(console->font.gfx, console->fontBgGfx,
+                    console->font.numChars * 64);
+
+        console->fontCurPal = 0;
+    }
+
+    if (console->font.pal)
+    {
+        // Use user-provided palette
+        dmaCopy(console->font.pal, palette + (console->fontCurPal >> 8),
+                    console->font.numColors * 2);
+    }
+    else
+    {
+        // Set default palette (4bpp and 8bpp variants)
+        palette[0] = RGB15(0, 0, 0);
+        palette[16 * 16 - 1] = RGB15(31, 31, 31); // 47 & 39 bright white
+
+        if (console->font.bpp <= 4)
         {
-            if (console->font.gfx)
-                dmaCopy(console->font.gfx, console->fontBgGfx,
-                        console->font.numChars * 64 / 2);
-            if (console->font.pal)
-                dmaCopy(console->font.pal, palette + console->fontCurPal * 16,
-                        console->font.numColors * 2);
-
-            console->fontCurPal <<= 12;
-        }
-        else
-        {
-            console->fontCurPal = 15 << 12;
-
-            if (console->font.bpp == 1)
-            {
-                for (int i = 0; i < console->font.numChars * 8; i++)
-                {
-                    u8 row = ((const u8 *)console->font.gfx)[i];
-                    u32 temp = 0;
-                    if (row & 0x01)
-                        temp |= 0xF;
-                    if (row & 0x02)
-                        temp |= 0xF0;
-                    if (row & 0x04)
-                        temp |= 0xF00;
-                    if (row & 0x08)
-                        temp |= 0xF000;
-                    if (row & 0x10)
-                        temp |= 0xF0000;
-                    if (row & 0x20)
-                        temp |= 0xF00000;
-                    if (row & 0x40)
-                        temp |= 0xF000000;
-                    if (row & 0x80)
-                        temp |= 0xF0000000;
-                    ((u32 *)console->fontBgGfx)[i] = temp;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < console->font.numChars * 16; i++)
-                {
-                    u16 temp = 0;
-
-                    if (console->font.gfx[i] & 0xF)
-                        temp |= 0xF;
-                    if (console->font.gfx[i] & 0xF0)
-                        temp |= 0xF0;
-                    if (console->font.gfx[i] & 0xF00)
-                        temp |= 0xF00;
-                    if (console->font.gfx[i] & 0xF000)
-                        temp |= 0xF000;
-
-                    console->fontBgGfx[i] = temp;
-                }
-            }
-
-            // set up the palette for color printing
             palette[1 * 16 - 1] = RGB15(0, 0, 0);   // 30 normal black
             palette[2 * 16 - 1] = RGB15(15, 0, 0);  // 31 normal red
             palette[3 * 16 - 1] = RGB15(0, 15, 0);  // 32 normal green
@@ -405,47 +385,11 @@ void consoleLoadFont(PrintConsole *console)
             palette[13 * 16 - 1] = RGB15(0, 0, 31);   // 44 bright blue
             palette[14 * 16 - 1] = RGB15(31, 0, 31);  // 45 bright magenta
             palette[15 * 16 - 1] = RGB15(0, 31, 31);  // 46 bright cyan
-            palette[16 * 16 - 1] = RGB15(31, 31, 31); // 47 & 39 bright white
-        }
-    }
-    else if (console->font.bpp == 8)
-    {
-        console->fontCurPal = 0;
 
-        if (!console->font.convertSingleColor)
-        {
-            if (console->font.gfx)
-            {
-                dmaCopy(console->font.gfx, console->fontBgGfx,
-                        console->font.numChars * 64);
-            }
-
-            if (console->font.pal)
-                dmaCopy(console->font.pal, palette, console->font.numColors * 2);
-        }
-        else
-        {
-            for (int i = 0; i < console->font.numChars * 16; i++)
-            {
-                u32 temp = 0;
-
-                if (console->font.gfx[i] & 0xF)
-                    temp = 255;
-                if (console->font.gfx[i] & 0xF0)
-                    temp |= 255 << 8;
-                if (console->font.gfx[i] & 0xF00)
-                    temp |= 255 << 16;
-                if (console->font.gfx[i] & 0xF000)
-                    temp |= 255 << 24;
-
-                ((u32 *)console->fontBgGfx)[i] = temp;
-            }
-
-            palette[255] = RGB15(31, 31, 31);
+            console->fontCurPal = 15 << 12;
         }
     }
 
-    palette[0] = RGB15(0, 0, 0);
     PrintConsole *tmp = consoleSelect(console);
     consoleCls('2');
     consoleSelect(tmp);

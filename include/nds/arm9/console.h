@@ -69,7 +69,6 @@ typedef struct ConsoleFont
     u8 bpp;          ///< Bits per pixel in the font graphics
     u16 asciiOffset; ///< Offset to the first valid character in the font table
     u16 numChars;    ///< Number of characters in the font graphics
-    bool convertSingleColor; ///< Convert from 1bpp font
 } ConsoleFont;
 
 /// Console structure used to store the state of a console render context.
