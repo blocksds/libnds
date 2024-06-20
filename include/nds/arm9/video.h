@@ -496,20 +496,20 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 
 typedef enum
 {
-    MODE_0_2D = 0x10000, ///< 4 2D backgrounds
-    MODE_1_2D = 0x10001, ///< 4 2D backgrounds
-    MODE_2_2D = 0x10002, ///< 4 2D backgrounds
-    MODE_3_2D = 0x10003, ///< 4 2D backgrounds
-    MODE_4_2D = 0x10004, ///< 4 2D backgrounds
-    MODE_5_2D = 0x10005, ///< 4 2D backgrounds
-    MODE_6_2D = 0x10006, ///< 4 2D backgrounds
-    MODE_0_3D = (0x10000 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
-    MODE_1_3D = (0x10001 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
-    MODE_2_3D = (0x10002 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
-    MODE_3_3D = (0x10003 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
-    MODE_4_3D = (0x10004 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
-    MODE_5_3D = (0x10005 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
-    MODE_6_3D = (0x10006 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< 3 2D BGs, 1 3D BGs (main engine only)
+    MODE_0_2D = 0x10000, ///< Video mode 0
+    MODE_1_2D = 0x10001, ///< Video mode 1
+    MODE_2_2D = 0x10002, ///< Video mode 2
+    MODE_3_2D = 0x10003, ///< Video mode 3
+    MODE_4_2D = 0x10004, ///< Video mode 4
+    MODE_5_2D = 0x10005, ///< Video mode 5
+    MODE_6_2D = 0x10006, ///< Video mode 6 (main engine)
+    MODE_0_3D = (0x10000 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 0 with 3D (main engine)
+    MODE_1_3D = (0x10001 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 1 with 3D (main engine)
+    MODE_2_3D = (0x10002 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 2 with 3D (main engine)
+    MODE_3_3D = (0x10003 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 3 with 3D (main engine)
+    MODE_4_3D = (0x10004 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 4 with 3D (main engine)
+    MODE_5_3D = (0x10005 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 5 with 3D (main engine)
+    MODE_6_3D = (0x10006 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 6 with 3D (main engine)
 
     MODE_FIFO = (3 << 16),    ///< Video display from main memory
 
