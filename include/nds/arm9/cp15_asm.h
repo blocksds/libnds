@@ -111,7 +111,10 @@
 
 // Register 6, Protection region/base size registers
 
-#define CP15_REG6_PROTECTION_REGION(rd, n)      p15, 0, rd, c6, c##n, 0
+// The two levels of macros are required so that numberical defines are expanded
+// to their numerical value before doing the string concatenation.
+#define CP15_REG6_PROTECTION_REGION__(rd, n)    p15, 0, rd, c6, c##n, 0
+#define CP15_REG6_PROTECTION_REGION(rd, n)      CP15_REG6_PROTECTION_REGION__(rd, n)
 
 #define CP15_CONFIG_REGION_BASE_MASK            0xFFFFF000
 #define CP15_CONFIG_REGION_SIZE_MASK            0x0000003E

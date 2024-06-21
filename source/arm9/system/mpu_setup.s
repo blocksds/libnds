@@ -72,6 +72,15 @@
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
+#define REGION_IO_REGISTERS         0
+#define REGION_SYSTEM_ROM           1
+#define REGION_ALT_VECTORS          2
+#define REGION_SLOT_2_DSI_IWRAM     3 // DS: Slot-2 | DSi: Switchable IWRAM.
+#define REGION_ITCM                 4
+#define REGION_RAM_UNCACHED         5
+#define REGION_RAM_CACHED           6
+#define REGION_DTCM                 7
+
     .syntax  unified
     .arch    armv5te
     .cpu     arm946e-s
@@ -167,32 +176,29 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
 
     // Setup memory regions similar to Release Version
 
-    // Region 0 - IO registers
+    // IO registers
     ldr     r0, =(0x04000000 | CP15_REGION_SIZE_64MB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, 0)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_IO_REGISTERS)
 
-    // Region 1 - System ROM
+    // System ROM
     ldr     r0, =(0xFFFF0000 | CP15_REGION_SIZE_64KB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, 1)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_SYSTEM_ROM)
 
-    // Region 2 - Alternate vector base
+    // Alternate vector base
     ldr     r0, =(0x00000000 | CP15_REGION_SIZE_4KB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, 2)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_ALT_VECTORS)
 
-    // Region 7 - DTCM
+    // DTCM
     ldr     r0, =__dtcm_start
     orr     r0, r0, #(CP15_REGION_SIZE_16KB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, 7)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_DTCM)
 
-    // Region 4 - ITCM
+    // ITCM
     ldr     r0, =__itcm_start
-
-    // Align to 32k
-    mov     r0, r0, lsr #15
+    mov     r0, r0, lsr #15 // Align to 32k
     mov     r0, r0, lsl #15
-
     orr     r0, r0, #(CP15_REGION_SIZE_32KB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, 4)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_ITCM)
 
     // When running on a DSi, load DSi code/data sections
     IS_DSI  r0
@@ -241,48 +247,49 @@ dsi_mode:
 
 setregions:
 
-    // Region 3 - DS Accessory (GBA Cart) / DSi switchable IWRAM
-    mcr     CP15_REG6_PROTECTION_REGION(r1, 3)
+    // DS Accessory (GBA Cart) / DSi switchable IWRAM
+    mcr     CP15_REG6_PROTECTION_REGION(r1, REGION_SLOT_2_DSI_IWRAM)
 
-    // Region 5 - Non-cacheable main RAM
-    mcr     CP15_REG6_PROTECTION_REGION(r2, 5)
+    // Non-cacheable main RAM
+    mcr     CP15_REG6_PROTECTION_REGION(r2, REGION_RAM_UNCACHED)
 
-    // Region 6 - Cacheable main RAM
-    mcr     CP15_REG6_PROTECTION_REGION(r3, 6)
+    // Cacheable main RAM
+    mcr     CP15_REG6_PROTECTION_REGION(r3, REGION_RAM_CACHED)
 
-    // Write buffer enable for region 6
-    ldr     r0, =CP15_CONFIG_AREA_IS_BUFFERABLE(6)
+    // Write buffer enable for cacheable main RAM
+    ldr     r0, =CP15_CONFIG_AREA_IS_BUFFERABLE(REGION_RAM_CACHED)
     mcr     CP15_REG3_WRITE_BUFFER_CONTROL(r0)
 
-    // Enable data and instruction caches for regions 1 and 6
-    ldr     r0, =(CP15_CONFIG_AREA_IS_CACHABLE(1) | \
-                  CP15_CONFIG_AREA_IS_CACHABLE(6))
+    // Enable data and instruction caches for the system ROM and cacheable main
+    // RAM regions.
+    ldr     r0, =(CP15_CONFIG_AREA_IS_CACHABLE(REGION_SYSTEM_ROM) | \
+                  CP15_CONFIG_AREA_IS_CACHABLE(REGION_RAM_CACHED))
     mcr     CP15_REG2_DATA_CACHE_CONFIG(r0)
     mcr     CP15_REG2_INSTRUCTION_CACHE_CONFIG(r0)
 
     // Instruction access permission. All regions are RW except for:
-    // - Region 1: System ROM. It's read-only.
-    // - Region 7: DTCM. The CPU can´t execute code from here.
-    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(0) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(1) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(2) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(3) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(4) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(5) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(6) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(7))
+    // - System ROM. It's read-only.
+    // - DTCM. The CPU can´t execute code from here.
+    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_REGISTERS) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_SYSTEM_ROM) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ALT_VECTORS) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_SLOT_2_DSI_IWRAM) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ITCM) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_RAM_UNCACHED) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_RAM_CACHED) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(REGION_DTCM))
     mcr     CP15_REG5_INSTRUCTION_ACCESS_PERMISSION(r0)
 
     // Data access permission. All regions are RW except for:
-    // - Region 1: System ROM. It's read-only.
-    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(0) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(1) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(2) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(3) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(4) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(5) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(6) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(7))
+    // - System ROM. It's read-only.
+    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_REGISTERS) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_SYSTEM_ROM) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ALT_VECTORS) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_SLOT_2_DSI_IWRAM) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ITCM) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_RAM_UNCACHED) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_RAM_CACHED) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_DTCM))
     mcr     CP15_REG5_DATA_ACCESS_PERMISSION(r0)
 
     // Enable instruction and data caches, ITCM and DTCM
@@ -322,9 +329,6 @@ BEGIN_ASM_FUNC memUncached
     orr     r0, r0, r2
     bx      lr
 
-// In DS mode, MPU region 3 is the slot-2 memory region
-#define SLOT_2_MEMORY_REGION_NUMBER    3
-
 // Enables data cache for the DS slot-2 memory region
 BEGIN_ASM_FUNC peripheralSlot2EnableCache
 
@@ -334,7 +338,7 @@ BEGIN_ASM_FUNC peripheralSlot2EnableCache
 
     // Enable data cache for this region
     mrc     CP15_REG2_DATA_CACHE_CONFIG(r1)
-    orr     r1, CP15_CONFIG_AREA_IS_CACHABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    orr     r1, CP15_CONFIG_AREA_IS_CACHABLE(REGION_SLOT_2_DSI_IWRAM)
     mcr     CP15_REG2_DATA_CACHE_CONFIG(r1)
 
     // If write-through is requested there is nothing else to do
@@ -343,7 +347,7 @@ BEGIN_ASM_FUNC peripheralSlot2EnableCache
 
     // Write buffer enable if requested (write-back instead of write-through)
     mrc     CP15_REG3_WRITE_BUFFER_CONTROL(r1)
-    orr     r1, CP15_CONFIG_AREA_IS_BUFFERABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    orr     r1, CP15_CONFIG_AREA_IS_BUFFERABLE(REGION_SLOT_2_DSI_IWRAM)
     mcr     CP15_REG3_WRITE_BUFFER_CONTROL(r1)
 
     bx      lr
@@ -358,11 +362,11 @@ BEGIN_ASM_FUNC peripheralSlot2DisableCache
     // If write-back is enabled, flush all data cache before disabling it for
     // this region
     mrc     CP15_REG3_WRITE_BUFFER_CONTROL(r0)
-    tst     r0, CP15_CONFIG_AREA_IS_BUFFERABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    tst     r0, CP15_CONFIG_AREA_IS_BUFFERABLE(REGION_SLOT_2_DSI_IWRAM)
     beq     .write_through
 
     // Disable write buffer
-    bic     r0, CP15_CONFIG_AREA_IS_BUFFERABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    bic     r0, CP15_CONFIG_AREA_IS_BUFFERABLE(REGION_SLOT_2_DSI_IWRAM)
     mcr     CP15_REG3_WRITE_BUFFER_CONTROL(r0)
 
     push    {lr}
@@ -372,7 +376,7 @@ BEGIN_ASM_FUNC peripheralSlot2DisableCache
 
     // Disable data cache
     mrc     CP15_REG2_DATA_CACHE_CONFIG(r0)
-    bic     r0, CP15_CONFIG_AREA_IS_CACHABLE(SLOT_2_MEMORY_REGION_NUMBER)
+    bic     r0, CP15_CONFIG_AREA_IS_CACHABLE(REGION_SLOT_2_DSI_IWRAM)
     mcr     CP15_REG2_DATA_CACHE_CONFIG(r0)
     bx      lr
 
