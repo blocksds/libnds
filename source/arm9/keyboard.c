@@ -9,10 +9,10 @@
 #include <string.h>
 
 #include <nds/arm9/background.h>
-#include <nds/arm9/decompress.h>
 #include <nds/arm9/input.h>
 #include <nds/arm9/keyboard.h>
 #include <nds/cothread.h>
+#include <nds/decompress.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 

@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <nds/arm9/decompress.h>
 #include <nds/arm9/grf.h>
+#include <nds/decompress.h>
 
 // General file structure:
 //

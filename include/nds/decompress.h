@@ -3,13 +3,13 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
-/// @file nds/arm9/decompress.h
+/// @file nds/decompress.h
 ///
 /// @brief Wraps the bios decompress functionality into something a bit easier
 /// to use.
 
-#ifndef LIBNDS_NDS_ARM9_DECOMPRESS_H__
-#define LIBNDS_NDS_ARM9_DECOMPRESS_H__
+#ifndef LIBNDS_NDS_DECOMPRESS_H__
+#define LIBNDS_NDS_DECOMPRESS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,4 +71,4 @@ void decompressStreamStruct(const void *data, void *dst, DecompressType type,
 }
 #endif
 
-#endif // LIBNDS_NDS_ARM9_DECOMPRESS_H__
+#endif // LIBNDS_NDS_DECOMPRESS_H__
