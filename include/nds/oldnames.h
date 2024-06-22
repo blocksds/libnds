@@ -194,6 +194,28 @@
 #define CARD_1BA            REG_CARD_1BA
 #endif
 
+#if BLOCKSDS_STRICT < 100 /* 0.1.0+ */
+// picolibc tinystdio provides one global printf/scanf implementation.
+// The choice of integer-only or float-supporting variants is done at
+// link time.
+#define asiprintf           asprintf
+#define fiprintf            fprintf
+#define fiscanf             fscanf
+#define iprintf             printf
+#define iscanf              scanf
+#define siprintf            sprintf
+#define siscanf             sscanf
+#define sniprintf           snprintf
+#define vasiprintf          vasprintf
+#define vfiprintf           vfprintf
+#define vfiscanf            vfscanf
+#define viprintf            vprintf
+#define viscanf             vscanf
+#define vsiprintf           vsprintf
+#define vsiscanf            vsscanf
+#define vsniprintf          vsnprintf
+#endif
+
 #if BLOCKSDS_STRICT < 300 /* 0.3.0+ */
 #define IRQ_NETWORK         IRQ_RTC ///< \deprecated Replaced in BlocksDS 0.3.0 by IRQ_RTC.
 #define FIFO_SDMMC          FIFO_STORAGE ///< \deprecated Replaced in BlocksDS 0.3.0 by FIFO_STORAGE.
