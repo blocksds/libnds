@@ -330,14 +330,6 @@ typedef _palette _ext_palette[16];
 /// @return The previous modes.
 u32 vramSetPrimaryBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE d);
 
-// Same as vramSetPrimaryBanks(), but deprecated.
-__attribute__((deprecated))
-static inline u32 vramSetMainBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c,
-                                   VRAM_D_TYPE d)
-{
-    return vramSetPrimaryBanks(a, b, c, d);
-}
-
 /// Set the mode of VRAM banks E, F and G.
 ///
 /// @param e Mapping mode of VRAM_E
@@ -354,17 +346,10 @@ u32 vramDefault(void);
 /// Restore the main 4 VRAM bank modes.
 ///
 /// Restores the main 4 banks to the value encoded in vramTemp (returned from
-/// vramSetMainBanks).
+/// vramSetPrimaryBanks).
 //
 /// @param vramTemp Value to restore the modes.
 static inline void vramRestorePrimaryBanks(u32 vramTemp)
-{
-    VRAM_CR = vramTemp;
-}
-
-// Same as vramRestorePrimaryBanks(), but deprecated.
-__attribute__((deprecated))
-static inline void vramRestoreMainBanks(u32 vramTemp)
 {
     VRAM_CR = vramTemp;
 }

@@ -138,9 +138,7 @@ typedef uint32_t sec_t;
 
 /// Function pointer that takes no arguments and doesn't return anything.
 typedef void (* VoidFn)(void);
-
 typedef void (* IntFn)(void);
-__attribute__((deprecated)) typedef void (* fp)(void);
 
 #ifdef __cplusplus
 }

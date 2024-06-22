@@ -123,6 +123,7 @@ void rtcReset(void);
 void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
                     uint32_t resultLength);
 
+#if _BLOCKSDS_STRICT_ < 10300 /* 1.3.0+ */
 // All of the deprecated helpers are using byte arrays as input/output types
 // instead of structures.
 
@@ -131,6 +132,7 @@ __attribute__((deprecated)) void rtcSetTime(uint8_t *time);
 
 __attribute__((deprecated)) void rtcGetTimeAndDate(uint8_t *time);
 __attribute__((deprecated)) void rtcSetTimeAndDate(uint8_t *time);
+#endif
 
 void BCDToInteger(uint8_t *data, uint32_t length);
 void integerToBCD(uint8_t *data, uint32_t length);

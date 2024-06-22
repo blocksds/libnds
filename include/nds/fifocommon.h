@@ -38,8 +38,6 @@ typedef enum
     FIFO_USER_06    = 13, ///< Channel available for users
     FIFO_USER_07    = 14, ///< Channel available for users
     FIFO_USER_08    = 15, ///< Channel available for users
-
-    FIFO_SDMMC      = 5,  ///< Deprecated name of FIFO_STORAGE
 } FifoChannels;
 
 /// Enum values for the FIFO sound commands.

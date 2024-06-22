@@ -28,7 +28,6 @@ extern "C" {
 #define IRQ_TIMER2          BIT(5)  ///< Timer 2 interrupt mask
 #define IRQ_TIMER3          BIT(6)  ///< Timer 3 interrupt mask
 #ifdef ARM7
-#define IRQ_NETWORK         BIT(7)  ///< Serial/RTC interrupt mask (ARM7) (deprecated name)
 #define IRQ_RTC             BIT(7)  ///< Serial/RTC interrupt mask (ARM7)
 #endif
 #define IRQ_DMA0            BIT(8)  ///< DMA 0 interrupt mask

@@ -56,11 +56,6 @@ typedef bool (* ConsolePrint)(void *con, char c);
 typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 
 /// A font struct for the console.
-///
-/// If convertSingleColor is true, the font is treated as a single color font
-/// where all non zero pixels are set to a value of 15 or 255 (4bpp / 8bpp
-/// respectivly). This ensures only one palette entry is utilized for font
-/// rendering.
 typedef struct ConsoleFont
 {
     u16 *gfx; ///< A pointer to the font graphics (will be loaded by consoleInit() if loadGraphics is true)
