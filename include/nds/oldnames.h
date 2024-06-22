@@ -209,6 +209,9 @@ __attribute__((deprecated)) typedef void (* fp)(void);
 #ifdef ARM7
 #define RTC_CR              REG_RTCCNT
 #define RTC_CR8             REG_RTCCNT8
+#define SerialWaitBusy      spiWaitBusy
+#define touchRead           tscRead
+#define touchReadTemperature tscReadTemperature
 #endif
 #ifdef ARM9
 #define HALT_CR             REG_HALTCNT
