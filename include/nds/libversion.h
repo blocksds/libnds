@@ -5,11 +5,12 @@
 #ifndef LIBNDS_NDS_LIBVERSION_H__
 #define LIBNDS_NDS_LIBVERSION_H__
 
-#define _BLOCKSDS_MAJOR_ 1
-#define _BLOCKSDS_MINOR_ 3
-#define _BLOCKSDS_PATCH_ 0
+#define BLOCKSDS_MAJOR_VERSION 1
+#define BLOCKSDS_MINOR_VERSION 3
+#define BLOCKSDS_PATCH_VERSION 0
 
-#define _BLOCKSDS_STRICT_CURRENT_ (((_BLOCKSDS_MAJOR_) * 10000) + ((_BLOCKSDS_MINOR_) * 100) + (_BLOCKSDS_PATCH_))
+#define BLOCKSDS_VERSIONNUM(major, minor, patch) (((major) * 10000) + ((minor) * 100) + (patch))
+#define BLOCKSDS_VERSIONNUM_CURRENT BLOCKSDS_VERSIONNUM(BLOCKSDS_MAJOR_VERSION, BLOCKSDS_MINOR_VERSION, BLOCKSDS_PATCH_VERSION)
 
 // The below defines mark the version of libnds with which BlocksDS tries to be compatible.
 

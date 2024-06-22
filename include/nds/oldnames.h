@@ -23,14 +23,14 @@
 //
 // Versions should be marked by blocks of the following format:
 //
-// #if _BLOCKSDS_STRICT_ < first_unsupported_version /* first unsupported version+ OR libnds first unsupported version+ */
+// #if BLOCKSDS_STRICT < first_unsupported_version /* first unsupported version+ OR libnds first unsupported version+ */
 // ... definitions ...
 // #endif
 //
 // For pre-BlocksDS changes, assume first_unsupported_version is 1.
 // Version blocks should always be listed from oldest to newest.
 
-#if _BLOCKSDS_STRICT_ < 1 /* libnds 1.3.0 and below */
+#if BLOCKSDS_STRICT < 1 /* libnds 1.3.0 and below */
 
 // All hardware register defines should be replaced with REG_ for consistency
 // and namespacing.
@@ -155,7 +155,7 @@
 #define POWER_CR            REG_POWERCNT
 #endif
 
-#if _BLOCKSDS_STRICT_ < 1 /* libnds 1.3.3+ */
+#if BLOCKSDS_STRICT < 1 /* libnds 1.3.3+ */
 #define SOUND_CR            REG_SOUNDCNT
 #define SOUND_MASTER_VOL    REG_MASTER_VOLUME
 #define SOUND_BIAS          REG_SOUNDBIAS
@@ -173,19 +173,19 @@
 #define REG_COLY_SUB        REG_BLDY_SUB
 #endif
 
-#if _BLOCKSDS_STRICT_ < 1 /* libnds 1.3.5+ */
+#if BLOCKSDS_STRICT < 1 /* libnds 1.3.5+ */
 #define MOSAIC_CR           REG_MOSAIC
 #define SUB_MOSAIC_CR       REG_MOSAIC_SUB
 #endif
 
-#if _BLOCKSDS_STRICT_ < 1 /* libnds 1.4.5+ */
+#if BLOCKSDS_STRICT < 1 /* libnds 1.4.5+ */
 #define CARD_CR1            REG_AUXSPICNT
 #define CARD_CR1H           REG_AUXSPICNTH
 #define CARD_CR2            REG_ROMCTRL
 #define CARD_EEPDATA        REG_AUXSPIDATA
 #endif
 
-#if _BLOCKSDS_STRICT_ < 1 /* libnds 1.7.0+ */
+#if BLOCKSDS_STRICT < 1 /* libnds 1.7.0+ */
 #define CARD_COMMAND        REG_CARD_COMMAND
 #define CARD_DATA_RD        REG_CARD_DATA_RD
 #define CARD_1B0            REG_CARD_1B0
@@ -194,12 +194,12 @@
 #define CARD_1BA            REG_CARD_1BA
 #endif
 
-#if _BLOCKSDS_STRICT_ < 300 /* 0.3.0+ */
+#if BLOCKSDS_STRICT < 300 /* 0.3.0+ */
 #define IRQ_NETWORK         IRQ_RTC ///< \deprecated Replaced in BlocksDS 0.3.0 by IRQ_RTC.
 #define FIFO_SDMMC          FIFO_STORAGE ///< \deprecated Replaced in BlocksDS 0.3.0 by FIFO_STORAGE.
 #endif
 
-#if _BLOCKSDS_STRICT_ < 10300 /* 1.3.0+ */
+#if BLOCKSDS_STRICT < 10300 /* 1.3.0+ */
 #define PUnpackStruct       TUnpackStruct*
 __attribute__((deprecated)) typedef void (* fp)(void);
 #define RTCtime             rtcTimeAndDate
