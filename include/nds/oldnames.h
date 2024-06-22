@@ -199,6 +199,11 @@
 #define FIFO_SDMMC          FIFO_STORAGE ///< \deprecated Replaced in BlocksDS 0.3.0 by FIFO_STORAGE.
 #endif
 
+#if BLOCKSDS_STRICT < 700 /* 0.7.0+ */
+#define LUT_SIZE            (1 << 15)
+#define LUT_MASK            ((1 << 15) - 1)
+#endif
+
 #if BLOCKSDS_STRICT < 10300 /* 1.3.0+ */
 #define PUnpackStruct       TUnpackStruct*
 __attribute__((deprecated)) typedef void (* fp)(void);
