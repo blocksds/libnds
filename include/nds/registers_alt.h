@@ -12,7 +12,7 @@
 
 #include <nds/oldnames.h>
 
-#warning "header provided for assistance in porting to new register names, do not use for release code"
+#warning Header provided for assistance in porting to new register names, do not use for release code.
 
 // These registers are not yet migrated to the new REG_ standard, as described
 // in oldnames.h. This should be done eventually.

@@ -37,7 +37,7 @@
 //
 // http://forum.gbadev.org/viewtopic.php?t=4993
 //
-// Replacements should follow gbatek standard naming where applicable; for example:
+// Replacements may follow gbatek standard naming where applicable; for example:
 //
 // https://github.com/devkitPro/libnds/commit/5e2ce19b49b60d69adf16fa79b2b440697a5cece
 // https://github.com/devkitPro/libnds/commit/fc3e1dffcbeb010179b652f20feb0b382f59b71b
