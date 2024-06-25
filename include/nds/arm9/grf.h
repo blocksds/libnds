@@ -26,6 +26,7 @@ extern "C" {
 /// Check https://www.coranac.com/man/grit/html/grit.htm for more information.
 
 #include <stdint.h>
+#include <stdio.h>
 
 /// Header chunk of a GRF file.
 typedef struct
