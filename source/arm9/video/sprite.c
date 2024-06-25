@@ -160,7 +160,6 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
     oam->oamMemory[id].size = SPRITE_SIZE_SIZE(size);
     oam->oamMemory[id].x = x;
     oam->oamMemory[id].y = y;
-    oam->oamMemory[id].palette = palette_alpha;
     oam->oamMemory[id].priority = priority;
     oam->oamMemory[id].hFlip = hflip;
     oam->oamMemory[id].vFlip = vflip;
@@ -179,14 +178,16 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
         oam->oamMemory[id].isRotateScale = false;
     }
 
-    if (format != SpriteColorFormat_Bmp)
+    if (format == SpriteColorFormat_Bmp)
     {
-        oam->oamMemory[id].colorMode = format;
+        oam->oamMemory[id].blendMode = OBJMODE_BITMAP;
+        oam->oamMemory[id].colorMode = 0;
+        oam->oamMemory[id].alpha = palette_alpha;
     }
     else
     {
-        oam->oamMemory[id].blendMode = format;
-        oam->oamMemory[id].colorMode = 0;
+        oam->oamMemory[id].colorMode = format;
+        oam->oamMemory[id].palette = palette_alpha;
     }
 }
 

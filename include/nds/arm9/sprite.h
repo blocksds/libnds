@@ -165,11 +165,20 @@ typedef union SpriteEntry
             };
         };
 
-        struct
+        union
         {
-            u16 gfxIndex         : 10; ///< Upper-left tile index.
-            ObjPriority priority : 2;  ///< Sprite priority.
-            u8 palette           : 4;  ///< Sprite palette to use in paletted color modes.
+            struct
+            {
+                u16 gfxIndex         : 10; ///< Upper-left tile index.
+                ObjPriority priority : 2;  ///< Sprite priority.
+                u8 palette           : 4;  ///< Sprite palette to use in paletted color modes.
+            };
+            struct
+            {
+                u16                  : 10;
+                u8                   : 2;
+                u8 alpha             : 4;  ///< Alpha value for bitmap sprites
+            };
         };
 
         u16 attribute3; // Unused. Four of those are used as a sprite rotation matrix
