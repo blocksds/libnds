@@ -67,45 +67,45 @@ extern "C" {
 /// The blending mode of the sprite
 typedef enum
 {
-    OBJMODE_NORMAL,     ///< No special mode is on, normal sprite state.
-    OBJMODE_BLENDED,    ///< Color blending is on, sprite can use HW blending features.
-    OBJMODE_WINDOWED,   ///< Sprite can be seen only inside the sprite window.
-    OBJMODE_BITMAP,     ///< Sprite is not using tiles, per pixel image data.
+    OBJMODE_NORMAL   = 0, ///< No special mode is on, normal sprite state.
+    OBJMODE_BLENDED  = 1, ///< Color blending is on, sprite can use HW blending features.
+    OBJMODE_WINDOWED = 2, ///< Sprite can be seen only inside the sprite window.
+    OBJMODE_BITMAP   = 3, ///< Sprite is not using tiles, per pixel image data.
 
 } ObjBlendMode;
 
 /// The shape of the sprite
 typedef enum
 {
-    OBJSHAPE_SQUARE,    ///< Sprite shape is NxN (Height == Width).
-    OBJSHAPE_WIDE,      ///< Sprite shape is NxM with N > M (Height < Width).
-    OBJSHAPE_TALL,      ///< Sprite shape is NxM with N < M (Height > Width).
-    OBJSHAPE_FORBIDDEN, ///< Sprite shape is undefined.
+    OBJSHAPE_SQUARE    = 0, ///< Sprite shape is NxN (Height == Width).
+    OBJSHAPE_WIDE      = 1, ///< Sprite shape is NxM with N > M (Height < Width).
+    OBJSHAPE_TALL      = 2, ///< Sprite shape is NxM with N < M (Height > Width).
+    OBJSHAPE_FORBIDDEN = 3, ///< Sprite shape is undefined.
 } ObjShape;
 
 /// The size of the sprite
 typedef enum
 {
-    OBJSIZE_8,          ///< Major sprite size is 8px.
-    OBJSIZE_16,         ///< Major sprite size is 16px.
-    OBJSIZE_32,         ///< Major sprite size is 32px.
-    OBJSIZE_64,         ///< Major sprite size is 64px.
+    OBJSIZE_8  = 0, ///< Major sprite size is 8px.
+    OBJSIZE_16 = 1, ///< Major sprite size is 16px.
+    OBJSIZE_32 = 2, ///< Major sprite size is 32px.
+    OBJSIZE_64 = 3, ///< Major sprite size is 64px.
 } ObjSize;
 
 /// The color mode of the sprite
 typedef enum
 {
-    OBJCOLOR_16,        ///< Sprite has 16 colors.
-    OBJCOLOR_256,       ///< Sprite has 256 colors.
+    OBJCOLOR_16  = 0, ///< Sprite has 16 colors.
+    OBJCOLOR_256 = 1, ///< Sprite has 256 colors.
 } ObjColMode;
 
 /// The priority of the sprite
 typedef enum
 {
-    OBJPRIORITY_0,      ///< Sprite priority level 0 - highest.
-    OBJPRIORITY_1,      ///< Sprite priority level 1.
-    OBJPRIORITY_2,      ///< Sprite priority level 2.
-    OBJPRIORITY_3,      ///< Sprite priority level 3 - lowest.
+    OBJPRIORITY_0 = 0, ///< Sprite priority level 0 - highest.
+    OBJPRIORITY_1 = 1, ///< Sprite priority level 1.
+    OBJPRIORITY_2 = 2, ///< Sprite priority level 2.
+    OBJPRIORITY_3 = 3, ///< Sprite priority level 3 - lowest.
 } ObjPriority;
 
 /// A bitfield of sprite attributes
