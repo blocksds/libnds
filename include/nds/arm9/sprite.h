@@ -508,14 +508,15 @@ static inline void oamSetGfx(OamState *oam, int id, SpriteSize size,
     oam->oamMemory[id].size     = (ObjSize)SPRITE_SIZE_SIZE(size);
     oam->oamMemory[id].gfxIndex = oamGfxPtrToOffset(oam, gfxOffset);
 
-    if (format != SpriteColorFormat_Bmp)
+    if (format == SpriteColorFormat_Bmp)
     {
-        oam->oamMemory[id].colorMode = (ObjColMode)format;
+        oam->oamMemory[id].blendMode = OBJMODE_BITMAP;
+        oam->oamMemory[id].colorMode = 0;
     }
     else
     {
-        oam->oamMemory[id].blendMode = (ObjBlendMode)format;
-        oam->oamMemory[id].colorMode = (ObjColMode)0;
+        oam->oamMemory[id].blendMode = OBJMODE_NORMAL;
+        oam->oamMemory[id].colorMode = format;
     }
 }
 

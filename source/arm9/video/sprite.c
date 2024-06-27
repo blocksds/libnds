@@ -186,6 +186,7 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
     }
     else
     {
+        oam->oamMemory[id].blendMode = OBJMODE_NORMAL;
         oam->oamMemory[id].colorMode = format;
         oam->oamMemory[id].palette = palette_alpha;
     }
