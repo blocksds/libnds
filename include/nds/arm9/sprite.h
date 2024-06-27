@@ -214,7 +214,7 @@ typedef struct SpriteRotation
 /// Maximum number of affine matrices per engine available.
 #define MATRIX_COUNT    32
 
-// TODO: Is this union still used?
+/// Union that describes the structure of OAM in memory.
 typedef union OAMTable
 {
     SpriteEntry oamBuffer[SPRITE_COUNT];
