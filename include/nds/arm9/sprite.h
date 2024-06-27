@@ -237,8 +237,9 @@ typedef enum
     SpriteSize_8x16  = (OBJSIZE_8 << 14)  | (OBJSHAPE_TALL << 12) | (8 * 16 >> 5), //!< 8x16
     SpriteSize_8x32  = (OBJSIZE_16 << 14) | (OBJSHAPE_TALL << 12) | (8 * 32 >> 5), //!< 8x32
     SpriteSize_16x32 = (OBJSIZE_32 << 14) | (OBJSHAPE_TALL << 12) | (16 * 32 >> 5), //!< 16x32
-    SpriteSize_32x64 = (OBJSIZE_64 << 14) | (OBJSHAPE_TALL << 12) | (32 * 64 >> 5) //!< 32x64
+    SpriteSize_32x64 = (OBJSIZE_64 << 14) | (OBJSHAPE_TALL << 12) | (32 * 64 >> 5), //!< 32x64
 
+    SpriteSize_Invalid = 0 //!< Invalid size
 } SpriteSize;
 
 #define SPRITE_SIZE_SHAPE(size)     (((size) >> 12) & 0x3)
@@ -416,6 +417,13 @@ static inline void oamSetBlendMode(OamState *oam, int id, SpriteMode mode)
 
     oam->oamMemory[id].blendMode = (ObjBlendMode)mode;
 }
+
+/// Returns a SpriteSize enumeration value from dimensions in pixels.
+///
+/// @param width Width in pixels.
+/// @param height Height in pixels.
+/// @return A valid SpriteSize enum value or SpriteSize_Invalid.
+SpriteSize oamDimensionsToSize(int width, int height);
 
 /// Sets an OAM entry to the supplied values.
 ///

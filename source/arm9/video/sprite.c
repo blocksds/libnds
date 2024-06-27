@@ -145,6 +145,48 @@ unsigned int oamGfxPtrToOffset(OamState *oam, const void *offset)
     }
 }
 
+SpriteSize oamDimensionsToSize(int width, int height)
+{
+    if (width == 8)
+    {
+        if (height == 8)
+            return SpriteSize_8x8;
+        else if (height == 16)
+            return SpriteSize_8x16;
+        else if (height == 32)
+            return SpriteSize_8x32;
+    }
+    else if (width == 16)
+    {
+        if (height == 8)
+            return SpriteSize_16x8;
+        else if (height == 16)
+            return SpriteSize_16x16;
+        else if (height == 32)
+            return SpriteSize_16x32;
+    }
+    else if (width == 32)
+    {
+        if (height == 8)
+            return SpriteSize_32x8;
+        else if (height == 16)
+            return SpriteSize_32x16;
+        else if (height == 32)
+            return SpriteSize_32x32;
+        else if (height == 64)
+            return SpriteSize_32x64;
+    }
+    else if (width == 64)
+    {
+        if (height == 32)
+            return SpriteSize_64x32;
+        else if (height == 64)
+            return SpriteSize_64x64;
+    }
+
+    return SpriteSize_Invalid;
+}
+
 void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha,
             SpriteSize size, SpriteColorFormat format, const void *gfxOffset,
             int affineIndex, bool sizeDouble, bool hide, bool hflip, bool vflip,
