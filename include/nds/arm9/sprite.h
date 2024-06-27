@@ -286,6 +286,15 @@ typedef enum
     SpriteColorFormat_Bmp = OBJMODE_BITMAP       ///< 16-bit sprites
 } SpriteColorFormat;
 
+/// Color formats for sprite graphics.
+typedef enum
+{
+    SpriteMode_Normal = OBJMODE_NORMAL,     ///< No special mode is on, normal sprite state.
+    SpriteMode_Blended = OBJMODE_BLENDED,   ///< Color blending is on, sprite can use HW blending features.
+    SpriteMode_Windowed = OBJMODE_WINDOWED, ///< Sprite can be seen only inside the sprite window.
+    SpriteMode_Bitmap = OBJMODE_BITMAP      ///< Sprite is not using tiles, per pixel image data.
+} SpriteMode;
+
 typedef struct AllocHeader
 {
     u16 nextFree;
@@ -388,6 +397,24 @@ static inline void oamSetMosaicSub(unsigned int dx, unsigned int dy)
 
     mosaicShadowSub = (mosaicShadowSub & 0x00ff) | (dx << 8) | (dy << 12);
     REG_MOSAIC_SUB = mosaicShadowSub;
+}
+
+/// Sets an OAM entry to the specified blending mode.
+///
+/// Normally you should only use this function with SpriteMode_Blended and
+/// SpriteMode_Windowed. SpriteMode_Normal and SpriteMode_Bitmap are set
+/// automatically by the other functions in this file.
+///
+/// @param oam Must be &oamMain or &oamSub.
+/// @param id The OAM number to be set [0 - 127].
+/// @param mode The mode to set the sprite to.
+static inline void oamSetBlendMode(OamState *oam, int id, SpriteMode mode)
+{
+    sassert(oam == &oamMain || oam == &oamSub,
+            "oamSetBlendMode() oam must be &oamMain or &oamSub");
+    sassert(mode <= SpriteMode_Bitmap, "oamSetBlendMode() mode is invalid");
+
+    oam->oamMemory[id].blendMode = (ObjBlendMode)mode;
 }
 
 /// Sets an OAM entry to the supplied values.
