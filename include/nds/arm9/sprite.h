@@ -531,29 +531,8 @@ static inline void oamSetAlpha(OamState *oam, int id, int alpha)
 /// @param size The size of the sprite.
 /// @param format The color format of the sprite.
 /// @param gfxOffset The VRAM address of the sprite graphics (not an offset).
-static inline void oamSetGfx(OamState *oam, int id, SpriteSize size,
-                             SpriteColorFormat format, const void *gfxOffset)
-{
-    sassert(oam == &oamMain || oam == &oamSub,
-            "oamSetGfx() oam must be &oamMain or &oamSub");
-    sassert(id >= 0 && id < SPRITE_COUNT,
-            "oamSetGfx() index is out of bounds, must be 0-127");
-
-    oam->oamMemory[id].shape    = (ObjShape)SPRITE_SIZE_SHAPE(size);
-    oam->oamMemory[id].size     = (ObjSize)SPRITE_SIZE_SIZE(size);
-    oam->oamMemory[id].gfxIndex = oamGfxPtrToOffset(oam, gfxOffset);
-
-    if (format == SpriteColorFormat_Bmp)
-    {
-        oam->oamMemory[id].blendMode = OBJMODE_BITMAP;
-        oam->oamMemory[id].colorMode = 0;
-    }
-    else
-    {
-        oam->oamMemory[id].blendMode = OBJMODE_NORMAL;
-        oam->oamMemory[id].colorMode = format;
-    }
-}
+void oamSetGfx(OamState *oam, int id, SpriteSize size, SpriteColorFormat format,
+               const void *gfxOffset);
 
 /// Sets an OAM entry to the supplied affine index.
 ///

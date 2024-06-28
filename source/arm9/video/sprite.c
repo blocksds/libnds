@@ -234,6 +234,30 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
     }
 }
 
+void oamSetGfx(OamState *oam, int id, SpriteSize size, SpriteColorFormat format,
+               const void *gfxOffset)
+{
+    sassert(oam == &oamMain || oam == &oamSub,
+            "oamSetGfx() oam must be &oamMain or &oamSub");
+    sassert(id >= 0 && id < SPRITE_COUNT,
+            "oamSetGfx() index is out of bounds, must be 0-127");
+
+    oam->oamMemory[id].shape    = (ObjShape)SPRITE_SIZE_SHAPE(size);
+    oam->oamMemory[id].size     = (ObjSize)SPRITE_SIZE_SIZE(size);
+    oam->oamMemory[id].gfxIndex = oamGfxPtrToOffset(oam, gfxOffset);
+
+    if (format == SpriteColorFormat_Bmp)
+    {
+        oam->oamMemory[id].blendMode = OBJMODE_BITMAP;
+        oam->oamMemory[id].colorMode = 0;
+    }
+    else
+    {
+        oam->oamMemory[id].blendMode = OBJMODE_NORMAL;
+        oam->oamMemory[id].colorMode = format;
+    }
+}
+
 void oamUpdate(OamState *oam)
 {
     DC_FlushRange(oam->oamMemory, sizeof(OamMemory));
