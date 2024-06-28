@@ -433,19 +433,6 @@ typedef struct tPERSONAL_DATA
 #define PersonalData ((PERSONAL_DATA *)0x2FFFC80)
 
 /// Struct containing time and day of the real time clock.
-///
-/// Use rtcTimeAndDate instead.
-__attribute__((deprecated)) typedef struct {
-    u8 year;    ///< Add 2000 to get 4 digit year
-    u8 month;   ///< 1 to 12
-    u8 day;     ///< 1 to (days in month)
-    u8 weekday; ///< Day of week (0 = Sunday, 1 = Monday, ...,  6 = Saturday)
-    u8 hours;   ///< 0 to 11 for AM, 52 to 63 for PM
-    u8 minutes; ///< 0 to 59
-    u8 seconds; ///< 0 to 59
-} RTCtime;
-
-/// Struct containing time and day of the real time clock.
 typedef struct {
     u8 year;    ///< Add 2000 to get 4 digit year
     u8 month;   ///< 1 to 12

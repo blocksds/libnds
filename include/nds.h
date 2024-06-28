@@ -197,6 +197,14 @@ extern "C" {
 #    include <nds/arm7/tsc.h>
 #endif // ARM7
 
+// Only include legacy name defines if BLOCKSDS_STRICT is outdated or
+// undefined. Also avoid including it in code completion environments.
+#if !defined(__CLANGD__) && !defined(__INTELLISENSE__)
+#    if BLOCKSDS_STRICT < BLOCKSDS_VERSIONNUM_CURRENT
+#        include <nds/oldnames.h>
+#    endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif

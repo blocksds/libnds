@@ -79,6 +79,7 @@ uint32_t keysUp(void);
 /// @param data A touchPosition pointer which will be filled by the function.
 void touchRead(touchPosition *data);
 
+#if BLOCKSDS_STRICT < 10300 /* 1.3.0+ */
 // Old way of reading the touchpad state.
 static inline __attribute__((deprecated)) touchPosition touchReadXY(void)
 {
@@ -86,6 +87,7 @@ static inline __attribute__((deprecated)) touchPosition touchReadXY(void)
     touchRead(&touchPos);
     return touchPos;
 }
+#endif
 
 #ifdef __cplusplus
 }
