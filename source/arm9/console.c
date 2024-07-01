@@ -324,7 +324,7 @@ void consoleLoadFont(PrintConsole *console)
     // Check which display is being utilized
     if (console->fontBgGfx < BG_GFX_SUB)
         palette = BG_PALETTE;
-    
+
     console->fontCurPal <<= 12;
 
     if (console->font.bpp <= 2)
