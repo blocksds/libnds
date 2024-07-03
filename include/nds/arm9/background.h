@@ -767,6 +767,8 @@ static inline void bgSetScroll(int id, int x, int y)
 
 /// Enables mosaic on the specified background.
 ///
+/// @note If layer 0 is displaying the 3D engine output, mosaic won't work.
+///
 /// @param id Background ID returned from bgInit or bgInitSub.
 static inline void bgMosaicEnable(int id)
 {
