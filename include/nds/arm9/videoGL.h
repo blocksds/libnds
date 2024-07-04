@@ -423,8 +423,11 @@ typedef struct gl_palette_data
 typedef struct gl_hidden_globals
 {
     GL_MATRIX_MODE_ENUM matrixMode; // Holds the current Matrix Mode
-    s_vramBlock *vramBlocks[2]; // One for textures and one for palettes
-    int vramLock[2]; // Holds the current lock state of the VRAM banks
+
+    s_vramBlock *vramBlocksTex; // One for textures
+    s_vramBlock *vramBlocksPal; // One for palettes
+    int vramLockTex; // Holds the current lock state of the VRAM banks
+    int vramLockPal; // Holds the current lock state of the VRAM banks
 
     // Texture globals
     DynamicArray texturePtrs; // Pointers to each individual texture

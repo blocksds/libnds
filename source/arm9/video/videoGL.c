@@ -590,7 +590,7 @@ uint8_t *vramBlock_examineSpecial(s_vramBlock *mb, uint8_t *addr, uint32_t size,
     // Values that hold which banks to examine
     uint32_t isNotMainBank = (checkAddr >= (uint8_t *)VRAM_E ? 1 : 0);
     uint32_t vramCtrl = (isNotMainBank ? VRAM_EFG_CR : VRAM_CR);
-    int vramLock = glGlob->vramLock[isNotMainBank];
+    int vramLock = isNotMainBank ? glGlob->vramLockPal : glGlob->vramLockTex;
     uint32_t iEnd = (isNotMainBank ? 3 : 4);
 
     // Fill in the array with only those banks that are not set for textures or
@@ -813,15 +813,15 @@ int glInit_C(void)
         return 1;
 
     // Allocate the designated layout for each memory block
-    glGlob->vramBlocks[0] = vramBlock_Construct((uint8_t *)VRAM_A, (uint8_t *)VRAM_E);
-    if (glGlob->vramBlocks[0] == NULL)
+    glGlob->vramBlocksTex = vramBlock_Construct((uint8_t *)VRAM_A, (uint8_t *)VRAM_E);
+    if (glGlob->vramBlocksTex == NULL)
         goto cleanup;
-    glGlob->vramBlocks[1] = vramBlock_Construct((uint8_t *)VRAM_E, (uint8_t *)VRAM_H);
-    if (glGlob->vramBlocks[1] == NULL)
+    glGlob->vramBlocksPal = vramBlock_Construct((uint8_t *)VRAM_E, (uint8_t *)VRAM_H);
+    if (glGlob->vramBlocksPal == NULL)
         goto cleanup;
 
-    glGlob->vramLock[0] = 0;
-    glGlob->vramLock[1] = 0;
+    glGlob->vramLockTex = 0;
+    glGlob->vramLockPal = 0;
 
     // init texture globals
 
@@ -934,8 +934,8 @@ cleanup:
     DynamicArrayDelete(&glGlob->deallocTex);
     DynamicArrayDelete(&glGlob->deallocPal);
 
-    vramBlock_Deconstruct(glGlob->vramBlocks[0]);
-    vramBlock_Deconstruct(glGlob->vramBlocks[1]);
+    vramBlock_Deconstruct(glGlob->vramBlocksTex);
+    vramBlock_Deconstruct(glGlob->vramBlocksPal);
     return 0;
 }
 
@@ -971,8 +971,8 @@ void glResetTextures(void)
     }
 
     // Clean out both blocks
-    for (int i = 0; i < 2; i++)
-        vramBlock_deallocateAll(glGlob->vramBlocks[i]);
+    vramBlock_deallocateAll(glGlob->vramBlocksTex);
+    vramBlock_deallocateAll(glGlob->vramBlocksPal);
 }
 
 void removePaletteFromTexture(gl_texture_data *tex)
@@ -987,7 +987,7 @@ void removePaletteFromTexture(gl_texture_data *tex)
         {
             DynamicArraySet(&glGlob->deallocPal, ++glGlob->deallocPalSize,
                             (void *)tex->palIndex);
-            vramBlock_deallocateBlock(glGlob->vramBlocks[1], palette->palIndex);
+            vramBlock_deallocateBlock(glGlob->vramBlocksPal, palette->palIndex);
             free(palette);
 
             if (glGlob->activePalette == tex->palIndex)
@@ -1065,10 +1065,10 @@ int glDeleteTextures(int n, int *names)
             {
                 // Delete extra texture for GL_COMPRESSED, if it exists
                 if (texture->texIndexExt)
-                    vramBlock_deallocateBlock(glGlob->vramBlocks[0],
+                    vramBlock_deallocateBlock(glGlob->vramBlocksTex,
                                               texture->texIndexExt);
                 if (texture->texIndex)
-                    vramBlock_deallocateBlock(glGlob->vramBlocks[0],
+                    vramBlock_deallocateBlock(glGlob->vramBlocksTex,
                                               texture->texIndex);
             }
 
@@ -1123,20 +1123,22 @@ int glLockVRAMBank(uint16_t *addr)
     if (actualVRAMBank < VRAM_A || actualVRAMBank > VRAM_G)
         return 0;
 
+    // Texture banks
     if (actualVRAMBank == VRAM_A)
-        glGlob->vramLock[0] |= BIT(0);
+        glGlob->vramLockTex |= BIT(0);
     else if (actualVRAMBank == VRAM_B)
-        glGlob->vramLock[0] |= BIT(1);
+        glGlob->vramLockTex |= BIT(1);
     else if (actualVRAMBank == VRAM_C)
-        glGlob->vramLock[0] |= BIT(2);
+        glGlob->vramLockTex |= BIT(2);
     else if (actualVRAMBank == VRAM_D)
-        glGlob->vramLock[0] |= BIT(3);
+        glGlob->vramLockTex |= BIT(3);
+    // Palette banks
     else if (actualVRAMBank == VRAM_E)
-        glGlob->vramLock[1] |= BIT(0);
+        glGlob->vramLockPal |= BIT(0);
     else if (actualVRAMBank == VRAM_F)
-        glGlob->vramLock[1] |= BIT(1);
+        glGlob->vramLockPal |= BIT(1);
     else if (actualVRAMBank == VRAM_G)
-        glGlob->vramLock[1] |= BIT(2);
+        glGlob->vramLockPal |= BIT(2);
 
     return 1;
 }
@@ -1149,20 +1151,22 @@ int glUnlockVRAMBank(uint16_t *addr)
     if (actualVRAMBank < VRAM_A || actualVRAMBank > VRAM_G)
         return 0;
 
+    // Texture banks
     if (actualVRAMBank == VRAM_A)
-        glGlob->vramLock[0] &= ~BIT(0);
+        glGlob->vramLockTex &= ~BIT(0);
     else if (actualVRAMBank == VRAM_B)
-        glGlob->vramLock[0] &= ~BIT(1);
+        glGlob->vramLockTex &= ~BIT(1);
     else if (actualVRAMBank == VRAM_C)
-        glGlob->vramLock[0] &= ~BIT(2);
+        glGlob->vramLockTex &= ~BIT(2);
     else if (actualVRAMBank == VRAM_D)
-        glGlob->vramLock[0] &= ~BIT(3);
+        glGlob->vramLockTex &= ~BIT(3);
+    // Palette banks
     else if (actualVRAMBank == VRAM_E)
-        glGlob->vramLock[1] &= ~BIT(0);
+        glGlob->vramLockPal &= ~BIT(0);
     else if (actualVRAMBank == VRAM_F)
-        glGlob->vramLock[1] &= ~BIT(1);
+        glGlob->vramLockPal &= ~BIT(1);
     else if (actualVRAMBank == VRAM_G)
-        glGlob->vramLock[1] &= ~BIT(2);
+        glGlob->vramLockPal &= ~BIT(2);
 
     return 1;
 }
@@ -1238,7 +1242,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
 
     uint32_t colFormatVal =
         ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && width <= 4)) ? 3 : 4);
-    uint8_t *checkAddr = vramBlock_examineSpecial(glGlob->vramBlocks[1],
+    uint8_t *checkAddr = vramBlock_examineSpecial(glGlob->vramBlocksPal,
         (uint8_t *)VRAM_E, width << 1, colFormatVal);
 
     if (checkAddr == NULL)
@@ -1274,7 +1278,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
         return 0;
 
     // Lock the free space we have found
-    palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[1],
+    palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocksPal,
                                                   checkAddr, width << 1);
     sassert(palette->palIndex != 0, "Failed to lock free palette VRAM");
 
@@ -1452,7 +1456,7 @@ void *glGetTextureExtPointer(int name)
     if (format != GL_COMPRESSED)
         return NULL;
 
-    return vramBlock_getAddr(glGlob->vramBlocks[0], tex->texIndexExt);
+    return vramBlock_getAddr(glGlob->vramBlocksTex, tex->texIndexExt);
 }
 
 // Gets a pointer to the VRAM address that contains the palette.
@@ -1584,10 +1588,10 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     if ((tex->texSize != size) || (typeSizes[texType] != typeSizes[type]))
     {
         if (tex->texIndexExt)
-            vramBlock_deallocateBlock(glGlob->vramBlocks[0], tex->texIndexExt);
+            vramBlock_deallocateBlock(glGlob->vramBlocksTex, tex->texIndexExt);
 
         if (tex->texIndex)
-            vramBlock_deallocateBlock(glGlob->vramBlocks[0], tex->texIndex);
+            vramBlock_deallocateBlock(glGlob->vramBlocksTex, tex->texIndex);
 
         tex->texIndex = tex->texIndexExt = 0;
         tex->vramAddr = NULL;
@@ -1607,7 +1611,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         }
         else if (type != GL_COMPRESSED)
         {
-            tex->texIndex = vramBlock_allocateBlock(glGlob->vramBlocks[0], tex->texSize, 3);
+            tex->texIndex = vramBlock_allocateBlock(glGlob->vramBlocksTex, tex->texSize, 3);
             // This may fail, but it is handled below.
         }
         else // if (type == GL_COMPRESSED)
@@ -1643,7 +1647,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
             while (1)
             {
                 // Check designated opening, and return available spot
-                vramBFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
+                vramBFound = vramBlock_examineSpecial(glGlob->vramBlocksTex,
                                                       vramBAddr, vramBAllocSize, 2);
 
                 // Make sure that the space found in VRAM_B is completely in
@@ -1671,16 +1675,16 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 vramACAddr = (uint8_t *)(offset >= 0x10000 ? VRAM_C : VRAM_A)
                              + ((offset & 0xFFFF) << 1);
 
-                vramACFound = vramBlock_examineSpecial(glGlob->vramBlocks[0],
+                vramACFound = vramBlock_examineSpecial(glGlob->vramBlocksTex,
                                                        vramACAddr, size, 3);
                 if (vramACAddr == vramACFound)
                 {
                     // Valid addresses found, lock them for this texture.
-                    tex->texIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[0],
+                    tex->texIndex = vramBlock_allocateSpecial(glGlob->vramBlocksTex,
                                                               vramACFound, size);
                     tex->texIndexExt = vramBlock_allocateSpecial(
-                        glGlob->vramBlocks[0],
-                        vramBlock_examineSpecial(glGlob->vramBlocks[0], vramBFound,
+                        glGlob->vramBlocksTex,
+                        vramBlock_examineSpecial(glGlob->vramBlocksTex, vramBFound,
                                                  vramBAllocSize, 2),
                         vramBAllocSize);
 
@@ -1709,7 +1713,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
         if (tex->texIndex)
         {
-            tex->vramAddr = vramBlock_getAddr(glGlob->vramBlocks[0], tex->texIndex);
+            tex->vramAddr = vramBlock_getAddr(glGlob->vramBlocksTex, tex->texIndex);
             tex->texFormat = (sizeX << 20) | (sizeY << 23)
                              | ((type == GL_RGB ? GL_RGBA : type) << 26)
                              | (((uint32_t)tex->vramAddr >> 3) & 0xFFFF);
@@ -1772,7 +1776,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 DC_FlushRange((const char *)texture + tex->texSize, size >> 1);
                 vramSetBankB(VRAM_B_LCD);
                 dmaCopyWords(0, (const char *)texture + tex->texSize,
-                             vramBlock_getAddr(glGlob->vramBlocks[0], tex->texIndexExt),
+                             vramBlock_getAddr(glGlob->vramBlocksTex, tex->texIndexExt),
                              size >> 1);
             }
         }
