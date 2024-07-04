@@ -693,13 +693,7 @@ static inline void setBackdropColorSub(const u16 color)
 #define REG_MOSAIC_SUB      (*(vu16 *)0x0400104C)
 
 #define REG_BLDCNT          (*(vu16 *)0x04000050)
-#define REG_BLDY            (*(vu16 *)0x04000054)
-#define REG_BLDALPHA        (*(vu16 *)0x04000052)
-
 #define REG_BLDCNT_SUB      (*(vu16 *)0x04001050)
-#define REG_BLDALPHA_SUB    (*(vu16 *)0x04001052)
-#define REG_BLDY_SUB        (*(vu16 *)0x04001054)
-
 
 #define BLEND_NONE          (0 << 6)
 #define BLEND_ALPHA         (1 << 6)
@@ -719,6 +713,17 @@ static inline void setBackdropColorSub(const u16 color)
 #define BLEND_DST_BG3       (1 << 11)
 #define BLEND_DST_SPRITE    (1 << 12)
 #define BLEND_DST_BACKDROP  (1 << 13)
+
+#define REG_BLDALPHA        (*(vu16 *)0x04000052)
+#define REG_BLDALPHA_SUB    (*(vu16 *)0x04001052)
+
+#define BLDALPHA_EVA(v)     ((v) & 0x1F)
+#define BLDALPHA_EVB(v)     (((v) & 0x1F) << 8)
+
+#define REG_BLDY            (*(vu16 *)0x04000054)
+#define REG_BLDY_SUB        (*(vu16 *)0x04001054)
+
+#define BLDY_EVY(v)         ((v) & 0x1F)
 
 // Display capture control
 
