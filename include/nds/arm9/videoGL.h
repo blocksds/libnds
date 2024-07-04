@@ -565,8 +565,8 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 ///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param empty1 Ignored, only here for OpenGL compatibility.
-/// @param width The length of the palette (if 0, the palette is removed from
-///              currently bound texture).
+/// @param width The length of the palette in colors (if 0, the palette is
+///              removed from currently bound texture).
 /// @param empty2 Ignored, only here for OpenGL compatibility.
 /// @param empty3 Ignored, only here for OpenGL compatibility.
 /// @param table Pointer to the palette data to load (if NULL, the palette is
