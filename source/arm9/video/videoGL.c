@@ -814,7 +814,11 @@ int glInit_C(void)
 
     // Allocate the designated layout for each memory block
     glGlob->vramBlocks[0] = vramBlock_Construct((uint8_t *)VRAM_A, (uint8_t *)VRAM_E);
+    if (glGlob->vramBlocks[0] == NULL)
+        goto cleanup;
     glGlob->vramBlocks[1] = vramBlock_Construct((uint8_t *)VRAM_E, (uint8_t *)VRAM_H);
+    if (glGlob->vramBlocks[1] == NULL)
+        goto cleanup;
 
     glGlob->vramLock[0] = 0;
     glGlob->vramLock[1] = 0;
@@ -831,11 +835,17 @@ int glInit_C(void)
     glGlob->deallocPalSize = 0;
 
     // Clean out all of this
-    DynamicArrayInit(&glGlob->texturePtrs, 16);
-    DynamicArrayInit(&glGlob->palettePtrs, 16);
-    DynamicArrayInit(&glGlob->deallocTex, 16);
-    DynamicArrayInit(&glGlob->deallocPal, 16);
+    if (DynamicArrayInit(&glGlob->texturePtrs, 16) == NULL)
+        goto cleanup;
+    if (DynamicArrayInit(&glGlob->palettePtrs, 16) == NULL)
+        goto cleanup;
+    if (DynamicArrayInit(&glGlob->deallocTex, 16) == NULL)
+        goto cleanup;
+    if (DynamicArrayInit(&glGlob->deallocPal, 16) == NULL)
+        goto cleanup;
 
+    // All of this should succeed because we've just allocated 16 elements as
+    // the initial size of each dynamic array. No need to check for errors
     for (int i = 0; i < 16; i++)
     {
         DynamicArraySet(&glGlob->texturePtrs, i, (void *)0);
@@ -917,6 +927,16 @@ int glInit_C(void)
 
     glGlob->isActive = 1;
     return 1;
+
+cleanup:
+    DynamicArrayDelete(&glGlob->texturePtrs);
+    DynamicArrayDelete(&glGlob->palettePtrs);
+    DynamicArrayDelete(&glGlob->deallocTex);
+    DynamicArrayDelete(&glGlob->deallocPal);
+
+    vramBlock_Deconstruct(glGlob->vramBlocks[0]);
+    vramBlock_Deconstruct(glGlob->vramBlocks[1]);
+    return 0;
 }
 
 void glResetTextures(void)
