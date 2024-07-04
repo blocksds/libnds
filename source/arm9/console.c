@@ -5,13 +5,16 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
+// Important note: We can't use any BIOS functions in this file because the
+// console is used by the default exception handler. The handler doesn't run in
+// CPU user mode, so it doesn't work correctly if it uses BIOS functions.
+
 #include <stdarg.h>
 #include <stdio.h>
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
 #include <nds/arm9/video.h>
-#include <nds/bios.h>
 #include <nds/debug.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
@@ -327,16 +330,50 @@ void consoleLoadFont(PrintConsole *console)
 
     console->fontCurPal <<= 12;
 
-    if (console->font.bpp <= 2)
+    if (console->font.bpp == 1)
     {
-        TUnpackStruct config = {
-            console->font.numChars * 8 * console->font.bpp,
-            console->font.bpp,
-            4,
-            16 - (1 << console->font.bpp)
-        };
+        for (int i = 0; i < console->font.numChars * 8; i++)
+        {
+            u8 row = ((const u8 *)console->font.gfx)[i];
+            u32 temp = 0;
 
-        swiUnpackBits(console->font.gfx, console->fontBgGfx, &config);
+            if (row & 0x01)
+                temp |= 0xF;
+            if (row & 0x02)
+                temp |= 0xF0;
+            if (row & 0x04)
+                temp |= 0xF00;
+            if (row & 0x08)
+                temp |= 0xF000;
+            if (row & 0x10)
+                temp |= 0xF0000;
+            if (row & 0x20)
+                temp |= 0xF00000;
+            if (row & 0x40)
+                temp |= 0xF000000;
+            if (row & 0x80)
+                temp |= 0xF0000000;
+
+            ((u32 *)console->fontBgGfx)[i] = temp;
+        }
+    }
+    else if (console->font.bpp == 2)
+    {
+        for (int i = 0; i < console->font.numChars * 16; i++)
+        {
+            u16 temp = 0;
+
+            if (console->font.gfx[i] & 0xF)
+                temp |= 0xF;
+            if (console->font.gfx[i] & 0xF0)
+                temp |= 0xF0;
+            if (console->font.gfx[i] & 0xF00)
+                temp |= 0xF00;
+            if (console->font.gfx[i] & 0xF000)
+                temp |= 0xF000;
+
+            console->fontBgGfx[i] = temp;
+        }
     }
     else if (console->font.bpp == 4)
     {
