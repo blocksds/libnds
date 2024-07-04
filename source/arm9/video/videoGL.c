@@ -1067,9 +1067,8 @@ int glDeleteTextures(int n, int *names)
                 if (texture->texIndexExt)
                     vramBlock_deallocateBlock(glGlob->vramBlocksTex,
                                               texture->texIndexExt);
-                if (texture->texIndex)
-                    vramBlock_deallocateBlock(glGlob->vramBlocksTex,
-                                              texture->texIndex);
+                vramBlock_deallocateBlock(glGlob->vramBlocksTex,
+                                          texture->texIndex);
             }
 
             // Clear out the palette if this texture name is the last
