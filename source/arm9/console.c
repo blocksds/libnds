@@ -357,24 +357,6 @@ void consoleLoadFont(PrintConsole *console)
             ((u32 *)console->fontBgGfx)[i] = temp;
         }
     }
-    else if (console->font.bpp == 2)
-    {
-        for (int i = 0; i < console->font.numChars * 16; i++)
-        {
-            u16 temp = 0;
-
-            if (console->font.gfx[i] & 0xF)
-                temp |= 0xF;
-            if (console->font.gfx[i] & 0xF0)
-                temp |= 0xF0;
-            if (console->font.gfx[i] & 0xF00)
-                temp |= 0xF00;
-            if (console->font.gfx[i] & 0xF000)
-                temp |= 0xF000;
-
-            console->fontBgGfx[i] = temp;
-        }
-    }
     else if (console->font.bpp == 4)
     {
         if (console->font.gfx)
