@@ -1138,13 +1138,13 @@ int glUnlockVRAMBank(uint16_t *addr)
 
 // Set the current named texture to the active texture. The target is ignored as
 // all DS textures are 2D.
-void glBindTexture(int target, int name)
+int glBindTexture(int target, int name)
 {
     (void)target;
 
     // No reason to process if name is the active texture
     if (glGlob->activeTexture == name)
-        return;
+        return 0;
 
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
 
@@ -1155,7 +1155,7 @@ void glBindTexture(int target, int name)
         GFX_PAL_FORMAT = 0;
         glGlob->activePalette = 0;
         glGlob->activeTexture = 0;
-        return;
+        return 0;
     }
 
     GFX_TEX_FORMAT = tex->texFormat;
@@ -1165,6 +1165,7 @@ void glBindTexture(int target, int name)
     if (tex->palIndex)
     {
         gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
+        sassert(pal, "tex->palIndex is set, but no pal available");
         GFX_PAL_FORMAT = pal->addr;
         glGlob->activePalette = tex->palIndex;
     }
@@ -1172,6 +1173,8 @@ void glBindTexture(int target, int name)
     {
         GFX_PAL_FORMAT = glGlob->activePalette = 0;
     }
+
+    return 1;
 }
 
 // Load a 15-bit color format palette into palette memory, and set it to the

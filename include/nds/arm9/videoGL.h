@@ -653,7 +653,8 @@ void *glGetColorTablePointer(int name);
 ///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param name The name (int value) to set to the current texture.
-void glBindTexture(int target, int name);
+/// @return 1 on success, 0 on failure.
+int glBindTexture(int target, int name);
 
 /// Creates room for the specified number of textures.
 ///
