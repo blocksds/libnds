@@ -265,8 +265,8 @@ void vramBlock_init(s_vramBlock *mb)
 {
     // Construct a new block that will be set as the first block, as well as the
     // first empty block.
-    struct s_SingleBlock *newBlock = malloc(sizeof(struct s_SingleBlock));
-    memset(newBlock, 0, sizeof(s_SingleBlock));
+    struct s_SingleBlock *newBlock = calloc(1, sizeof(struct s_SingleBlock));
+    // TODO: Check that this isn't NULL
     newBlock->AddrSet = mb->startAddr;
     newBlock->blockSize = (uint32_t)mb->endAddr - (uint32_t)mb->startAddr;
 
@@ -296,6 +296,7 @@ s_vramBlock *vramBlock_Construct(uint8_t *start, uint8_t *end)
     // Block Container is constructed, with a starting and ending address. Then
     // initialization of the first block is made.
     struct s_vramBlock *mb = malloc(sizeof(s_vramBlock));
+    // TODO: Check that this isn't NULL
 
     if (start > end)
     {
@@ -377,6 +378,7 @@ uint8_t *vramBlock__allocateBlock(s_vramBlock *mb, struct s_SingleBlock *block,
             // first block and first empty block, which will be set as well.
 
             struct s_SingleBlock *newBlock = malloc(sizeof(struct s_SingleBlock));
+            // TODO: Check that this isn't NULL
             newBlock->indexOut = 0;
             newBlock->AddrSet = block->AddrSet + (i * size);
 
@@ -1248,8 +1250,14 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     }
 
     palette = malloc(sizeof(gl_palette_data));
+    if (palette == NULL)
+        return 0;
+
+    // Lock the free space we have found
     palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocks[1],
                                                   checkAddr, width << 1);
+    sassert(palette->palIndex != 0, "Failed to lock free palette VRAM");
+
     palette->vramAddr = checkAddr;
     palette->addr = addr;
 
@@ -1580,6 +1588,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         else if (type != GL_COMPRESSED)
         {
             tex->texIndex = vramBlock_allocateBlock(glGlob->vramBlocks[0], tex->texSize, 3);
+            // This may fail, but it is handled below.
         }
         else // if (type == GL_COMPRESSED)
         {
@@ -1654,6 +1663,11 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                         vramBlock_examineSpecial(glGlob->vramBlocks[0], vramBFound,
                                                  vramBAllocSize, 2),
                         vramBAllocSize);
+
+                    // This should never happen because we have just checked
+                    // that they are free.
+                    sassert((tex->texIndex != 0) && (tex->texIndexExt != 0),
+                            "Failed to lock tex and texExt VRAM");
                     break;
                 }
 
