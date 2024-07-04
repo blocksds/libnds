@@ -991,8 +991,17 @@ int glGenTextures(int n, int *names)
     // Generate texture names for each element
     for (index = 0; index < n; index++)
     {
-        gl_texture_data *texture = malloc(sizeof(gl_texture_data));
-        memset(texture, 0, sizeof(gl_texture_data));
+        gl_texture_data *texture = calloc(1, sizeof(gl_texture_data));
+        if (texture == NULL)
+        {
+            // If any of the names can't be generated, delete all the ones we
+            // have allocated up to this point and return failure.
+
+            // The current index is equal to the number of generated names
+            glDeleteTextures(index, names);
+            return 0;
+        }
+
         if (glGlob->deallocTexSize) // Use previously deleted texture names
         {
             names[index] =
