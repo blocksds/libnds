@@ -17,6 +17,8 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 
+#include <nds/ndstypes.h>
+
 /// Initializes NitroFS.
 ///
 /// If basepath or argv[0] is provided, an attempt to read the file system
@@ -82,6 +84,7 @@ int nitroFSOpenById(uint16_t id);
 ///
 /// @return
 ///     A valid file pointer; NULL on error.
+WARN_UNUSED_RESULT
 FILE *nitroFSFopenById(uint16_t id, const char *mode);
 
 #ifdef __cplusplus

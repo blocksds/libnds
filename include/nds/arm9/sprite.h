@@ -386,6 +386,7 @@ u16 *oamGetGfxPtr(OamState *oam, int gfxOffsetIndex);
 ///
 /// @return
 ///     The address in VRAM of the allocated sprite.
+WARN_UNUSED_RESULT
 u16 *oamAllocateGfx(OamState *oam, SpriteSize size, SpriteColorFormat colorFormat);
 
 /// Free VRAM memory obtained with oamAllocateGfx.

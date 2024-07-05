@@ -66,6 +66,10 @@ extern "C" {
 /// for the compiler.
 #define COMPILER_MEMORY_BARRIER() asm volatile("" ::: "memory")
 
+/// Makes the compiler output a warning if the return value of a function is
+/// ignored.
+#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+
 // Macros related to the bin2o macro of the Makefile
 #define GETRAW(name)        (name)
 #define GETRAWSIZE(name)    ((int)name##_size)

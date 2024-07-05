@@ -17,6 +17,8 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 
+#include <nds/ndstypes.h>
+
 /// This function calls fatInit() with the default cache size (5 pages = 20 KB).
 ///
 /// @return It returns true on success, false on error.
@@ -66,6 +68,7 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 ///
 /// @return
 ///     Returns a string with the path.
+WARN_UNUSED_RESULT
 char *fatGetDefaultCwd(void);
 
 /// This function returns the default drive ("sd:/" or "fat:/").
