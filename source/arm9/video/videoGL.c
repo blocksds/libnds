@@ -1000,22 +1000,27 @@ void removePaletteFromTexture(gl_texture_data *tex)
         return;
 
     gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
-    if (palette->connectCount)
+    if (palette->connectCount == 0)
+        return;
+
+    palette->connectCount--;
+    if (palette->connectCount > 0)
     {
-        if (!(--palette->connectCount))
-        {
-            DynamicArraySet(&glGlob->deallocPal, ++glGlob->deallocPalSize,
-                            (void *)tex->palIndex);
-            vramBlock_deallocateBlock(glGlob->vramBlocksPal, palette->palIndex);
-            free(palette);
+        vramBlock_deallocateBlock(glGlob->vramBlocksPal, palette->palIndex);
 
-            if (glGlob->activePalette == tex->palIndex)
-                GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        DynamicArraySet(&glGlob->deallocPal, glGlob->deallocPalSize, (void *)tex->palIndex);
+        glGlob->deallocPalSize++;
 
-            DynamicArraySet(&glGlob->palettePtrs, tex->palIndex, (void *)0);
-        }
-        tex->palIndex = 0;
+        free(palette);
+        DynamicArraySet(&glGlob->palettePtrs, tex->palIndex, NULL);
+
+        // If the active palette is the one we have just removed
+        if (glGlob->activePalette == tex->palIndex)
+            GFX_PAL_FORMAT = glGlob->activePalette = 0;
     }
+
+    // Clear the palette reference from the texture
+    tex->palIndex = 0;
 }
 
 // Internal function that returns a new texture name
@@ -1117,10 +1122,9 @@ int glDeleteTextures(int n, int *names)
             {
                 // Delete extra texture for GL_COMPRESSED, if it exists
                 if (texture->texIndexExt)
-                    vramBlock_deallocateBlock(glGlob->vramBlocksTex,
-                                              texture->texIndexExt);
-                vramBlock_deallocateBlock(glGlob->vramBlocksTex,
-                                          texture->texIndex);
+                    vramBlock_deallocateBlock(glGlob->vramBlocksTex, texture->texIndexExt);
+
+                vramBlock_deallocateBlock(glGlob->vramBlocksTex, texture->texIndex);
             }
 
             // Clear out the palette if this texture name is the last
@@ -1281,9 +1285,8 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     if (!glGlob->activeTexture)
         return 0;
 
-    gl_texture_data *texture = (gl_texture_data *)DynamicArrayGet(
-        &glGlob->texturePtrs, glGlob->activeTexture);
-    gl_palette_data *palette;
+    gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+
     if (texture->palIndex) // Remove prior palette if exists
         removePaletteFromTexture(texture);
 
@@ -1328,13 +1331,41 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
         return 0;
     }
 
-    palette = malloc(sizeof(gl_palette_data));
+    gl_palette_data *palette = malloc(sizeof(gl_palette_data));
     if (palette == NULL)
         return 0;
 
+    // Get a new palette name (either reused or new)
+    if (glGlob->deallocPalSize)
+    {
+        uint32_t palIndex = (uint32_t)DynamicArrayGet(&glGlob->deallocPal,
+                                                      glGlob->deallocPalSize - 1);
+
+        if (!DynamicArraySet(&glGlob->palettePtrs, palIndex, palette))
+        {
+            free(palette);
+            return 0;
+        }
+
+        texture->palIndex = palIndex;
+        glGlob->deallocPalSize--;
+    }
+    else
+    {
+        uint32_t palIndex = glGlob->palCount;
+
+        if (!DynamicArraySet(&glGlob->palettePtrs, palIndex, palette))
+        {
+            free(palette);
+            return 0;
+        }
+
+        texture->palIndex = palIndex;
+        glGlob->palCount++;
+    }
+
     // Lock the free space we have found
-    palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocksPal,
-                                                  checkAddr, width << 1);
+    palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocksPal, checkAddr, width << 1);
     sassert(palette->palIndex != 0, "Failed to lock free palette VRAM");
 
     palette->vramAddr = checkAddr;
@@ -1343,11 +1374,10 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     palette->connectCount = 1;
     palette->palSize = width << 1;
 
-    // copy straight to VRAM, and assign a palette name
+    // Copy straight to VRAM, and assign a palette name
     uint32_t tempVRAM = VRAM_EFG_CR;
     uint16_t *startBank = vramGetBank((uint16_t *)palette->vramAddr);
-    uint16_t *endBank =
-        vramGetBank((uint16_t *)((char *)palette->vramAddr + (width << 1) - 1));
+    uint16_t *endBank = vramGetBank((uint16_t *)((char *)palette->vramAddr + (width << 1) - 1));
     do
     {
         if (startBank == VRAM_E)
@@ -1370,18 +1400,6 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     swiCopy(table, palette->vramAddr, width | COPY_MODE_HWORD);
     vramRestoreBanks_EFG(tempVRAM);
 
-    if (glGlob->deallocPalSize)
-    {
-        texture->palIndex = (uint32_t)DynamicArrayGet(&glGlob->deallocPal,
-                                                      glGlob->deallocPalSize--);
-    }
-    else
-    {
-        texture->palIndex = glGlob->palCount++;
-    }
-
-    DynamicArraySet(&glGlob->palettePtrs, texture->palIndex, (void *)palette);
-
     GFX_PAL_FORMAT = palette->addr;
     glGlob->activePalette = texture->palIndex;
 
@@ -1397,20 +1415,22 @@ int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
     (void)empty1;
     (void)empty2;
 
-    if (count > 0 && glGlob->activePalette)
+    if (count <= 0)
+        return 0;
+
+    if (!glGlob->activePalette)
+        return 0;
+
+    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, glGlob->activePalette);
+
+    if (start >= 0 && (start + count) <= (palette->palSize >> 1))
     {
-        gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs,
-                                                   glGlob->activePalette);
+        uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
+        swiCopy(data, (char *)palette->vramAddr + (start << 1),
+                count | COPY_MODE_HWORD);
+        vramRestoreBanks_EFG(tempVRAM);
 
-        if (start >= 0 && (start + count) <= (palette->palSize >> 1))
-        {
-            uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
-            swiCopy(data, (char *)palette->vramAddr + (start << 1),
-                    count | COPY_MODE_HWORD);
-            vramRestoreBanks_EFG(tempVRAM);
-
-            return 1;
-        }
+        return 1;
     }
 
     return 0;
@@ -1427,8 +1447,7 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
     if (!glGlob->activePalette)
         return 0;
 
-    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs,
-                                               glGlob->activePalette);
+    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, glGlob->activePalette);
 
     uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
     swiCopy(palette->vramAddr, table, palette->palSize >> 1 | COPY_MODE_HWORD);
@@ -1443,30 +1462,33 @@ void glAssignColorTable(int target, int name)
 {
     (void)target;
 
-    // Allow assigning from a texture different from the active one
-    if (glGlob->activeTexture && glGlob->activeTexture != name)
+    if (!glGlob->activeTexture)
+        return;
+
+    // Only allow assigning from a texture different from the active one
+    if (glGlob->activeTexture == name)
+        return;
+
+    gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *texCopy = DynamicArrayGet(&glGlob->texturePtrs, name);
+
+    // Remove prior palette from active texture if it exists
+    if (texture->palIndex)
+        removePaletteFromTexture(texture);
+
+    if (texCopy && texCopy->palIndex)
     {
-        gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs,
-                                                   glGlob->activeTexture);
-        gl_texture_data *texCopy = DynamicArrayGet(&glGlob->texturePtrs, name);
-        gl_palette_data *palette;
+        texture->palIndex = texCopy->palIndex;
 
-        if (texture->palIndex) // Remove prior palette if it exists
-            removePaletteFromTexture(texture);
+        gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, texture->palIndex);
 
-        if (texCopy && texCopy->palIndex)
-        {
-            texture->palIndex = texCopy->palIndex;
-            palette = (gl_palette_data *)DynamicArrayGet(&glGlob->palettePtrs,
-                                                         texture->palIndex);
-            palette->connectCount++;
-            GFX_PAL_FORMAT = palette->addr;
-            glGlob->activePalette = texture->palIndex;
-        }
-        else
-        {
-            GFX_PAL_FORMAT = glGlob->activePalette = texture->palIndex = 0;
-        }
+        palette->connectCount++;
+        GFX_PAL_FORMAT = palette->addr;
+        glGlob->activePalette = texture->palIndex;
+    }
+    else
+    {
+        GFX_PAL_FORMAT = glGlob->activePalette = texture->palIndex = 0;
     }
 }
 

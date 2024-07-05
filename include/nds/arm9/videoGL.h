@@ -628,6 +628,9 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 /// glAssignColorTable sets the active texture with a palette set with another
 /// texture.
 ///
+/// If the other texture doesn't have a palette, the palette of the active
+/// texture will be deleted and no new palette will be assigned.
+///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param name The name(int value) of the texture to load a palette from.
 void glAssignColorTable(int target, int name);
