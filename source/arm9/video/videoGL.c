@@ -260,12 +260,14 @@ ARM_CODE void glTexCoord2f32(int32_t u, int32_t v)
 // Internal VRAM allocation/deallocation functions. Calling these functions
 // outside of videoGL may interfere with normal operations.
 
-void vramBlock_init(s_vramBlock *mb)
+int vramBlock_init(s_vramBlock *mb)
 {
     // Construct a new block that will be set as the first block, as well as the
     // first empty block.
     struct s_SingleBlock *newBlock = calloc(1, sizeof(struct s_SingleBlock));
-    // TODO: Check that this isn't NULL
+    if (newBlock == NULL)
+        return 0;
+
     newBlock->AddrSet = mb->startAddr;
     newBlock->blockSize = (uint32_t)mb->endAddr - (uint32_t)mb->startAddr;
 
@@ -280,14 +282,26 @@ void vramBlock_init(s_vramBlock *mb)
     mb->lastExaminedAddr = NULL;
     mb->lastExaminedSize = 0;
 
-    DynamicArrayInit(&mb->blockPtrs, 16);
-    DynamicArrayInit(&mb->deallocBlocks, 16);
+    if (DynamicArrayInit(&mb->blockPtrs, 16) == NULL)
+    {
+        free(newBlock);
+        return 0;
+    }
+    if (DynamicArrayInit(&mb->deallocBlocks, 16) == NULL)
+    {
+        DynamicArrayDelete(&mb->blockPtrs);
+        free(newBlock);
+        return 0;
+    }
 
     for (int i = 0; i < 16; i++)
     {
+        // This should always work because we've already allocated 16 elements
         DynamicArraySet(&mb->blockPtrs, i, (void *)0);
         DynamicArraySet(&mb->deallocBlocks, i, (void *)0);
     }
+
+    return 1;
 }
 
 s_vramBlock *vramBlock_Construct(uint8_t *start, uint8_t *end)
@@ -295,7 +309,8 @@ s_vramBlock *vramBlock_Construct(uint8_t *start, uint8_t *end)
     // Block Container is constructed, with a starting and ending address. Then
     // initialization of the first block is made.
     struct s_vramBlock *mb = malloc(sizeof(s_vramBlock));
-    // TODO: Check that this isn't NULL
+    if (mb == NULL)
+        return NULL;
 
     if (start > end)
     {
@@ -308,7 +323,12 @@ s_vramBlock *vramBlock_Construct(uint8_t *start, uint8_t *end)
         mb->endAddr = end;
     }
 
-    vramBlock_init(mb);
+    if (vramBlock_init(mb) == 0)
+    {
+        free(mb);
+        return NULL;
+    }
+
     return mb;
 }
 
@@ -339,13 +359,14 @@ void vramBlock_Deconstruct(s_vramBlock *mb)
     }
 }
 
-uint8_t *vramBlock__allocateBlock(s_vramBlock *mb, struct s_SingleBlock *block,
-                                  uint8_t *addr, uint32_t size)
+struct s_SingleBlock *vramBlock__allocateBlock(s_vramBlock *mb,
+                                               struct s_SingleBlock *block,
+                                               uint8_t *addr, uint32_t size)
 {
     // Initial tests to ensure allocation is valid
     if (!size || !addr || !block || block->indexOut || addr < block->AddrSet
         || (addr + size) > (block->AddrSet + block->blockSize))
-        return 0;
+        return NULL;
 
     // Get pointers to the various blocks, as those may change from allocation
     struct s_SingleBlock **first = &mb->firstBlock;
@@ -354,13 +375,16 @@ uint8_t *vramBlock__allocateBlock(s_vramBlock *mb, struct s_SingleBlock *block,
 
     // The nodes in the test block array will change as examinations of pre/post
     // blocks are done
-    struct s_SingleBlock *testBlock[4] = { block->node[0], block->node[1], block->node[2],
-                                           block->node[3] };
+    struct s_SingleBlock *testBlock[4] = {
+        block->node[0], block->node[1], block->node[2], block->node[3]
+    };
 
     // Boolean comparisons ( for determining if an empty block set for
     // allocation should be split once, twice, or not at all )
-    uint32_t valComp[2] = { addr != block->AddrSet,
-                          addr + size < block->AddrSet + block->blockSize };
+    uint32_t valComp[2] = {
+        addr != block->AddrSet,
+        addr + size < block->AddrSet + block->blockSize
+    };
 
     for (int i = 0; i < 2; i++)
     {
@@ -377,7 +401,9 @@ uint8_t *vramBlock__allocateBlock(s_vramBlock *mb, struct s_SingleBlock *block,
             // first block and first empty block, which will be set as well.
 
             struct s_SingleBlock *newBlock = malloc(sizeof(struct s_SingleBlock));
-            // TODO: Check that this isn't NULL
+            if (newBlock == NULL)
+                return NULL;
+
             newBlock->indexOut = 0;
             newBlock->AddrSet = block->AddrSet + (i * size);
 
@@ -444,7 +470,7 @@ uint8_t *vramBlock__allocateBlock(s_vramBlock *mb, struct s_SingleBlock *block,
     if (testBlock[1])
         testBlock[1]->node[2] = block;
 
-    return (uint8_t *)block;
+    return block;
 }
 
 uint32_t vramBlock__deallocateBlock(s_vramBlock *mb, struct s_SingleBlock *block)
@@ -720,9 +746,7 @@ uint32_t vramBlock_allocateSpecial(s_vramBlock *mb, uint8_t *addr, uint32_t size
 
     // Can only get here if prior tests passed, meaning a spot is available, and
     // can be allocated
-    struct s_SingleBlock *newBlock = (struct s_SingleBlock *)vramBlock__allocateBlock(
-        mb, mb->lastExamined, addr, size);
-
+    struct s_SingleBlock *newBlock = vramBlock__allocateBlock(mb, mb->lastExamined, addr, size);
     if (newBlock == NULL)
         return 0;
 
@@ -755,13 +779,16 @@ uint32_t vramBlock_allocateBlock(s_vramBlock *mb, uint32_t size, uint8_t align)
     // there
     struct s_SingleBlock *block = mb->firstEmpty;
     uint8_t *checkAddr = vramBlock_examineSpecial(mb, block->AddrSet, size, align);
-    if (!checkAddr)
+    if (checkAddr == NULL)
         return 0;
 
     // If execution gets here, then a spot was found, so allocate it
     return vramBlock_allocateSpecial(mb, checkAddr, size);
 }
 
+// TODO: The return value of this function isn't checked anywhere, but I'm not
+// sure if this is the right approach. All we can do if we fail to deallocate
+// memory is crash.
 uint32_t vramBlock_deallocateBlock(s_vramBlock *mb, uint32_t index)
 {
     // Retrieve the block from the index array, and see if it exists. If it
@@ -770,33 +797,48 @@ uint32_t vramBlock_deallocateBlock(s_vramBlock *mb, uint32_t index)
 
     if (block && vramBlock__deallocateBlock(mb, block))
     {
+        // Clear the current element
         DynamicArraySet(&mb->blockPtrs, index, NULL);
-        DynamicArraySet(&mb->deallocBlocks, ++mb->deallocCount, (void *)index);
+
+        // Add the block to the array of deallocated blocks
+        if (!DynamicArraySet(&mb->deallocBlocks, ++mb->deallocCount, (void *)index))
+        {
+            // It's pretty hard to recover from this. At least, try to detect it
+            // in debug builds.
+            sassert(false, "Can't add block to deallocBlocks");
+            return 0;
+        }
         return 1;
     }
     return 0;
 }
 
-void vramBlock_deallocateAll(s_vramBlock *mb)
+int vramBlock_deallocateAll(s_vramBlock *mb)
 {
     // Reset the entire container
     vramBlock_terminate(mb);
-    vramBlock_init(mb);
+    if (vramBlock_init(mb) == 0)
+        return 0;
+
+    return 1;
 }
 
 uint8_t *vramBlock_getAddr(s_vramBlock *mb, uint32_t index)
 {
-    struct s_SingleBlock *getBlock;
-    if ((getBlock = DynamicArrayGet(&mb->blockPtrs, index)))
+    struct s_SingleBlock *getBlock = DynamicArrayGet(&mb->blockPtrs, index);
+    if (getBlock)
         return getBlock->AddrSet;
+
     return NULL;
 }
 
+// TODO: This is unused. Remove?
 uint32_t vramBlock_getSize(s_vramBlock *mb, uint32_t index)
 {
-    struct s_SingleBlock *getBlock;
-    if ((getBlock = DynamicArrayGet(&mb->blockPtrs, index)))
+    struct s_SingleBlock *getBlock = DynamicArrayGet(&mb->blockPtrs, index);
+    if (getBlock)
         return getBlock->blockSize;
+
     return 0;
 }
 
@@ -980,21 +1022,30 @@ void glResetTextures(void)
     DynamicArrayDelete(&glGlob->deallocTex);
     DynamicArrayDelete(&glGlob->deallocPal);
 
+    // We have just freed a lot of RAM so this should always succeed. The new
+    // arrays must be either the same size or bigger than the old ones!
     DynamicArrayInit(&glGlob->texturePtrs, 16);
     DynamicArrayInit(&glGlob->palettePtrs, 16);
     DynamicArrayInit(&glGlob->deallocTex, 16);
     DynamicArrayInit(&glGlob->deallocPal, 16);
+
     if ((glGlob->texturePtrs.data == NULL) || (glGlob->palettePtrs.data == NULL)
       || (glGlob->deallocTex.data == NULL) || (glGlob->deallocPal.data == NULL))
-    {
-        // We have just freed a lot of RAM (the arrays must be either the same
-        // size or bigger than the initial ones!) so this should always succeed.
         sassert(false, "Failed to allocate dynamic arrays");
+
+    for (int i = 0; i < 16; i++)
+    {
+        DynamicArraySet(&glGlob->texturePtrs, i, NULL);
+        DynamicArraySet(&glGlob->palettePtrs, i, NULL);
+        DynamicArraySet(&glGlob->deallocTex, i, NULL);
+        DynamicArraySet(&glGlob->deallocPal, i, NULL);
     }
 
     // Clean out both blocks
-    vramBlock_deallocateAll(glGlob->vramBlocksTex);
-    vramBlock_deallocateAll(glGlob->vramBlocksPal);
+    if (vramBlock_deallocateAll(glGlob->vramBlocksTex) == 1)
+        sassert(false, "Failed to allocate vramBlocksTex");
+    if (vramBlock_deallocateAll(glGlob->vramBlocksPal) == 1)
+        sassert(false, "Failed to allocate vramBlocksPal");
 }
 
 void removePaletteFromTexture(gl_texture_data *tex)
@@ -1113,7 +1164,16 @@ int glDeleteTextures(int n, int *names)
 
         // Save this texture name in the deallocated texture name array so that we can
         // reuse it later.
-        DynamicArraySet(&glGlob->deallocTex, glGlob->deallocTexSize, (void *)names[index]);
+        if (!DynamicArraySet(&glGlob->deallocTex, glGlob->deallocTexSize,
+                             (void *)names[index]))
+        {
+            // This is quite unexpected, and I imagine that most people won't
+            // check the error code of glDeleteTextures(), so it's better to add
+            // an assert here in case the bug can be found in debug builds.
+            sassert(false, "Can't add name to deallocTex array");
+            return 0;
+        }
+
         glGlob->deallocTexSize++;
 
         // If this name had an assigned texture to it, delete it
