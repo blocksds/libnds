@@ -1458,16 +1458,16 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
 
 // Set the active texture with a palette set with another texture. This is not
 // an actual OpenGL function.
-void glAssignColorTable(int target, int name)
+int glAssignColorTable(int target, int name)
 {
     (void)target;
 
     if (!glGlob->activeTexture)
-        return;
+        return 0;
 
     // Only allow assigning from a texture different from the active one
     if (glGlob->activeTexture == name)
-        return;
+        return 0;
 
     gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
     gl_texture_data *texCopy = DynamicArrayGet(&glGlob->texturePtrs, name);
@@ -1485,27 +1485,32 @@ void glAssignColorTable(int target, int name)
         palette->connectCount++;
         GFX_PAL_FORMAT = palette->addr;
         glGlob->activePalette = texture->palIndex;
+
+        return 1;
     }
     else
     {
         GFX_PAL_FORMAT = glGlob->activePalette = texture->palIndex = 0;
+
+        return 0;
     }
 }
 
 // Although named the same as its OpenGL counterpart it is not compatible.
 // Effort may be made in the future to make it so.
-void glTexParameter(int target, int param)
+int glTexParameter(int target, int param)
 {
     (void)target;
 
     if (glGlob->activeTexture == 0)
     {
         GFX_TEX_FORMAT = 0;
-        return;
+        return 0;
     }
 
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
     GFX_TEX_FORMAT = tex->texFormat = (tex->texFormat & 0x1FF0FFFF) | param;
+    return 1;
 }
 
 // Gets a pointer to the VRAM address that contains the texture.
@@ -1562,18 +1567,17 @@ u32 glGetTexParameter(void)
 }
 
 // Retrieves information pertaining to the currently bound texture's palette.
-void glGetColorTableParameterEXT(int target, int pname, int *params)
+int glGetColorTableParameterEXT(int target, int pname, int *params)
 {
     (void)target;
 
     if (!glGlob->activePalette)
     {
         *params = -1;
-        return;
+        return 0;
     }
 
-    gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs,
-                                           glGlob->activePalette);
+    gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, glGlob->activePalette);
 
     if (pname == GL_COLOR_TABLE_FORMAT_EXT)
         *params = pal->addr;
@@ -1581,6 +1585,8 @@ void glGetColorTableParameterEXT(int target, int pname, int *params)
         *params = pal->palSize >> 1;
     else
         *params = -1;
+
+    return 1;
 }
 
 // Similer to glTextImage2D from gl it takes a pointer to data. Empty fields and

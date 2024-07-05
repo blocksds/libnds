@@ -628,12 +628,14 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 /// glAssignColorTable sets the active texture with a palette set with another
 /// texture.
 ///
-/// If the other texture doesn't have a palette, the palette of the active
-/// texture will be deleted and no new palette will be assigned.
+/// If the other texture doesn't have a palette, the function will fail but the
+/// palette of the active texture will be deleted anyway, and no new palette
+/// will be assigned.
 ///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param name The name(int value) of the texture to load a palette from.
-void glAssignColorTable(int target, int name);
+/// @return 1 on success, 0 on failure.
+int glAssignColorTable(int target, int name);
 
 /// Set parameters for the current texture.
 ///
@@ -642,7 +644,8 @@ void glAssignColorTable(int target, int name);
 ///
 /// @param target Ignored, only here for OpenGL compatibility.
 /// @param param Paramaters for the texture.
-void glTexParameter(int target, int param);
+/// @return 1 on success, 0 on failure.
+int glTexParameter(int target, int param);
 
 /// Returns the active texture parameter
 ///
@@ -656,7 +659,8 @@ u32 glGetTexParameter(void);
 /// @param pname A parameter of type GL_TEXTURE_PALETTE_PARAM_ENUM, used to read
 ///              a specific attribute into params
 /// @param params The destination for the attribute to read into.
-void glGetColorTableParameterEXT(int target, int pname, int *params);
+/// @return 1 on success, 0 on failure.
+int glGetColorTableParameterEXT(int target, int pname, int *params);
 
 /// Returns the address allocated to the texure named by name.
 ///
