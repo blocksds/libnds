@@ -942,6 +942,9 @@ cleanup:
 
 void glResetTextures(void)
 {
+    if (glGlob->isActive == 0)
+        return;
+
     glGlob->activeTexture = 0;
     glGlob->activePalette = 0;
     glGlob->texCount = 1;
@@ -984,7 +987,7 @@ void glResetTextures(void)
     if ((glGlob->texturePtrs.data == NULL) || (glGlob->palettePtrs.data == NULL)
       || (glGlob->deallocTex.data == NULL) || (glGlob->deallocPal.data == NULL))
     {
-        // We have just free'd a lot of RAM (the arrays must be either the same
+        // We have just freed a lot of RAM (the arrays must be either the same
         // size or bigger than the initial ones!) so this should always succeed.
         sassert(false, "Failed to allocate dynamic arrays");
     }
