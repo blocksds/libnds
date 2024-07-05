@@ -422,32 +422,56 @@ typedef struct gl_palette_data
 // inlined/real functions.
 typedef struct gl_hidden_globals
 {
-    GL_MATRIX_MODE_ENUM matrixMode; // Holds the current Matrix Mode
+    // VRAM blocks management
+    // ----------------------
 
     s_vramBlock *vramBlocksTex; // One for textures
     s_vramBlock *vramBlocksPal; // One for palettes
     int vramLockTex; // Holds the current lock state of the VRAM banks
     int vramLockPal; // Holds the current lock state of the VRAM banks
 
-    // Texture globals
-    DynamicArray texturePtrs; // Pointers to each individual texture
-    DynamicArray palettePtrs; // Pointers to each individual palette
+    // Texture/palette manamenent
+    // --------------------------
 
-    DynamicArray deallocTex; // Preserves deleted names for later use with glGenTextures
-    DynamicArray deallocPal; // Preserves deleted palette names
-    uint32_t deallocTexSize; // Preserved number of deleted texture names
-    uint32_t deallocPalSize; // Preserved number of deleted palette names
+    // Arrays of texture and palettes. The index to access a texture is the same
+    // as the name of that texture. The value of each array component is a
+    // pointer to a texture or palette struct. When a texture/palette is
+    // generated, the pointer is allocated. When it is freed, the pointer is set
+    // deallocated and set to NULL, and the texture name (the array index) is
+    // added to the deallocTex or deallocPal array to be reused when required.
+    //
+    // Note: Getting the activeTexture or activePalette from the arrays will
+    // always succeed. glBindTexure() can only set activeTexture and
+    // activePalette to an element that exists.
+    DynamicArray texturePtrs;
+    DynamicArray palettePtrs;
 
-    int activeTexture; // The current active texture name
-    int activePalette; // The current active palette name
+    // Array of names that have been deleted and are ready to be reused. They
+    // are just a list of indices to the arrays texturePtrs and palettePtrs that
+    // we can reuse.
+    DynamicArray deallocTex;
+    DynamicArray deallocPal;
+
+    // Number of names available in the list of reusable names
+    uint32_t deallocTexSize;
+    uint32_t deallocPalSize;
+
+    // Current number of allocated names. It's also the next name that will be
+    // used (if there are no reusable names).
     int texCount;
     int palCount;
 
-    // Holds the current state of the clear color register
-    u32 clearColor; // State of clear color register
+    // State not related to dynamic memory management
+    // ----------------------------------------------
 
-    uint8_t isActive; // Has this been called before?
-} gl_hidden_globals;
+    int activeTexture; // The current active texture name
+    int activePalette; // The current active palette name
+    u32 clearColor; // Holds the current state of the clear color register
+    GL_MATRIX_MODE_ENUM matrixMode; // Holds the current Matrix Mode
+
+    uint8_t isActive; // Has glInit() been called before?
+}
+gl_hidden_globals;
 
 // Pointer to global data for videoGL
 extern gl_hidden_globals glGlobalData;

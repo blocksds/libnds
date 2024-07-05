@@ -247,7 +247,6 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color)
 ARM_CODE void glTexCoord2f32(int32_t u, int32_t v)
 {
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-
     if (tex)
     {
         int x = (tex->texFormat >> 20) & 7;
@@ -834,7 +833,7 @@ int glInit_C(void)
     glGlob->deallocTexSize = 0;
     glGlob->deallocPalSize = 0;
 
-    // Clean out all of this
+    // Initialize all of this
     if (DynamicArrayInit(&glGlob->texturePtrs, 16) == NULL)
         goto cleanup;
     if (DynamicArrayInit(&glGlob->palettePtrs, 16) == NULL)
@@ -848,10 +847,10 @@ int glInit_C(void)
     // the initial size of each dynamic array. No need to check for errors
     for (int i = 0; i < 16; i++)
     {
-        DynamicArraySet(&glGlob->texturePtrs, i, (void *)0);
-        DynamicArraySet(&glGlob->palettePtrs, i, (void *)0);
-        DynamicArraySet(&glGlob->deallocTex, i, (void *)0);
-        DynamicArraySet(&glGlob->deallocPal, i, (void *)0);
+        DynamicArraySet(&glGlob->texturePtrs, i, NULL);
+        DynamicArraySet(&glGlob->palettePtrs, i, NULL);
+        DynamicArraySet(&glGlob->deallocTex, i, NULL);
+        DynamicArraySet(&glGlob->deallocPal, i, NULL);
     }
 
     if (GFX_BUSY)
@@ -910,7 +909,7 @@ int glInit_C(void)
     glClearColor(0, 0, 0, 31);
     glClearPolyID(0);
 
-    // reset the depth to it's max
+    // reset the depth to its max
     glClearDepth(GL_MAX_DEPTH);
 
     GFX_TEX_FORMAT = 0;
@@ -925,7 +924,9 @@ int glInit_C(void)
     glMatrixMode(GL_TEXTURE);
     glLoadIdentity();
 
+    // Set the GL state as active in the global state struct
     glGlob->isActive = 1;
+
     return 1;
 
 cleanup:
@@ -949,25 +950,43 @@ void glResetTextures(void)
     glGlob->deallocPalSize = 0;
 
     // Any textures in use will be clean of all their data
-    for (int i = 0; i < (int)glGlob->texturePtrs.cur_size; i++)
+    for (unsigned int i = 0; i < glGlob->texturePtrs.cur_size; i++)
     {
         gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, i);
         if (texture)
         {
             free(texture);
-            DynamicArraySet(&glGlob->texturePtrs, i, (void *)0);
+            DynamicArraySet(&glGlob->texturePtrs, i, NULL);
         }
     }
 
     // Any palettes in use will be cleaned of all their data
-    for (int i = 0; i < (int)glGlob->palettePtrs.cur_size; i++)
+    for (unsigned int i = 0; i < glGlob->palettePtrs.cur_size; i++)
     {
         gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, i);
         if (palette)
         {
             free(palette);
-            DynamicArraySet(&glGlob->palettePtrs, i, (void *)0);
+            DynamicArraySet(&glGlob->palettePtrs, i, NULL);
         }
+    }
+
+    // Reset all the arrays to 16 elements in case they have grown too much
+    DynamicArrayDelete(&glGlob->texturePtrs);
+    DynamicArrayDelete(&glGlob->palettePtrs);
+    DynamicArrayDelete(&glGlob->deallocTex);
+    DynamicArrayDelete(&glGlob->deallocPal);
+
+    DynamicArrayInit(&glGlob->texturePtrs, 16);
+    DynamicArrayInit(&glGlob->palettePtrs, 16);
+    DynamicArrayInit(&glGlob->deallocTex, 16);
+    DynamicArrayInit(&glGlob->deallocPal, 16);
+    if ((glGlob->texturePtrs.data == NULL) || (glGlob->palettePtrs.data == NULL)
+      || (glGlob->deallocTex.data == NULL) || (glGlob->deallocPal.data == NULL))
+    {
+        // We have just free'd a lot of RAM (the arrays must be either the same
+        // size or bigger than the initial ones!) so this should always succeed.
+        sassert(false, "Failed to allocate dynamic arrays");
     }
 
     // Clean out both blocks
@@ -999,42 +1018,73 @@ void removePaletteFromTexture(gl_texture_data *tex)
     }
 }
 
+// Internal function that returns a new texture name
+static int glGenTexture(void)
+{
+    gl_texture_data *texture = calloc(1, sizeof(gl_texture_data));
+    if (texture == NULL)
+        return 0;
+
+    if (glGlob->deallocTexSize)
+    {
+        // If there are texture names in the array of deallocated names,
+        // reuse the last one and reduce the size of the array by one.
+
+        int name = (uint32_t)DynamicArrayGet(&glGlob->deallocTex,
+                                             glGlob->deallocTexSize - 1);
+
+        if (!DynamicArraySet(&glGlob->texturePtrs, name, texture))
+        {
+            free(texture);
+            return 0;
+        }
+
+        glGlob->deallocTexSize--;
+
+        return name;
+    }
+    else
+    {
+        // If there is no available texture name to reuse, generate a new name
+
+        int name = glGlob->texCount;
+
+        if (!DynamicArraySet(&glGlob->texturePtrs, name, texture))
+        {
+            free(texture);
+            return 0;
+        }
+
+        glGlob->texCount++;
+
+        return name;
+    }
+}
+
 // Create integer names for your table. Takes n as the number of textures to
 // generate and a pointer to the names array that it needs to fill. Returns 1 if
 // succesful and 0 if out of texture names.
 int glGenTextures(int n, int *names)
 {
-    int index = 0;
-
     // Don't do anything if can't add all generated textures
-    if ((glGlob->texCount - glGlob->deallocTexSize) + n >= MAX_TEXTURES)
+    if ((glGlob->texCount - glGlob->deallocTexSize + n) >= MAX_TEXTURES)
         return 0;
 
-    // Generate texture names for each element
-    for (index = 0; index < n; index++)
+    // Generate texture names for each element. If any of the names can't be
+    // generated, delete all the ones we have allocated up to this point and
+    // return failure.
+    for (int index = 0; index < n; index++)
     {
-        gl_texture_data *texture = calloc(1, sizeof(gl_texture_data));
-        if (texture == NULL)
+        int name = glGenTexture();
+        if (name == 0)
         {
-            // If any of the names can't be generated, delete all the ones we
-            // have allocated up to this point and return failure.
-
-            // The current index is equal to the number of generated names
+            // The current index is equal to the number of names we've
+            // generated, which is the number of names we need to delete.
             glDeleteTextures(index, names);
             return 0;
         }
 
-        if (glGlob->deallocTexSize) // Use previously deleted texture names
-        {
-            names[index] =
-                (uint32_t)DynamicArrayGet(&glGlob->deallocTex, glGlob->deallocTexSize--);
-        }
-        else
-        {
-            names[index] = glGlob->texCount++;
-        }
-
-        DynamicArraySet(&glGlob->texturePtrs, names[index], (void *)texture);
+        names[index] = name;
     }
 
     return 1;
@@ -1050,14 +1100,16 @@ int glDeleteTextures(int n, int *names)
         if (names[index] == 0)
             continue;
 
-        if (glGlob->deallocTexSize == MAX_TEXTURES
-            || names[index] >= MAX_TEXTURES) // This still needed?
-            return 0;
+        // The developer may have passed invalid values to this function.
+        sassert(names[index] <= MAX_TEXTURES, "Invalid texture name");
 
-        DynamicArraySet(&glGlob->deallocTex, ++glGlob->deallocTexSize,
-                        (void *)names[index]);
-        gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs,
-                                                   names[index]);
+        // Save this texture name in the deallocated texture name array so that we can
+        // reuse it later.
+        DynamicArraySet(&glGlob->deallocTex, glGlob->deallocTexSize, (void *)names[index]);
+        glGlob->deallocTexSize++;
+
+        // If this name had an assigned texture to it, delete it
+        gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, names[index]);
         if (texture)
         {
             // Clear out the texture blocks
@@ -1077,8 +1129,10 @@ int glDeleteTextures(int n, int *names)
                 removePaletteFromTexture(texture);
 
             free(texture);
+
+            // Clear pointer to mark the name as not having a texture
+            DynamicArraySet(&glGlob->texturePtrs, names[index], NULL);
         }
-        DynamicArraySet(&glGlob->texturePtrs, names[index], NULL);
 
         // Zero out register if the active texture was being deleted
         if (glGlob->activeTexture == names[index])
@@ -1086,6 +1140,8 @@ int glDeleteTextures(int n, int *names)
             GFX_TEX_FORMAT = 0;
             glGlob->activeTexture = 0;
         }
+
+        // Finally, clear the component from the array passed by the user
         names[index] = 0;
     }
 
@@ -1182,7 +1238,7 @@ int glBindTexture(int target, int name)
 
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
 
-    // Does the name exist?
+    // Has the name been generated with glGenTextures()?
     if (tex == NULL)
     {
         GFX_TEX_FORMAT = 0;
@@ -1237,7 +1293,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
         return 1;
 
     // Allocate new palette block based on the texture's format
-    uint32_t colFormat = ((texture->texFormat >> 26) & 0x7);
+    uint32_t colFormat = (texture->texFormat >> 26) & 0x7;
 
     uint32_t colFormatVal =
         ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && width <= 4)) ? 3 : 4);
@@ -1420,16 +1476,14 @@ void glTexParameter(int target, int param)
 {
     (void)target;
 
-    if (glGlob->activeTexture)
-    {
-        gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs,
-                                               glGlob->activeTexture);
-        GFX_TEX_FORMAT = tex->texFormat = (tex->texFormat & 0x1FF0FFFF) | param;
-    }
-    else
+    if (glGlob->activeTexture == 0)
     {
         GFX_TEX_FORMAT = 0;
+        return;
     }
+
+    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    GFX_TEX_FORMAT = tex->texFormat = (tex->texFormat & 0x1FF0FFFF) | param;
 }
 
 // Gets a pointer to the VRAM address that contains the texture.
@@ -1481,8 +1535,7 @@ u32 glGetTexParameter(void)
     if (!glGlob->activeTexture)
         return 0;
 
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs,
-                                           glGlob->activeTexture);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
     return tex->texFormat;
 }
 
@@ -1572,13 +1625,6 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         size = 0;
 
     gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-    if (tex == NULL)
-    {
-        // This point is reached if there is no active texture when
-        // glTexImage2D() is called. This is a programmer error (glBindTexture()
-        // hasn't been called to set an active texture).
-        return 0;
-    }
 
     // If there is a texture already and its size and bits per pixel are the
     // same as the ones of the new texture, reuse the old buffer. If not, clear
