@@ -34,7 +34,9 @@ BEGIN_ASM_FUNC IntrMain
 
 next_irq_check:
     add     r12, r12, #0x210
-    ldmia   r12!, {r1, r2}          // read IE, IF
+
+    // Read IE, IF
+    ldmia   r12!, {r1, r2}
     ands    r1, r1, r2
 #ifdef ARM9
     beq     no_handler
@@ -59,7 +61,14 @@ next_irq_check:
     b       findIRQ
 
 setflagsaux:
-    ldmia   r12!, {r1, r2}           // read AUX IE, IF
+    // Check if we're in DSi mode before evaluating AUX flags.
+    ldr     r1, =__dsimode
+    ldrb    r1, [r1]
+    cmp     r1, #0
+    beq     no_handler
+
+    // Read AUX IE, IF
+    ldmia   r12!, {r1, r2}
     ands    r1, r1, r2
     beq     no_handler
     ldr     r2, =irqTableAUX
