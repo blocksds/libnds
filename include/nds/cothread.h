@@ -23,6 +23,8 @@ extern "C" {
 typedef int cothread_t;
 /// Mutex
 typedef int comutex_t;
+/// Thread entrypoint
+typedef int (*cothread_entrypoint_t)(void *);
 
 /// Flags a thread as detached.
 ///
@@ -44,8 +46,9 @@ typedef int comutex_t;
 ///                   default value. If non-zero, it must be aligned to 64 bit.
 /// @param flags Set of ORed flags (like COTHREAD_DETACHED) or 0.
 ///
-/// @return On success, it returns 0. On failure, it returns -1 and sets errno.
-cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
+/// @return On success, it returns a non-negative value representing the thread
+/// ID. On failure, it returns -1 and sets errno.
+cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
                            size_t stack_size, unsigned int flags);
 
 /// Create a thread.
@@ -61,8 +64,9 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
 /// @param stack_size Size of the stack. Must be aligned to 64 bit.
 /// @param flags Set of ORed flags (like COTHREAD_DETACHED) or 0.
 ///
-/// @return On success, it returns 0. On failure, it returns -1 and sets errno.
-cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
+/// @return On success, it returns a non-negative value representing the thread
+/// ID. On failure, it returns -1 and sets errno.
+cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
                                   unsigned int flags);
 
