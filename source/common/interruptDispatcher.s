@@ -32,7 +32,6 @@ BEGIN_ASM_FUNC IntrMain
     mrs     r0, spsr
     stmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
 
-next_irq_check:
     add     r12, r12, #0x210
     ldmia   r12!, {r1, r2}          // read IE, IF
     ands    r1, r1, r2
@@ -59,6 +58,9 @@ next_irq_check:
     b       findIRQ
 
 setflagsaux:
+    // Since the interrupt wasn't a main one, it must be an AUX one.
+    // This way, we don't have to check if we're in DSi mode here.
+
     ldmia   r12!, {r1, r2}           // read AUX IE, IF
     ands    r1, r1, r2
     beq     no_handler
@@ -153,10 +155,6 @@ IntrRet:
     pop     {r2, lr}
 
     msr     cpsr, r2
-
-    // we might have not finished dealing with all IRQs
-    // to prevent a costly handler roundtrip, check here
-    b       next_irq_check
 
 no_handler:
 
