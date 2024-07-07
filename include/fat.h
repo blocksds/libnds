@@ -16,6 +16,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+// Some software relies on MAXPATHLEN, which is provided by this header.
+#include <sys/param.h>
 
 /// This function calls fatInit() with the default cache size (5 pages = 20 KB).
 ///

@@ -84,7 +84,6 @@ static inline void spiWaitBusy(void)
 {
     while (REG_SPICNT & SPI_BUSY);
 }
-#define SerialWaitBusy spiWaitBusy
 
 static inline u8 spiExchange(u8 value)
 {
