@@ -224,12 +224,16 @@ static inline int swiSqrt(int value)
     return r0;
 }
 
-/// Calculates a CRC-16 checksum.
+/// Calculates a CRC-16 checksum using the following configuration:
 ///
-/// @param crc Starting CRC-16 value.
+/// - Input reflected: Yes
+/// - Result reflected: Yes
+/// - Polynomial: 0x8005
+///
+/// @param crc Initial CRC-16 value.
 /// @param data Pointer to data (processed nibble by nibble)
 /// @param size Size in bytes.
-/// @return The CRC-16 after the data has been processed.
+/// @return The CRC-16 value after the data has been processed.
 __attribute__((always_inline))
 static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 {
