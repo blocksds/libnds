@@ -34,6 +34,8 @@ u32 nwramGetBlockAddress(NWRAM_BLOCK block)
 void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
                           NWRAM_BLOCK_IMAGE_SIZE imageSize)
 {
+    COMPILER_MEMORY_BARRIER();
+
     start -= NWRAM_BASE;
     u32 end;
     switch (block)
@@ -65,6 +67,8 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
                        | (end << MBK8_END_ADDR_SHIFT);
             break;
     }
+
+    COMPILER_MEMORY_BARRIER();
 }
 
 #ifdef ARM9
@@ -78,10 +82,14 @@ int nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool ena
     if (REG_MBK9 & BIT(slot))
         return -1;
 
+    COMPILER_MEMORY_BARRIER();
+
     if (enable)
         REG_MBK1[slot] = NWRAM_A_SLOT_ENABLE | master | NWRAM_A_SLOT_OFFSET(offset);
     else
         REG_MBK1[slot] = 0;
+
+    COMPILER_MEMORY_BARRIER();
 
     return 0;
 }
@@ -95,10 +103,14 @@ int nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool ena
     if (REG_MBK9 & BIT(slot + 8))
         return -1;
 
+    COMPILER_MEMORY_BARRIER();
+
     if (enable)
         REG_MBK2[slot] = NWRAM_BC_SLOT_ENABLE | master | NWRAM_BC_SLOT_OFFSET(offset);
     else
         REG_MBK2[slot] = 0;
+
+    COMPILER_MEMORY_BARRIER();
 
     return 0;
 }
@@ -112,10 +124,14 @@ int nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool ena
     if (REG_MBK9 & BIT(slot + 16))
         return -1;
 
+    COMPILER_MEMORY_BARRIER();
+
     if (enable)
         REG_MBK4[slot] = NWRAM_BC_SLOT_ENABLE | master | NWRAM_BC_SLOT_OFFSET(offset);
     else
         REG_MBK4[slot] = 0;
+
+    COMPILER_MEMORY_BARRIER();
 
     return 0;
 }

@@ -579,7 +579,11 @@ bool peripheralSlot2Open(uint32_t peripheral_mask)
 void peripheralSlot2Close(void)
 {
     if (slot2_device_id != 0xFFFF)
+    {
+        COMPILER_MEMORY_BARRIER();
         definitions[slot2_device_id].unlock(0);
+        COMPILER_MEMORY_BARRIER();
+    }
 }
 
 void peripheralSlot2Exit(void)
@@ -648,8 +652,10 @@ bool peripheralSlot2Init(uint32_t peripheral_mask)
             // Open for the user-requested peripheral mask.
             if ((def->peripheral_mask & peripheral_mask) != def->peripheral_mask)
             {
+                COMPILER_MEMORY_BARRIER();
                 def->unlock(0);
                 def->unlock(def->peripheral_mask & peripheral_mask);
+                COMPILER_MEMORY_BARRIER();
             }
             return true;
         }

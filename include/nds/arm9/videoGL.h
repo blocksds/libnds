@@ -992,8 +992,6 @@ static inline void glViewport(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 /// @param mode Flags from GLFLUSH_ENUM.
 static inline void glFlush(u32 mode)
 {
-    // Compiler barrier to prevent reordering of commands before GFX_FLUSH
-    asm volatile("" ::: "memory");
     GFX_FLUSH = mode;
 }
 

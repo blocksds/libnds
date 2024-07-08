@@ -14,10 +14,14 @@ u32 vramSetPrimaryBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE
 {
     uint32_t vramTemp = VRAM_CR;
 
+    COMPILER_MEMORY_BARRIER();
+
     VRAM_A_CR = VRAM_ENABLE | a;
     VRAM_B_CR = VRAM_ENABLE | b;
     VRAM_C_CR = VRAM_ENABLE | c;
     VRAM_D_CR = VRAM_ENABLE | d;
+
+    COMPILER_MEMORY_BARRIER();
 
     return vramTemp;
 }
@@ -26,9 +30,13 @@ u32 vramSetBanks_EFG(VRAM_E_TYPE e, VRAM_F_TYPE f, VRAM_G_TYPE g)
 {
     uint32_t vramTemp = VRAM_EFG_CR;
 
+    COMPILER_MEMORY_BARRIER();
+
     VRAM_E_CR = VRAM_ENABLE | e;
     VRAM_F_CR = VRAM_ENABLE | f;
     VRAM_G_CR = VRAM_ENABLE | g;
+
+    COMPILER_MEMORY_BARRIER();
 
     return vramTemp;
 }

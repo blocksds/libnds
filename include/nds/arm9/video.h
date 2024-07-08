@@ -359,14 +359,18 @@ u32 vramDefault(void);
 /// @param vramTemp Value to restore the modes.
 static inline void vramRestorePrimaryBanks(u32 vramTemp)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_CR = vramTemp;
+    COMPILER_MEMORY_BARRIER();
 }
 
 // Same as vramRestorePrimaryBanks(), but deprecated.
 __attribute__((deprecated))
 static inline void vramRestoreMainBanks(u32 vramTemp)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_CR = vramTemp;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Restore the modes of VRAM banks E, F, and G.
@@ -377,7 +381,9 @@ static inline void vramRestoreMainBanks(u32 vramTemp)
 /// @param vramTemp Value to restore the modes.
 static inline void vramRestoreBanks_EFG(u32 vramTemp)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_EFG_CR = vramTemp;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank A to the indicated mapping.
@@ -385,7 +391,9 @@ static inline void vramRestoreBanks_EFG(u32 vramTemp)
 /// @param a The mapping of the bank.
 static inline void vramSetBankA(VRAM_A_TYPE a)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_A_CR = VRAM_ENABLE | a;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank B to the indicated mapping.
@@ -393,7 +401,9 @@ static inline void vramSetBankA(VRAM_A_TYPE a)
 /// @param b The mapping of the bank.
 static inline void vramSetBankB(VRAM_B_TYPE b)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_B_CR = VRAM_ENABLE | b;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank C to the indicated mapping.
@@ -401,7 +411,9 @@ static inline void vramSetBankB(VRAM_B_TYPE b)
 /// @param c The mapping of the bank.
 static inline void vramSetBankC(VRAM_C_TYPE c)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_C_CR = VRAM_ENABLE | c;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank D to the indicated mapping.
@@ -409,7 +421,9 @@ static inline void vramSetBankC(VRAM_C_TYPE c)
 /// @param d The mapping of the bank.
 static inline void vramSetBankD(VRAM_D_TYPE d)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_D_CR = VRAM_ENABLE | d;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank E to the indicated mapping.
@@ -417,7 +431,9 @@ static inline void vramSetBankD(VRAM_D_TYPE d)
 /// @param e The mapping of the bank.
 static inline void vramSetBankE(VRAM_E_TYPE e)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_E_CR = VRAM_ENABLE | e;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank F to the indicated mapping.
@@ -425,7 +441,9 @@ static inline void vramSetBankE(VRAM_E_TYPE e)
 /// @param f The mapping of the bank.
 static inline void vramSetBankF(VRAM_F_TYPE f)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_F_CR = VRAM_ENABLE | f;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank G to the indicated mapping.
@@ -433,7 +451,9 @@ static inline void vramSetBankF(VRAM_F_TYPE f)
 /// @param g The mapping of the bank.
 static inline void vramSetBankG(VRAM_G_TYPE g)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_G_CR = VRAM_ENABLE | g;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank H to the indicated mapping.
@@ -441,7 +461,9 @@ static inline void vramSetBankG(VRAM_G_TYPE g)
 /// @param h The mapping of the bank.
 static inline void vramSetBankH(VRAM_H_TYPE h)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_H_CR = VRAM_ENABLE | h;
+    COMPILER_MEMORY_BARRIER();
 }
 
 /// Set VRAM bank I to the indicated mapping.
@@ -449,7 +471,9 @@ static inline void vramSetBankH(VRAM_H_TYPE h)
 /// @param i The mapping of the bank.
 static inline void vramSetBankI(VRAM_I_TYPE i)
 {
+    COMPILER_MEMORY_BARRIER();
     VRAM_I_CR = VRAM_ENABLE | i;
+    COMPILER_MEMORY_BARRIER();
 }
 
 // Display control registers

@@ -50,6 +50,22 @@ extern "C" {
 #define PACKED __attribute__ ((packed))
 #define packed_struct struct PACKED
 
+/// Helper that prevents the compiler from reordering memory accesses.
+///
+/// Accesses to pointers marked as "volatile" aren't reordered, but accesses
+/// to non-volatile pointers can be reordered. Sometimes, this reordering can
+/// cause issues. For example, if you want to setup VRAM as LCD to write to it,
+/// but the compiler decides to set it to LCD after writing data to it. It can
+/// also happen if the compiler sets VRAM to texture mode or extended palette
+/// mode before it has finished writing data to it.
+///
+/// This barrier makes sure that all the accesses before it happen before all
+/// accesses after it.
+///
+/// Note that this doesn't compile to any instruction, it's just an indication
+/// for the compiler.
+#define COMPILER_MEMORY_BARRIER() asm volatile("" ::: "memory")
+
 // Macros related to the bin2o macro of the Makefile
 #define GETRAW(name)        (name)
 #define GETRAWSIZE(name)    ((int)name##_size)
