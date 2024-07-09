@@ -74,7 +74,7 @@ ifneq ($(GFXDIRS),)
     INCLUDEDIRS	+= $(addprefix $(BUILDDIR)/,$(GFXDIRS))
 endif
 
-SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -name "*.s")
+SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -name "*.S")
 SOURCES_C	:= $(shell find -L $(SOURCEDIRS) -name "*.c")
 SOURCES_CPP	:= $(shell find -L $(SOURCEDIRS) -name "*.cpp")
 
@@ -90,7 +90,7 @@ WARNFLAGS	:= -Wall -Wextra -Wpedantic -Wstrict-prototypes -Wshadow
 INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 		   $(foreach path,$(LIBDIRS),-I$(path)/include)
 
-ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(ARCH) \
+ASFLAGS		+= $(DEFINES) $(ARCH) \
 		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) \
 		   -ffunction-sections -fdata-sections
 
@@ -141,7 +141,7 @@ clean:
 # Rules
 # -----
 
-$(BUILDDIR)/%.s.o : %.s
+$(BUILDDIR)/%.S.o : %.S
 	@echo "  AS.9    $<"
 	@$(MKDIR) -p $(@D)
 	$(V)$(CC) $(ASFLAGS) -MMD -MP -c -o $@ $<
