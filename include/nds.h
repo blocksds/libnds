@@ -79,6 +79,7 @@
 /// - @ref nds/arm9/dynamicArray.h "General Purpose dynamic array implementation"
 /// - @ref nds/arm9/linkedlist.h "General purpose linked list implementation"
 /// - @ref nds/decompress.h "Decompression"
+/// - @ref nds/rsa.h "DSi RSA functions"
 /// - @ref nds/sha1.h "DSi SHA1 functions"
 ///
 /// @section peripheral_api Custom Peripherals
@@ -139,6 +140,7 @@ extern "C" {
 #include <nds/ndma.h>
 #include <nds/ndstypes.h>
 #include <nds/nwram.h>
+#include <nds/rsa.h>
 #include <nds/sha1.h>
 #include <nds/system.h>
 #include <nds/timers.h>
