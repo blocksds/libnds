@@ -90,7 +90,7 @@ WARNFLAGS	:= -Wall -Wextra -Wpedantic -Wstrict-prototypes -Wshadow
 INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 		   $(foreach path,$(LIBDIRS),-I$(path)/include)
 
-ASFLAGS		+= $(DEFINES) $(ARCH) \
+ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(ARCH) \
 		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) \
 		   -ffunction-sections -fdata-sections
 
