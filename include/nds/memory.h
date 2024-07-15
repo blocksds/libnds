@@ -3,6 +3,7 @@
 //
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
+// Copyright (C) 2024 Ivan Veloz (ivan)
 
 // Declaration of memory regions
 
@@ -28,24 +29,36 @@ extern "C" {
 #define REG_EXMEMSTAT   (*(vu16 *)0x04000204)
 #endif
 
-#define EXMEMCNT_SRAM_TIME_10_CYCLES        (0)
-#define EXMEMCNT_SRAM_TIME_8_CYCLES         (1)
-#define EXMEMCNT_SRAM_TIME_6_CYCLES         (2)
-#define EXMEMCNT_SRAM_TIME_18_CYCLES        (3)
-#define EXMEMCNT_SRAM_TIME_MASK             (3)
-#define EXMEMCNT_ROM_TIME1_10_CYCLES        (0)
-#define EXMEMCNT_ROM_TIME1_8_CYCLES         (1 << 2)
-#define EXMEMCNT_ROM_TIME1_6_CYCLES         (2 << 2)
-#define EXMEMCNT_ROM_TIME1_18_CYCLES        (3 << 2)
-#define EXMEMCNT_ROM_TIME1_MASK             (3 << 2)
-#define EXMEMCNT_ROM_TIME2_6_CYCLES         (0)
-#define EXMEMCNT_ROM_TIME2_4_CYCLES         (1 << 4)
-#define EXMEMCNT_ROM_TIME2_MASK             (1 << 4)
-#define EXMEMCNT_PHI_CLOCK_OFF              (0)
-#define EXMEMCNT_PHI_CLOCK_4MHZ             (1 << 5)
-#define EXMEMCNT_PHI_CLOCK_8MHZ             (2 << 5)
-#define EXMEMCNT_PHI_CLOCK_16MHZ            (3 << 5)
-#define EXMEMCNT_PHI_CLOCK_MASK             (3 << 5)
+#define EXMEMCNT_SRAM_TIME_SHIFT            (0)
+#define EXMEMCNT_SRAM_TIME_SIZE             (3)
+#define EXMEMCNT_SRAM_TIME_10_CYCLES        (0 << EXMEMCNT_SRAM_TIME_SHIFT)
+#define EXMEMCNT_SRAM_TIME_8_CYCLES         (1 << EXMEMCNT_SRAM_TIME_SHIFT)
+#define EXMEMCNT_SRAM_TIME_6_CYCLES         (2 << EXMEMCNT_SRAM_TIME_SHIFT)
+#define EXMEMCNT_SRAM_TIME_18_CYCLES        (3 << EXMEMCNT_SRAM_TIME_SHIFT)
+#define EXMEMCNT_SRAM_TIME_MASK             (EXMEMCNT_SRAM_TIME_SIZE << EXMEMCNT_SRAM_TIME_SHIFT)
+
+#define EXMEMCNT_ROM_TIME1_SHIFT            (2)
+#define EXMEMCNT_ROM_TIME1_SIZE             (3)
+#define EXMEMCNT_ROM_TIME1_10_CYCLES        (0 << EXMEMCNT_ROM_TIME1_SHIFT)
+#define EXMEMCNT_ROM_TIME1_8_CYCLES         (1 << EXMEMCNT_ROM_TIME1_SHIFT)
+#define EXMEMCNT_ROM_TIME1_6_CYCLES         (2 << EXMEMCNT_ROM_TIME1_SHIFT)
+#define EXMEMCNT_ROM_TIME1_18_CYCLES        (3 << EXMEMCNT_ROM_TIME1_SHIFT)
+#define EXMEMCNT_ROM_TIME1_MASK             (EXMEMCNT_ROM_TIME1_SIZE << EXMEMCNT_SRAM_TIME_SHIFT)
+
+#define EXMEMCNT_ROM_TIME2_SHIFT            (4)
+#define EXMEMCNT_ROM_TIME2_SIZE             (1)
+#define EXMEMCNT_ROM_TIME2_6_CYCLES         (0 << EXMEMCNT_ROM_TIME2_SHIFT)
+#define EXMEMCNT_ROM_TIME2_4_CYCLES         (1 << EXMEMCNT_ROM_TIME2_SHIFT)
+#define EXMEMCNT_ROM_TIME2_MASK             (EXMEMCNT_ROM_TIME2_SIZE << EXMEMCNT_ROM_TIME2_SHIFT)
+
+#define EXMEMCNT_PHI_CLOCK_SHIFT            (5)
+#define EXMEMCNT_PHI_CLOCK_SIZE             (3)
+#define EXMEMCNT_PHI_CLOCK_OFF              (0 << EXMEMCNT_PHI_CLOCK_SHIFT)
+#define EXMEMCNT_PHI_CLOCK_4MHZ             (1 << EXMEMCNT_PHI_CLOCK_SHIFT)
+#define EXMEMCNT_PHI_CLOCK_8MHZ             (2 << EXMEMCNT_PHI_CLOCK_SHIFT)
+#define EXMEMCNT_PHI_CLOCK_16MHZ            (3 << EXMEMCNT_PHI_CLOCK_SHIFT)
+#define EXMEMCNT_PHI_CLOCK_MASK             (EXMEMCNT_PHI_CLOCK_SIZE << EXMEMCNT_PHI_CLOCK_SHIFT)
+
 #define EXMEMCNT_CART_ARM7                  BIT(7)
 #define EXMEMCNT_CARD_ARM7                  BIT(11)
 #define EXMEMCNT_MAIN_RAM_PRIORITY_ARM7     BIT(15)
