@@ -130,12 +130,10 @@ static inline int32_t sqrtf32_result(void)
 
 #pragma GCC diagnostic push
 
-// clang does not recognize -Wbuiltin-declaration-mismatch, ignore it here
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wunknown-warning-option"
-#endif
-
+// clang does not recognize -Wbuiltin-declaration-mismatch, ignore it
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
+#endif
 
 /// Fixed point sqrt.
 ///
