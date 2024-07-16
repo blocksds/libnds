@@ -129,10 +129,11 @@ static inline int32_t sqrtf32_result(void)
 }
 
 #pragma GCC diagnostic push
-// GCC does not recognize clang diagnostic pragma, ignore it here
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+
 // clang does not recognize -Wbuiltin-declaration-mismatch, ignore it here
+#ifdef __clang__
 #pragma clang diagnostic ignored "-Wunknown-warning-option"
+#endif
 
 #pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
 

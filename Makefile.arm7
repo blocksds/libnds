@@ -63,7 +63,7 @@ endif
 # Source files
 # ------------
 
-SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -name "*.S")
+SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -name "*.s")
 SOURCES_C	:= $(shell find -L $(SOURCEDIRS) -name "*.c")
 SOURCES_CPP	:= $(shell find -L $(SOURCEDIRS) -name "*.cpp")
 
@@ -122,7 +122,7 @@ clean:
 # Rules
 # -----
 
-$(BUILDDIR)/%.S.o : %.S
+$(BUILDDIR)/%.s.o : %.s
 	@echo "  AS.7    $<"
 	@$(MKDIR) -p $(@D)
 	$(V)$(CC) $(ASFLAGS) -MMD -MP -c -o $@ $<
