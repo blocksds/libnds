@@ -144,6 +144,7 @@ extern "C" {
 #include <nds/sha1.h>
 #include <nds/system.h>
 #include <nds/timers.h>
+#include <nds/transfer_region.h>
 #include <nds/touch.h>
 
 #ifdef ARM9

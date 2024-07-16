@@ -18,8 +18,8 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 #include <nds/timers.h>
+#include <nds/transfer_region.h>
 
-#include "common/libnds_internal.h"
 
 bool __dsimode; // Set by the crt0
 bool __debugger_unit; // Set by the crt0
@@ -65,9 +65,9 @@ void __attribute__((weak)) initSystem(void)
     fifoSetValue32Handler(FIFO_SYSTEM, systemValueHandler, 0);
     fifoSetDatamsgHandler(FIFO_SYSTEM, systemMsgHandler, 0);
 
-    punixTime = (time_t *)memUncached((void *)&__transferRegion()->unixTime);
+    punixTime = (time_t *)memUncached((void *)&transferRegion()->unixTime);
 
     extern char *fake_heap_end;
-    __transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
+    transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
     irqEnable(IRQ_VBLANK);
 }

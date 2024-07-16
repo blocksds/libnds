@@ -13,9 +13,8 @@
 #include <nds/interrupts.h>
 #include <nds/ipc.h>
 #include <nds/timers.h>
+#include <nds/transfer_region.h>
 #include <nds/system.h>
-
-#include "common/libnds_internal.h"
 
 // Delay (in swiDelay units) for each bit transfer
 #define RTC_DELAY 48
@@ -180,7 +179,7 @@ __attribute__((deprecated)) void rtcSetTime(uint8_t *time)
 
 static void syncRTC(void)
 {
-    __transferRegion()->unixTime++;
+    transferRegion()->unixTime++;
 }
 
 /* Nonzero if `y' is a leap year, else zero. */
@@ -363,7 +362,7 @@ void resyncClock(void)
     rtcTimeAndDate dstime;
     rtcTimeAndDateGet(&dstime);
 
-    __transferRegion()->unixTime = __mktime(&dstime);
+    transferRegion()->unixTime = __mktime(&dstime);
 }
 
 __attribute__((deprecated)) void initClockIRQ(void)

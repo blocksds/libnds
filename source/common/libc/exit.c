@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <nds/fifocommon.h>
 #include <nds/system.h>
+#include <nds/transfer_region.h>
 
 #include "../fifo_ipc_messages.h"
-#include "../libnds_internal.h"
 
 extern char *fake_heap_end;
 
@@ -40,7 +40,7 @@ ARM_CODE void _exit(int rc)
     if (rc != 0)
         systemErrorExit(rc);
 
-    struct __bootstub *bootcode = __transferRegion()->bootcode;
+    struct __bootstub *bootcode = transferRegion()->bootcode;
 
     if (bootcode->bootsig == BOOTSIG)
     {
