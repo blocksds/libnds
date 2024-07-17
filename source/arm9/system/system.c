@@ -120,9 +120,9 @@ void waitARM7Ready(void)
     // stuck in the send FIFO for as long as it has to. As soon as the ARM7 has
     // finished setting up the handlers, it will be handled.
     //
-    // It is possible that the ARM7 crashes at some point. In order to not wait
-    // forever, there is a limit in the number of frames that we're allowed to
-    // wait.
+    // It is possible that the ARM7 crashes at some point during boot. In order
+    // to not wait forever, there is a limit in the number of frames that we're
+    // allowed to wait. After that, we will show an error message.
 
     int max_frames = 60;
 
@@ -136,7 +136,7 @@ void waitARM7Ready(void)
         max_frames--;
         if (max_frames == 0)
         {
-            sassert(false, "ARM7 FIFO init failed");
+            libndsCrash("ARM7 FIFO init failed");
             break;
         }
 

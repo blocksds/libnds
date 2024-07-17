@@ -69,6 +69,8 @@ void waitARM7Ready(void);
 void setTransferInputData(touchPosition *touch, u16 buttons);
 void __libnds_exit(int rc);
 
+__attribute__((noreturn)) void libndsCrash(const char *message);
+
 extern time_t *punixTime;
 
 int nocash_putc_buffered(char c, FILE *file);
