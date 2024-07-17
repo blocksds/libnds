@@ -40,34 +40,34 @@ void powerValueHandler(u32 value, void *user_data)
 {
     (void)user_data;
 
-    u32 temp;
-    u32 ie_save;
-    int battery, power;
-
     switch (value & 0xFFFF0000)
     {
         case PM_REQ_LED:
             ledBlink(value);
             break;
+
         case PM_REQ_ON:
-            temp = readPowerManagement(PM_CONTROL_REG);
+        {
+            u32 temp = readPowerManagement(PM_CONTROL_REG);
             writePowerManagement(PM_CONTROL_REG, temp | (value & 0xFFFF));
             break;
+        }
         case PM_REQ_OFF:
-            temp = readPowerManagement(PM_CONTROL_REG) & (~(value & 0xFFFF));
+        {
+            u32 temp = readPowerManagement(PM_CONTROL_REG) & (~(value & 0xFFFF));
             writePowerManagement(PM_CONTROL_REG, temp);
             break;
-
+        }
         case PM_REQ_SLEEP:
-
-            ie_save = REG_IE;
+        {
+            u32 ie_save = REG_IE;
 
             // Turn the speaker down.
             if (REG_POWERCNT & PM_SOUND_AMP)
                 swiChangeSoundBias(0, 0x400);
 
             // Save current power state.
-            power = readPowerManagement(PM_CONTROL_REG);
+            u32 power = readPowerManagement(PM_CONTROL_REG);
 
             // Set sleep LED.
             writePowerManagement(PM_CONTROL_REG, PM_LED_CONTROL(1));
@@ -94,7 +94,7 @@ void powerValueHandler(u32 value, void *user_data)
             // update clock tracking
             resyncClock();
             break;
-
+        }
         case PM_REQ_SLEEP_DISABLE:
             sleepIsEnabled = false;
             break;
@@ -103,6 +103,9 @@ void powerValueHandler(u32 value, void *user_data)
             sleepIsEnabled = true;
             break;
         case PM_REQ_BATTERY:
+        {
+            u32 battery;
+
             if (!isDSiMode())
             {
                 // This code reads the DS-specific registers and generates a
@@ -137,6 +140,7 @@ void powerValueHandler(u32 value, void *user_data)
 
             fifoSendValue32(FIFO_PM, battery);
             break;
+        }
         case PM_REQ_SLOT1_DISABLE:
             disableSlot1();
             break;
