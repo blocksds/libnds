@@ -1042,9 +1042,9 @@ void glResetTextures(void)
     }
 
     // Clean out both blocks
-    if (vramBlock_deallocateAll(glGlob->vramBlocksTex) == 1)
+    if (vramBlock_deallocateAll(glGlob->vramBlocksTex) == 0)
         sassert(false, "Failed to allocate vramBlocksTex");
-    if (vramBlock_deallocateAll(glGlob->vramBlocksPal) == 1)
+    if (vramBlock_deallocateAll(glGlob->vramBlocksPal) == 0)
         sassert(false, "Failed to allocate vramBlocksPal");
 }
 
