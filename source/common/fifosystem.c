@@ -703,7 +703,8 @@ static void fifoInternalSendInterrupt(void)
 
 bool fifoInit(void)
 {
-    REG_IPC_FIFO_CR = IPC_FIFO_SEND_CLEAR | IPC_FIFO_RECV_EMPTY | IPC_FIFO_SEND_EMPTY;
+    // Clear all the words that were being sent to the other CPU
+    REG_IPC_FIFO_CR = IPC_FIFO_SEND_CLEAR;
 
     for (int i = 0; i < FIFO_NUM_CHANNELS; i++)
     {
