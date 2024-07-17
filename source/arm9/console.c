@@ -8,9 +8,12 @@
 // Important note: We can't use any BIOS functions in this file because the
 // console is used by the default exception handler. The handler doesn't run in
 // CPU user mode, so it doesn't work correctly if it uses BIOS functions.
+//
+// We shouldn't use any function from <stdio.h> either. This will allow
+// developers to use the console with consolePrintChar() without ever requiring
+// printf(), or sscanf(), or anything like that.
 
 #include <stdarg.h>
-#include <stdio.h>
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
@@ -65,8 +68,6 @@ PrintConsole *consoleGetDefault(void)
 {
     return &defaultConsole;
 }
-
-void consolePrintChar(char c);
 
 static void consoleCls(char mode)
 {
@@ -184,7 +185,6 @@ static ssize_t con_write(const char *ptr, size_t len)
 
     size_t i = 0;
     size_t count = 0;
-    int intensity = 0;
 
     while (i < len)
     {
@@ -197,6 +197,8 @@ static ssize_t con_write(const char *ptr, size_t len)
             bool escaping = true;
             const char *escapeseq = tmp;
             int escapelen = 0;
+            unsigned int params[2] = { 0 };
+            unsigned int cur_param = 0;
 
             do
             {
@@ -204,91 +206,124 @@ static ssize_t con_write(const char *ptr, size_t len)
                 i++;
                 count++;
                 escapelen++;
-                int parameter;
 
                 switch (chr)
                 {
-                    /////////////////////////////////////////
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        params[cur_param] = (params[cur_param] * 10) + (chr - '0');
+                        break;
+
+                    case ';':
+                        cur_param++;
+                        if (cur_param == 2) // Only one ';' supported
+                            return -1;
+                        break;
+
                     // Cursor directional movement
-                    /////////////////////////////////////////
                     case 'A':
-                        sscanf(escapeseq, "[%dA", &parameter);
-                        currentConsole->cursorY =
-                            (currentConsole->cursorY - parameter) < 0
-                                ? 0
-                                : currentConsole->cursorY - parameter;
+                    {
+                        int new_y = currentConsole->cursorY - params[0];
+                        if (new_y < 0)
+                            new_y = 0;
+
+                        currentConsole->cursorY = new_y;
                         escaping = false;
                         break;
+                    }
                     case 'B':
-                        sscanf(escapeseq, "[%dB", &parameter);
-                        currentConsole->cursorY =
-                            (currentConsole->cursorY + parameter)
-                                    > currentConsole->windowHeight - 1
-                                ? currentConsole->windowHeight - 1
-                                : currentConsole->cursorY + parameter;
+                    {
+                        int new_y = currentConsole->cursorY + params[0];
+                        int max_y = currentConsole->windowHeight - 1;
+                        if (new_y > max_y)
+                            new_y = max_y;
+
+                        currentConsole->cursorY = new_y;
                         escaping = false;
                         break;
+                    }
                     case 'C':
-                        sscanf(escapeseq, "[%dC", &parameter);
-                        currentConsole->cursorX =
-                            (currentConsole->cursorX + parameter)
-                                    > currentConsole->windowWidth - 1
-                                ? currentConsole->windowWidth - 1
-                                : currentConsole->cursorX + parameter;
+                    {
+                        int new_x = currentConsole->cursorX + params[0];
+                        int max_x = currentConsole->windowWidth - 1;
+                        if (new_x > max_x)
+                            new_x = max_x;
+
+                        currentConsole->cursorX = new_x;
                         escaping = false;
                         break;
+                    }
                     case 'D':
-                        sscanf(escapeseq, "[%dD", &parameter);
-                        currentConsole->cursorX =
-                            (currentConsole->cursorX - parameter) < 0
-                                ? 0
-                                : currentConsole->cursorX - parameter;
+                    {
+                        int new_x = currentConsole->cursorY - params[0];
+                        if (new_x < 0)
+                            new_x = 0;
+
+                        currentConsole->cursorX = new_x;
                         escaping = false;
                         break;
-                        /////////////////////////////////////////
-                        // Cursor position movement
-                        /////////////////////////////////////////
+                    }
+
+                    // Cursor position movement
                     case 'H':
                     case 'f':
-                        sscanf(escapeseq, "[%d;%df", &currentConsole->cursorY,
-                               &currentConsole->cursorX);
+                    {
+                        int new_y = params[0];
+                        int new_x = params[1];
+
+                        int max_y = currentConsole->windowHeight - 1;
+                        if (new_y > max_y)
+                            new_y = max_y;
+
+                        int max_x = currentConsole->windowWidth - 1;
+                        if (new_x > max_x)
+                            new_x = max_x;
+
+                        currentConsole->cursorY = new_y;
+                        currentConsole->cursorX = new_x;
                         escaping = false;
                         break;
-                        /////////////////////////////////////////
-                        // Screen clear
-                        /////////////////////////////////////////
+                    }
+
+                    // Screen clear
                     case 'J':
                         consoleCls(escapeseq[escapelen - 2]);
                         escaping = false;
                         break;
-                        /////////////////////////////////////////
-                        // Line clear
-                        /////////////////////////////////////////
+
+                    // Line clear
                     case 'K':
                         consoleClearLine(escapeseq[escapelen - 2]);
                         escaping = false;
                         break;
-                        /////////////////////////////////////////
-                        // Save cursor position
-                        /////////////////////////////////////////
+
+                    // Save cursor position
                     case 's':
                         currentConsole->prevCursorX = currentConsole->cursorX;
                         currentConsole->prevCursorY = currentConsole->cursorY;
                         escaping = false;
                         break;
-                        /////////////////////////////////////////
-                        // Load cursor position
-                        /////////////////////////////////////////
+
+                    // Load cursor position
                     case 'u':
                         currentConsole->cursorX = currentConsole->prevCursorX;
                         currentConsole->cursorY = currentConsole->prevCursorY;
                         escaping = false;
                         break;
-                        /////////////////////////////////////////
-                        // Color scan codes
-                        /////////////////////////////////////////
+
+                    // Color scan codes
                     case 'm':
-                        sscanf(escapeseq, "[%d;%dm", &parameter, &intensity);
+                    {
+                        int parameter = params[0];
+                        int intensity = params[1];
 
                         // only handle 30-37,39 and intensity for the color changes
                         parameter -= 30;
@@ -306,6 +341,7 @@ static ssize_t con_write(const char *ptr, size_t len)
 
                         escaping = false;
                         break;
+                    }
                 }
             } while (escaping);
             continue;
@@ -634,7 +670,7 @@ void consolePrintChar(char c)
 
 void consoleClear(void)
 {
-    printf("\x1b[2J");
+    consoleCls('2');
 }
 
 void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height)
