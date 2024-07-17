@@ -17,6 +17,7 @@
 #include <nds/system.h>
 
 #include "arm7/libnds_internal.h"
+#include "common/libnds_internal.h"
 
 bool sleepIsEnabled = true;
 bool __dsimode = false; // Set in crt0
@@ -42,6 +43,10 @@ void powerValueHandler(u32 value, void *user_data)
 
     switch (value & 0xFFFF0000)
     {
+        case PM_IS_ARM7_READY:
+            fifoSendValue32(FIFO_PM, LIBNDS_ARM7_READY_MAGIC);
+            break;
+
         case PM_REQ_LED:
             ledBlink(value);
             break;

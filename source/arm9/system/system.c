@@ -5,6 +5,7 @@
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
+#include <nds/arm9/sassert.h>
 #include <nds/bios.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
@@ -106,6 +107,41 @@ u32 getBatteryLevel(void)
     fifoSendValue32(FIFO_PM, PM_REQ_BATTERY);
     fifoWaitValue32(FIFO_PM);
     return fifoGetValue32(FIFO_PM);
+}
+
+void waitARM7Ready(void)
+{
+    // The ARM9 main() routine should never start before the FIFO handlers of
+    // the ARM7 are ready.
+    //
+    // This function simply waits for the ARM7 to have the handlers setup.
+    // Even if the ARM7 FIFO handlers aren't ready when this message is sent,
+    // the ARM7 can't clear the send FIFO of the ARM9, so this message will get
+    // stuck in the send FIFO for as long as it has to. As soon as the ARM7 has
+    // finished setting up the handlers, it will be handled.
+    //
+    // It is possible that the ARM7 crashes at some point. In order to not wait
+    // forever, there is a limit in the number of frames that we're allowed to
+    // wait.
+
+    int max_frames = 60;
+
+    fifoSendValue32(FIFO_PM, PM_IS_ARM7_READY);
+    while (1)
+    {
+        u32 value = fifoGetValue32(FIFO_PM);
+        if (value == LIBNDS_ARM7_READY_MAGIC)
+            break;
+
+        max_frames--;
+        if (max_frames == 0)
+        {
+            sassert(false, "ARM7 FIFO init failed");
+            break;
+        }
+
+        swiWaitForVBlank();
+    }
 }
 
 void enableSlot1(void)

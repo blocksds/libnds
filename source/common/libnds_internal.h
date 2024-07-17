@@ -59,6 +59,13 @@ static inline __TransferRegion volatile *__transferRegion(void)
         return (__TransferRegion volatile *)0x02FFF000;
 }
 
+/// Magic value returned by the ARM7 if it is ready (ARM7 is safe)
+#define LIBNDS_ARM7_READY_MAGIC 0xA7155AFE
+
+#ifdef ARM9
+void waitARM7Ready(void);
+#endif
+
 void setTransferInputData(touchPosition *touch, u16 buttons);
 void __libnds_exit(int rc);
 

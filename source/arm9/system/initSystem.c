@@ -69,5 +69,8 @@ void __attribute__((weak)) initSystem(void)
 
     extern char *fake_heap_end;
     __transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
+
     irqEnable(IRQ_VBLANK);
+
+    waitARM7Ready();
 }
