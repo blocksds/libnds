@@ -12,7 +12,7 @@
 #include <nds/memory.h>
 #include <nds/system.h>
 
-#include "common/libnds_internal.h"
+#include "arm9/libnds_internal.h"
 
 static void (*SDcallback)(int) = NULL;
 
