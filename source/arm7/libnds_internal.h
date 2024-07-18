@@ -25,4 +25,21 @@ typedef struct {
  */
 libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5]);
 
+__attribute__((always_inline, noreturn))
+THUMB_CODE static inline void libndsCrash(__attribute__((unused)) const char *message)
+{
+    // This function causes an undefined instruction exception to crash the CPU
+    // in a controlled way.
+    //
+    // Opcodes defined as "Undefined Instruction" by the ARM architecture:
+    //
+    // - Thumb: 0xE800 | (ignored & 0x7FF)
+    // - ARM:   0x?6000010 | (ignored & 0x1FFFFEF)
+    //
+    // It's better to use Thumb because that way the ARM7 can jump to it with a
+    // BL instruction instead of BL+BX (BLX only exists in the ARM9)./
+    asm volatile inline(".hword 0xE800 | 0xBAD");
+    __builtin_unreachable();
+}
+
 #endif // ARM7_LIBNDS_INTERNAL_H__

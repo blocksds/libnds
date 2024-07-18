@@ -9,6 +9,12 @@
 
 #include <sys/lock.h>
 
+#ifdef ARM9
+#include "arm9/libnds_internal.h"
+#else
+#include "arm7/libnds_internal.h"
+#endif
+
 void *__aeabi_read_tp(void);
 
 struct __lock
@@ -18,23 +24,6 @@ struct __lock
     void *thread_owner;
     bool used;
 };
-
-__attribute__((noinline, noreturn))
-THUMB_CODE static void retarget_lock_crash(void)
-{
-    // This function causes an undefined instruction exception to crash the CPU
-    // in a controlled way.
-    //
-    // Opcodes defined as "Undefined Instruction" by the ARM architecture:
-    //
-    // - Thumb: 0xE800 | (ignored & 0x7FF)
-    // - ARM:   0x?6000010 | (ignored & 0x1FFFFEF)
-    //
-    // It's better to use Thumb because that way the ARM7 can jump to it with a
-    // BL instruction instead of BL+BX (BLX only exists in the ARM9).
-    asm volatile inline(".hword 0xE800 | 0xBAD");
-    __builtin_unreachable();
-}
 
 #define MAX_LOCKS   (FOPEN_MAX + 1)
 static struct __lock locks[MAX_LOCKS];
@@ -54,7 +43,7 @@ void __retarget_lock_init_recursive(_LOCK_T *lock)
     }
 
     if (selection == -1)
-        retarget_lock_crash();
+        libndsCrash(__func__);
 
     *lock = &(locks[selection]);
 
@@ -75,7 +64,7 @@ void __retarget_lock_close_recursive(_LOCK_T lock)
         }
     }
 
-    retarget_lock_crash();
+    libndsCrash(__func__);
 }
 
 void __retarget_lock_acquire_recursive(_LOCK_T lock)
@@ -141,7 +130,7 @@ void __retarget_lock_release_recursive(_LOCK_T lock)
     comutex_acquire(&(lock->mutex));
 
     if (lock->thread_owner != this_thread)
-        retarget_lock_crash();
+        libndsCrash(__func__);
 
     lock->recursion--;
 
