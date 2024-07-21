@@ -228,6 +228,11 @@ PrintConsole *consoleDemoInit(void);
 /// Clears the screan by using printf("\x1b[2J");
 void consoleClear(void);
 
+/// Prints a character to the default console.
+///
+/// @param c The character to print.
+void consolePrintChar(char c);
+
 /// Initializes the debug console output on stderr to the specified device.
 ///
 /// @param device The debug device (or devices) to output debug print to.

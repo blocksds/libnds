@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <nds/arm9/input.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
@@ -59,7 +58,6 @@ static inline __TransferRegion volatile *__transferRegion(void)
         return (__TransferRegion volatile *)0x02FFF000;
 }
 
-void setTransferInputData(touchPosition *touch, u16 buttons);
 void __libnds_exit(int rc);
 
 extern time_t *punixTime;
