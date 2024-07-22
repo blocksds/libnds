@@ -29,7 +29,7 @@ __attribute__((always_inline)) static inline u8 port2Controller(const u8 portNum
 static void tmio1Isr(void) // SD/eMMC.
 {
     Tmio *const regs = getTmioRegs(0);
-    g_status[0] |= regs->sd_status;
+    SET_STATUS(&g_status[0], GET_STATUS(&g_status[0]) | regs->sd_status);
     regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 
     // TODO: Some kind of event to notify the main loop for remove/insert.
@@ -38,7 +38,8 @@ static void tmio1Isr(void) // SD/eMMC.
 static void tmio2Isr(void) // WiFi SDIO.
 {
     Tmio *const regs = getTmioRegs(1);
-    g_status[1] |= regs->sd_status;
+    SET_STATUS(&g_status[1], GET_STATUS(&g_status[1]) | regs->sd_status);
+
     regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 }
 
