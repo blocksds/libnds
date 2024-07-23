@@ -57,7 +57,7 @@ void glScreen2D(void)
     glLoadIdentity();
     gluPerspective(70, 256.0 / 192.0, 1, 200);
 
-    gluLookAt(0.0, 0.0, 1.0,  // Camera possition
+    gluLookAt(0.0, 0.0, 1.0,  // Camera position
               0.0, 0.0, 0.0,  // Look at
               0.0, 1.0, 0.0); // Up
 
