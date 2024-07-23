@@ -129,7 +129,12 @@ static inline int32_t sqrtf32_result(void)
 }
 
 #pragma GCC diagnostic push
+
+// clang does not recognize -Wbuiltin-declaration-mismatch, ignore it
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
+#endif
+
 /// Fixed point sqrt.
 ///
 /// @param a 20.12 positive value.
@@ -139,6 +144,7 @@ static inline int32_t sqrtf32(int32_t a)
     sqrtf32_asynch(a);
     return sqrtf32_result();
 }
+// restore previous diagnostic settings (works with GCC and clang)
 #pragma GCC diagnostic pop
 
 /// Asynchronous integer divide start.

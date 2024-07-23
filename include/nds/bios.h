@@ -97,12 +97,17 @@ typedef struct UnpackStruct
 } PACKED TUnpackStruct, __attribute__((deprecated)) *PUnpackStruct;
 
 /// Resets the DS.
+#ifdef __clang__
+__attribute__((noreturn))
+void swiSoftReset(void);
+#else
 __attribute__((always_inline, noreturn))
 static inline void swiSoftReset(void)
 {
     asm volatile inline ("swi 0x0 << ((1f - . == 4) * -16); 1:");
     __builtin_unreachable();
 }
+#endif
 
 /// Delays the code.
 ///
@@ -116,18 +121,25 @@ static inline void swiSoftReset(void)
 ///
 /// @param duration Length of delay.
 /// @note Duration should be 1 or more, a duration of 0 is a huge delay.
+#ifdef __clang__
+void swiDelay(uint32_t duration);
+#else
 __attribute__((always_inline))
 static inline void swiDelay(uint32_t duration)
 {
     register uint32_t r0 asm("r0") = duration;
     asm volatile inline ("swi 0x3 << ((1f - . == 4) * -16); 1:" : "+r"(r0) :: "r1", "r3");
 }
+#endif
 
 /// Divides 2 numbers.
 ///
 /// @param numerator Signed integer to divide.
 /// @param divisor Signed integer to divide by.
 /// @return Numerator / divisor
+#ifdef __clang__
+int swiDivide(int numerator, int divisor);
+#else
 __attribute__((always_inline))
 static inline int swiDivide(int numerator, int divisor)
 {
@@ -136,12 +148,16 @@ static inline int swiDivide(int numerator, int divisor)
     asm volatile inline ("swi 0x9 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3");
     return r0;
 }
+#endif
 
 /// Calculate the remainder of an division.
 ///
 /// @param numerator Signed integer to divide
 /// @param divisor Signed integer to divide by
 /// @return Numerator % divisor
+#ifdef __clang__
+int swiRemainder(int numerator, int divisor);
+#else
 __attribute__((always_inline))
 static inline int swiRemainder(int numerator, int divisor)
 {
@@ -150,6 +166,7 @@ static inline int swiRemainder(int numerator, int divisor)
     asm volatile inline ("swi 0x9 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3");
     return r1;
 }
+#endif
 
 /// Divides 2 numbers and stores both the result and the remainder.
 ///
@@ -157,6 +174,9 @@ static inline int swiRemainder(int numerator, int divisor)
 /// @param divisor Signed integer to divide by.
 /// @param result Pointer to integer set to numerator / divisor.
 /// @param remainder Pointer to integer set to numerator % divisor.
+#ifdef __clang__
+void swiDivMod(int numerator, int divisor, int *result, int *remainder);
+#else
 __attribute__((always_inline))
 static inline void swiDivMod(int numerator, int divisor, int *result, int *remainder)
 {
@@ -166,6 +186,7 @@ static inline void swiDivMod(int numerator, int divisor, int *result, int *remai
     *result = r0;
     *remainder = r1;
 }
+#endif
 
 /// Copy in chunks of halfword size.
 #define COPY_MODE_HWORD        (0)
@@ -183,6 +204,9 @@ static inline void swiDivMod(int numerator, int divisor, int *result, int *remai
 /// @param dest Pointer to transfer destination.
 /// @param flags bits(0-20): size of data to copy/fill in words, or'd with the
 ///              copy mode size (word or halfword) and type (copy or fill).
+#ifdef __clang__
+void swiCopy(const void *source, void *dest, int flags);
+#else
 __attribute__((always_inline))
 static inline void swiCopy(const void *source, void *dest, int flags)
 {
@@ -191,6 +215,7 @@ static inline void swiCopy(const void *source, void *dest, int flags)
     register int r2 asm("r2") = flags;
     asm volatile inline ("swi 0xB << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2) :: "r3", "memory");
 }
+#endif
 
 /// Copies or fills some memory.
 ///
@@ -202,6 +227,9 @@ static inline void swiCopy(const void *source, void *dest, int flags)
 /// @param flags bits(0-20): size of data to copy/fill in words, or'd with the
 ///              type (copy or fill).
 /// @note Transfers more quickly than swiCopy, but has higher interrupt latency.
+#ifdef __clang__
+void swiFastCopy(const void *source, void *dest, int flags);
+#else
 __attribute__((always_inline))
 static inline void swiFastCopy(const void *source, void *dest, int flags)
 {
@@ -210,12 +238,16 @@ static inline void swiFastCopy(const void *source, void *dest, int flags)
     register int r2 asm("r2") = flags;
     asm volatile inline ("swi 0xC << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2) :: "r3", "memory");
 }
+#endif
 
 /// Calculates the square root.
 ///
 /// @param value The value to calculate.
 /// @return The square root of the value as an integer.
 /// @note Use fixed point math if you want more accuracy.
+#ifdef __clang__
+int swiSqrt(int value);
+#else
 __attribute__((always_inline))
 static inline int swiSqrt(int value)
 {
@@ -223,6 +255,7 @@ static inline int swiSqrt(int value)
     asm volatile inline ("swi 0xD << ((1f - . == 4) * -16); 1:" : "+r"(r0) :: "r1", "r3");
     return r0;
 }
+#endif
 
 /// Calculates a CRC-16 checksum using the following configuration:
 ///
@@ -234,6 +267,9 @@ static inline int swiSqrt(int value)
 /// @param data Pointer to data (processed nibble by nibble)
 /// @param size Size in bytes.
 /// @return The CRC-16 value after the data has been processed.
+#ifdef __clang__
+uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size);
+#else
 __attribute__((always_inline))
 static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 {
@@ -243,6 +279,7 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
     asm volatile inline ("swi 0xE << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2) :: "r3");
     return r0;
 }
+#endif
 
 /// Returns 1 if running on a Nintendo hardware debugger.
 ///
@@ -251,6 +288,9 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 /// and it doesn't require the cache to be disabled.
 ///
 /// @return 1 if running on a debugger (8 MB of RAM instead of 4 MB), else 0.
+#ifdef __clang__
+int swiIsDebugger(void);
+#else
 __attribute__((always_inline))
 static inline int swiIsDebugger(void)
 {
@@ -258,6 +298,7 @@ static inline int swiIsDebugger(void)
     asm volatile inline ("swi 0xF << ((1f - . == 4) * -16); 1:" : "=r"(i) :: "r1", "r3");
     return i;
 }
+#endif
 
 /// Unpack data stored in multiple elements in a byte to a larger space.
 ///
@@ -266,6 +307,9 @@ static inline int swiIsDebugger(void)
 /// @param source Source address.
 /// @param destination Destination address (word aligned).
 /// @param params Pointer to an UnpackStruct.
+#ifdef __clang__
+void swiUnpackBits(const void *source, void *destination, TUnpackStruct *params);
+#else
 __attribute__((always_inline))
 static inline void swiUnpackBits(const void *source, void *destination, TUnpackStruct *params)
 {
@@ -274,6 +318,7 @@ static inline void swiUnpackBits(const void *source, void *destination, TUnpackS
     register const TUnpackStruct* r2 asm("r2") = params;
     asm volatile inline ("swi 0x10 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2) :: "r3", "memory");
 }
+#endif
 
 /// Decompresses LZSS compressed data.
 ///
@@ -283,6 +328,9 @@ static inline void swiUnpackBits(const void *source, void *destination, TUnpackS
 /// @param destination Destination address.
 /// @note Writes data a byte at a time.
 /// @see decompress.h
+#ifdef __clang__
+void swiDecompressLZSSWram(const void *source, void *destination);
+#else
 __attribute__((always_inline))
 static inline void swiDecompressLZSSWram(const void *source, void *destination)
 {
@@ -290,6 +338,7 @@ static inline void swiDecompressLZSSWram(const void *source, void *destination)
     register void* r1 asm("r1") = destination;
     asm volatile inline ("swi 0x11 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3", "memory");
 }
+#endif
 
 /// Decompresses LZSS compressed data vram safe.
 ///
@@ -306,6 +355,10 @@ static inline void swiDecompressLZSSWram(const void *source, void *destination)
 int swiDecompressLZSSVram(const void *source, void *destination, uint32_t toGetSize,
                           TDecompressionStream *stream);
 
+#ifdef __clang__
+int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32_t toGetSize,
+                             TDecompressionStream *stream);
+#else
 __attribute__((always_inline))
 static inline int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream)
@@ -317,7 +370,12 @@ static inline int swiDecompressLZSSVramNTR(const void *source, void *destination
     asm volatile inline ("swi 0x12 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3) :: "memory");
     return r0;
 }
+#endif
 
+#ifdef __clang__
+int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32_t toGetSize,
+                             TDecompressionStream *stream);
+#else
 __attribute__((always_inline))
 static inline int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream)
@@ -329,6 +387,7 @@ static inline int swiDecompressLZSSVramTWL(const void *source, void *destination
     asm volatile inline ("swi 0x02 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3) :: "memory");
     return r0;
 }
+#endif
 
 /// Decompresses Huffman compressed data.
 ///
@@ -341,6 +400,10 @@ static inline int swiDecompressLZSSVramTWL(const void *source, void *destination
 /// @return The length of the decompressed data, or a signed errorcode from the
 ///         Open/Close functions.
 /// @see decompress.h
+#ifdef __clang__
+int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
+                         TDecompressionStream *stream);
+#else
 __attribute__((always_inline))
 static inline int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream)
@@ -352,6 +415,7 @@ static inline int swiDecompressHuffman(const void *source, void *destination, ui
     asm volatile inline ("swi 0x13 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3) :: "memory");
     return r0;
 }
+#endif
 
 /// Decompresses RLE compressed data.
 ///
@@ -368,6 +432,9 @@ static inline int swiDecompressHuffman(const void *source, void *destination, ui
 /// @param destination Destination address.
 /// @note Writes data a byte at a time.
 /// @see decompress.h
+#ifdef __clang__
+void swiDecompressRLEWram(const void *source, void *destination);
+#else
 __attribute__((always_inline))
 static inline void swiDecompressRLEWram(const void *source, void *destination)
 {
@@ -375,6 +442,7 @@ static inline void swiDecompressRLEWram(const void *source, void *destination)
     register void* r1 asm("r1") = destination;
     asm volatile inline ("swi 0x14 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3", "memory");
 }
+#endif
 
 /// Decompresses RLE compressed data vram safe.
 ///
@@ -395,6 +463,10 @@ static inline void swiDecompressRLEWram(const void *source, void *destination)
 ///         Open/Close functions.
 /// @note Writes data a halfword at a time.
 /// @see decompress.h
+#ifdef __clang__
+int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
+                         TDecompressionStream *stream);
+#else
 __attribute__((always_inline))
 static inline int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream)
@@ -406,17 +478,22 @@ static inline int swiDecompressRLEVram(const void *source, void *destination, ui
     asm volatile inline ("swi 0x15 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1), "+r"(r2), "+r"(r3) :: "memory");
     return r0;
 }
+#endif
 
 #ifdef ARM9
 
 /// Wait for any interrupt.
 ///
 /// @note ARM9 exclusive.
+#ifdef __clang__
+void swiWaitForIRQ(void);
+#else
 __attribute__((always_inline))
 static inline void swiWaitForIRQ(void)
 {
     asm volatile inline ("swi 0x6 << ((1f - . == 4) * -16); 1:");
 }
+#endif
 
 /// Writes a word of the data to 0x04000300:32
 ///
@@ -432,6 +509,9 @@ void swiSetHaltCR(uint32_t data);
 /// @param destination Destination address.
 /// @note Writes data a byte at a time.
 /// @note ARM9 exclusive.
+#ifdef __clang__
+void swiDecodeDelta8(const void *source, void *destination);
+#else
 __attribute__((always_inline))
 static inline void swiDecodeDelta8(const void *source, void *destination)
 {
@@ -439,6 +519,7 @@ static inline void swiDecodeDelta8(const void *source, void *destination)
     register void* r1 asm("r1") = destination;
     asm volatile inline ("swi 0x16 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3", "memory");
 }
+#endif
 
 /// Decodes a stream of bytes based on the difference of the bytes.
 ///
@@ -448,6 +529,9 @@ static inline void swiDecodeDelta8(const void *source, void *destination)
 /// @param destination Destination address.
 /// @note Writes data a halfword at a time.
 /// @note ARM9 exclusive.
+#ifdef __clang__
+void swiDecodeDelta16(const void *source, void *destination);
+#else
 __attribute__((always_inline))
 static inline void swiDecodeDelta16(const void *source, void *destination)
 {
@@ -455,6 +539,7 @@ static inline void swiDecodeDelta16(const void *source, void *destination)
     register void* r1 asm("r1") = destination;
     asm volatile inline ("swi 0x18 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3", "memory");
 }
+#endif
 
 #endif
 
@@ -469,20 +554,28 @@ void swiSetHaltCR(uint8_t data);
 /// Halts the CPU until an interupt occures.
 ///
 /// @note ARM7 exclusive.
+#ifdef __clang__
+void swiHalt(void);
+#else
 __attribute__((always_inline))
 static inline void swiHalt(void)
 {
     asm volatile inline ("swi 0x6 << ((1f - . == 4) * -16); 1:");
 }
+#endif
 
 /// Halts the CPU and most of the hardware untill an interupt occures.
 ///
 /// @note ARM7 exclusive.
+#ifdef __clang__
+void swiSleep(void);
+#else
 __attribute__((always_inline))
 static inline void swiSleep(void)
 {
     asm volatile inline ("swi 0x7 << ((1f - . == 4) * -16); 1:");
 }
+#endif
 
 /// Switches the DS to GBA mode.
 ///
@@ -495,6 +588,9 @@ void swiSwitchToGBAMode(void);
 /// @param index The index of the sine table (0 - 63).
 /// @return The entry.
 /// @note ARM7 exclusive.
+#ifdef __clang__
+uint16_t swiGetSineTable(int index);
+#else
 __attribute__((always_inline))
 static inline uint16_t swiGetSineTable(int index)
 {
@@ -502,12 +598,16 @@ static inline uint16_t swiGetSineTable(int index)
     asm volatile inline ("swi 0x1A << ((1f - . == 4) * -16); 1:" : "+r"(r0) :: "r1", "r3");
     return r0;
 }
+#endif
 
 /// Returns an entry in the pitch table.
 ///
 /// @param index The index of the pitch table (0 - 767).
 /// @return The entry.
 /// @note ARM7 exclusive.
+#ifdef __clang__
+uint16_t swiGetPitchTable(int index);
+#else
 __attribute__((always_inline))
 static inline uint16_t swiGetPitchTable(int index)
 {
@@ -515,12 +615,16 @@ static inline uint16_t swiGetPitchTable(int index)
     asm volatile inline ("swi 0x1B << ((1f - . == 4) * -16); 1:" : "+r"(r0) :: "r1", "r3");
     return r0;
 }
+#endif
 
 /// Returns an entry in the volume table.
 ///
 /// @param index The index of the volume table (0 - 723).
 /// @return The entry.
 /// @note ARM7 exclusive.
+#ifdef __clang__
+uint8_t swiGetVolumeTable(int index);
+#else
 __attribute__((always_inline))
 static inline uint8_t swiGetVolumeTable(int index)
 {
@@ -528,6 +632,7 @@ static inline uint8_t swiGetVolumeTable(int index)
     asm volatile inline ("swi 0x1C << ((1f - . == 4) * -16); 1:" : "+r"(r0) :: "r1", "r3");
     return r0;
 }
+#endif
 
 /// Increments or decrements the sound bias once per delay.
 ///
@@ -535,6 +640,9 @@ static inline uint8_t swiGetVolumeTable(int index)
 ///                increment it until it reaches 0x200.
 /// @param delay Is in the same units of time as swiDelay.
 /// @note ARM7 exclusive.
+#ifdef __clang__
+void swiChangeSoundBias(int enabled, int delay);
+#else
 __attribute__((always_inline))
 static inline void swiChangeSoundBias(int enabled, int delay)
 {
@@ -542,6 +650,7 @@ static inline void swiChangeSoundBias(int enabled, int delay)
     register int r1 asm("r1") = delay;
     asm volatile inline ("swi 0x08 << ((1f - . == 4) * -16); 1:" : "+r"(r0), "+r"(r1) :: "r3");
 }
+#endif
 
 #endif // ARM7
 

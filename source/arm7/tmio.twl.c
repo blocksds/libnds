@@ -18,7 +18,7 @@
 #define INIT_DELAY_FUNC()  swiDelay(TMIO_CLK2DIV(400000u) * 74 / 4)
 
 
-static u32 g_status[2] = {0};
+static _Atomic u32 g_status[2] = {0};
 
 
 __attribute__((always_inline)) static inline u8 port2Controller(const u8 portNum)
@@ -29,7 +29,7 @@ __attribute__((always_inline)) static inline u8 port2Controller(const u8 portNum
 static void tmio1Isr(void) // SD/eMMC.
 {
     Tmio *const regs = getTmioRegs(0);
-    g_status[0] |= regs->sd_status;
+    SET_STATUS(&g_status[0], GET_STATUS(&g_status[0]) | regs->sd_status);
     regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 
     // TODO: Some kind of event to notify the main loop for remove/insert.
@@ -38,7 +38,8 @@ static void tmio1Isr(void) // SD/eMMC.
 static void tmio2Isr(void) // WiFi SDIO.
 {
     Tmio *const regs = getTmioRegs(1);
-    g_status[1] |= regs->sd_status;
+    SET_STATUS(&g_status[1], GET_STATUS(&g_status[1]) | regs->sd_status);
+
     regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 }
 
@@ -165,7 +166,7 @@ static void getResponse(const Tmio *const regs, TmioPort *const port, const u16 
 //       because SD_STATUS_DATA_END fires before we even read anything from FIFO
 //       on single block read transfer.
 static void doCpuTransfer(Tmio *const regs, const u16 cmd, u8 *buf,
-                          const u32 *const statusPtr)
+                          _Atomic const u32 *const statusPtr)
 {
     const u32 blockLen = regs->sd_blocklen;
     u32 blockCount     = regs->sd_blockcount;
@@ -251,7 +252,7 @@ u32 TMIO_sendCommand(TmioPort *const port, const u16 cmd, const u32 arg)
     Tmio *const regs = getTmioRegs(controller);
 
     // Clear status before sending another command.
-    u32 *const statusPtr = &g_status[controller];
+    _Atomic u32 *const statusPtr = &g_status[controller];
     SET_STATUS(statusPtr, 0);
 
     setPort(regs, port);
