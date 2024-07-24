@@ -625,10 +625,6 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 /// @param list Pointer to the packed list.
 void glCallList(const void *list);
 
-#ifdef __cplusplus
-}
-#endif
-
 /// Used in glPolyFmt() to set the alpha level for the following polygons.
 ///
 /// Set to 0 for wireframe mode.
@@ -1487,5 +1483,9 @@ static inline void gluPerspective(float fovy, float aspect, float zNear, float z
 /// @param t T (a.k.a. V) texture coordinate (0.0 - 1.0).
 /// @warning Float version! Please, use glTexCoord2t16() instead.
 void glTexCoord2f(float s, float t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBNDS_NDS_ARM9_VIDEOGL_H__
