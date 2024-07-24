@@ -70,11 +70,7 @@ typedef struct gl_palette_data
     uint32_t connectCount;  // The number of textures currently using this palette
 } gl_palette_data;
 
-// This struct hold hidden globals for videoGL. The structure is initialized in
-// the .c file and returned by glGetGlobals() so that it can be used across
-// compilation units without problem. This is automatically done by glInit() so
-// don't worry too much about it. This is only an issue because of the mix of
-// inlined/real functions.
+// This struct holds hidden globals for videoGL. It is initialized by glInit().
 typedef struct gl_hidden_globals
 {
     // VRAM blocks management
@@ -128,17 +124,8 @@ typedef struct gl_hidden_globals
 }
 gl_hidden_globals;
 
-gl_hidden_globals glGlobalData;
-
-// This is the actual data of the globals for videoGL. Use glGetGlobals() to
-// access this data.
-static gl_hidden_globals *glGlob = &glGlobalData;
-
-// This returns the pointer to the globals for videoGL
-static gl_hidden_globals *glGetGlobals(void)
-{
-    return &glGlobalData;
-}
+// This is the actual data of the globals for videoGL.
+gl_hidden_globals glGlob;
 
 ARM_CODE void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z)
 {
@@ -358,7 +345,7 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color)
 
 ARM_CODE void glTexCoord2f32(int32_t u, int32_t v)
 {
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
     if (tex)
     {
         int x = (tex->texFormat >> 20) & 7;
@@ -727,7 +714,7 @@ uint8_t *vramBlock_examineSpecial(s_vramBlock *mb, uint8_t *addr, uint32_t size,
     // Values that hold which banks to examine
     uint32_t isNotMainBank = (checkAddr >= (uint8_t *)VRAM_E ? 1 : 0);
     uint32_t vramCtrl = (isNotMainBank ? VRAM_EFG_CR : VRAM_CR);
-    int vramLock = isNotMainBank ? glGlob->vramLockPal : glGlob->vramLockTex;
+    int vramLock = isNotMainBank ? glGlob.vramLockPal : glGlob.vramLockTex;
     uint32_t iEnd = (isNotMainBank ? 3 : 4);
 
     // Fill in the array with only those banks that are not set for textures or
@@ -960,51 +947,49 @@ int glInit(void)
 {
     powerOn(POWER_3D_CORE | POWER_MATRIX); // Enable 3D core & geometry engine
 
-    glGlob = glGetGlobals();
-
-    if (glGlob->isActive)
+    if (glGlob.isActive)
         return 1;
 
     // Allocate the designated layout for each memory block
-    glGlob->vramBlocksTex = vramBlock_Construct((uint8_t *)VRAM_A, (uint8_t *)VRAM_E);
-    if (glGlob->vramBlocksTex == NULL)
+    glGlob.vramBlocksTex = vramBlock_Construct((uint8_t *)VRAM_A, (uint8_t *)VRAM_E);
+    if (glGlob.vramBlocksTex == NULL)
         goto cleanup;
-    glGlob->vramBlocksPal = vramBlock_Construct((uint8_t *)VRAM_E, (uint8_t *)VRAM_H);
-    if (glGlob->vramBlocksPal == NULL)
+    glGlob.vramBlocksPal = vramBlock_Construct((uint8_t *)VRAM_E, (uint8_t *)VRAM_H);
+    if (glGlob.vramBlocksPal == NULL)
         goto cleanup;
 
-    glGlob->vramLockTex = 0;
-    glGlob->vramLockPal = 0;
+    glGlob.vramLockTex = 0;
+    glGlob.vramLockPal = 0;
 
     // init texture globals
 
-    glGlob->clearColor = 0;
+    glGlob.clearColor = 0;
 
-    glGlob->activeTexture = 0;
-    glGlob->activePalette = 0;
-    glGlob->texCount = 1;
-    glGlob->palCount = 1;
-    glGlob->deallocTexSize = 0;
-    glGlob->deallocPalSize = 0;
+    glGlob.activeTexture = 0;
+    glGlob.activePalette = 0;
+    glGlob.texCount = 1;
+    glGlob.palCount = 1;
+    glGlob.deallocTexSize = 0;
+    glGlob.deallocPalSize = 0;
 
     // Initialize all of this
-    if (DynamicArrayInit(&glGlob->texturePtrs, 16) == NULL)
+    if (DynamicArrayInit(&glGlob.texturePtrs, 16) == NULL)
         goto cleanup;
-    if (DynamicArrayInit(&glGlob->palettePtrs, 16) == NULL)
+    if (DynamicArrayInit(&glGlob.palettePtrs, 16) == NULL)
         goto cleanup;
-    if (DynamicArrayInit(&glGlob->deallocTex, 16) == NULL)
+    if (DynamicArrayInit(&glGlob.deallocTex, 16) == NULL)
         goto cleanup;
-    if (DynamicArrayInit(&glGlob->deallocPal, 16) == NULL)
+    if (DynamicArrayInit(&glGlob.deallocPal, 16) == NULL)
         goto cleanup;
 
     // All of this should succeed because we've just allocated 16 elements as
     // the initial size of each dynamic array. No need to check for errors
     for (int i = 0; i < 16; i++)
     {
-        DynamicArraySet(&glGlob->texturePtrs, i, NULL);
-        DynamicArraySet(&glGlob->palettePtrs, i, NULL);
-        DynamicArraySet(&glGlob->deallocTex, i, NULL);
-        DynamicArraySet(&glGlob->deallocPal, i, NULL);
+        DynamicArraySet(&glGlob.texturePtrs, i, NULL);
+        DynamicArraySet(&glGlob.palettePtrs, i, NULL);
+        DynamicArraySet(&glGlob.deallocTex, i, NULL);
+        DynamicArraySet(&glGlob.deallocPal, i, NULL);
     }
 
     if (GFX_BUSY)
@@ -1079,84 +1064,84 @@ int glInit(void)
     glLoadIdentity();
 
     // Set the GL state as active in the global state struct
-    glGlob->isActive = 1;
+    glGlob.isActive = 1;
 
     return 1;
 
 cleanup:
-    DynamicArrayDelete(&glGlob->texturePtrs);
-    DynamicArrayDelete(&glGlob->palettePtrs);
-    DynamicArrayDelete(&glGlob->deallocTex);
-    DynamicArrayDelete(&glGlob->deallocPal);
+    DynamicArrayDelete(&glGlob.texturePtrs);
+    DynamicArrayDelete(&glGlob.palettePtrs);
+    DynamicArrayDelete(&glGlob.deallocTex);
+    DynamicArrayDelete(&glGlob.deallocPal);
 
-    vramBlock_Deconstruct(glGlob->vramBlocksTex);
-    vramBlock_Deconstruct(glGlob->vramBlocksPal);
+    vramBlock_Deconstruct(glGlob.vramBlocksTex);
+    vramBlock_Deconstruct(glGlob.vramBlocksPal);
     return 0;
 }
 
 void glResetTextures(void)
 {
-    if (glGlob->isActive == 0)
+    if (glGlob.isActive == 0)
         return;
 
-    glGlob->activeTexture = 0;
-    glGlob->activePalette = 0;
-    glGlob->texCount = 1;
-    glGlob->palCount = 1;
-    glGlob->deallocTexSize = 0;
-    glGlob->deallocPalSize = 0;
+    glGlob.activeTexture = 0;
+    glGlob.activePalette = 0;
+    glGlob.texCount = 1;
+    glGlob.palCount = 1;
+    glGlob.deallocTexSize = 0;
+    glGlob.deallocPalSize = 0;
 
     // Any textures in use will be clean of all their data
-    for (unsigned int i = 0; i < glGlob->texturePtrs.cur_size; i++)
+    for (unsigned int i = 0; i < glGlob.texturePtrs.cur_size; i++)
     {
-        gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, i);
+        gl_texture_data *texture = DynamicArrayGet(&glGlob.texturePtrs, i);
         if (texture)
         {
             free(texture);
-            DynamicArraySet(&glGlob->texturePtrs, i, NULL);
+            DynamicArraySet(&glGlob.texturePtrs, i, NULL);
         }
     }
 
     // Any palettes in use will be cleaned of all their data
-    for (unsigned int i = 0; i < glGlob->palettePtrs.cur_size; i++)
+    for (unsigned int i = 0; i < glGlob.palettePtrs.cur_size; i++)
     {
-        gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, i);
+        gl_palette_data *palette = DynamicArrayGet(&glGlob.palettePtrs, i);
         if (palette)
         {
             free(palette);
-            DynamicArraySet(&glGlob->palettePtrs, i, NULL);
+            DynamicArraySet(&glGlob.palettePtrs, i, NULL);
         }
     }
 
     // Reset all the arrays to 16 elements in case they have grown too much
-    DynamicArrayDelete(&glGlob->texturePtrs);
-    DynamicArrayDelete(&glGlob->palettePtrs);
-    DynamicArrayDelete(&glGlob->deallocTex);
-    DynamicArrayDelete(&glGlob->deallocPal);
+    DynamicArrayDelete(&glGlob.texturePtrs);
+    DynamicArrayDelete(&glGlob.palettePtrs);
+    DynamicArrayDelete(&glGlob.deallocTex);
+    DynamicArrayDelete(&glGlob.deallocPal);
 
     // We have just freed a lot of RAM so this should always succeed. The new
     // arrays must be either the same size or bigger than the old ones!
-    DynamicArrayInit(&glGlob->texturePtrs, 16);
-    DynamicArrayInit(&glGlob->palettePtrs, 16);
-    DynamicArrayInit(&glGlob->deallocTex, 16);
-    DynamicArrayInit(&glGlob->deallocPal, 16);
+    DynamicArrayInit(&glGlob.texturePtrs, 16);
+    DynamicArrayInit(&glGlob.palettePtrs, 16);
+    DynamicArrayInit(&glGlob.deallocTex, 16);
+    DynamicArrayInit(&glGlob.deallocPal, 16);
 
-    if ((glGlob->texturePtrs.data == NULL) || (glGlob->palettePtrs.data == NULL)
-      || (glGlob->deallocTex.data == NULL) || (glGlob->deallocPal.data == NULL))
+    if ((glGlob.texturePtrs.data == NULL) || (glGlob.palettePtrs.data == NULL)
+      || (glGlob.deallocTex.data == NULL) || (glGlob.deallocPal.data == NULL))
         sassert(false, "Failed to allocate dynamic arrays");
 
     for (int i = 0; i < 16; i++)
     {
-        DynamicArraySet(&glGlob->texturePtrs, i, NULL);
-        DynamicArraySet(&glGlob->palettePtrs, i, NULL);
-        DynamicArraySet(&glGlob->deallocTex, i, NULL);
-        DynamicArraySet(&glGlob->deallocPal, i, NULL);
+        DynamicArraySet(&glGlob.texturePtrs, i, NULL);
+        DynamicArraySet(&glGlob.palettePtrs, i, NULL);
+        DynamicArraySet(&glGlob.deallocTex, i, NULL);
+        DynamicArraySet(&glGlob.deallocPal, i, NULL);
     }
 
     // Clean out both blocks
-    if (vramBlock_deallocateAll(glGlob->vramBlocksTex) == 0)
+    if (vramBlock_deallocateAll(glGlob.vramBlocksTex) == 0)
         sassert(false, "Failed to allocate vramBlocksTex");
-    if (vramBlock_deallocateAll(glGlob->vramBlocksPal) == 0)
+    if (vramBlock_deallocateAll(glGlob.vramBlocksPal) == 0)
         sassert(false, "Failed to allocate vramBlocksPal");
 }
 
@@ -1165,24 +1150,24 @@ void removePaletteFromTexture(gl_texture_data *tex)
     if (tex == NULL)
         return;
 
-    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
+    gl_palette_data *palette = DynamicArrayGet(&glGlob.palettePtrs, tex->palIndex);
     if (palette->connectCount == 0)
         return;
 
     palette->connectCount--;
     if (palette->connectCount > 0)
     {
-        vramBlock_deallocateBlock(glGlob->vramBlocksPal, palette->palIndex);
+        vramBlock_deallocateBlock(glGlob.vramBlocksPal, palette->palIndex);
 
-        DynamicArraySet(&glGlob->deallocPal, glGlob->deallocPalSize, (void *)tex->palIndex);
-        glGlob->deallocPalSize++;
+        DynamicArraySet(&glGlob.deallocPal, glGlob.deallocPalSize, (void *)tex->palIndex);
+        glGlob.deallocPalSize++;
 
         free(palette);
-        DynamicArraySet(&glGlob->palettePtrs, tex->palIndex, NULL);
+        DynamicArraySet(&glGlob.palettePtrs, tex->palIndex, NULL);
 
         // If the active palette is the one we have just removed
-        if (glGlob->activePalette == tex->palIndex)
-            GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        if (glGlob.activePalette == tex->palIndex)
+            GFX_PAL_FORMAT = glGlob.activePalette = 0;
     }
 
     // Clear the palette reference from the texture
@@ -1196,21 +1181,21 @@ static int glGenTexture(void)
     if (texture == NULL)
         return 0;
 
-    if (glGlob->deallocTexSize)
+    if (glGlob.deallocTexSize)
     {
         // If there are texture names in the array of deallocated names,
         // reuse the last one and reduce the size of the array by one.
 
-        int name = (uint32_t)DynamicArrayGet(&glGlob->deallocTex,
-                                             glGlob->deallocTexSize - 1);
+        int name = (uint32_t)DynamicArrayGet(&glGlob.deallocTex,
+                                             glGlob.deallocTexSize - 1);
 
-        if (!DynamicArraySet(&glGlob->texturePtrs, name, texture))
+        if (!DynamicArraySet(&glGlob.texturePtrs, name, texture))
         {
             free(texture);
             return 0;
         }
 
-        glGlob->deallocTexSize--;
+        glGlob.deallocTexSize--;
 
         return name;
     }
@@ -1218,15 +1203,15 @@ static int glGenTexture(void)
     {
         // If there is no available texture name to reuse, generate a new name
 
-        int name = glGlob->texCount;
+        int name = glGlob.texCount;
 
-        if (!DynamicArraySet(&glGlob->texturePtrs, name, texture))
+        if (!DynamicArraySet(&glGlob.texturePtrs, name, texture))
         {
             free(texture);
             return 0;
         }
 
-        glGlob->texCount++;
+        glGlob.texCount++;
 
         return name;
     }
@@ -1238,7 +1223,7 @@ static int glGenTexture(void)
 int glGenTextures(int n, int *names)
 {
     // Don't do anything if can't add all generated textures
-    if ((glGlob->texCount - glGlob->deallocTexSize + n) >= MAX_TEXTURES)
+    if ((glGlob.texCount - glGlob.deallocTexSize + n) >= MAX_TEXTURES)
         return 0;
 
     // Generate texture names for each element. If any of the names can't be
@@ -1276,7 +1261,7 @@ int glDeleteTextures(int n, int *names)
 
         // Save this texture name in the deallocated texture name array so that we can
         // reuse it later.
-        if (!DynamicArraySet(&glGlob->deallocTex, glGlob->deallocTexSize,
+        if (!DynamicArraySet(&glGlob.deallocTex, glGlob.deallocTexSize,
                              (void *)names[index]))
         {
             // This is quite unexpected, and I imagine that most people won't
@@ -1286,10 +1271,10 @@ int glDeleteTextures(int n, int *names)
             return 0;
         }
 
-        glGlob->deallocTexSize++;
+        glGlob.deallocTexSize++;
 
         // If this name had an assigned texture to it, delete it
-        gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, names[index]);
+        gl_texture_data *texture = DynamicArrayGet(&glGlob.texturePtrs, names[index]);
         if (texture)
         {
             // Clear out the texture blocks
@@ -1297,9 +1282,9 @@ int glDeleteTextures(int n, int *names)
             {
                 // Delete extra texture for GL_COMPRESSED, if it exists
                 if (texture->texIndexExt)
-                    vramBlock_deallocateBlock(glGlob->vramBlocksTex, texture->texIndexExt);
+                    vramBlock_deallocateBlock(glGlob.vramBlocksTex, texture->texIndexExt);
 
-                vramBlock_deallocateBlock(glGlob->vramBlocksTex, texture->texIndex);
+                vramBlock_deallocateBlock(glGlob.vramBlocksTex, texture->texIndex);
             }
 
             // Clear out the palette if this texture name is the last
@@ -1310,14 +1295,14 @@ int glDeleteTextures(int n, int *names)
             free(texture);
 
             // Clear pointer to mark the name as not having a texture
-            DynamicArraySet(&glGlob->texturePtrs, names[index], NULL);
+            DynamicArraySet(&glGlob.texturePtrs, names[index], NULL);
         }
 
         // Zero out register if the active texture was being deleted
-        if (glGlob->activeTexture == names[index])
+        if (glGlob.activeTexture == names[index])
         {
             GFX_TEX_FORMAT = 0;
-            glGlob->activeTexture = 0;
+            glGlob.activeTexture = 0;
         }
 
         // Finally, clear the component from the array passed by the user
@@ -1359,20 +1344,20 @@ int glLockVRAMBank(uint16_t *addr)
 
     // Texture banks
     if (actualVRAMBank == VRAM_A)
-        glGlob->vramLockTex |= BIT(0);
+        glGlob.vramLockTex |= BIT(0);
     else if (actualVRAMBank == VRAM_B)
-        glGlob->vramLockTex |= BIT(1);
+        glGlob.vramLockTex |= BIT(1);
     else if (actualVRAMBank == VRAM_C)
-        glGlob->vramLockTex |= BIT(2);
+        glGlob.vramLockTex |= BIT(2);
     else if (actualVRAMBank == VRAM_D)
-        glGlob->vramLockTex |= BIT(3);
+        glGlob.vramLockTex |= BIT(3);
     // Palette banks
     else if (actualVRAMBank == VRAM_E)
-        glGlob->vramLockPal |= BIT(0);
+        glGlob.vramLockPal |= BIT(0);
     else if (actualVRAMBank == VRAM_F)
-        glGlob->vramLockPal |= BIT(1);
+        glGlob.vramLockPal |= BIT(1);
     else if (actualVRAMBank == VRAM_G)
-        glGlob->vramLockPal |= BIT(2);
+        glGlob.vramLockPal |= BIT(2);
 
     return 1;
 }
@@ -1387,20 +1372,20 @@ int glUnlockVRAMBank(uint16_t *addr)
 
     // Texture banks
     if (actualVRAMBank == VRAM_A)
-        glGlob->vramLockTex &= ~BIT(0);
+        glGlob.vramLockTex &= ~BIT(0);
     else if (actualVRAMBank == VRAM_B)
-        glGlob->vramLockTex &= ~BIT(1);
+        glGlob.vramLockTex &= ~BIT(1);
     else if (actualVRAMBank == VRAM_C)
-        glGlob->vramLockTex &= ~BIT(2);
+        glGlob.vramLockTex &= ~BIT(2);
     else if (actualVRAMBank == VRAM_D)
-        glGlob->vramLockTex &= ~BIT(3);
+        glGlob.vramLockTex &= ~BIT(3);
     // Palette banks
     else if (actualVRAMBank == VRAM_E)
-        glGlob->vramLockPal &= ~BIT(0);
+        glGlob.vramLockPal &= ~BIT(0);
     else if (actualVRAMBank == VRAM_F)
-        glGlob->vramLockPal &= ~BIT(1);
+        glGlob.vramLockPal &= ~BIT(1);
     else if (actualVRAMBank == VRAM_G)
-        glGlob->vramLockPal &= ~BIT(2);
+        glGlob.vramLockPal &= ~BIT(2);
 
     return 1;
 }
@@ -1412,35 +1397,35 @@ int glBindTexture(int target, int name)
     (void)target;
 
     // No reason to process if name is the active texture
-    if (glGlob->activeTexture == name)
+    if (glGlob.activeTexture == name)
         return 0;
 
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, name);
 
     // Has the name been generated with glGenTextures()?
     if (tex == NULL)
     {
         GFX_TEX_FORMAT = 0;
         GFX_PAL_FORMAT = 0;
-        glGlob->activePalette = 0;
-        glGlob->activeTexture = 0;
+        glGlob.activePalette = 0;
+        glGlob.activeTexture = 0;
         return 0;
     }
 
     GFX_TEX_FORMAT = tex->texFormat;
-    glGlob->activeTexture = name;
+    glGlob.activeTexture = name;
 
     // Set palette if exists
     if (tex->palIndex)
     {
-        gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
+        gl_palette_data *pal = DynamicArrayGet(&glGlob.palettePtrs, tex->palIndex);
         sassert(pal, "tex->palIndex is set, but no pal available");
         GFX_PAL_FORMAT = pal->addr;
-        glGlob->activePalette = tex->palIndex;
+        glGlob.activePalette = tex->palIndex;
     }
     else
     {
-        GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        GFX_PAL_FORMAT = glGlob.activePalette = 0;
     }
 
     return 1;
@@ -1457,10 +1442,10 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     (void)empty3;
 
     // We can only load a palette if there is an active texture
-    if (!glGlob->activeTexture)
+    if (!glGlob.activeTexture)
         return 0;
 
-    gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *texture = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
 
     if (texture->palIndex) // Remove prior palette if exists
         removePaletteFromTexture(texture);
@@ -1475,14 +1460,14 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
 
     uint32_t colFormatVal =
         ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && width <= 4)) ? 3 : 4);
-    uint8_t *checkAddr = vramBlock_examineSpecial(glGlob->vramBlocksPal,
+    uint8_t *checkAddr = vramBlock_examineSpecial(glGlob.vramBlocksPal,
         (uint8_t *)VRAM_E, width << 1, colFormatVal);
 
     if (checkAddr == NULL)
     {
         // Failed to find enough space for the palette
         sassert(texture->palIndex == 0, "glColorTableEXT didn't clear palette");
-        GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        GFX_PAL_FORMAT = glGlob.activePalette = 0;
         return 0;
     }
 
@@ -1502,7 +1487,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     {
         // Palette location not good because 4 color mode cannot extend
         // past 64K texture palette space
-        GFX_PAL_FORMAT = glGlob->activePalette = 0;
+        GFX_PAL_FORMAT = glGlob.activePalette = 0;
         return 0;
     }
 
@@ -1511,36 +1496,36 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
         return 0;
 
     // Get a new palette name (either reused or new)
-    if (glGlob->deallocPalSize)
+    if (glGlob.deallocPalSize)
     {
-        uint32_t palIndex = (uint32_t)DynamicArrayGet(&glGlob->deallocPal,
-                                                      glGlob->deallocPalSize - 1);
+        uint32_t palIndex = (uint32_t)DynamicArrayGet(&glGlob.deallocPal,
+                                                      glGlob.deallocPalSize - 1);
 
-        if (!DynamicArraySet(&glGlob->palettePtrs, palIndex, palette))
+        if (!DynamicArraySet(&glGlob.palettePtrs, palIndex, palette))
         {
             free(palette);
             return 0;
         }
 
         texture->palIndex = palIndex;
-        glGlob->deallocPalSize--;
+        glGlob.deallocPalSize--;
     }
     else
     {
-        uint32_t palIndex = glGlob->palCount;
+        uint32_t palIndex = glGlob.palCount;
 
-        if (!DynamicArraySet(&glGlob->palettePtrs, palIndex, palette))
+        if (!DynamicArraySet(&glGlob.palettePtrs, palIndex, palette))
         {
             free(palette);
             return 0;
         }
 
         texture->palIndex = palIndex;
-        glGlob->palCount++;
+        glGlob.palCount++;
     }
 
     // Lock the free space we have found
-    palette->palIndex = vramBlock_allocateSpecial(glGlob->vramBlocksPal, checkAddr, width << 1);
+    palette->palIndex = vramBlock_allocateSpecial(glGlob.vramBlocksPal, checkAddr, width << 1);
     sassert(palette->palIndex != 0, "Failed to lock free palette VRAM");
 
     palette->vramAddr = checkAddr;
@@ -1576,7 +1561,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     vramRestoreBanks_EFG(tempVRAM);
 
     GFX_PAL_FORMAT = palette->addr;
-    glGlob->activePalette = texture->palIndex;
+    glGlob.activePalette = texture->palIndex;
 
     return 1;
 }
@@ -1593,10 +1578,10 @@ int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
     if (count <= 0)
         return 0;
 
-    if (!glGlob->activePalette)
+    if (!glGlob.activePalette)
         return 0;
 
-    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, glGlob->activePalette);
+    gl_palette_data *palette = DynamicArrayGet(&glGlob.palettePtrs, glGlob.activePalette);
 
     if (start >= 0 && (start + count) <= (palette->palSize >> 1))
     {
@@ -1619,10 +1604,10 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
     (void)empty1;
     (void)empty2;
 
-    if (!glGlob->activePalette)
+    if (!glGlob.activePalette)
         return 0;
 
-    gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, glGlob->activePalette);
+    gl_palette_data *palette = DynamicArrayGet(&glGlob.palettePtrs, glGlob.activePalette);
 
     uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
     swiCopy(palette->vramAddr, table, palette->palSize >> 1 | COPY_MODE_HWORD);
@@ -1637,15 +1622,15 @@ int glAssignColorTable(int target, int name)
 {
     (void)target;
 
-    if (!glGlob->activeTexture)
+    if (!glGlob.activeTexture)
         return 0;
 
     // Only allow assigning from a texture different from the active one
-    if (glGlob->activeTexture == name)
+    if (glGlob.activeTexture == name)
         return 0;
 
-    gl_texture_data *texture = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
-    gl_texture_data *texCopy = DynamicArrayGet(&glGlob->texturePtrs, name);
+    gl_texture_data *texture = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
+    gl_texture_data *texCopy = DynamicArrayGet(&glGlob.texturePtrs, name);
 
     // Remove prior palette from active texture if it exists
     if (texture->palIndex)
@@ -1655,17 +1640,17 @@ int glAssignColorTable(int target, int name)
     {
         texture->palIndex = texCopy->palIndex;
 
-        gl_palette_data *palette = DynamicArrayGet(&glGlob->palettePtrs, texture->palIndex);
+        gl_palette_data *palette = DynamicArrayGet(&glGlob.palettePtrs, texture->palIndex);
 
         palette->connectCount++;
         GFX_PAL_FORMAT = palette->addr;
-        glGlob->activePalette = texture->palIndex;
+        glGlob.activePalette = texture->palIndex;
 
         return 1;
     }
     else
     {
-        GFX_PAL_FORMAT = glGlob->activePalette = texture->palIndex = 0;
+        GFX_PAL_FORMAT = glGlob.activePalette = texture->palIndex = 0;
 
         return 0;
     }
@@ -1677,13 +1662,13 @@ int glTexParameter(int target, int param)
 {
     (void)target;
 
-    if (glGlob->activeTexture == 0)
+    if (glGlob.activeTexture == 0)
     {
         GFX_TEX_FORMAT = 0;
         return 0;
     }
 
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
     GFX_TEX_FORMAT = tex->texFormat = (tex->texFormat & 0x1FF0FFFF) | param;
     return 1;
 }
@@ -1691,7 +1676,7 @@ int glTexParameter(int target, int param)
 // Gets a pointer to the VRAM address that contains the texture.
 void *glGetTexturePointer(int name)
 {
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, name);
 
     if (tex)
         return tex->vramAddr;
@@ -1703,7 +1688,7 @@ void *glGetTexturePointer(int name)
 // compressed texture.
 void *glGetTextureExtPointer(int name)
 {
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, name);
     if (tex == NULL)
         return NULL;
 
@@ -1711,20 +1696,20 @@ void *glGetTextureExtPointer(int name)
     if (format != GL_COMPRESSED)
         return NULL;
 
-    return vramBlock_getAddr(glGlob->vramBlocksTex, tex->texIndexExt);
+    return vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt);
 }
 
 // Gets a pointer to the VRAM address that contains the palette.
 void *glGetColorTablePointer(int name)
 {
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, name);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, name);
     if (tex == NULL)
         return NULL;
 
     if (tex->palIndex == 0)
         return NULL;
 
-    gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, tex->palIndex);
+    gl_palette_data *pal = DynamicArrayGet(&glGlob.palettePtrs, tex->palIndex);
     if (pal == NULL)
         return NULL;
 
@@ -1734,10 +1719,10 @@ void *glGetColorTablePointer(int name)
 // Retrieves the currently bound texture's format.
 u32 glGetTexParameter(void)
 {
-    if (!glGlob->activeTexture)
+    if (!glGlob.activeTexture)
         return 0;
 
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
     return tex->texFormat;
 }
 
@@ -1746,13 +1731,13 @@ int glGetColorTableParameterEXT(int target, int pname, int *params)
 {
     (void)target;
 
-    if (!glGlob->activePalette)
+    if (!glGlob.activePalette)
     {
         *params = -1;
         return 0;
     }
 
-    gl_palette_data *pal = DynamicArrayGet(&glGlob->palettePtrs, glGlob->activePalette);
+    gl_palette_data *pal = DynamicArrayGet(&glGlob.palettePtrs, glGlob.activePalette);
 
     if (pname == GL_COLOR_TABLE_FORMAT_EXT)
         *params = pal->addr;
@@ -1781,7 +1766,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     };
 
     // There must be an active texture for this function to work
-    if (!glGlob->activeTexture)
+    if (!glGlob.activeTexture)
         return 0;
 
     // Check if the texture format is invalid
@@ -1827,7 +1812,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     if (type == GL_NOTEXTURE)
         size = 0;
 
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
 
     // If there is a texture already and its size and bits per pixel are the
     // same as the ones of the new texture, reuse the old buffer. If not, clear
@@ -1836,10 +1821,10 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
     if ((tex->texSize != size) || (typeSizes[texType] != typeSizes[type]))
     {
         if (tex->texIndexExt)
-            vramBlock_deallocateBlock(glGlob->vramBlocksTex, tex->texIndexExt);
+            vramBlock_deallocateBlock(glGlob.vramBlocksTex, tex->texIndexExt);
 
         if (tex->texIndex)
-            vramBlock_deallocateBlock(glGlob->vramBlocksTex, tex->texIndex);
+            vramBlock_deallocateBlock(glGlob.vramBlocksTex, tex->texIndex);
 
         tex->texIndex = tex->texIndexExt = 0;
         tex->vramAddr = NULL;
@@ -1859,7 +1844,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         }
         else if (type != GL_COMPRESSED)
         {
-            tex->texIndex = vramBlock_allocateBlock(glGlob->vramBlocksTex, tex->texSize, 3);
+            tex->texIndex = vramBlock_allocateBlock(glGlob.vramBlocksTex, tex->texSize, 3);
             // This may fail, but it is handled below.
         }
         else // if (type == GL_COMPRESSED)
@@ -1895,7 +1880,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
             while (1)
             {
                 // Check designated opening, and return available spot
-                vramBFound = vramBlock_examineSpecial(glGlob->vramBlocksTex,
+                vramBFound = vramBlock_examineSpecial(glGlob.vramBlocksTex,
                                                       vramBAddr, vramBAllocSize, 2);
 
                 // Make sure that the space found in VRAM_B is completely in
@@ -1923,16 +1908,16 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 vramACAddr = (uint8_t *)(offset >= 0x10000 ? VRAM_C : VRAM_A)
                              + ((offset & 0xFFFF) << 1);
 
-                vramACFound = vramBlock_examineSpecial(glGlob->vramBlocksTex,
+                vramACFound = vramBlock_examineSpecial(glGlob.vramBlocksTex,
                                                        vramACAddr, size, 3);
                 if (vramACAddr == vramACFound)
                 {
                     // Valid addresses found, lock them for this texture.
-                    tex->texIndex = vramBlock_allocateSpecial(glGlob->vramBlocksTex,
+                    tex->texIndex = vramBlock_allocateSpecial(glGlob.vramBlocksTex,
                                                               vramACFound, size);
                     tex->texIndexExt = vramBlock_allocateSpecial(
-                        glGlob->vramBlocksTex,
-                        vramBlock_examineSpecial(glGlob->vramBlocksTex, vramBFound,
+                        glGlob.vramBlocksTex,
+                        vramBlock_examineSpecial(glGlob.vramBlocksTex, vramBFound,
                                                  vramBAllocSize, 2),
                         vramBAllocSize);
 
@@ -1961,7 +1946,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
         if (tex->texIndex)
         {
-            tex->vramAddr = vramBlock_getAddr(glGlob->vramBlocksTex, tex->texIndex);
+            tex->vramAddr = vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndex);
             tex->texFormat = (sizeX << 20) | (sizeY << 23)
                              | ((type == GL_RGB ? GL_RGBA : type) << 26)
                              | (((uint32_t)tex->vramAddr >> 3) & 0xFFFF);
@@ -2024,7 +2009,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 DC_FlushRange((const char *)texture + tex->texSize, size >> 1);
                 vramSetBankB(VRAM_B_LCD);
                 dmaCopyWords(0, (const char *)texture + tex->texSize,
-                             vramBlock_getAddr(glGlob->vramBlocksTex, tex->texIndexExt),
+                             vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt),
                              size >> 1);
             }
         }
@@ -2104,13 +2089,13 @@ void glGetInt(GL_GET_ENUM param, int *i)
             break;
 
         case GL_GET_TEXTURE_WIDTH:
-            tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+            tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
             if (tex)
                 *i = 8 << ((tex->texFormat >> 20) & 7);
             break;
 
         case GL_GET_TEXTURE_HEIGHT:
-            tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+            tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
             if (tex)
                 *i = 8 << ((tex->texFormat >> 23) & 7);
             break;
@@ -2122,7 +2107,7 @@ void glGetInt(GL_GET_ENUM param, int *i)
 
 void glTexCoord2f(float s, float t)
 {
-    gl_texture_data *tex = DynamicArrayGet(&glGlob->texturePtrs, glGlob->activeTexture);
+    gl_texture_data *tex = DynamicArrayGet(&glGlob.texturePtrs, glGlob.activeTexture);
     if (tex)
     {
         int x = (tex->texFormat >> 20) & 7;
@@ -2155,14 +2140,14 @@ void glCallList(const void *list)
 
 void glClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
-    glGlob->clearColor = (glGlob->clearColor & 0xFFE08000)
+    glGlob.clearColor = (glGlob.clearColor & 0xFFE08000)
                          | (0x7FFF & RGB15(red, green, blue))
                          | ((alpha & 0x1F) << 16);
-    GFX_CLEAR_COLOR = glGlob->clearColor;
+    GFX_CLEAR_COLOR = glGlob.clearColor;
 }
 
 void glClearPolyID(uint8_t ID)
 {
-    glGlob->clearColor = (glGlob->clearColor & 0xC0FFFFFF) | ((ID & 0x3F) << 24);
-    GFX_CLEAR_COLOR = glGlob->clearColor;
+    glGlob.clearColor = (glGlob.clearColor & 0xC0FFFFFF) | ((ID & 0x3F) << 24);
+    GFX_CLEAR_COLOR = glGlob.clearColor;
 }
