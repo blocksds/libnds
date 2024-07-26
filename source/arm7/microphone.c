@@ -142,7 +142,9 @@ int micStopRecording(void)
     if (swapCallback)
         swapCallback(microphone_back_buffer, eightBit ? sampleCount : (sampleCount << 1));
 
-    microphone_front_buffer = microphone_back_buffer = 0;
+    microphone_front_buffer = NULL;
+    microphone_back_buffer = NULL;
+    swapCallback = NULL;
 
     return sampleCount;
 }
