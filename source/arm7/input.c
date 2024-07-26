@@ -54,11 +54,15 @@ static u16 inputTouchUpdate(touchPosition *tempPos)
     bool penDown = touchPenDown();
     if (penDown)
     {
+        // Set penDown to false for later fallthroughs to noPenDown.
+        // It will be set to true if all the touch filtering ensures the readout is valid.
+        penDown = false;
+
         // Measure new touch position.
         touchRawArray data;
-        touchReadData(&data);
+        if (!touchReadData(&data))
+            goto noPenDown;
 
-        penDown = false;
         libnds_touchMeasurementFilterResult rawXresult = libnds_touchMeasurementFilter(data.rawX);
         if (!rawXresult.value)
             goto noPenDown;

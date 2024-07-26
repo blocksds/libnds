@@ -49,8 +49,9 @@ typedef struct
 
 /**
  * @brief Read a complete, raw touch measurement into the provided buffer.
+ * @return True if the read is successful, false otherwise.
  */
-void touchReadData(touchRawArray *data);
+bool touchReadData(touchRawArray *data);
 
 /**
  * @brief Read a touch X/Y position into the provided buffer.

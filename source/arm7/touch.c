@@ -81,18 +81,23 @@ bool touchPenDown(void)
     }
 }
 
-void touchReadData(touchRawArray *data)
+bool touchReadData(touchRawArray *data)
 {
     if (cdcIsAvailable())
-        cdcTouchReadData(data);
+        return cdcTouchReadData(data);
     else
-        tscTouchReadData(data);
+        return tscTouchReadData(data);
 }
 
 void touchReadXY(touchPosition *touchPos)
 {
     touchRawArray data;
-    touchReadData(&data);
+    if (!touchReadData(&data))
+    {
+        touchPos->px = 0;
+        touchPos->py = 0;
+        return;
+    }
 
     touchPos->rawx = libnds_touchMeasurementFilter(data.rawX).value;
     touchPos->rawy = libnds_touchMeasurementFilter(data.rawY).value;
