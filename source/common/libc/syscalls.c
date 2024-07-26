@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "../libnds_internal.h"
 
