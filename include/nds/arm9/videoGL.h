@@ -1288,6 +1288,11 @@ void glClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 /// @param ID The polygon ID to give the rear-plane.
 void glClearPolyID(uint8_t ID);
 
+/// Defines whether fog is applied to the clear plane or not.
+///
+/// @enable True to apply fog to the clear plane, false to not apply it.
+void glClearFogEnable(bool enable);
+
 /// Grabs integer state variables from OpenGL.
 ///
 /// @param param The state variable to retrieve

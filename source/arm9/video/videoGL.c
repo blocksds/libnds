@@ -2151,3 +2151,9 @@ void glClearPolyID(uint8_t ID)
     glGlob.clearColor = (glGlob.clearColor & 0xC0FFFFFF) | ((ID & 0x3F) << 24);
     GFX_CLEAR_COLOR = glGlob.clearColor;
 }
+
+void glClearFogEnable(bool enable)
+{
+    glGlob.clearColor = (glGlob.clearColor & 0xFFFF7FFF) | (enable ? BIT(15) : 0);
+    GFX_CLEAR_COLOR = glGlob.clearColor;
+}
