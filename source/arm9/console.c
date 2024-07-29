@@ -16,6 +16,7 @@
 #include <stdarg.h>
 
 #include <nds/arm9/background.h>
+#include <nds/arm9/cache.h>
 #include <nds/arm9/console.h>
 #include <nds/arm9/video.h>
 #include <nds/debug.h>
@@ -396,14 +397,20 @@ void consoleLoadFont(PrintConsole *console)
     else if (console->font.bpp == 4)
     {
         if (console->font.gfx)
-            dmaCopy(console->font.gfx, console->fontBgGfx,
-                    console->font.numChars * 64 / 2);
+        {
+            size_t size = console->font.numChars * 64 / 2;
+            DC_FlushRange(console->font.gfx, size);
+            dmaCopy(console->font.gfx, console->fontBgGfx, size);
+        }
     }
     else if (console->font.bpp == 8)
     {
         if (console->font.gfx)
-            dmaCopy(console->font.gfx, console->fontBgGfx,
-                    console->font.numChars * 64);
+        {
+            size_t size = console->font.numChars * 64;
+            DC_FlushRange(console->font.gfx, size);
+            dmaCopy(console->font.gfx, console->fontBgGfx, size);
+        }
 
         console->fontCurPal = 0;
     }
@@ -411,8 +418,9 @@ void consoleLoadFont(PrintConsole *console)
     if (console->font.pal)
     {
         // Use user-provided palette
-        dmaCopy(console->font.pal, palette + (console->fontCurPal >> 8),
-                    console->font.numColors * 2);
+        size_t size = console->font.numColors * 2;
+        DC_FlushRange(console->font.pal, size);
+        dmaCopy(console->font.pal, palette + (console->fontCurPal >> 8), size);
     }
     else
     {
