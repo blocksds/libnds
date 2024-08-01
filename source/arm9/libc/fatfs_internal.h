@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 #include <sys/time.h>
+#include <time.h>
+
 #include "ff.h"
 
 int fatfs_error_to_posix(FRESULT error);
