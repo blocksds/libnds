@@ -113,8 +113,10 @@ extern "C" {
 
 /// Determines if the specified NDMA channel is busy.
 ///
-/// @param channel the NDMA channel to check (0 - 3).
-/// @return non zero if busy, 0 if channel is free.
+/// @param channel
+///     The NDMA channel to check (0 - 3).
+/// @return
+///     Non zero if busy, 0 if channel is free.
 static inline int ndmaBusy(uint8_t channel)
 {
     return (NDMA_CR(channel) & NDMA_BUSY) >> 31;

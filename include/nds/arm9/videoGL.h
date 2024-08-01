@@ -408,10 +408,14 @@ enum GLFLUSH_ENUM
 
 /// Rotates the model view matrix by angle about the specified unit vector.
 ///
-/// @param angle The angle to rotate by
-/// @param x X component of the unit vector axis.
-/// @param y Y component of the unit vector axis.
-/// @param z Z component of the unit vector axis.
+/// @param angle
+///     The angle to rotate by
+/// @param x
+///     X component of the unit vector axis.
+/// @param y
+///     Y component of the unit vector axis.
+/// @param z
+///     Z component of the unit vector axis.
 void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 
 /// Loads a 2D texture into texture memory and sets the currently bound texture
@@ -422,16 +426,26 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 /// values of GL_TEXTURE_SIZE_ENUM. Note that a value of 0 won't cause an error
 /// because is a GL_TEXTURE_SIZE_ENUM value equivalent to 8 pixels.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param empty1 Ignored, only here for OpenGL compatibility.
-/// @param type The format of the texture.
-/// @param sizeX Width of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
-/// @param sizeY Height of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
-/// @param empty2 Ignored, only here for OpenGL compatibility.
-/// @param param Parameters of the texture.
-/// @param texture Pointer to the texture data to load. If this is NULL, the
-///                texture will be allocated but no data will be copied to it.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param empty1
+///     Ignored, only here for OpenGL compatibility.
+/// @param type
+///     The format of the texture.
+/// @param sizeX
+///     Width of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
+/// @param sizeY
+///     Height of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
+/// @param empty2
+///     Ignored, only here for OpenGL compatibility.
+/// @param param
+///     Parameters of the texture.
+/// @param texture
+///     Pointer to the texture data to load. If this is NULL, the texture will
+///     be allocated but no data will be copied to it.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
                  int sizeY, int empty2, int param, const void *texture);
 
@@ -439,9 +453,12 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
 ///
 /// Note: This is not a real OpenGL function.
 ///
-/// @param size Size in pixels.
-/// @return A valid GL_TEXTURE_SIZE_ENUM value (TEXTURE_SIZE_INVALID if the size
-///         is invalid).
+/// @param size
+///     Size in pixels.
+///
+/// @return
+///     A valid GL_TEXTURE_SIZE_ENUM value (TEXTURE_SIZE_INVALID if the size is
+///     invalid).
 static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 {
     // By making this function static inline it's easy for the compiler to
@@ -474,39 +491,61 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 ///
 /// It can also remove palettes.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param empty1 Ignored, only here for OpenGL compatibility.
-/// @param width The length of the palette in colors (if 0, the palette is
-///              removed from currently bound texture).
-/// @param empty2 Ignored, only here for OpenGL compatibility.
-/// @param empty3 Ignored, only here for OpenGL compatibility.
-/// @param table Pointer to the palette data to load (if NULL, the palette is
-///              removed from currently bound texture).
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param empty1
+///     Ignored, only here for OpenGL compatibility.
+/// @param width
+///     The length of the palette in colors (if 0, the palette is removed from
+///     currently bound texture).
+/// @param empty2
+///     Ignored, only here for OpenGL compatibility.
+/// @param empty3
+///     Ignored, only here for OpenGL compatibility.
+/// @param table
+///     Pointer to the palette data to load (if NULL, the palette is removed
+///     from currently bound texture).
+///
+/// @return
+///     1 on success, 0 on failure.
 int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
                     int empty3, const void *table);
 
 /// Loads a 15-bit color format palette into a specific spot in a currently
 /// bound texture's existing palette.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param start The starting index that new palette data will be written to.
-/// @param count The number of entries to write.
-/// @param empty1 Ignored, only here for OpenGL compatibility.
-/// @param empty2 Ignored, only here for OpenGL compatibility.
-/// @param data Pointer to the palette data to load.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param start
+///     The starting index that new palette data will be written to.
+/// @param count
+///     The number of entries to write.
+/// @param empty1
+///     Ignored, only here for OpenGL compatibility.
+/// @param empty2
+///     Ignored, only here for OpenGL compatibility.
+/// @param data
+///     Pointer to the palette data to load.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glColorSubTableEXT(int target, int start, int count, int empty1,
                        int empty2, const void *data);
 
 /// Retrieves a 15-bit color format palette from the palette memory of the
 /// currently bound texture.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param empty1 Ignored, only here for OpenGL compatibility.
-/// @param empty2 Ignored, only here for OpenGL compatibility.
-/// @param table Pointer where palette data will be written to.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param empty1
+///     Ignored, only here for OpenGL compatibility.
+/// @param empty2
+///     Ignored, only here for OpenGL compatibility.
+/// @param table
+///     Pointer where palette data will be written to.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 
 /// glAssignColorTable sets the active texture with a palette set with another
@@ -516,9 +555,13 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 /// palette of the active texture will be deleted anyway, and no new palette
 /// will be assigned.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param name The name(int value) of the texture to load a palette from.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param name
+///     The name(int value) of the texture to load a palette from.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glAssignColorTable(int target, int name);
 
 /// Set parameters for the current texture.
@@ -526,66 +569,97 @@ int glAssignColorTable(int target, int name);
 /// Although it's named the same as its OpenGL counterpart, it is not
 /// compatible.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param param Paramaters for the texture.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param param
+///     Paramaters for the texture.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glTexParameter(int target, int param);
 
 /// Returns the active texture parameter
 ///
-/// @return The parameter.
+/// @return
+///     The parameter.
 u32 glGetTexParameter(void);
 
 /// glGetColorTableParameterEXT retrieves information pertaining to the
 /// currently bound texture's palette.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param pname A parameter of type GL_TEXTURE_PALETTE_PARAM_ENUM, used to read
-///              a specific attribute into params
-/// @param params The destination for the attribute to read into.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param pname
+///     A parameter of type GL_TEXTURE_PALETTE_PARAM_ENUM, used to read a
+///     specific attribute into params
+/// @param params
+///     The destination for the attribute to read into.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glGetColorTableParameterEXT(int target, int pname, int *params);
 
 /// Returns the address allocated to the texure named by name.
 ///
-/// @param name The name of the texture to get a pointer to.
-/// @return The address.
+/// @param name
+///     The name of the texture to get a pointer to.
+///
+/// @return
+///     The address.
 void *glGetTexturePointer(int name);
 
 /// Returns address allocated to the extra compressed texure data named by name.
 ///
-/// @param name The name of the texture to get a pointer to.
-/// @return The address, or NULL if there is no data or the format of the
-///         texture isn't GL_COMPRESSED.
+/// @param name
+///     The name of the texture to get a pointer to.
+///
+/// @return
+///     The address, or NULL if there is no data or the format of the texture
+///     isn't GL_COMPRESSED.
 void *glGetTextureExtPointer(int name);
 
 /// Returns the address alocated to the palette of the texture named by name.
 ///
-/// @param name The name of the texture to get a pointer to.
-/// @return The address.
+/// @param name
+///     The name of the texture to get a pointer to.
+///
+/// @return
+///     The address.
 void *glGetColorTablePointer(int name);
 
 /// glBindTexure sets the current named texture to the active texture.
 ///
 /// The target is ignored as all DS textures are 2D.
 ///
-/// @param target Ignored, only here for OpenGL compatibility.
-/// @param name The name (int value) to set to the current texture.
-/// @return 1 on success, 0 on failure.
+/// @param target
+///     Ignored, only here for OpenGL compatibility.
+/// @param name
+///     The name (int value) to set to the current texture.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glBindTexture(int target, int name);
 
 /// Creates room for the specified number of textures.
 ///
-/// @param n The number of textures to generate.
-/// @param names Pointer to the names array to fill.
-/// @return 1 on success, 0 on failure.
+/// @param n
+///     The number of textures to generate.
+/// @param names
+///     Pointer to the names array to fill.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glGenTextures(int n, int *names);
 
 /// Deletes the specified number of textures (and associated palettes).
 ///
-/// @param n The number of textures to delete.
-/// @param names Pointer to the names array to empty.
-/// @return 1 on success, 0 on failure.
+/// @param n
+///     The number of textures to delete.
+/// @param names
+///     Pointer to the names array to empty.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glDeleteTextures(int n, int *names);
 
 /// Resets the GL texture state freeing all texture and texture palette memory.
@@ -594,27 +668,37 @@ void glResetTextures(void);
 /// Locks a designated VRAM bank to prevent consideration of the bank when
 /// allocating textures.
 ///
-/// @param addr The base address of the VRAM bank.
-/// @return 1 on success, 0 on failure.
+/// @param addr
+///     The base address of the VRAM bank.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glLockVRAMBank(uint16_t *addr);
 
 /// Unlocks a designated VRAM bank to allow consideration of the bank when
 /// allocating textures.
 ///
-/// @param addr The base address of the VRAM bank.
-/// @return 1 on success, 0 on failure.
+/// @param addr
+///     The base address of the VRAM bank.
+///
+/// @return
+///     1 on success, 0 on failure.
 int glUnlockVRAMBank(uint16_t *addr);
 
 /// Sets texture coordinates for following vertices (fixed point version).
 ///
-/// @param u U (a.k.a. S) texture coordinate (0.0 - 1.0).
-/// @param v V (a.k.a. T) texture coordinate (0.0 - 1.0).
+/// @param u
+///     U (a.k.a. S) texture coordinate (0.0 - 1.0).
+/// @param v
+///     V (a.k.a. T) texture coordinate (0.0 - 1.0).
 void glTexCoord2f32(int32_t u, int32_t v);
 
 /// Specify the material properties to be used in rendering lit polygons.
 ///
-/// @param mode Which material property to change.
-/// @param color The color to set for that material property.
+/// @param mode
+///     Which material property to change.
+/// @param color
+///     The color to set for that material property.
 void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 
 /// Sends a packed list of commands into the graphics FIFO via asyncronous DMA.
@@ -622,15 +706,19 @@ void glMaterialf(GL_MATERIALS_ENUM mode, rgb color);
 /// The first 32 bits is the length of the packed command list, followed by the
 /// packed list.
 ///
-/// @param list Pointer to the packed list.
+/// @param list
+///     Pointer to the packed list.
 void glCallList(const void *list);
 
 /// Used in glPolyFmt() to set the alpha level for the following polygons.
 ///
 /// Set to 0 for wireframe mode.
 ///
-/// @param n The level of alpha (0 - 31).
-/// @return Value to be used by glPolyFmt().
+/// @param n
+///     The level of alpha (0 - 31).
+///
+/// @return
+///     Value to be used by glPolyFmt().
 static inline u32 POLY_ALPHA(u32 n)
 {
     return n << 16;
@@ -638,8 +726,11 @@ static inline u32 POLY_ALPHA(u32 n)
 
 /// Used in glPolyFmt() to set the polygon ID for the following polygons.
 ///
-/// @param n The ID to set for following polygons (0 - 63).
-/// @return Value to be used by glPolyFmt().
+/// @param n
+///     The ID to set for following polygons (0 - 63).
+///
+/// @return
+///     Value to be used by glPolyFmt().
 static inline u32 POLY_ID(u32 n)
 {
     return n << 24;
@@ -647,7 +738,8 @@ static inline u32 POLY_ID(u32 n)
 
 /// Starts a polygon group.
 ///
-/// @param mode the draw mode for the polygon.
+/// @param mode
+///         The draw mode for the polygon.
 static inline void glBegin(GL_GLBEGIN_ENUM mode)
 {
     GFX_BEGIN = mode;
@@ -663,7 +755,8 @@ static inline void glEnd(void)
 ///
 /// Generally set this to GL_MAX_DEPTH.
 ///
-/// @param depth Distance from the camera. Generally set to GL_MAX_DEPTH.
+/// @param depth
+///     Distance from the camera. Generally set to GL_MAX_DEPTH.
 static inline void glClearDepth(fixed12d3 depth)
 {
     GFX_CLEAR_DEPTH = depth;
@@ -671,9 +764,12 @@ static inline void glClearDepth(fixed12d3 depth)
 
 /// Set the color for the following vertices.
 ///
-/// @param red The red component (0 - 255). Bottom 3 bits ignored.
-/// @param green The green component (0 - 255). Bottom 3 bits ignored.
-/// @param blue The blue component (0 - 255). Bottom 3 bits ignored.
+/// @param red
+///     The red component (0 - 255). Bottom 3 bits ignored.
+/// @param green
+///     The green component (0 - 255). Bottom 3 bits ignored.
+/// @param blue
+///     The blue component (0 - 255). Bottom 3 bits ignored.
 static inline void glColor3b(uint8_t red, uint8_t green, uint8_t blue)
 {
     GFX_COLOR = (vu32)RGB15(red >> 3, green >> 3, blue >> 3);
@@ -681,7 +777,8 @@ static inline void glColor3b(uint8_t red, uint8_t green, uint8_t blue)
 
 /// Set the color for the following vertices.
 ///
-/// @param color The 15 bit color value.
+/// @param color
+///     The 15 bit color value.
 static inline void glColor(rgb color)
 {
     GFX_COLOR = (vu32)color;
@@ -689,9 +786,12 @@ static inline void glColor(rgb color)
 
 /// Specifies a vertex.
 ///
-/// @param x The x component for the vertex.
-/// @param y The y component for the vertex.
-/// @param z The z component for the vertex.
+/// @param x
+///     The x component for the vertex.
+/// @param y
+///     The y component for the vertex.
+/// @param z
+///     The z component for the vertex.
 static inline void glVertex3v16(v16 x, v16 y, v16 z)
 {
     GFX_VERTEX16 = (y << 16) | (x & 0xFFFF);
@@ -702,8 +802,10 @@ static inline void glVertex3v16(v16 x, v16 y, v16 z)
 ///
 /// The Z component is the same as the last vertex sent to the GPU.
 ///
-/// @param x The x component for the vertex.
-/// @param y The y component for the vertex.
+/// @param x
+///     The x component for the vertex.
+/// @param y
+///     The y component for the vertex.
 static inline void glVertex2v16(v16 x, v16 y)
 {
     GFX_VERTEX_XY = (y << 16) | (x & 0xFFFF);
@@ -711,8 +813,10 @@ static inline void glVertex2v16(v16 x, v16 y)
 
 /// Sets texture coordinates for the following vertices.
 ///
-/// @param u U (a.k.a. S) texture coordinate in texels (12.4 format).
-/// @param v V (a.k.a. T) texture coordinate in texels (12.4 format).
+/// @param u
+///     U (a.k.a. S) texture coordinate in texels (12.4 format).
+/// @param v
+///     V (a.k.a. T) texture coordinate in texels (12.4 format).
 static inline void glTexCoord2t16(t16 u, t16 v)
 {
     GFX_TEX_COORD = TEXTURE_PACK(u, v);
@@ -720,8 +824,10 @@ static inline void glTexCoord2t16(t16 u, t16 v)
 
 /// Sets texture coordinates for the following vertices.
 ///
-/// @param u U (a.k.a. S) texture coordinate in texels (12.0 format).
-/// @param v V (a.k.a. T) texture coordinate in texels (12.0 format).
+/// @param u
+///     U (a.k.a. S) texture coordinate in texels (12.0 format).
+/// @param v
+///     V (a.k.a. T) texture coordinate in texels (12.0 format).
 static inline void glTexCoord2i(t16 u, t16 v)
 {
     GFX_TEX_COORD = (v << 20) | ((u << 4) & 0xFFFF);
@@ -735,7 +841,8 @@ static inline void glPushMatrix(void)
 
 /// Pops the specified number of matrices from the stack.
 ///
-/// @param num The number of matrices to pop.
+/// @param num
+///     The number of matrices to pop.
 static inline void glPopMatrix(int num)
 {
     MATRIX_POP = num;
@@ -743,7 +850,8 @@ static inline void glPopMatrix(int num)
 
 /// Restores the current matrix from a location in the stack.
 ///
-/// @param index The location in the stack.
+/// @param index
+///     The location in the stack.
 static inline void glRestoreMatrix(int index)
 {
     MATRIX_RESTORE = index;
@@ -751,7 +859,8 @@ static inline void glRestoreMatrix(int index)
 
 /// Place the current matrix into the stack at the specified location.
 ///
-/// @param index The location in the stack.
+/// @param index
+///     The location in the stack.
 static inline void glStoreMatrix(int index)
 {
     MATRIX_STORE = index;
@@ -759,7 +868,8 @@ static inline void glStoreMatrix(int index)
 
 /// Multiply the current matrix by a scale matrix.
 ///
-/// @param v The vector to scale by.
+/// @param v
+///     The vector to scale by.
 static inline void glScalev(const GLvector *v)
 {
     MATRIX_SCALE = v->x;
@@ -769,7 +879,8 @@ static inline void glScalev(const GLvector *v)
 
 /// Multiply the current matrix by a translation matrix.
 ///
-/// @param v The vector to translate by.
+/// @param v
+///     The vector to translate by.
 static inline void glTranslatev(const GLvector *v)
 {
     MATRIX_TRANSLATE = v->x;
@@ -782,9 +893,12 @@ static inline void glTranslatev(const GLvector *v)
 
 /// Multiply the current matrix by a translation matrix.
 ///
-/// @param x Translation on the x axis.
-/// @param y Translation on the y axis.
-/// @param z Translation on the z axis.
+/// @param x
+///     Translation on the x axis.
+/// @param y
+///     Translation on the y axis.
+/// @param z
+///     Translation on the z axis.
 static inline void glTranslatef32(int x, int y, int z)
 {
     MATRIX_TRANSLATE = x;
@@ -794,9 +908,12 @@ static inline void glTranslatef32(int x, int y, int z)
 
 /// Multiply the current matrix by a scale matrix.
 ///
-/// @param x Scaling on the x axis.
-/// @param y Scaling on the y axis.
-/// @param z Scaling on the z axis.
+/// @param x
+///     Scaling on the x axis.
+/// @param y
+///     Scaling on the y axis.
+/// @param z
+///     Scaling on the z axis.
 static inline void glScalef32(int x, int y, int z)
 {
     MATRIX_SCALE = x;
@@ -809,11 +926,16 @@ static inline void glScalef32(int x, int y, int z)
 /// Only parallel light sources are supported on the DS. Also, the direction
 /// must be normalized.
 ///
-/// @param id The number of the light to setup.
-/// @param color The color of the light.
-/// @param x X component of the lights directional vector.
-/// @param y Y component of the lights directional vector.
-/// @param z Z component of the lights directional vector.
+/// @param id
+///     The number of the light to setup.
+/// @param color
+///     The color of the light.
+/// @param x
+///     X component of the lights directional vector.
+/// @param y
+///     Y component of the lights directional vector.
+/// @param z
+///     Z component of the lights directional vector.
 static inline void glLight(int id, rgb color, v10 x, v10 y, v10 z)
 {
     id = (id & 3) << 30;
@@ -823,9 +945,12 @@ static inline void glLight(int id, rgb color, v10 x, v10 y, v10 z)
 
 /// The normal to use for the following vertices.
 ///
-/// @param normal the packed normal (three 10 bit values: x, y, z).
-/// @warning The nature of the format means that you can't represent the
-/// following normals exactly: (0,0,1), (0,1,0), (1,0,0)
+/// @param normal
+///     The packed normal (three 10 bit values: x, y, z).
+///
+/// @warning
+///     The nature of the format means that you can't represent the following
+///     normals exactly: (0,0,1), (0,1,0), (1,0,0)
 static inline void glNormal(u32 normal)
 {
     GFX_NORMAL = normal;
@@ -839,7 +964,8 @@ static inline void glLoadIdentity(void)
 
 /// Change the current matrix mode.
 ///
-/// @param mode New mode for the matrix.
+/// @param mode
+///     New mode for the matrix.
 static inline void glMatrixMode(GL_MATRIX_MODE_ENUM mode)
 {
     MATRIX_CONTROL = mode;
@@ -849,10 +975,14 @@ static inline void glMatrixMode(GL_MATRIX_MODE_ENUM mode)
 ///
 /// It can be set several times per frame.
 ///
-/// @param x1 the left of the viewport.
-/// @param y1 the bottom of the viewport.
-/// @param x2 the right of the viewport.
-/// @param y2 the top of the viewport.
+/// @param x1
+///     The left of the viewport.
+/// @param y1
+///     The bottom of the viewport.
+/// @param x2
+///     The right of the viewport.
+/// @param y2
+///     The top of the viewport.
 static inline void glViewport(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
     GFX_VIEWPORT = x1 + (y1 << 8) + (x2 << 16) + (y2 << 24);
@@ -863,7 +993,8 @@ static inline void glViewport(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 /// It lets you specify some 3D options: enabling Y-sorting of translucent
 /// polygons and W-Buffering of all vertices.
 ///
-/// @param mode Flags from GLFLUSH_ENUM.
+/// @param mode
+///     Flags from GLFLUSH_ENUM.
 static inline void glFlush(u32 mode)
 {
     GFX_FLUSH = mode;
@@ -894,7 +1025,8 @@ static inline void glMaterialShinyness(void)
 /// Valid paramters are enumerated in GL_POLY_FORMAT_ENUM and in the functions
 /// POLY_ALPHA() and POLY_ID().
 ///
-/// @param params The paramters to set for the following polygons.
+/// @param params
+///     The paramters to set for the following polygons.
 static inline void glPolyFmt(u32 params)
 {
     GFX_POLY_FORMAT = params;
@@ -902,7 +1034,8 @@ static inline void glPolyFmt(u32 params)
 
 /// Enables various GL states (blend, alpha test, etc..).
 ///
-/// @param bits Bit mask of desired attributes, enumerated in DISP3DCNT_ENUM.
+/// @param bits
+///     Bit mask of desired attributes, enumerated in DISP3DCNT_ENUM.
 static inline void glEnable(int bits)
 {
     GFX_CONTROL |= bits;
@@ -910,7 +1043,8 @@ static inline void glEnable(int bits)
 
 /// Disables various GL states (blend, alpha test, etc..).
 ///
-/// @param bits Bit mask of desired attributes, enumerated in DISP3DCNT_ENUM.
+/// @param bits
+///     Bit mask of desired attributes, enumerated in DISP3DCNT_ENUM.
 static inline void glDisable(int bits)
 {
     GFX_CONTROL &= ~bits;
@@ -920,7 +1054,8 @@ static inline void glDisable(int bits)
 ///
 /// Each entry of the fog table covers 0x400 >> FOG_SHIFT depth values.
 ///
-/// @param shift FOG_SHIFT value.
+/// @param shift
+///     FOG_SHIFT value.
 static inline void glFogShift(int shift)
 {
     sassert(shift >= 0 && shift < 16, "glFogShift is out of range");
@@ -932,7 +1067,8 @@ static inline void glFogShift(int shift)
 ///
 /// Fog begins at this depth with a density of FOG_TABLE[0].
 ///
-/// @param offset FOG_OFFSET value.
+/// @param offset
+///     FOG_OFFSET value.
 static inline void glFogOffset(int offset)
 {
     sassert(offset >= 0 && offset < 0x8000, "glFogOffset is out of range");
@@ -942,10 +1078,14 @@ static inline void glFogOffset(int offset)
 
 /// Sets the fog color.
 ///
-/// @param red Red component (0 - 31).
-/// @param green Green component (0 - 31).
-/// @param blue Blue component (0 - 31).
-/// @param alpha From 0 (clear) to 31 (opaque).
+/// @param red
+///     Red component (0 - 31).
+/// @param green
+///     Green component (0 - 31).
+/// @param blue
+///     Blue component (0 - 31).
+/// @param alpha
+///     From 0 (clear) to 31 (opaque).
 static inline void glFogColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
     sassert(red < 32, "glFogColor red is out of range");
@@ -958,8 +1098,10 @@ static inline void glFogColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t 
 
 /// Sets the fog density at a given index.
 ///
-/// @param index Fog table index to operate on (0 to 31).
-/// @param density Fog density from 0 (none) to 127 (opaque).
+/// @param index
+///     Fog table index to operate on (0 to 31).
+/// @param density
+///     Fog density from 0 (none) to 127 (opaque).
 static inline void glFogDensity(int index, int density)
 {
     sassert(index >= 0 && index < 32, "glFogDensity index is out of range");
@@ -970,7 +1112,8 @@ static inline void glFogDensity(int index, int density)
 
 /// Loads a 4x4 matrix into the current matrix.
 ///
-/// @param m Pointer to a 4x4 matrix.
+/// @param m
+///     Pointer to a 4x4 matrix.
 static inline void glLoadMatrix4x4(const m4x4 *m)
 {
     MATRIX_LOAD4x4 = m->m[0];
@@ -996,7 +1139,8 @@ static inline void glLoadMatrix4x4(const m4x4 *m)
 
 /// Loads a 4x3 matrix into the current matrix.
 ///
-/// @param m Pointer to a 4x3 matrix.
+/// @param m
+///     Pointer to a 4x3 matrix.
 static inline void glLoadMatrix4x3(const m4x3 *m)
 {
     MATRIX_LOAD4x3 = m->m[0];
@@ -1017,7 +1161,8 @@ static inline void glLoadMatrix4x3(const m4x3 *m)
 
 /// Multiplies the current matrix by a 4x4 matrix.
 ///
-/// @param m Pointer to a 4x4 matrix.
+/// @param m
+///     Pointer to a 4x4 matrix.
 static inline void glMultMatrix4x4(const m4x4 *m)
 {
     MATRIX_MULT4x4 = m->m[0];
@@ -1043,7 +1188,8 @@ static inline void glMultMatrix4x4(const m4x4 *m)
 
 /// Multiplies the current matrix by a 4x3 matrix.
 ///
-/// @param m Pointer to a 4x3 matrix.
+/// @param m
+///     Pointer to a 4x3 matrix.
 static inline void glMultMatrix4x3(const m4x3 *m)
 {
     MATRIX_MULT4x3 = m->m[0];
@@ -1064,7 +1210,8 @@ static inline void glMultMatrix4x3(const m4x3 *m)
 
 /// Multiplies the current matrix by a 3x3 matrix.
 ///
-/// @param m Pointer to a 3x3 matrix.
+/// @param m
+///     Pointer to a 3x3 matrix.
 static inline void glMultMatrix3x3(const m3x3 *m)
 {
     MATRIX_MULT3x3 = m->m[0];
@@ -1082,7 +1229,8 @@ static inline void glMultMatrix3x3(const m3x3 *m)
 
 /// Rotates the current modelview matrix by angle around the X axis.
 ///
-/// @param angle The angle to rotate by (angle is -32768 to 32767).
+/// @param angle
+///     The angle to rotate by (angle is -32768 to 32767).
 static inline void glRotateXi(int angle)
 {
     int sine = sinLerp(angle);
@@ -1103,7 +1251,8 @@ static inline void glRotateXi(int angle)
 
 /// Rotates the current modelview matrix by angle around the Y axis.
 ///
-/// @param angle The angle to rotate by (angle is -32768 to 32767).
+/// @param angle
+///     The angle to rotate by (angle is -32768 to 32767).
 static inline void glRotateYi(int angle)
 {
     int sine = sinLerp(angle);
@@ -1124,7 +1273,8 @@ static inline void glRotateYi(int angle)
 
 /// Rotates the current modelview matrix by angle around the Z axis.
 ///
-/// @param angle The angle to rotate by (angle is -32768 to 32767).
+/// @param angle
+///     The angle to rotate by (angle is -32768 to 32767).
 static inline void glRotateZi(int angle)
 {
     int sine = sinLerp(angle);
@@ -1145,29 +1295,41 @@ static inline void glRotateZi(int angle)
 
 /// Multiplies the current matrix into orthographic mode.
 ///
-/// @param left Left vertical clipping plane.
-/// @param right Right vertical clipping plane.
-/// @param bottom Bottom vertical clipping plane.
-/// @param top Top vertical clipping plane.
-/// @param zNear Near clipping plane.
-/// @param zFar Far clipping plane.
+/// @param left
+///     Left vertical clipping plane.
+/// @param right
+///     Right vertical clipping plane.
+/// @param bottom
+///     Bottom vertical clipping plane.
+/// @param top
+///     Top vertical clipping plane.
+/// @param zNear
+///     Near clipping plane.
+/// @param zFar
+///     Far clipping plane.
 void glOrthof32(int left, int right, int bottom, int top, int zNear, int zFar);
 
 /// Places the camera at the specified location and orientation (fixed point
 /// version).
 ///
-/// @param eyex (eyex, eyey, eyez) Location of the camera.
-/// @param eyey (eyex, eyey, eyez) Location of the camera.
-/// @param eyez (eyex, eyey, eyez) Location of the camera.
-/// @param lookAtx (lookAtx, lookAty, lookAtz) Where the camera is looking.
-/// @param lookAty (lookAtx, lookAty, lookAtz) Where the camera is looking.
-/// @param lookAtz (lookAtx, lookAty, lookAtz) Where the camera is looking.
-/// @param upx <upx, upy, upz> Unit vector describing which direction is up for
-///            the camera.
-/// @param upy <upx, upy, upz> Unit vector describing which direction is up for
-///            the camera.
-/// @param upz <upx, upy, upz> Unit vector describing which direction is up for
-///            the camera.
+/// @param eyex
+///     (eyex, eyey, eyez) Location of the camera.
+/// @param eyey
+///     (eyex, eyey, eyez) Location of the camera.
+/// @param eyez
+///     (eyex, eyey, eyez) Location of the camera.
+/// @param lookAtx
+///     (lookAtx, lookAty, lookAtz) Where the camera is looking.
+/// @param lookAty
+///     (lookAtx, lookAty, lookAtz) Where the camera is looking.
+/// @param lookAtz
+///     (lookAtx, lookAty, lookAtz) Where the camera is looking.
+/// @param upx
+///     Unit vector describing which direction is up for the camera.
+/// @param upy
+///     Unit vector describing which direction is up for the camera.
+/// @param upz
+///     Unit vector describing which direction is up for the camera.
 void gluLookAtf32(int eyex, int eyey, int eyez,
                   int lookAtx, int lookAty, int lookAtz,
                   int upx, int upy, int upz);
@@ -1175,32 +1337,45 @@ void gluLookAtf32(int eyex, int eyey, int eyez,
 /// Specifies the viewing frustum for the projection matrix (fixed point
 /// version).
 ///
-/// @param left Left of a rectangle located at the near clipping plane.
-/// @param right Right of a rectangle located at the near clipping plane.
-/// @param top top of a rectangle located at the near clipping plane.
-/// @param bottom Bottom of a rectangle located at the near clipping plane.
-/// @param near Location of a the near clipping plane (parallel to viewing
-///             window).
-/// @param far Location of a the far clipping plane (parallel to viewing
-///            window).
+/// @param left
+///     Left of a rectangle located at the near clipping plane.
+/// @param right
+///     Right of a rectangle located at the near clipping plane.
+/// @param top
+///     Top of a rectangle located at the near clipping plane.
+/// @param bottom
+///     Bottom of a rectangle located at the near clipping plane.
+/// @param near
+///     Location of a the near clipping plane (parallel to viewing window).
+/// @param far
+///     Location of a the far clipping plane (parallel to viewing window).
 void glFrustumf32(int left, int right, int bottom, int top, int near, int far);
 
 /// Utility function which sets up the projection matrix (fixed point version).
 ///
-/// @param fovy Specifies the field of view in degrees (-32768 to 32767).
-/// @param aspect Specifies the aspect ratio of the screen (normally screen
-///               width divided by screen height).
-/// @param zNear Specifies the near clipping plane.
-/// @param zFar Specifies the far clipping plane.
+/// @param fovy
+///     Specifies the field of view in degrees (-32768 to 32767).
+/// @param aspect
+///     Specifies the aspect ratio of the screen (normally screen width divided
+///     by screen height).
+/// @param zNear
+///     Specifies the near clipping plane.
+/// @param zFar
+///     Specifies the far clipping plane.
 void gluPerspectivef32(int fovy, int aspect, int zNear, int zFar);
 
 /// Utility function which generates a picking matrix for selection.
 ///
-/// @param x 2D x of center (touch x normally).
-/// @param y 2D y of center (touch y normally).
-/// @param width Width in pixels of the window (3 or 4 is a good number).
-/// @param height Height in pixels of the window (3 or 4 is a good number).
-/// @param viewport The current viewport (normally {0, 0, 255, 191}).
+/// @param x
+///     2D x of center (touch x normally).
+/// @param y
+///     2D y of center (touch y normally).
+/// @param width
+///     Width in pixels of the window (3 or 4 is a good number).
+/// @param height
+///     Height in pixels of the window (3 or 4 is a good number).
+/// @param viewport
+///     The current viewport (normally {0, 0, 255, 191}).
 void gluPickMatrix(int x, int y, int width, int height, const int viewport[4]);
 
 /// Resets matrix stack to top level
@@ -1208,8 +1383,10 @@ void glResetMatrixStack(void);
 
 /// Specifies an edge color for polygons.
 ///
-/// @param id Which outline color to set (0 - 7).
-/// @param color The 15 bit color to set
+/// @param id
+///     Which outline color to set (0 - 7).
+/// @param color
+///     The 15 bit color to set
 static inline void glSetOutlineColor(int id, rgb color)
 {
     GFX_EDGE_TABLE[id] = color;
@@ -1217,7 +1394,8 @@ static inline void glSetOutlineColor(int id, rgb color)
 
 /// Loads a toon table.
 ///
-/// @param table Pointer to the 32 color palette to load into the toon table.
+/// @param table
+///     Pointer to the 32 color palette to load into the toon table.
 static inline void glSetToonTable(const uint16_t *table)
 {
     for (int i = 0; i < 32; i++)
@@ -1226,9 +1404,12 @@ static inline void glSetToonTable(const uint16_t *table)
 
 /// Sets a range of colors on the toon table.
 ///
-/// @param start the start of the range
-/// @param end the end of the range
-/// @param color the color to set for that range */
+/// @param start
+///     The start of the range
+/// @param end
+///     The end of the range
+/// @param color
+///     The color to set for that range */
 static inline void glSetToonTableRange(int start, int end, rgb color)
 {
     for (int i = start; i <= end; i++)
@@ -1242,15 +1423,18 @@ static inline void glSetToonTableRange(int start, int end, rgb color)
 /// the data that is in OpenGL's one modelview matrix. (a.k.a. modelview =
 /// postion and vector).
 ///
-/// @param param The state variable to retrieve.
-/// @param f Pointer with room to hold the requested data.
+/// @param param
+///     The state variable to retrieve.
+/// @param f
+///     Pointer with room to hold the requested data.
 void glGetFixed(const GL_GET_ENUM param, int *f);
 
 /// Set the minimum alpha value that will be displayed.
 ///
 /// Polygons with a lower alpha value won't be displayed.
 ///
-/// @param alphaThreshold Minimum alpha value that will be used (0 - 15).
+/// @param alphaThreshold
+///     Minimum alpha value that will be used (0 - 15).
 static inline void glAlphaFunc(int alphaThreshold)
 {
     GFX_ALPHA_TEST = alphaThreshold;
@@ -1261,7 +1445,8 @@ static inline void glAlphaFunc(int alphaThreshold)
 /// Polygons that are beyond this W-value (distance from camera) will not be
 /// drawn.
 ///
-/// @param wVal Distance (15 bit value).
+/// @param wVal
+///     Distance (15 bit value).
 static inline void glCutoffDepth(fixed12d3 wVal)
 {
     GFX_CUTOFF_DEPTH = wVal;
@@ -1270,41 +1455,55 @@ static inline void glCutoffDepth(fixed12d3 wVal)
 /// Initializes the GL state machine (must be called once before using GL
 /// calls).
 ///
-/// @return 1 on success, 0 on failure
+/// @return
+///     1 on success, 0 on failure
 int glInit(void);
 
 /// Sets the color of the rear-plane (a.k.a clear color/plane)
 ///
-/// @param red Red component (0 - 31).
-/// @param green Green component (0 - 31).
-/// @param blue Blue component (0 - 31).
-/// @param alpha Alpha from 0 (clear) to 31 (opaque).
+/// @param red
+///     Red component (0 - 31).
+/// @param green
+///     Green component (0 - 31).
+/// @param blue
+///     Blue component (0 - 31).
+/// @param alpha
+///     Alpha from 0 (clear) to 31 (opaque).
 void glClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
 /// Sets the polygon ID of the rear-plane (a.k.a. clear color/plane)
 ///
 /// Useful for antialiasing and edge coloring.
 ///
-/// @param ID The polygon ID to give the rear-plane.
+/// @param ID
+///     The polygon ID to give the rear-plane.
 void glClearPolyID(uint8_t ID);
 
 /// Defines whether fog is applied to the clear plane or not.
 ///
-/// @enable True to apply fog to the clear plane, false to not apply it.
+/// @param enable
+///     True to apply fog to the clear plane, false to not apply it.
 void glClearFogEnable(bool enable);
 
 /// Grabs integer state variables from OpenGL.
 ///
-/// @param param The state variable to retrieve
-/// @param i Pointer with room to hold the requested data
+/// @param param
+///     The state variable to retrieve
+/// @param i
+///     Pointer with room to hold the requested data
 void glGetInt(GL_GET_ENUM param, int *i);
 
 /// Specifies a vertex location.
 ///
-/// @param x The x component of the vertex.
-/// @param y The y component of the vertex.
-/// @param z The z component of the vertex.
-/// @warning Float version! Please, use glVertex3v16() instead.
+/// @param x
+///     The x component of the vertex.
+/// @param y
+///     The y component of the vertex.
+/// @param z
+///     The z component of the vertex.
+///
+/// @warning
+///     Float version! Please, use glVertex3v16() instead.
 static inline void glVertex3f(float x, float y, float z)
 {
     glVertex3v16(floattov16(x), floattov16(y), floattov16(z));
@@ -1312,11 +1511,17 @@ static inline void glVertex3f(float x, float y, float z)
 
 /// Rotate on an arbitrary axis.
 ///
-/// @param angle The angle to rotate by
-/// @param x The x component of the axis to rotate on.
-/// @param y The y component of the axis to rotate on.
-/// @param z The z component of the axis to rotate on.
-/// @warning Float version! Please, use glRotatef32i() instead.
+/// @param angle
+///     The angle to rotate by
+/// @param x
+///     The x component of the axis to rotate on.
+/// @param y
+///     The y component of the axis to rotate on.
+/// @param z
+///     The z component of the axis to rotate on.
+///
+/// @warning
+///     Float version! Please, use glRotatef32i() instead.
 static inline void glRotatef32(float angle, int x, int y, int z)
 {
     glRotatef32i((int)(angle * DEGREES_IN_CIRCLE / 360.0), x, y, z);
@@ -1324,10 +1529,14 @@ static inline void glRotatef32(float angle, int x, int y, int z)
 
 /// Rotate about an arbitrary axis.
 ///
-/// @param x The x component of the axis to rotate on.
-/// @param y The y component of the axis to rotate on.
-/// @param z The z component of the axis to rotate on.
-/// @param angle The angle to rotate by.
+/// @param x
+///     The x component of the axis to rotate on.
+/// @param y
+///     The y component of the axis to rotate on.
+/// @param z
+///     The z component of the axis to rotate on.
+/// @param angle
+///     The angle to rotate by.
 static inline void glRotatef(float angle, float x, float y, float z)
 {
     glRotatef32(angle, floattof32(x), floattof32(y), floattof32(z));
@@ -1335,10 +1544,15 @@ static inline void glRotatef(float angle, float x, float y, float z)
 
 /// Specify a color for following vertices.
 ///
-/// @param r The red component of the color.
-/// @param g The green component of the color.
-/// @param b The blue component of the color.
-/// @warning Float version! Please, use glColor3b() instead.
+/// @param r
+///     The red component of the color.
+/// @param g
+///     The green component of the color.
+/// @param b
+///     The blue component of the color.
+///
+/// @warning
+///     Float version! Please, use glColor3b() instead.
 static inline void glColor3f(float r, float g, float b)
 {
     glColor3b((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255));
@@ -1346,10 +1560,15 @@ static inline void glColor3f(float r, float g, float b)
 
 /// Multiply the current matrix by a scale matrix.
 ///
-/// @param x Scaling on the x axis.
-/// @param y Scaling on the y axis.
-/// @param z Scaling on the z axis.
-/// @warning Float version! Please, use glScalev() or glScalef32() instead.
+/// @param x
+///     Scaling on the x axis.
+/// @param y
+///     Scaling on the y axis.
+/// @param z
+///     Scaling on the z axis.
+///
+/// @warning
+///     Float version! Please, use glScalev() or glScalef32() instead.
 static inline void glScalef(float x, float y, float z)
 {
     MATRIX_SCALE = floattof32(x);
@@ -1359,10 +1578,15 @@ static inline void glScalef(float x, float y, float z)
 
 /// Multiply the current matrix by a translation matrix.
 ///
-/// @param x Translation on the x axis.
-/// @param y Translation on the y axis.
-/// @param z Translation on the z axis.
-/// @warning Float version! Please, use glTranslatef32() instead.
+/// @param x
+///     Translation on the x axis.
+/// @param y
+///     Translation on the y axis.
+/// @param z
+///     Translation on the z axis.
+///
+/// @warning
+///     Float version! Please, use glTranslatef32() instead.
 static inline void glTranslatef(float x, float y, float z)
 {
     MATRIX_TRANSLATE = floattof32(x);
@@ -1372,10 +1596,15 @@ static inline void glTranslatef(float x, float y, float z)
 
 /// The normal to use for following vertices.
 ///
-/// @param x X component of the normal, vector must be normalized.
-/// @param y Y component of the normal, vector must be normalized.
-/// @param z Z component of the normal, vector must be normalized.
-/// @warning Float version! Please use glNormal() instead.
+/// @param x
+///     X component of the normal, vector must be normalized.
+/// @param y
+///     Y component of the normal, vector must be normalized.
+/// @param z
+///     Z component of the normal, vector must be normalized.
+///
+/// @warning
+///     Float version! Please use glNormal() instead.
 static inline void glNormal3f(float x, float y, float z)
 {
     glNormal(NORMAL_PACK(floattov10(x), floattov10(y), floattov10(z)));
@@ -1383,8 +1612,11 @@ static inline void glNormal3f(float x, float y, float z)
 
 /// Rotates the current modelview matrix by angle degrees around the X axis.
 ///
-/// @param angle The angle to rotate by.
-/// @warning Float version! Please, use glRotateZi() instead.
+/// @param angle
+///     The angle to rotate by.
+///
+/// @warning
+///     Float version! Please, use glRotateZi() instead.
 static inline void glRotateX(float angle)
 {
     glRotateXi((int)(angle * DEGREES_IN_CIRCLE / 360.0));
@@ -1392,8 +1624,11 @@ static inline void glRotateX(float angle)
 
 /// Rotates the current modelview matrix by angle degrees around the Y axis.
 ///
-/// @param angle The angle to rotate by.
-/// @warning Float version! Please, use glRotateZi() instead.
+/// @param angle
+///     The angle to rotate by.
+///
+/// @warning
+///     Float version! Please, use glRotateZi() instead.
 static inline void glRotateY(float angle)
 {
     glRotateYi((int)(angle * DEGREES_IN_CIRCLE / 360.0));
@@ -1401,8 +1636,11 @@ static inline void glRotateY(float angle)
 
 /// Rotates the current modelview matrix by angle degrees around the Z axis.
 ///
-/// @param angle The angle to rotate by.
-/// @warning Float version! Please, use glRotateZi() instead.
+/// @param angle
+///     The angle to rotate by.
+///
+/// @warning
+///     Float version! Please, use glRotateZi() instead.
 static inline void glRotateZ(float angle)
 {
     glRotateZi((int)(angle * DEGREES_IN_CIRCLE / 360.0));
@@ -1410,13 +1648,21 @@ static inline void glRotateZ(float angle)
 
 /// Multiplies the current matrix into ortho graphic mode.
 ///
-/// @param left Left vertical clipping plane.
-/// @param right Right vertical clipping plane.
-/// @param bottom Bottom vertical clipping plane.
-/// @param top Top vertical clipping plane.
-/// @param zNear Near clipping plane.
-/// @param zFar Far clipping plane.
-/// @warning Float version! Please, use glOrthof32() instead.
+/// @param left
+///     Left vertical clipping plane.
+/// @param right
+///     Right vertical clipping plane.
+/// @param bottom
+///     Bottom vertical clipping plane.
+/// @param top
+///     Top vertical clipping plane.
+/// @param zNear
+///     Near clipping plane.
+/// @param zFar
+///     Far clipping plane.
+///
+/// @warning
+///     Float version! Please, use glOrthof32() instead.
 static inline void glOrtho(float left, float right, float bottom, float top,
                            float zNear, float zFar)
 {
@@ -1427,19 +1673,27 @@ static inline void glOrtho(float left, float right, float bottom, float top,
 /// Places the camera at the specified location and orientation (floating point
 /// version).
 ///
-/// @param eyex (eyex, eyey, eyez) Location of the camera.
-/// @param eyey (eyex, eyey, eyez) Location of the camera.
-/// @param eyez (eyex, eyey, eyez) Location of the camera.
-/// @param lookAtx (lookAtx, lookAty, lookAtz) Where the camera is looking.
-/// @param lookAty (lookAtx, lookAty, lookAtz) Where the camera is looking.
-/// @param lookAtz (lookAtx, lookAty, lookAtz) Where the camera is looking.
-/// @param upx <upx, upy, upz> Unit vector describing which direction is up for
-///            the camera.
-/// @param upy <upx, upy, upz> Unit vector describing which direction is up for
-///            the camera.
-/// @param upz <upx, upy, upz> Unit vector describing which direction is up for
-///            the camera.
-/// @warning Float version! Please, use gluLookAtf32() instead.
+/// @param eyex
+///     (eyex, eyey, eyez) Location of the camera.
+/// @param eyey
+///     (eyex, eyey, eyez) Location of the camera.
+/// @param eyez
+///     (eyex, eyey, eyez) Location of the camera.
+/// @param lookAtx
+///     (lookAtx, lookAty, lookAtz) Where the camera is looking.
+/// @param lookAty
+///     (lookAtx, lookAty, lookAtz) Where the camera is looking.
+/// @param lookAtz
+///     (lookAtx, lookAty, lookAtz) Where the camera is looking.
+/// @param upx
+///     Unit vector describing which direction is up for the camera.
+/// @param upy
+///     Unit vector describing which direction is up for the camera.
+/// @param upz
+///     Unit vector describing which direction is up for the camera.
+///
+/// @warning
+///     Float version! Please, use gluLookAtf32() instead.
 static inline void gluLookAt(float eyex, float eyey, float eyez,
                              float lookAtx, float lookAty, float lookAtz,
                              float upx, float upy, float upz)
@@ -1452,15 +1706,21 @@ static inline void gluLookAt(float eyex, float eyey, float eyez,
 /// Specifies the viewing frustum for the projection matrix (floating point
 /// version).
 ///
-/// @param left Left of a rectangle located at the near clipping plane.
-/// @param right Right of a rectangle located at the near clipping plane.
-/// @param top Top of a rectangle located at the near clipping plane.
-/// @param bottom Bottom of a rectangle located at the near clipping plane.
-/// @param near Location of a the near clipping plane (parallel to viewing
-///             window).
-/// @param far Location of a the far clipping plane (parallel to viewing
-///            window).
-/// @warning Float version! Please, use glFrustumf32() instead.
+/// @param left
+///     Left of a rectangle located at the near clipping plane.
+/// @param right
+///     Right of a rectangle located at the near clipping plane.
+/// @param top
+///     Top of a rectangle located at the near clipping plane.
+/// @param bottom
+///     Bottom of a rectangle located at the near clipping plane.
+/// @param near
+///     Location of a the near clipping plane (parallel to viewing window).
+/// @param far
+///     Location of a the far clipping plane (parallel to viewing window).
+///
+/// @warning
+///     Float version! Please, use glFrustumf32() instead.
 static inline void glFrustum(float left, float right, float bottom, float top,
                              float near, float far)
 {
@@ -1470,12 +1730,18 @@ static inline void glFrustum(float left, float right, float bottom, float top,
 
 /// Utility function that sets up the projection matrix (floating point version)
 ///
-/// @param fovy Specifies the field of view in degrees.
-/// @param aspect Specifies the aspect ratio of the screen (normally screen
-///               width/screen height).
-/// @param zNear Specifies the near clipping plane.
-/// @param zFar Specifies the far clipping plane.
-/// @warning Float version! Please, use gluPerspectivef32() instead.
+/// @param fovy
+///     Specifies the field of view in degrees.
+/// @param aspect
+///     Specifies the aspect ratio of the screen (normally screen width/screen
+///     height).
+/// @param zNear
+///     Specifies the near clipping plane.
+/// @param zFar
+///     Specifies the far clipping plane.
+///
+/// @warning
+///     Float version! Please, use gluPerspectivef32() instead.
 static inline void gluPerspective(float fovy, float aspect, float zNear, float zFar)
 {
     gluPerspectivef32((int)(fovy * DEGREES_IN_CIRCLE / 360.0), floattof32(aspect),
@@ -1484,9 +1750,13 @@ static inline void gluPerspective(float fovy, float aspect, float zNear, float z
 
 /// Sets texture coordinates for following vertices
 ///
-/// @param s S (a.k.a. U) texture coordinate (0.0 - 1.0).
-/// @param t T (a.k.a. V) texture coordinate (0.0 - 1.0).
-/// @warning Float version! Please, use glTexCoord2t16() instead.
+/// @param s
+///     S (a.k.a. U) texture coordinate (0.0 - 1.0).
+/// @param t
+///     T (a.k.a. V) texture coordinate (0.0 - 1.0).
+///
+/// @warning
+///     Float version! Please, use glTexCoord2t16() instead.
 void glTexCoord2f(float s, float t);
 
 #ifdef __cplusplus

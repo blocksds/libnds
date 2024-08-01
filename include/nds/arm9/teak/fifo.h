@@ -23,12 +23,18 @@ extern "C" {
 ///
 /// This can't write to program memory.
 ///
-/// @param mem Destination memory. DSP_PCFG_MEMSEL_PROG isn't allowed.
-/// @param src Source address in the ARM9 memory map.
-/// @param fixedSrc True if the source address is fixed.
-/// @param dst Destination address in the selected DSP memory (16 bit units).
-/// @param fixedDst True if the destination address is fixed
-/// @param length Length of the transfer in 16 bit units.
+/// @param mem
+///     Destination memory. DSP_PCFG_MEMSEL_PROG isn't allowed.
+/// @param src
+///     Source address in the ARM9 memory map.
+/// @param fixedSrc
+///     True if the source address is fixed.
+/// @param dst
+///     Destination address in the selected DSP memory (16 bit units).
+/// @param fixedDst
+///     True if the destination address is fixed
+/// @param length
+///     Length of the transfer in 16 bit units.
 void dspFifoSend(DSP_PCFG_MEMSEL mem, const u16 *src, bool fixedSrc, u16 dst,
                  bool fixedDst, int length);
 
@@ -36,9 +42,12 @@ void dspFifoSend(DSP_PCFG_MEMSEL mem, const u16 *src, bool fixedSrc, u16 dst,
 ///
 /// This can't write to program memory.
 ///
-/// @param src Source address in the ARM9 memory map.
-/// @param dst Destination address in the selected DSP memory (16 bit units).
-/// @param length Length of the transfer in 16 bit units.
+/// @param src
+///     Source address in the ARM9 memory map.
+/// @param dst
+///     Destination address in the selected DSP memory (16 bit units).
+/// @param length
+///     Length of the transfer in 16 bit units.
 static inline void dspFifoWriteData(const u16 *src, u16 dst, int length)
 {
     dspFifoSend(DSP_PCFG_MEMSEL_DATA, src, false, dst, false, length);
@@ -48,21 +57,31 @@ static inline void dspFifoWriteData(const u16 *src, u16 dst, int length)
 ///
 /// This can't read from program memory.
 ///
-/// @param mem Source memory. DSP_PCFG_MEMSEL_PROG not allowed.
-/// @param src Source address in the selected DSP memory (16 bit units)
-/// @param fixedSrc True if the source address is fixed.
-/// @param dst Destination address in the ARM9 memory map.
-/// @param fixedDst True if the destination address is fixed.
-/// @param length Length of the transfer in 16 bit units.
-/// @param lengthMode Length mode of the transfer. Usually DSP_PCFG_RLEN_FREE.
+/// @param mem
+///     Source memory. DSP_PCFG_MEMSEL_PROG not allowed.
+/// @param src
+///     Source address in the selected DSP memory (16 bit units)
+/// @param fixedSrc
+///     True if the source address is fixed.
+/// @param dst
+///     Destination address in the ARM9 memory map.
+/// @param fixedDst
+///     True if the destination address is fixed.
+/// @param length
+///     Length of the transfer in 16 bit units.
+/// @param lengthMode
+///     Length mode of the transfer. Usually DSP_PCFG_RLEN_FREE.
 void dspFifoRecv(DSP_PCFG_MEMSEL mem, u16 src, bool fixedSrc, u16 *dst,
                  bool fixedDst, int length, DSP_PCFG_RLEN lengthMode);
 
 /// Receives data from DSP data memory using the FIFO using default settings.
 ///
-/// @param src Source address in the selected DSP memory (16 bit units)
-/// @param dst Destination address in the ARM9 memory map.
-/// @param length Length of the transfer in 16 bit units.
+/// @param src
+///     Source address in the selected DSP memory (16 bit units)
+/// @param dst
+///     Destination address in the ARM9 memory map.
+/// @param length
+///     Length of the transfer in 16 bit units.
 static inline void dspFifoReadData(u16 src, u16 *dst, int length)
 {
     dspFifoRecv(DSP_PCFG_MEMSEL_DATA, src, false, dst, false, length,

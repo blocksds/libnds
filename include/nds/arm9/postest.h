@@ -23,8 +23,9 @@ extern "C" {
 
 /// Checks if a position test is being performed.
 ///
-/// @return Returns true if the hardware is currently performing a
-/// position/vertex/box test.
+/// @return
+///     Returns true if the hardware is currently performing a
+///     position/vertex/box test.
 static inline bool PosTestBusy(void)
 {
     return (GFX_STATUS & BIT(0)) != 0;
@@ -32,9 +33,12 @@ static inline bool PosTestBusy(void)
 
 /// Starts a position test asynchronously.
 ///
-/// @param x Specifies x offset from the current modelview matrix.
-/// @param y Specifies y offset from the current modelview matrix.
-/// @param z Specifies z offset from the current modelview matrix.
+/// @param x
+///     Specifies x offset from the current modelview matrix.
+/// @param y
+///     Specifies y offset from the current modelview matrix.
+/// @param z
+///     Specifies z offset from the current modelview matrix.
 static inline void PosTest_Asynch(v16 x, v16 y, v16 z)
 {
     GFX_POS_TEST = VERTEX_PACK(x, y);
@@ -43,9 +47,12 @@ static inline void PosTest_Asynch(v16 x, v16 y, v16 z)
 
 /// Performs a position test.
 ///
-/// @param x Specifies x offset from the current modelview matrix.
-/// @param y Specifies y offset from the current modelview matrix.
-/// @param z Specifies z offset from the current modelview matrix.
+/// @param x
+///     Specifies x offset from the current modelview matrix.
+/// @param y
+///     Specifies y offset from the current modelview matrix.
+/// @param z
+///     Specifies z offset from the current modelview matrix.
 static inline void PosTest(v16 x, v16 y, v16 z)
 {
     PosTest_Asynch(x, y, z);
@@ -54,7 +61,8 @@ static inline void PosTest(v16 x, v16 y, v16 z)
 
 /// Returns the distance from the camera of the last position test.
 ///
-/// @return W magnitude
+/// @return
+///     W magnitude
 static inline int32_t PosTestWresult(void)
 {
     return GFX_POS_RESULT[3];
@@ -63,7 +71,8 @@ static inline int32_t PosTestWresult(void)
 /// Returns the absolute X position of the last position test (location if the
 /// modelview matrix was identity)
 ///
-/// @return Absolute X position
+/// @return
+///     Absolute X position
 static inline int32_t PosTestXresult(void)
 {
     return GFX_POS_RESULT[0];
@@ -72,7 +81,8 @@ static inline int32_t PosTestXresult(void)
 /// Returns the absolute Y position of the last position test (location if the
 /// modelview matrix was identity).
 ///
-/// @return Absolute Y position.
+/// @return
+///     Absolute Y position.
 static inline int32_t PosTestYresult(void)
 {
     return GFX_POS_RESULT[1];
@@ -81,7 +91,8 @@ static inline int32_t PosTestYresult(void)
 /// Returns the absolute Z position of the last position test (location if the
 /// modelview matrix was identity).
 ///
-/// @return Absolute Z position.
+/// @return
+///     Absolute Z position.
 static inline int32_t PosTestZresult(void)
 {
     return GFX_POS_RESULT[2];

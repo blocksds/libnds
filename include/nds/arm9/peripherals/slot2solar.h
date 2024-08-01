@@ -17,11 +17,14 @@ extern "C" {
 #include <stdint.h>
 
 /// Perform a "fast" solar sensor scan.
+///
 /// Note that this function stalls IRQs.
+///
 /// TODO: Test on hardware.
 ///
-/// @return The detected brightness (0 ~ 255, higher is darker),
-/// or -1 on failure/timeout.
+/// @return
+///     The detected brightness (0 ~ 255, higher is darker), or -1 on
+///     failure/timeout.
 int peripheralSlot2SolarScanFast(void);
 
 #ifdef __cplusplus

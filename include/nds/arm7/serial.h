@@ -77,13 +77,12 @@ extern "C" {
 // i.e. when we're part of a continuous transfer
 #define SPI_CONTINUOUS          BIT(11)
 
-/**
- * @brief Wait until the SPI bus is available.
- */
+/// Wait until the SPI bus is available.
 static inline void spiWaitBusy(void)
 {
     while (REG_SPICNT & SPI_BUSY);
 }
+
 #define SerialWaitBusy spiWaitBusy
 
 static inline u8 spiExchange(u8 value)

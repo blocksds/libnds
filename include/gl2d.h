@@ -107,7 +107,8 @@ void glEnd2D(void);
 ///
 /// Needed to achieve some effects since libnds 1.5.0.
 ///
-/// @return Returns the texture ID.
+/// @return
+///     Returns the texture ID.
 static inline int glGetActiveTexture(void)
 {
     return gCurrentTexture;
@@ -117,7 +118,8 @@ static inline int glGetActiveTexture(void)
 ///
 /// Needed to achieve some effects since libnds 1.5.0.
 ///
-/// @param TextureID Texture to set as active.
+/// @param TextureID
+///     Texture to set as active.
 static inline void glSetActiveTexture(int TextureID)
 {
     glBindTexture(0, TextureID);
@@ -126,126 +128,192 @@ static inline void glSetActiveTexture(int TextureID)
 
 /// Draws a pixel.
 ///
-/// @param x X position of the pixel.
-/// @param y Y position of the pixel.
-/// @param color RGB15/ARGB16 color.
+/// @param x
+///     X position of the pixel.
+/// @param y
+///     Y position of the pixel.
+/// @param color
+///     RGB15/ARGB16 color.
 void glPutPixel(int x, int y, int color);
 
 /// Draws a line.
 ///
-/// @param x1,y1 Top-Left coordinate of the line.
-/// @param x2,y2 Bottom-Right coordinate of the line.
-/// @param color RGB15/ARGB16 color.
+/// @param x1, y1
+///     Top-Left coordinate of the line.
+/// @param x2, y2
+///     Bottom-Right coordinate of the line.
+/// @param color
+///     RGB15/ARGB16 color.
 void glLine(int x1, int y1, int x2, int y2, int color);
 
 /// Draws a box.
 ///
-/// @param x1,y1 Top-Left coordinate of the box.
-/// @param x2,y2 Bottom-Right coordinate of the box.
-/// @param color RGB15/ARGB16 color.
+/// @param x1, y1
+///     Top-Left coordinate of the box.
+/// @param x2, y2
+///     Bottom-Right coordinate of the box.
+/// @param color
+///     RGB15/ARGB16 color.
 void glBox(int x1, int y1, int x2, int y2, int color);
 
 /// Draws a filled box.
 ///
-/// @param x1,y1 Top-Left coordinate of the box.
-/// @param x2,y2 Bottom-Right coordinate of the box.
-/// @param color RGB15/ARGB16 color.
+/// @param x1, y1
+///     Top-Left coordinate of the box.
+/// @param x2, y2
+///     Bottom-Right coordinate of the box.
+/// @param color
+///     RGB15/ARGB16 color.
 void glBoxFilled(int x1, int y1, int x2, int y2, int color);
 
 /// Draws a filled box in gradient colors.
 ///
-/// @param x1,y1 Top-Left coordinate of the box.
-/// @param x2,y2 Bottom-Right coordinate of the box.
-/// @param color1 RGB15/ARGB16 color of the Top-Left corner.
-/// @param color2 RGB15/ARGB16 color of the Bottom-Left corner.
-/// @param color3 RGB15/ARGB16 color of the Bottom-Right corner.
-/// @param color4 RGB15/ARGB16 color of the Top-Right corner.
+/// @param x1, y1
+///     Top-Left coordinate of the box.
+/// @param x2, y2
+///     Bottom-Right coordinate of the box.
+/// @param color1
+///     RGB15/ARGB16 color of the Top-Left corner.
+/// @param color2
+///     RGB15/ARGB16 color of the Bottom-Left corner.
+/// @param color3
+///     RGB15/ARGB16 color of the Bottom-Right corner.
+/// @param color4
+///     RGB15/ARGB16 color of the Top-Right corner.
 void glBoxFilledGradient(int x1, int y1, int x2, int y2,
                          int color1, int color2, int color3, int color4);
 
 /// Draws a triangle.
 ///
-/// @param x1,y1 Vertex 1 of the triangle.
-/// @param x2,y2 Vertex 2 of the triangle.
-/// @param x3,y3 Vertex 3 of the triangle.
-/// @param color RGB15/ARGB16 color of the triangle.
+/// @param x1, y1
+///     Vertex 1 of the triangle.
+/// @param x2, y2
+///     Vertex 2 of the triangle.
+/// @param x3, y3
+///     Vertex 3 of the triangle.
+/// @param color
+///     RGB15/ARGB16 color of the triangle.
 void glTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int color);
 
 /// Draws a filled triangle.
 ///
-/// @param x1,y1 Vertex 1 of the triangle.
-/// @param x2,y2 Vertex 2 of the triangle.
-/// @param x3,y3 Vertex 3 of the triangle.
-/// @param color RGB15/ARGB16 color of the triangle.
+/// @param x1, y1
+///     Vertex 1 of the triangle.
+/// @param x2, y2
+///     Vertex 2 of the triangle.
+/// @param x3, y3
+///     Vertex 3 of the triangle.
+/// @param color
+///     RGB15/ARGB16 color of the triangle.
 void glTriangleFilled(int x1, int y1, int x2, int y2, int x3, int y3, int color);
 
 /// Draws a triangle in gradient colors.
 ///
-/// @param x1,y1 Vertex 1 of the triangle.
-/// @param x2,y2 Vertex 2 of the triangle.
-/// @param x3,y3 Vertex 3 of the triangle.
-/// @param color1 RGB15/ARGB16 color of the vertex 1.
-/// @param color2 RGB15/ARGB16 color of the vertex 2.
-/// @param color3 RGB15/ARGB16 color of the vertex 3.
+/// @param x1, y1
+///     Vertex 1 of the triangle.
+/// @param x2, y2
+///     Vertex 2 of the triangle.
+/// @param x3, y3
+///     Vertex 3 of the triangle.
+/// @param color1
+///     RGB15/ARGB16 color of the vertex 1.
+/// @param color2
+///     RGB15/ARGB16 color of the vertex 2.
+/// @param color3
+///     RGB15/ARGB16 color of the vertex 3.
 void glTriangleFilledGradient(int x1, int y1, int x2, int y2, int x3, int y3,
                               int color1, int color2, int color3);
 
 /// Draws a sprite.
 ///
-/// @param x X position of the sprite.
-/// @param y Y position of the sprite.
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
+/// @param x
+///     X position of the sprite.
+/// @param y
+///     Y position of the sprite.
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
 void glSprite(int x, int y, int flipmode, const glImage *spr);
 
 /// Draws a scaled sprite.
 ///
-/// @param x X position of the sprite.
-/// @param y Y position of the sprite.
-/// @param scale 20.12 fixed-point scale value (1 << 12 is normal).
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
+/// @param x
+///     X position of the sprite.
+/// @param y
+///     Y position of the sprite.
+/// @param scale
+///     20.12 fixed-point scale value (1 << 12 is normal).
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
 void glSpriteScale(int x, int y, s32 scale, int flipmode, const glImage *spr);
 
 /// Draws an axis exclusive scaled sprite.
 ///
-/// @param x X position of the sprite.
-/// @param y Y position of the sprite.
-/// @param scaleX 20.12 fixed-point X-Axis scale value (1 << 12 is normal).
-/// @param scaleY 20.12 fixed-point Y-Axis scale value (1 << 12 is normal).
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
-void glSpriteScaleXY(int x, int y, s32 scaleX, s32 scaleY, int flipmode, const glImage *spr);
+/// @param x
+///     X position of the sprite.
+/// @param y
+///     Y position of the sprite.
+/// @param scaleX
+///     20.12 fixed-point X-Axis scale value (1 << 12 is normal).
+/// @param scaleY
+///     20.12 fixed-point Y-Axis scale value (1 << 12 is normal).
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
+void glSpriteScaleXY(int x, int y, s32 scaleX, s32 scaleY, int flipmode,
+                     const glImage *spr);
 
 /// Draws a center rotated sprite.
 ///
-/// @param x X position of the sprite center.
-/// @param y Y position of the sprite center.
-/// @param angle Binary Radian Angle(-32768 to 32767) to rotate the sprite.
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
+/// @param x
+///     X position of the sprite center.
+/// @param y
+///     Y position of the sprite center.
+/// @param angle
+///     Binary Radian Angle(-32768 to 32767) to rotate the sprite.
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
 void glSpriteRotate(int x, int y, s32 angle, int flipmode, const glImage *spr);
 
 /// Draws a center rotated scaled sprite.
 ///
-/// @param x X position of the sprite center.
-/// @param y Y position of the sprite center.
-/// @param angle Binary Radian Angle(-32768 to 32767) to rotate the sprite.
-/// @param scale 20.12 fixed-point scale value (1 << 12 is normal).
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
+/// @param x
+///     X position of the sprite center.
+/// @param y
+///     Y position of the sprite center.
+/// @param angle
+///     Binary Radian Angle(-32768 to 32767) to rotate the sprite.
+/// @param scale
+///     20.12 fixed-point scale value (1 << 12 is normal).
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
 void glSpriteRotateScale(int x, int y, s32 angle, s32 scale, int flipmode,
                          const glImage *spr);
 
 /// Draws a center rotated axis-exclusive scaled sprite.
 ///
-/// @param x X position of the sprite center.
-/// @param y Y position of the sprite center.
-/// @param angle Binary Radian Angle(-32768 to 32767) to rotate the sprite.
-/// @param scaleX 20.12 fixed-point X-Axis scale value (1 << 12 is normal).
-/// @param scaleY 20.12 fixed-point Y-Axis scale value (1 << 12 is normal).
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
+/// @param x
+///     X position of the sprite center.
+/// @param y
+///     Y position of the sprite center.
+/// @param angle
+///     Binary Radian Angle(-32768 to 32767) to rotate the sprite.
+/// @param scaleX
+///     20.12 fixed-point X-Axis scale value (1 << 12 is normal).
+/// @param scaleY
+///     20.12 fixed-point Y-Axis scale value (1 << 12 is normal).
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
 void glSpriteRotateScaleXY(int x, int y, s32 angle, s32 scaleX, s32 scaleY,
                            int flipmode, const glImage *spr);
 
@@ -253,23 +321,34 @@ void glSpriteRotateScaleXY(int x, int y, s32 angle, s32 scaleX, s32 scaleY,
 ///
 /// Useful for "laser effects".
 ///
-/// @param x X position of the sprite center.
-/// @param y Y position of the sprite center.
-/// @param length_x The length(in pixels) to stretch the sprite.
-/// @param spr Pointer to a glImage.
+/// @param x
+///     X position of the sprite center.
+/// @param y
+///     Y position of the sprite center.
+/// @param length_x
+///     The length(in pixels) to stretch the sprite.
+/// @param spr
+///     Pointer to a glImage.
 void glSpriteStretchHorizontal(int x, int y, int length_x, const glImage *spr);
 
 /// Draws a horizontaly stretched sprite (clean stretching).
 ///
 /// Useful for "shrearing effects".
 ///
-/// @param x1,y1 First corner of the sprite.
-/// @param x2,y2 Second corner of the sprite.
-/// @param x3,y3 Third corner of the sprite.
-/// @param x4,y4 Fourth corner of the sprite.
-/// @param uoff,voff Texture offsets.
-/// @param flipmode Mode for flipping (see GL_FLIP_MODE enum).
-/// @param spr Pointer to a glImage.
+/// @param x1, y1
+///     First corner of the sprite.
+/// @param x2, y2
+///     Second corner of the sprite.
+/// @param x3, y3
+///     Third corner of the sprite.
+/// @param x4, y4
+///     Fourth corner of the sprite.
+/// @param uoff, voff
+///     Texture offsets.
+/// @param flipmode
+///     Mode for flipping (see GL_FLIP_MODE enum).
+/// @param spr
+///     Pointer to a glImage.
 void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,
                     int uoff, int voff, int flipmode, const glImage *spr);
 
@@ -277,23 +356,33 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 ///
 /// Very safe and easy to use.
 ///
-/// @param sprite Pointer to an array of glImage.
-/// @param numframes Number of frames in a spriteset (auto-generated by Texture
-///                  Packer).
-/// @param texcoords Texture Packer auto-generated array of UV coords.
-/// @param type The format of the texture (see glTexImage2D()).
-/// @param sizeX The horizontal size of the texture; valid sizes are enumerated
-///              in GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
-/// @param sizeY The vertical size of the texture; valid sizes are enumerated in
-///              GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
-/// @param param Parameters for the texture (see glTexImage2D()).
-/// @param palette_width Length of the palette. Valid values are 4, 16, 32, 256
-///                       (if 0, the palette is removed from the currently bound
-///                       texture).
-/// @param palette Pointer to the palette data to load (if NULL, then palette is
-///                emoved from currently bound texture).
-/// @param texture Pointer to the texture data to load.
-/// @return Returns the texture ID on success, -1 on error.
+/// @param sprite
+///     Pointer to an array of glImage.
+/// @param numframes
+///     Number of frames in a spriteset (auto-generated by Texture Packer).
+/// @param texcoords
+///     Texture Packer auto-generated array of UV coords.
+/// @param type
+///     The format of the texture (see glTexImage2D()).
+/// @param sizeX
+///     The horizontal size of the texture; valid sizes are enumerated in
+///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+/// @param sizeY
+///     The vertical size of the texture; valid sizes are enumerated in
+///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+/// @param param
+///     Parameters for the texture (see glTexImage2D()).
+/// @param palette_width
+///     Length of the palette. Valid values are 4, 16, 32, 256 (if 0, the
+///     palette is removed from the currently bound texture).
+/// @param palette
+///     Pointer to the palette data to load (if NULL, then palette is emoved
+///     from currently bound texture).
+/// @param texture
+///     Pointer to the texture data to load.
+///
+/// @return
+///     Returns the texture ID on success, -1 on error.
 int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
                     const uint16_t *texcoords, GL_TEXTURE_TYPE_ENUM type,
                     int sizeX, int sizeY, int param, int palette_width,
@@ -304,24 +393,37 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 ///
 /// Can only be used when tiles in a tilset are of the same dimensions.
 ///
-/// @param sprite Pointer to an array of glImage.
-/// @param tile_wid Width of each tile in the texture.
-/// @param tile_hei Height of each tile in the texture.
-/// @param bmp_wid Width of of the texture or tileset.
-/// @param bmp_hei height of of the texture or tileset.
-/// @param type The format of the texture (see glTexImage2D()).
-/// @param sizeX The horizontal size of the texture; valid sizes are enumerated
-///              in GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
-/// @param sizeY The vertical size of the texture; valid sizes are enumerated in
-///              GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
-/// @param param Parameters for the texture (see glTexImage2D()).
-/// @param palette_width Length of the palette. Valid values are 4, 16, 32, 256
-///                       (if 0, the palette is removed from the currently bound
-///                       texture).
-/// @param palette Pointer to the palette data to load (if NULL, then palette
-///                 is removed from currently bound texture).
-/// @param texture Pointer to the texture data to load.
-/// @return Returns the texture ID on success, -1 on error.
+/// @param sprite
+///     Pointer to an array of glImage.
+/// @param tile_wid
+///     Width of each tile in the texture.
+/// @param tile_hei
+///     Height of each tile in the texture.
+/// @param bmp_wid
+///     Width of of the texture or tileset.
+/// @param bmp_hei
+///     height of of the texture or tileset.
+/// @param type
+///     The format of the texture (see glTexImage2D()).
+/// @param sizeX
+///     The horizontal size of the texture; valid sizes are enumerated in
+///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+/// @param sizeY
+///     The vertical size of the texture; valid sizes are enumerated in
+///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+/// @param param
+///     Parameters for the texture (see glTexImage2D()).
+/// @param palette_width
+///     Length of the palette. Valid values are 4, 16, 32, 256 (if 0, the
+///     palette is removed from the currently bound texture).
+/// @param palette
+///     Pointer to the palette data to load (if NULL, then palette is removed
+///     from currently bound texture).
+/// @param texture
+///     Pointer to the texture data to load.
+///
+/// @return
+///     Returns the texture ID on success, -1 on error.
 int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int bmp_hei,
                   GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
                   int palette_width, const void *palette, const void *texture);

@@ -24,30 +24,40 @@ extern "C" {
 
 /// Performs a test to determine if the provided box is in the view frustrum.
 ///
-/// @param x (x, y, z) point of a vertex on the box
-/// @param y (x, y, z) point of a vertex on the box
-/// @param z (x, y, z) point of a vertex on the box
-/// @param height (height, width, depth) describe the size of the box referenced
-///               from (x, y, z)
-/// @param width (height, width, depth) describe the size of the box referenced
-///              from (x, y, z)
-/// @param depth (height, width, depth) describe the size of the box referenced
-///              from (x, y, z)
-/// @return Non zero if any or all of the box is in the view frustum.
+/// @param x
+///     Point of a vertex on the box
+/// @param y
+///     Point of a vertex on the box
+/// @param z
+///     Point of a vertex on the box
+/// @param height
+///     Describe the size of the box referenced from (x, y, z)
+/// @param width
+///     Describe the size of the box referenced from (x, y, z)
+/// @param depth
+///     Describe the size of the box referenced from (x, y, z)
+///
+/// @return
+///     Non zero if any or all of the box is in the view frustum.
 int BoxTest(v16 x, v16 y, v16 z, v16 width, v16 height, v16 depth);
 
 /// Performs a test to determine if the provided box is in the view frustum.
 ///
-/// @param x (x, y, z) point of a vertex on the box
-/// @param y (x, y, z) point of a vertex on the box
-/// @param z (x, y, z) point of a vertex on the box
-/// @param width (width, height, depth) describe the size of the box referenced
-///              from (x, y, z)
-/// @param height (width, height, depth) describe the size of the box referenced
-///               from (x, y, z)
-/// @param depth (width, height, depth) describe the size of the box referenced
-///              from (x, y, z)
-/// @return Non zero if any or all of the box is in the view frustum.
+/// @param x
+///     Point of a vertex on the box
+/// @param y
+///     Point of a vertex on the box
+/// @param z
+///     Point of a vertex on the box
+/// @param width
+///     Describe the size of the box referenced from (x, y, z)
+/// @param height
+///     Describe the size of the box referenced from (x, y, z)
+/// @param depth
+///     Describe the size of the box referenced from (x, y, z)
+///
+/// @return
+///     Non zero if any or all of the box is in the view frustum.
 static inline int BoxTestf(float x, float y, float z,
                            float width, float height, float depth)
 {
@@ -60,15 +70,18 @@ static inline int BoxTestf(float x, float y, float z,
 /// This is asynchronous. BoxTestResult must be called to get the result of this
 /// operation.
 ///
-/// @param x (x, y, z) point of a vertex on the box
-/// @param y (x, y, z) point of a vertex on the box
-/// @param z (x, y, z) point of a vertex on the box
-/// @param width (width, height, depth) describe the size of the box referenced
-///              from (x, y, z)
-/// @param height (width, height, depth) describe the size of the box referenced
-///               from (x, y, z)
-/// @param depth (width, height, depth) describe the size of the box referenced
-///              from (x, y, z)
+/// @param x
+///     Point of a vertex on the box
+/// @param y
+///     Point of a vertex on the box
+/// @param z
+///     Point of a vertex on the box
+/// @param width
+///     Describe the size of the box referenced from (x, y, z)
+/// @param height
+///     Describe the size of the box referenced from (x, y, z)
+/// @param depth
+///     Describe the size of the box referenced from (x, y, z)
 void BoxTest_Asynch(v16 x, v16 y, v16 z, v16 height, v16 width, v16 depth);
 
 /// Performs a test to determine if the provided box is in the view frustum.
@@ -76,15 +89,18 @@ void BoxTest_Asynch(v16 x, v16 y, v16 z, v16 height, v16 width, v16 depth);
 /// This is asynchronous. BoxTestResult must be called to get the result of this
 /// operation.
 ///
-/// @param x (x, y, z) point of a vertex on the box
-/// @param y (x, y, z) point of a vertex on the box
-/// @param z (x, y, z) point of a vertex on the box
-/// @param width (width, height, depth) describe the size of the box referenced
-///              from (x, y, z)
-/// @param height (width, height, depth) describe the size of the box referenced
-///               from (x, y, z)
-/// @param depth (width, height, depth) describe the size of the box referenced
-///              from (x, y, z)
+/// @param x
+///     Point of a vertex on the box
+/// @param y
+///     Point of a vertex on the box
+/// @param z
+///     Point of a vertex on the box
+/// @param width
+///     Describe the size of the box referenced from (x, y, z)
+/// @param height
+///     Describe the size of the box referenced from (x, y, z)
+/// @param depth
+///     Describe the size of the box referenced from (x, y, z)
 static inline void BoxTestf_Asynch(float x, float y, float z,
                                    float width, float height, float depth)
 {
@@ -96,7 +112,8 @@ static inline void BoxTestf_Asynch(float x, float y, float z,
 ///
 /// Needed for asynch box test calls.
 ///
-/// @return Non zero if any or all of the box is in the view frustum.
+/// @return
+///     Non zero if any or all of the box is in the view frustum.
 static inline int BoxTestResult(void)
 {
     while (GFX_STATUS & GFX_STATUS_TEST_BUSY);

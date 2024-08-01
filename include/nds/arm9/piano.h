@@ -36,7 +36,8 @@ extern "C" {
 
 /// Check for piano option pack.
 ///
-/// @return true if the cart in the GBA slot is the piano option pack.
+/// @return
+///     true if the cart in the GBA slot is the piano option pack.
 bool pianoIsInserted(void);
 
 /// Obtain the current piano state.
@@ -46,17 +47,20 @@ void pianoScanKeys(void);
 
 /// Obtains the current piano keys held state.
 ///
-/// @return Bitmask of keys.
+/// @return
+///     Bitmask of keys.
 u16 pianoKeysHeld(void);
 
 /// Obtains the current piano keys pressed state.
 ///
-/// @return Bitmask of keys.
+/// @return
+///     Bitmask of keys.
 u16 pianoKeysDown(void);
 
 /// Obtains the current piano keys released state.
 ///
-/// @return Bitmask of keys.
+/// @return
+///     Bitmask of keys.
 u16 pianoKeysUp(void);
 
 #ifdef __cplusplus

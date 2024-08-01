@@ -109,20 +109,33 @@ typedef enum
 /// }
 /// ```
 ///
-/// @param src Pointer to the GRF file in RAM.
-/// @param header Pointer to a header structure to be filled.
-/// @param gfxDst Pointer to pointer to load graphics data.
-/// @param gfxSize Location to store the graphics data size.
-/// @param mapDst Pointer to pointer to load map data.
-/// @param mapSize Location to store the map data size.
-/// @param palDst Pointer to pointer to load palette data.
-/// @param palSize Location to store the palette data size.
-/// @param mtilDst Pointer to pointer to load metatile data.
-/// @param mtilSize Location to store the metatile data size.
-/// @param mmapDst Pointer to pointer to load metamap data.
-/// @param mmapSize Location to store the metamap data size.
+/// @param src
+///     Pointer to the GRF file in RAM.
+/// @param header
+///     Pointer to a header structure to be filled.
+/// @param gfxDst
+///     Pointer to pointer to load graphics data.
+/// @param gfxSize
+///     Location to store the graphics data size.
+/// @param mapDst
+///     Pointer to pointer to load map data.
+/// @param mapSize
+///     Location to store the map data size.
+/// @param palDst
+///     Pointer to pointer to load palette data.
+/// @param palSize
+///     Location to store the palette data size.
+/// @param mtilDst
+///     Pointer to pointer to load metatile data.
+/// @param mtilSize
+///     Location to store the metatile data size.
+/// @param mmapDst
+///     Pointer to pointer to load metamap data.
+/// @param mmapSize
+///     Location to store the metamap data size.
 ///
-/// @return Returns 0 on success, a negative number on error.
+/// @return
+///     Returns 0 on success, a negative number on error.
 GRFError grfLoadMemEx(const void *src, GRFHeader *header,
                       void **gfxDst, size_t *gfxSize,
                       void **mapDst, size_t *mapSize,
@@ -132,18 +145,28 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
 
 /// From a GRF file in RAM, extract all data and allocate memory for it.
 ///
-/// @note Check grfLoadMemEx() for details about how to use this function.
+/// @note
+///     Check grfLoadMemEx() for details about how to use this function.
 ///
-/// @param src Pointer to the GRF file in RAM.
-/// @param header Pointer to a header structure to be filled.
-/// @param gfxDst Pointer to pointer to load graphics data.
-/// @param gfxSize Location to store the graphics data size.
-/// @param mapDst Pointer to pointer to load map data.
-/// @param mapSize Location to store the map data size.
-/// @param palDst Pointer to pointer to load palette data.
-/// @param palSize Location to store the palette data size.
+/// @param src
+///     Pointer to the GRF file in RAM.
+/// @param header
+///     Pointer to a header structure to be filled.
+/// @param gfxDst
+///     Pointer to pointer to load graphics data.
+/// @param gfxSize
+///     Location to store the graphics data size.
+/// @param mapDst
+///     Pointer to pointer to load map data.
+/// @param mapSize
+///     Location to store the map data size.
+/// @param palDst
+///     Pointer to pointer to load palette data.
+/// @param palSize
+///     Location to store the palette data size.
 ///
-/// @return Returns 0 on success, a negative number on error.
+/// @return
+///     Returns 0 on success, a negative number on error.
 GRFError grfLoadMem(const void *src, GRFHeader *header,
                     void **gfxDst, size_t *gfxSize,
                     void **mapDst, size_t *mapSize,
@@ -151,18 +174,28 @@ GRFError grfLoadMem(const void *src, GRFHeader *header,
 
 /// From a FILE* to a GRF file, extract all data and allocate memory for it.
 ///
-/// @note Check grfLoadMemEx() for details about how to use this function.
+/// @note
+///     Check grfLoadMemEx() for details about how to use this function.
 ///
-/// @param file FILE handle to the GRF file.
-/// @param header Pointer to a header structure to be filled.
-/// @param gfxDst Pointer to pointer to load graphics data.
-/// @param gfxSize Location to store the graphics data size.
-/// @param mapDst Pointer to pointer to load map data.
-/// @param mapSize Location to store the map data size.
-/// @param palDst Pointer to pointer to load palette data.
-/// @param palSize Location to store the palette data size.
+/// @param file
+///     FILE handle to the GRF file.
+/// @param header
+///     Pointer to a header structure to be filled.
+/// @param gfxDst
+///     Pointer to pointer to load graphics data.
+/// @param gfxSize
+///     Location to store the graphics data size.
+/// @param mapDst
+///     Pointer to pointer to load map data.
+/// @param mapSize
+///     Location to store the map data size.
+/// @param palDst
+///     Pointer to pointer to load palette data.
+/// @param palSize
+///     Location to store the palette data size.
 ///
-/// @return Returns 0 on success, a negative number on error.
+/// @return
+///     Returns 0 on success, a negative number on error.
 GRFError grfLoadFile(FILE *file, GRFHeader *header,
                      void **gfxDst, size_t *gfxSize,
                      void **mapDst, size_t *mapSize,
@@ -170,22 +203,36 @@ GRFError grfLoadFile(FILE *file, GRFHeader *header,
 
 /// From a FILE* to a GRF file, extract all data and allocate memory for it.
 ///
-/// @note Check grfLoadMemEx() for details about how to use this function.
+/// @note
+///     Check grfLoadMemEx() for details about how to use this function.
 ///
-/// @param file FILE handle to the GRF file.
-/// @param header Pointer to a header structure to be filled.
-/// @param gfxDst Pointer to pointer to load graphics data.
-/// @param gfxSize Location to store the graphics data size.
-/// @param mapDst Pointer to pointer to load map data.
-/// @param mapSize Location to store the map data size.
-/// @param palDst Pointer to pointer to load palette data.
-/// @param palSize Location to store the palette data size.
-/// @param mtilDst Pointer to pointer to load metatile data.
-/// @param mtilSize Location to store the metatile data size.
-/// @param mmapDst Pointer to pointer to load metamap data.
-/// @param mmapSize Location to store the metamap data size.
+/// @param file
+///     FILE handle to the GRF file.
+/// @param header
+///     Pointer to a header structure to be filled.
+/// @param gfxDst
+///     Pointer to pointer to load graphics data.
+/// @param gfxSize
+///     Location to store the graphics data size.
+/// @param mapDst
+///     Pointer to pointer to load map data.
+/// @param mapSize
+///     Location to store the map data size.
+/// @param palDst
+///     Pointer to pointer to load palette data.
+/// @param palSize
+///     Location to store the palette data size.
+/// @param mtilDst
+///     Pointer to pointer to load metatile data.
+/// @param mtilSize
+///     Location to store the metatile data size.
+/// @param mmapDst
+///     Pointer to pointer to load metamap data.
+/// @param mmapSize
+///     Location to store the metamap data size.
 ///
-/// @return Returns 0 on success, a negative number on error.
+/// @return
+///     Returns 0 on success, a negative number on error.
 GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
                        void **gfxDst, size_t *gfxSize,
                        void **mapDst, size_t *mapSize,
@@ -197,16 +244,25 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
 ///
 /// @note Check grfLoadMemEx() for details about how to use this function.
 ///
-/// @param path Path to the GRF file in the filesystem.
-/// @param header Pointer to a header structure to be filled.
-/// @param gfxDst Pointer to pointer to load graphics data.
-/// @param gfxSize Location to store the graphics data size.
-/// @param mapDst Pointer to pointer to load map data.
-/// @param mapSize Location to store the map data size.
-/// @param palDst Pointer to pointer to load palette data.
-/// @param palSize Location to store the palette data size.
+/// @param path
+///     Path to the GRF file in the filesystem.
+/// @param header
+///     Pointer to a header structure to be filled.
+/// @param gfxDst
+///     Pointer to pointer to load graphics data.
+/// @param gfxSize
+///     Location to store the graphics data size.
+/// @param mapDst
+///     Pointer to pointer to load map data.
+/// @param mapSize
+///     Location to store the map data size.
+/// @param palDst
+///     Pointer to pointer to load palette data.
+/// @param palSize
+///     Location to store the palette data size.
 ///
-/// @return Returns 0 on success, a negative number on error.
+/// @return
+///     Returns 0 on success, a negative number on error.
 GRFError grfLoadPath(const char *path, GRFHeader *header,
                      void **gfxDst, size_t *gfxSize,
                      void **mapDst, size_t *mapSize,
@@ -216,20 +272,33 @@ GRFError grfLoadPath(const char *path, GRFHeader *header,
 ///
 /// @note Check grfLoadMemEx() for details about how to use this function.
 ///
-/// @param path Path to the GRF file in the filesystem.
-/// @param header Pointer to a header structure to be filled.
-/// @param gfxDst Pointer to pointer to load graphics data.
-/// @param gfxSize Location to store the graphics data size.
-/// @param mapDst Pointer to pointer to load map data.
-/// @param mapSize Location to store the map data size.
-/// @param palDst Pointer to pointer to load palette data.
-/// @param palSize Location to store the palette data size.
-/// @param mtilDst Pointer to pointer to load metatile data.
-/// @param mtilSize Location to store the metatile data size.
-/// @param mmapDst Pointer to pointer to load metamap data.
-/// @param mmapSize Location to store the metamap data size.
+/// @param path
+///     Path to the GRF file in the filesystem.
+/// @param header
+///     Pointer to a header structure to be filled.
+/// @param gfxDst
+///     Pointer to pointer to load graphics data.
+/// @param gfxSize
+///     Location to store the graphics data size.
+/// @param mapDst
+///     Pointer to pointer to load map data.
+/// @param mapSize
+///     Location to store the map data size.
+/// @param palDst
+///     Pointer to pointer to load palette data.
+/// @param palSize
+///     Location to store the palette data size.
+/// @param mtilDst
+///     Pointer to pointer to load metatile data.
+/// @param mtilSize
+///     Location to store the metatile data size.
+/// @param mmapDst
+///     Pointer to pointer to load metamap data.
+/// @param mmapSize
+///     Location to store the metamap data size.
 ///
-/// @return Returns 0 on success, a negative number on error.
+/// @return
+///     Returns 0 on success, a negative number on error.
 GRFError grfLoadPathEx(const char *path, GRFHeader *header,
                        void **gfxDst, size_t *gfxSize,
                        void **mapDst, size_t *mapSize,

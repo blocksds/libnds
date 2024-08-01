@@ -60,7 +60,8 @@ typedef enum
 
 /// Sets the LCD refresh scanline Y trigger
 ///
-/// @param Yvalue The value for the Y trigger.
+/// @param Yvalue
+///     The value for the Y trigger.
 static inline void SetYtrigger(int Yvalue)
 {
     REG_DISPSTAT = (REG_DISPSTAT & 0x007F) | (Yvalue << 8) | ((Yvalue & 0x100) >> 1);
@@ -91,17 +92,20 @@ typedef enum
 ///
 /// The NDS will be reawakened when the lid is opened.
 ///
-/// @note By default, this is automatically called when closing the lid.
+/// @note
+///     By default, this is automatically called when closing the lid.
 void systemSleep(void);
 
 /// Set the LED blink mode
 ///
-/// @param bm What to power on.
+/// @param bm
+///     What to power on.
 void ledBlink(int bm);
 
 /// Checks whether the application is running in DSi mode.
 ///
-/// @return Returns true if the application is running in DSi mode.
+/// @return
+///     Returns true if the application is running in DSi mode.
 static inline bool isDSiMode(void)
 {
     extern bool __dsimode;
@@ -112,24 +116,39 @@ static inline bool isDSiMode(void)
 ///
 /// It works on DS and DSi consoles.
 ///
-/// @note swiIsDebugger() only works with the cache disabled, this function
-/// doesn't have any restrictions.
+/// @note
+///     swiIsDebugger() only works with the cache disabled, this function
+///     doesn't have any restrictions.
 ///
-/// @return Returns true if running on a debugger unit, false on retail units.
+/// @return
+///     Returns true if running on a debugger unit, false on retail units.
 static inline bool isHwDebugger(void)
 {
     extern bool __debugger_unit;
     return __debugger_unit;
 }
 
-/**
- * @brief Write bytes at a specified address to firmware flash.
- */
+/// Write bytes at a specified address to firmware flash.
+///
+/// @param address
+///     Address in the firmware to write to.
+/// @param buffer
+///     Pointer to the buffer to write.
+/// @param length
+///     Size of the buffer to write.
+///
+/// @return
+///     0 on success, else error.
 int writeFirmware(u32 address, void *buffer, u32 length);
 
-/**
- * @brief Read bytes at a specified address from firmware flash.
- */
+/// Read bytes at a specified address from firmware flash.
+///
+/// @param address
+///     Address in the firmware to read from.
+/// @param buffer
+///     Pointer to the buffer to use as destination.
+/// @param length
+///     Size of the buffer to read.
 void readFirmware(u32 address, void *buffer, u32 length);
 
 // ARM9 section
@@ -142,7 +161,8 @@ void readFirmware(u32 address, void *buffer, u32 length);
 /// It may be called from the ARM7 or ARM9 (ARM9 power bits will be ignored by
 /// the ARM7, ARM7 power bits will be passed to the ARM7 from the ARM9).
 ///
-/// @param bits What to power ON (PM_Bits).
+/// @param bits
+///     What to power ON (PM_Bits).
 void powerOn(uint32_t bits);
 
 /// Turns off specified hardware.
@@ -150,7 +170,8 @@ void powerOn(uint32_t bits);
 /// It may be called from the ARM7 or ARM9 (ARM9 power bits will be ignored by
 /// the ARM7, ARM7 power bits will be passed to the ARM7 from the ARM9).
 ///
-/// @param bits What to power OFF (PM_Bits).
+/// @param bits
+///     What to power OFF (PM_Bits).
 void powerOff(uint32_t bits);
 
 /// Enables sleep mode from ARM9.
@@ -196,13 +217,17 @@ static inline void systemShutDown(void)
 /// battery level is only "high" or "low", and libnds returns 15 or 3
 /// respectively as the equivalent DSi battery level.
 ///
-/// @return Battery level and external power source status.
+/// @return
+///     Battery level and external power source status.
 u32 getBatteryLevel(void);
 
 /// Set the arm9 vector base
 ///
-/// @param highVector High vector.
-/// @note ARM9 only
+/// @param highVector
+///     High vector.
+///
+/// @note
+///     ARM9 only
 void setVectorBase(int highVector);
 
 /// A struct with all the CPU exeption vectors.
@@ -229,26 +254,32 @@ void setSDcallback(void (*callback)(int));
 
 /// Sets the ARM9 clock speed, only possible in DSi mode.
 ///
-/// @param speed CPU speed (false = 67.03MHz, true = 134.06MHz)
-/// @return The old CPU speed value
+/// @param speed
+///     CPU speed (false = 67.03MHz, true = 134.06MHz)
+///
+/// @return
+///     The old CPU speed value
 bool setCpuClock(bool speed);
 
 // Helper functions for heap size
 
 /// Returns current start of heap space.
 ///
-/// @return Returns a pointer to the start of the heap.
+/// @return
+///     Returns a pointer to the start of the heap.
 u8 *getHeapStart(void);
 
 /// Returns current end of heap space.
 ///
-/// @return Returns a pointer to the end of the heap.
+/// @return
+///     Returns a pointer to the end of the heap.
 u8 *getHeapEnd(void);
 
 /// Returns current heap limit.
 ///
-/// @return Returns a pointer to the limit of the heap. It won't grow past this
-/// address.
+/// @return
+///     Returns a pointer to the limit of the heap. It won't grow past this
+///     address.
 u8 *getHeapLimit(void);
 
 #endif // ARM9
@@ -262,9 +293,10 @@ u8 *getHeapLimit(void);
 
 /// Power-controlled hardware devices accessable to the ARM7.
 ///
-/// @note These should only be used when programming for the ARM7. Trying to
-/// boot up these hardware devices via the ARM9 would lead to unexpected
-/// results. ARM7 only.
+/// @note
+///     These should only be used when programming for the ARM7. Trying to boot
+///     up these hardware devices via the ARM9 would lead to unexpected results.
+///     ARM7 only.
 typedef enum {
     POWER_SOUND = BIT(0),          ///< Controls the power for the sound controller
 
@@ -287,25 +319,19 @@ typedef enum {
 #define PM_LED_CONTROL_MASK (3 << 4)
 #define PM_LED_CONTROL(m)   ((m) << 4)
 
-/**
- * @brief Install the system FIFO handlers.
- * 
- * This handles power management, DSi SD card access, and firmware flash
- * access.
- */
+/// Install the system FIFO handlers.
+///
+/// This handles power management, DSi SD card access, and firmware flash
+/// access.
 void installSystemFIFO(void);
 
 // Internal. Check if sleep mode is enabled.
 int sleepEnabled(void);
 
-/**
- * @brief Write to a power management register.
- */
+/// Write to a power management register.
 int writePowerManagement(int reg, int command);
 
-/**
- * @brief Read from a power management register.
- */
+/// Read from a power management register.
 static inline int readPowerManagement(int reg)
 {
     return writePowerManagement(reg | PM_READ_REGISTER, 0);
@@ -321,18 +347,18 @@ static inline void powerOff(uint32_t bits)
     REG_POWERCNT &= ~bits;
 }
 
-/**
- * @brief Read user settings/personal data from firmware flash to a shared
- * memory location.
- */
+/// Read user settings/personal data from firmware flash to a shared memory
+/// location.
 bool readUserSettings(void);
+
 void systemShutDown(void);
 
 #endif // ARM7
 
 /// Backlight level settings.
 ///
-/// @note Only available on DS Lite.
+/// @note
+///     Only available on DS Lite.
 typedef enum {
     BACKLIGHT_LOW,  ///< Low backlight setting.
     BACKLIGHT_MED,  ///< Medium backlight setting.
@@ -491,14 +517,20 @@ struct __bootstub {
 #ifdef ARM9
 /// Returns a cached mirror of an address.
 ///
-/// @param address an address.
-/// @return a pointer to the cached mirror of that address.
+/// @param address
+///     An address.
+///
+/// @return
+///     A pointer to the cached mirror of that address.
 void *memCached(void *address);
 
 /// Returns an uncached mirror of an address.
 ///
-/// @param address an address.
-/// @return a pointer to the uncached mirror of that address.
+/// @param address
+///     An address.
+///
+/// @return
+///     A pointer to the uncached mirror of that address.
 void *memUncached(void *address);
 
 /// Enable data cache for the DS slot-2 memory region.
@@ -506,9 +538,10 @@ void *memUncached(void *address);
 /// Note that this is not safe to enable if you're using Slot-2 memory for
 /// purposes other than external RAM, such as rumble or other I/O.
 ///
-/// @param write_back Set as write-back. This allows writes to skip
-/// the slow Slot-2 bus, at the expense of requiring a full memory flush
-/// when calling peripheralSlot2DisableCache().
+/// @param write_back
+///     Set as write-back. This allows writes to skip the slow Slot-2 bus, at
+///     the expense of requiring a full memory flush when calling
+///     peripheralSlot2DisableCache().
 void peripheralSlot2EnableCache(bool write_back);
 
 /// Disable data cache for the DS slot-2 memory region.

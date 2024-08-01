@@ -328,9 +328,13 @@ extern OamState oamSub;
 
 /// Convert a VRAM address to an OAM offset
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param offset The VRAM of the sprite graphics (not an offset).
-/// @return OAM offset.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param offset
+///     The VRAM of the sprite graphics (not an offset).
+///
+/// @return
+///     OAM offset.
 unsigned int oamGfxPtrToOffset(OamState *oam, const void *offset);
 
 /// Initializes the 2D sprite engine.
@@ -340,46 +344,64 @@ unsigned int oamGfxPtrToOffset(OamState *oam, const void *offset);
 /// sized boundaries so the sprite gfx allocation will function. VBlank IRQ must
 /// be enabled for this function to work.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param mapping The mapping mode.
-/// @param extPalette If true it sets up extended palettes for 8 bpp sprites.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param mapping
+///     The mapping mode.
+/// @param extPalette
+///     If true it sets up extended palettes for 8 bpp sprites.
 void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette);
 
 /// Disables sprite rendering.
 ///
-/// @param oam Must be &oamMain or &oamSub.
+/// @param oam
+///     Must be &oamMain or &oamSub.
 void oamDisable(OamState *oam);
 
 /// Enables sprite rendering.
 ///
-/// @param oam Must be &oamMain or &oamSub.
+/// @param oam
+///     Must be &oamMain or &oamSub.
 void oamEnable(OamState *oam);
 
 /// Translates an OAM offset into a VRAM address.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param gfxOffsetIndex The index to compute.
-/// @return The address in VRAM corresponding to the supplied offset.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param gfxOffsetIndex
+///     The index to compute.
+///
+/// @return
+///     The address in VRAM corresponding to the supplied offset.
 u16 *oamGetGfxPtr(OamState *oam, int gfxOffsetIndex);
 
 /// Allocates graphics memory for the supplied sprite attributes.
 ///
-/// @param oam Must be &oamMain or &oamSub..
-/// @param size The size of the sprite to allocate.
-/// @param colorFormat The color format of the sprite.
-/// @return The address in VRAM of the allocated sprite.
+/// @param oam
+///     Must be &oamMain or &oamSub..
+/// @param size
+///     The size of the sprite to allocate.
+/// @param colorFormat
+///     The color format of the sprite.
+///
+/// @return
+///     The address in VRAM of the allocated sprite.
 u16 *oamAllocateGfx(OamState *oam, SpriteSize size, SpriteColorFormat colorFormat);
 
 /// Free VRAM memory obtained with oamAllocateGfx.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param gfxOffset A VRAM offset obtained from oamAllocateGfx.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param gfxOffset
+///     A VRAM offset obtained from oamAllocateGfx.
 void oamFreeGfx(OamState *oam, const void *gfxOffset);
 
 /// Sets engine A global sprite mosaic.
 ///
-/// @param dx (0-15) horizontal mosaic value.
-/// @param dy (0-15) horizontal mosaic value.
+/// @param dx
+///     (0-15) horizontal mosaic value.
+/// @param dy
+///     (0-15) horizontal mosaic value.
 static inline void oamSetMosaic(unsigned int dx, unsigned int dy)
 {
     sassert(dx < 16 && dy < 16, "Mosaic range must be 0 to 15");
@@ -390,8 +412,10 @@ static inline void oamSetMosaic(unsigned int dx, unsigned int dy)
 
 /// Sets engine B global sprite mosaic.
 ///
-/// @param dx (0-15) horizontal mosaic value.
-/// @param dy (0-15) horizontal mosaic value.
+/// @param dx
+///     (0-15) horizontal mosaic value.
+/// @param dy
+///     (0-15) horizontal mosaic value.
 static inline void oamSetMosaicSub(unsigned int dx, unsigned int dy)
 {
     sassert(dx < 16 && dy < 16, "Mosaic range must be 0 to 15");
@@ -406,9 +430,12 @@ static inline void oamSetMosaicSub(unsigned int dx, unsigned int dy)
 /// SpriteMode_Windowed. SpriteMode_Normal and SpriteMode_Bitmap are set
 /// automatically by the other functions in this file.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param mode The mode to set the sprite to.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param mode
+///     The mode to set the sprite to.
 static inline void oamSetBlendMode(OamState *oam, int id, SpriteMode mode)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -420,31 +447,50 @@ static inline void oamSetBlendMode(OamState *oam, int id, SpriteMode mode)
 
 /// Returns a SpriteSize enumeration value from dimensions in pixels.
 ///
-/// @param width Width in pixels.
-/// @param height Height in pixels.
-/// @return A valid SpriteSize enum value or SpriteSize_Invalid.
+/// @param width
+///     Width in pixels.
+/// @param height
+///     Height in pixels.
+///
+/// @return
+///     A valid SpriteSize enum value or SpriteSize_Invalid.
 SpriteSize oamDimensionsToSize(int width, int height);
 
 /// Sets an OAM entry to the supplied values.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param x The x location of the sprite in pixels.
-/// @param y The y location of the sprite in pixels.
-/// @param priority The sprite priority (0 to 3).
-/// @param palette_alpha The palette number for 4bpp and 8bpp (extended palette
-///                      mode), or the alpha value for bitmap sprites (bitmap
-///                      sprites must specify a value > 0 to display) [0 - 15].
-/// @param size The size of the sprite
-/// @param format The color format of the sprite
-/// @param gfxOffset The VRAM address of the sprite graphics (not an offset).
-/// @param affineIndex Affine index to use [0 - 31].
-/// @param sizeDouble If affineIndex >= 0 this will be used to double the sprite
-///                   size for rotation.
-/// @param hide If non zero (true) the sprite will be hidden.
-/// @param vflip Flip the sprite vertically.
-/// @param hflip Flip the sprite horizontally.
-/// @param mosaic If true mosaic will be applied to the sprite.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param x
+///     The x location of the sprite in pixels.
+/// @param y
+///     The y location of the sprite in pixels.
+/// @param priority
+///     The sprite priority (0 to 3).
+/// @param palette_alpha
+///     The palette number for 4bpp and 8bpp (extended palette mode), or the
+///     alpha value for bitmap sprites (bitmap sprites must specify a value > 0
+///     to display) [0 - 15].
+/// @param size
+///     The size of the sprite
+/// @param format
+///     The color format of the sprite
+/// @param gfxOffset
+///     The VRAM address of the sprite graphics (not an offset).
+/// @param affineIndex
+///     Affine index to use [0 - 31].
+/// @param sizeDouble
+///     If affineIndex >= 0 this will be used to double the sprite size for
+///     rotation.
+/// @param hide
+///     If non zero (true) the sprite will be hidden.
+/// @param vflip
+///     Flip the sprite vertically.
+/// @param hflip
+///     Flip the sprite horizontally.
+/// @param mosaic
+///     If true mosaic will be applied to the sprite.
 void oamSet(OamState *oam, int id,  int x, int y, int priority,
             int palette_alpha, SpriteSize size, SpriteColorFormat format,
             const void *gfxOffset, int affineIndex, bool sizeDouble, bool hide,
@@ -452,10 +498,14 @@ void oamSet(OamState *oam, int id,  int x, int y, int priority,
 
 /// Sets an OAM entry to the supplied (x, y) position.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param x The x location of the sprite in pixels.
-/// @param y The y location of the sprite in pixels.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param x
+///     The x location of the sprite in pixels.
+/// @param y
+///     The y location of the sprite in pixels.
 static inline void oamSetXY(OamState *oam, int id, int x, int y)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -469,9 +519,12 @@ static inline void oamSetXY(OamState *oam, int id, int x, int y)
 
 /// Sets an OAM entry to the supplied priority.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param priority the sprite priority [0 - 3].
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param priority
+///     The sprite priority [0 - 3].
 static inline void oamSetPriority(OamState *oam, int id, int priority)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -486,10 +539,13 @@ static inline void oamSetPriority(OamState *oam, int id, int priority)
 
 /// Sets a paletted OAM entry to the supplied palette.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param palette The palette number for 4bpp and 8bpp (extended palette mode)
-///                sprites [0 - 15].
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param palette
+///     The palette number for 4bpp and 8bpp (extended palette mode) sprites [0
+///     - 15].
 static inline void oamSetPalette(OamState *oam, int id, int palette)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -506,10 +562,13 @@ static inline void oamSetPalette(OamState *oam, int id, int palette)
 
 /// Sets a bitmapped OAM entry to the supplied transparency.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param alpha The alpha value for bitmap sprites (bitmap sprites must specify
-///              a value > 0 to display) [0 - 15].
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param alpha
+///     The alpha value for bitmap sprites (bitmap sprites must specify a value
+///     > 0 to display) [0 - 15].
 static inline void oamSetAlpha(OamState *oam, int id, int alpha)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -526,21 +585,30 @@ static inline void oamSetAlpha(OamState *oam, int id, int alpha)
 
 /// Sets an OAM entry to the supplied shape/size/pointer.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param size The size of the sprite.
-/// @param format The color format of the sprite.
-/// @param gfxOffset The VRAM address of the sprite graphics (not an offset).
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param size
+///     The size of the sprite.
+/// @param format
+///     The color format of the sprite.
+/// @param gfxOffset
+///     The VRAM address of the sprite graphics (not an offset).
 void oamSetGfx(OamState *oam, int id, SpriteSize size, SpriteColorFormat format,
                const void *gfxOffset);
 
 /// Sets an OAM entry to the supplied affine index.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param affineIndex Affine index to use [0 - 31].
-/// @param sizeDouble If affineIndex >= 0 and < 32 this will be used to double
-///                   the sprite size for rotation.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param affineIndex
+///     Affine index to use [0 - 31].
+/// @param sizeDouble
+///     If affineIndex >= 0 and < 32 this will be used to double the sprite size
+///     for rotation.
 static inline void oamSetAffineIndex(OamState *oam, int id, int affineIndex,
                                      bool sizeDouble)
 {
@@ -564,9 +632,12 @@ static inline void oamSetAffineIndex(OamState *oam, int id, int affineIndex,
 
 /// Sets an OAM entry to the supplied hidden state.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param hide If non zero (true) the sprite will be hidden.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param hide
+///     If non zero (true) the sprite will be hidden.
 static inline void oamSetHidden(OamState *oam, int id, bool hide)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -581,10 +652,14 @@ static inline void oamSetHidden(OamState *oam, int id, bool hide)
 
 /// Sets an OAM entry to the supplied flipping.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param hflip Flip the sprite horizontally.
-/// @param vflip Flip the sprite vertically.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param hflip
+///     Flip the sprite horizontally.
+/// @param vflip
+///     Flip the sprite vertically.
 static inline void oamSetFlip(OamState *oam, int id, bool hflip, bool vflip)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -600,9 +675,12 @@ static inline void oamSetFlip(OamState *oam, int id, bool hflip, bool vflip)
 
 /// Sets an OAM entry to enable or disable mosaic.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param id The OAM number to be set [0 - 127].
-/// @param mosaic If true mosaic will be applied to the sprite.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param id
+///     The OAM number to be set [0 - 127].
+/// @param mosaic
+///     If true mosaic will be applied to the sprite.
 static inline void oamSetMosaicEnabled(OamState *oam, int id, bool mosaic)
 {
     sassert(oam == &oamMain || oam == &oamSub,
@@ -615,15 +693,20 @@ static inline void oamSetMosaicEnabled(OamState *oam, int id, bool mosaic)
 
 /// Hides the sprites in the supplied range.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param start The first index to clear.
-/// @param count The number of sprites to clear (zero will clear all sprites).
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param start
+///     The first index to clear.
+/// @param count
+///     The number of sprites to clear (zero will clear all sprites).
 void oamClear(OamState *oam, int start, int count);
 
 /// Hides a single sprite.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param index The index of the sprite [0 - 127].
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param index
+///     The index of the sprite [0 - 127].
 static inline void oamClearSprite(OamState *oam, int index)
 {
     sassert(index >= 0 && index < SPRITE_COUNT,
@@ -636,16 +719,22 @@ static inline void oamClearSprite(OamState *oam, int index)
 ///
 /// It must be called during vblank if using the OAM API.
 ///
-/// @param oam Must be &oamMain or &oamSub.
+/// @param oam
+///     Must be &oamMain or &oamSub.
 void oamUpdate(OamState *oam);
 
 /// Sets the specified rotation scale entry.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param rotId The rotation entry to set.
-/// @param angle The ccw angle to rotate [-32768 - 32767].
-/// @param sx The inverse scale factor in the x direction.
-/// @param sy The inverse scale factor in the y direction.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param rotId
+///     The rotation entry to set.
+/// @param angle
+///     The CCW angle to rotate [-32768 - 32767].
+/// @param sx
+///     The inverse scale factor in the x direction.
+/// @param sy
+///     The inverse scale factor in the y direction.
 void oamRotateScale(OamState *oam, int rotId, int angle, int sx, int sy);
 
 /// Allows you to directly set the affine transformation matrix.
@@ -654,12 +743,18 @@ void oamRotateScale(OamState *oam, int rotId, int angle, int sx, int sy);
 /// difficult to use if you're not used to affine transformation matrix. This
 /// will erase the previous matrix stored at rotId.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param rotId The ID of the rotscale item you want to change [0 - 31].
-/// @param hdx The change in x per horizontal pixel.
-/// @param hdy The change in y per horizontal pixel.
-/// @param vdx The change in x per vertical pixel.
-/// @param vdy The change in y per vertical pixel.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param rotId
+///     The ID of the rotscale item you want to change [0 - 31].
+/// @param hdx
+///     The change in x per horizontal pixel.
+/// @param hdy
+///     The change in y per horizontal pixel.
+/// @param vdx
+///     The change in x per vertical pixel.
+/// @param vdy
+///     The change in y per vertical pixel.
 static inline void oamAffineTransformation(OamState *oam, int rotId, int hdx, int hdy,
                                            int vdx, int vdy)
 {
@@ -674,8 +769,11 @@ static inline void oamAffineTransformation(OamState *oam, int rotId, int hdx, in
 
 /// Determines the number of fragments in the allocation engine.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @return The number of fragments.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+///
+/// @return
+///     The number of fragments.
 int oamCountFragments(OamState *oam);
 
 void oamAllocReset(OamState *oam);

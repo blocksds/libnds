@@ -26,7 +26,8 @@ extern "C" {
 
 /// Check for the guitar grip.
 ///
-/// @return Returns true if there is a guitar grip in the slot-2.
+/// @return
+///     Returns true if there is a guitar grip in the slot-2.
 bool guitarGripIsInserted(void);
 
 /// Obtain the current guitar grip state.
@@ -36,17 +37,20 @@ void guitarGripScanKeys(void);
 
 /// Obtains the keys currently held in the guitar grip.
 ///
-/// @return Returns a bitmask of the currently held keys.
+/// @return
+///     Returns a bitmask of the currently held keys.
 u8 guitarGripKeysHeld(void);
 
 /// Obtains the keys that have just been pressed in the guitar grip.
 ///
-/// @return Returns a bitmask of the currently held keys.
+/// @return
+///     Returns a bitmask of the currently held keys.
 u16 guitarGripKeysDown(void);
 
 /// Obtains the keys that have just been released in the guitar grip.
 ///
-/// @return Returns a bitmask of the currently held keys.
+/// @return
+///     Returns a bitmask of the currently held keys.
 u16 guitarGripKeysUp(void);
 
 #ifdef __cplusplus

@@ -62,94 +62,132 @@ void soundDisable(void);
 
 /// Plays a sound in the specified format at the specified frequency.
 ///
-/// @param data A pointer to the sound data.
-/// @param format The format of the data (only 16-bit and 8-bit pcm and ADPCM
-///               formats are supported by this function).
-/// @param dataSize The size in bytes of the sound data.
-/// @param freq The frequency in Hz of the sample.
-/// @param volume The channel volume. 0 to 127 (min to max).
-/// @param pan The channel pan 0 to 127 (left to right with 64 being centered).
-/// @param loop If true, the sample will loop playing once then repeating
-///             starting at the offset stored in loopPoint.
-/// @param loopPoint The offset for the sample loop to restart when repeating.
-/// @return An integer id coresponding to the channel of playback. This value
-/// can be used to pause, resume, or kill the sound as well as adjust volume,
-/// pan, and frequency
+/// @param data
+///     A pointer to the sound data.
+/// @param format
+///     The format of the data (only 16-bit and 8-bit pcm and ADPCM formats are
+///     supported by this function).
+/// @param dataSize
+///     The size in bytes of the sound data.
+/// @param freq
+///     The frequency in Hz of the sample.
+/// @param volume
+///     The channel volume. 0 to 127 (min to max).
+/// @param pan
+///     The channel pan 0 to 127 (left to right with 64 being centered).
+/// @param loop
+///     If true, the sample will loop playing once then repeating starting at
+///     the offset stored in loopPoint.
+/// @param loopPoint
+///     The offset for the sample loop to restart when repeating.
+///
+/// @return
+///     An integer id coresponding to the channel of playback. This value can be
+///     used to pause, resume, or kill the sound as well as adjust volume, pan,
+///     and frequency
 int soundPlaySample(const void *data, SoundFormat format, u32 dataSize, u16 freq,
                     u8 volume, u8 pan, bool loop, u16 loopPoint);
 
 /// Pause a tone with the specified properties.
 ///
-/// @param cycle The DutyCycle of the sound wave.
-/// @param freq The frequency in Hz of the sample.
-/// @param volume The channel volume.  0 to 127 (min to max)
-/// @param pan The channel pan 0 to 127 (left to right with 64 being centered).
-/// @return An integer id coresponding to the channel of playback. This value
-/// can be used to pause, resume, or kill the sound as well as adjust volume,
-/// pan, and frequency.
+/// @param cycle
+///     The DutyCycle of the sound wave.
+/// @param freq
+///     The frequency in Hz of the sample.
+/// @param volume
+///     The channel volume.  0 to 127 (min to max)
+/// @param pan
+///     The channel pan 0 to 127 (left to right with 64 being centered).
+///
+/// @return
+///     An integer id coresponding to the channel of playback. This value can be
+///     used to pause, resume, or kill the sound as well as adjust volume, pan,
+///     and frequency.
 int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan);
 
 /// Plays white noise with the specified parameters.
 ///
-/// @param freq The frequency in Hz of the sample.
-/// @param volume The channel volume. 0 to 127 (min to max).
-/// @param pan The channel pan 0 to 127 (left to right with 64 being centered).
-/// @return An integer id coresponding to the channel of playback. This value
-/// can be used to pause, resume, or kill the sound as well as adjust volume,
-/// pan, and frequency.
+/// @param freq
+///     The frequency in Hz of the sample.
+/// @param volume
+///     The channel volume. 0 to 127 (min to max).
+/// @param pan
+///     The channel pan 0 to 127 (left to right with 64 being centered).
+///
+/// @return
+///     An integer id coresponding to the channel of playback. This value can be
+///     used to pause, resume, or kill the sound as well as adjust volume, pan,
+///     and frequency.
 int soundPlayNoise(u16 freq, u8 volume, u8 pan);
 
 /// Pause the sound specified by soundId.
 ///
-/// @param soundId The sound ID returned by play sound.
+/// @param soundId
+///     The sound ID returned by play sound.
 void soundPause(int soundId);
 
 /// Sets the Wave Duty of a PSG sound.
 ///
-/// @param soundId The sound ID returned by play sound.
-/// @param cycle The DutyCycle of the sound wave.
+/// @param soundId
+///     The sound ID returned by play sound.
+/// @param cycle
+///     The DutyCycle of the sound wave.
 void soundSetWaveDuty(int soundId, DutyCycle cycle);
 
 /// Stops the sound specified by soundId and frees any resources allocated.
 ///
-/// @param soundId The sound ID returned by play sound.
+/// @param soundId
+///     The sound ID returned by play sound.
 void soundKill(int soundId);
 
 /// Resumes a paused sound.
 ///
-/// @param soundId The sound ID returned by play sound.
+/// @param soundId
+///     The sound ID returned by play sound.
 void soundResume(int soundId);
 
 /// Sets the sound volume.
 ///
-/// @param soundId The sound ID returned by play sound.
-/// @param volume The new volume (0 to 127 min to max).
+/// @param soundId
+///     The sound ID returned by play sound.
+/// @param volume
+///     The new volume (0 to 127 min to max).
 void soundSetVolume(int soundId, u8 volume);
 
 /// Sets the sound panning.
 //
-/// @param soundId The sound ID returned by play sound.
-/// @param pan The new pan value (0 to 127 left to right, 64 = center).
+/// @param soundId
+///     The sound ID returned by play sound.
+/// @param pan
+///     The new pan value (0 to 127 left to right, 64 = center).
 void soundSetPan(int soundId, u8 pan);
 
 /// Sets the sound frequency.
 ///
-/// @param soundId The sound ID returned by play sound.
-/// @param freq The frequency in Hz.
+/// @param soundId
+///     The sound ID returned by play sound.
+/// @param freq
+///     The frequency in Hz.
 void soundSetFreq(int soundId, u16 freq);
 
 /// Starts a microphone recording to a double buffer specified by buffer.
 ///
 /// Note: The microphone uses timer 1 in the ARM7.
 ///
-/// @param buffer A pointer to the start of the double buffer.
-/// @param bufferLength The length of the buffer in bytes (both halfs of the
-///                     double buffer).
-/// @param format Microphone can record in 8 or 12 bit format. 12 bit is
-///               shifted up to 16 bit PCM.
-/// @param freq The sample frequency.
-/// @param callback Called every time the buffer is full or half full.
-/// @return Returns non zero for success.
+/// @param buffer
+///     A pointer to the start of the double buffer.
+/// @param bufferLength
+///     The length of the buffer in bytes (both halfs of the double buffer).
+/// @param format
+///     Microphone can record in 8 or 12 bit format. 12 bit is shifted up to 16
+///     bit PCM.
+/// @param freq
+///     The sample frequency.
+/// @param callback
+///     Called every time the buffer is full or half full.
+///
+/// @return
+///     Returns non zero for success.
 int soundMicRecord(void *buffer, u32 bufferLength, MicFormat format, int freq,
                    MicCallback callback);
 
@@ -158,13 +196,15 @@ void soundMicOff(void);
 
 /// Set extended sound hardware frequency.
 ///
-/// @param freq_khz Frequency in KHz. The default is 32, but 47 is allowed too.
+/// @param freq_khz
+///     Frequency in KHz. The default is 32, but 47 is allowed too.
 void soundExtSetFrequency(unsigned int freq_khz);
 
 /// Set the DSP/ARM volume ratio of the speakers output.
 ///
-/// @param ratio Value from 0 to 8 where 0 is 100% DSP, 8 is 100% ARM, 4 is
-/// 50% DSP and 50% ARM.
+/// @param ratio
+///     Value from 0 to 8 where 0 is 100% DSP, 8 is 100% ARM, 4 is 50% DSP and
+///     50% ARM.
 void soundExtSetRatio(unsigned int ratio);
 
 /// Powers on the microphone so that it can be used by the DSP.

@@ -104,134 +104,173 @@ typedef struct
 
 /// Initializes a (e)MMC/SD card device.
 ///
-/// @param devNum The device to initialize.
+/// @param devNum
+///     The device to initialize.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or one of the errors listed above
-///         on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
 u32 SDMMC_init(const u8 devNum);
 
 /// Switches a (e)MMC/SD card device between sleep/awake mode.
 ///
 /// Note that SD cards don't have a true sleep mode.
 ///
-/// @param devNum  The device.
-/// @param enabled The mode. true to enable sleep and false to wake up.
+/// @param devNum
+///     The device.
+/// @param enabled
+///     The mode. true to enable sleep and false to wake up.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or
-///         one of the errors listed above on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
 u32 SDMMC_setSleepMode(const u8 devNum, const bool enabled);
 
 /// Deinitializes a (e)MMC/SD card device.
 ///
-/// @param devNum The device to deinitialize.
+/// @param devNum
+///     The device to deinitialize.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on
-///         failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on failure.
 u32 SDMMC_deinit(const u8 devNum);
 
 /// Manage password protection for a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
-/// @param mode   The mode of operation. See defines above.
-/// @param pwd    The password buffer pointer.
-/// @param pwdLen The password length. Maximum 32 for password replace.
-///               Otherwise 16.
+/// @param devNum
+///     The device.
+/// @param mode
+///     The mode of operation. See defines above.
+/// @param pwd
+///     The password buffer pointer.
+/// @param pwdLen
+///     The password length. Maximum 32 for password replace.  Otherwise 16.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or one of the errors listed above
-///         on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
 u32 SDMMC_lockUnlock(const u8 devNum, const u8 mode, const u8 *const pwd, const u8 pwdLen);
 
 /// Exports the internal device state for fast init (bootloaders ect.).
 ///
-/// @param devNum The device state to export.
-/// @param devOut A pointer to a u8[60] array.
+/// @param devNum
+///     The device state to export.
+/// @param devOut
+///     A pointer to a u8[60] array.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM/SDMMC_ERR_NO_CARD
-///         on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or
+///     SDMMC_ERR_INVAL_PARAM/SDMMC_ERR_NO_CARD on failure.
 u32 SDMMC_exportDevState(const u8 devNum, u8 devOut[64]);
 
 /// Imports a device state for fast init (bootloaders ect.).
 ///
 /// The state should be validated for example with a checksum.
 ///
-/// @param devNum The device state to import.
-/// @param devIn  A pointer to a u8[60] array.
+/// @param devNum
+///     The device state to import.
+/// @param devIn
+///     A pointer to a u8[60] array.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or
-///         SDMMC_ERR_INVAL_PARAM/SDMMC_ERR_NO_CARD/SDMMC_ERR_INITIALIZED on
-///         failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or
+///     SDMMC_ERR_INVAL_PARAM/SDMMC_ERR_NO_CARD/SDMMC_ERR_INITIALIZED on
+///     failure.
 u32 SDMMC_importDevState(const u8 devNum, const u8 devIn[64]);
 
 /// Outputs infos about a (e)MMC/SD card device.
 ///
-/// @param devNum  The device.
-/// @param infoOut A pointer to a SdmmcInfo struct.
+/// @param devNum
+///     The device.
+/// @param infoOut
+///     A pointer to a SdmmcInfo struct.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on
-///         failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on failure.
 u32 SDMMC_getDevInfo(const u8 devNum, SdmmcInfo *const infoOut);
 
 /// Outputs the CID of a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
-/// @param cidOut A u32[4] pointer for storing the CID.
+/// @param devNum
+///     The device.
+/// @param cidOut
+///     A u32[4] pointer for storing the CID.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on
-///         failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on failure.
 u32 SDMMC_getCid(const u8 devNum, u32 cidOut[4]);
 
 /// Returns the SDMMC_STATUS bits of a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
+/// @param devNum
+///     The device.
 ///
-/// @return Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK | SDMMC_STATUS_NOINIT
-///         on failure.
+/// @return
+///     Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK |
+///     SDMMC_STATUS_NOINIT on failure.
 u8 SDMMC_getDiskStatus(const u8 devNum);
 
 /// Outputs the number of sectors for a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
+/// @param devNum
+///     The device.
 ///
-/// @return Returns the number of sectors or 0 on failure.
+/// @return
+///     Returns the number of sectors or 0 on failure.
 u32 SDMMC_getSectors(const u8 devNum);
 
 /// Reads one or more sectors from a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
-/// @param sect   The start sector.
-/// @param buf    The output buffer pointer. NULL for DMA.
-/// @param count  The number of sectors to read.
+/// @param devNum
+///     The device.
+/// @param sect
+///     The start sector.
+/// @param buf
+///     The output buffer pointer. NULL for DMA.
+/// @param count
+///     The number of sectors to read.
 ///
-/// @return Returns SDMMC_ERR_NONE on success or one of the errors listed above
-///         on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
 u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 count);
 
 /// Writes one or more sectors to a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
-/// @param sect   The start sector.
-/// @param buf    The input buffer pointer. NULL for DMA.
-/// @param count  The count
+/// @param devNum
+///     The device.
+/// @param sect
+///     The start sector.
+/// @param buf
+///     The input buffer pointer. NULL for DMA.
+/// @param count
+///     The count
 ///
-/// @return Returns SDMMC_ERR_NONE on success or one of the errors listed above
-///         on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
 u32 SDMMC_writeSectors(const u8 devNum, u32 sect, const void *const buf,
                        const u16 count);
 
 /// Sends a custom command to a (e)MMC/SD card device.
 ///
-/// @param devNum The device.
-/// @param cmd    MMC command struct pointer (see above).
+/// @param devNum
+///     The device.
+/// @param cmd
+///     MMC command struct pointer (see above).
 ///
-/// @return Returns SDMMC_ERR_NONE on success or SDMMC_ERR_SEND_CMD on failure.
+/// @return
+///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_SEND_CMD on failure.
 u32 SDMMC_sendCommand(const u8 devNum, MmcCommand *const mmcCmd);
 
 /// Returns the R1 card status for a previously failed read/write/custom command.
 ///
-/// @param devNum The device.
+/// @param devNum
+///     The device.
 ///
-/// @return Returns the R1 card status or 0 if there was either no command error
-///         or invalid devNum.
+/// @return
+///     Returns the R1 card status or 0 if there was either no command error or
+///     invalid devNum.
 u32 SDMMC_getLastR1error(const u8 devNum);
 
 // TODO: TRIM/erase support.

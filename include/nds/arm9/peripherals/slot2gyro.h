@@ -17,9 +17,11 @@ extern "C" {
 #include <stdint.h>
 
 /// Perform a gyro sensor scan.
+///
 /// TODO: Test on hardware.
 ///
-/// @return The read value (0-4095), or -1 on failure.
+/// @return
+///     The read value (0-4095), or -1 on failure.
 int peripheralSlot2GyroScan(void);
 
 #ifdef __cplusplus

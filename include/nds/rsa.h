@@ -40,41 +40,62 @@ typedef struct swiRSAbuffers
 
 /// Initialize RSA Heap
 ///
-/// @param ctx 12-byte heap information structure that gets set with heap
-///            start, heap end and heap length.
-/// @param heapStart Pointer to the start of the heap.
-/// @param heapSize Size of the heap in bytes (should be usually 4096).
-/// @return 1 if success, 0 if failed.
+/// @param ctx
+///     12-byte heap information structure that gets set with heap start, heap
+///     end and heap length.
+/// @param heapStart
+///     Pointer to the start of the heap.
+/// @param heapSize
+///     Size of the heap in bytes (should be usually 4096).
+///
+/// @return
+///     1 if success, 0 if failed.
 int swiRSAInitHeap(swiRSAHeapContext_t *ctx, void *heapStart, size_t heapSize);
 
 /// Decrypt signature using the owner's public key and return the hash of the
 /// data that the signature belongs to. This function does not remove padding
 /// from the output data but leading 0x00 bytes are stripped.
 ///
-/// @param ctx RSA Heap context
-/// @param rsabuffers Struct containing pointers to destination buffer,
-///                   signature and public key to use.
-/// @param lenDst Pointer to memory where to store the length of the
-///               destination buffer.
-/// @return 1 if success, 0 if failed.
+/// @param ctx
+///     RSA Heap context
+/// @param rsabuffers
+///     Struct containing pointers to destination buffer, signature and public
+///     key to use.
+/// @param lenDst
+///     Pointer to memory where to store the length of the destination buffer.
+///
+/// @return
+///     1 if success, 0 if failed.
 int swiRSADecryptRAW(swiRSAHeapContext_t *ctx, swiRSAbuffers_t *rsabuffers, size_t *lenDst);
 
 /// Decrypt signature and also remove padding.
 ///
-/// @param ctx RSA Heap context
-/// @param dst Pointer to output buffer (should be 128 bytes).
-/// @param sig Pointer to signature buffer (should be 128 bytes).
-/// @param key Pointer to key buffer (should be 128 bytes).
-/// @return 1 if success, 0 if failed
+/// @param ctx
+///     RSA Heap context
+/// @param dst
+///     Pointer to output buffer (should be 128 bytes).
+/// @param sig
+///     Pointer to signature buffer (should be 128 bytes).
+/// @param key
+///     Pointer to key buffer (should be 128 bytes).
+///
+/// @return
+///     1 if success, 0 if failed
 int swiRSADecrypt(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key);
 
 /// Decrypt signature and extract the SHA1 value from a OpenPGP header.
 ///
-/// @param ctx RSA Heap context
-/// @param dst Pointer to output buffer.
-/// @param sig Pointer to signature buffer.
-/// @param key Pointer to key buffer.
-/// @return 1 if success, 0 if failed
+/// @param ctx
+///     RSA Heap context
+/// @param dst
+///     Pointer to output buffer.
+/// @param sig
+///     Pointer to signature buffer.
+/// @param key
+///     Pointer to key buffer.
+///
+/// @return
+///     1 if success, 0 if failed
 int swiRSADecryptPGP(swiRSAHeapContext_t *ctx, void *dst, const void *sig, const void *key);
 
 #ifdef __cplusplus

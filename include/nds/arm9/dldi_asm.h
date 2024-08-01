@@ -12,29 +12,19 @@
 #define FEATURE_SLOT_NDS            0x00000020 ///< This driver uses Slot-1 cartridges.
 #define FEATURE_ARM7_CAPABLE        0x00000100 ///< This driver can be safely used from ARM7 and ARM9. BlocksDS extension.
 
-/**
- * @brief Addresses are to be fixed in the full text/data area of the DLDI
- * driver.
- *
- * As this may affect any opcodes and constants in the area, this is not
- * recommended.
- */
+/// Addresses are to be fixed in the full text/data area of the DLDI driver.
+///
+/// As this may affect any opcodes and constants in the area, this is not
+/// recommended.
 #define FIX_ALL         0x01
 
-/**
- * @brief Addresses are to be fixed in the interwork area of the DLDI driver.
- */
+/// Addresses are to be fixed in the interwork area of the DLDI driver.
 #define FIX_GLUE        0x02
 
-/**
- * @brief Addresses are to be fixed in the global offset area of the DLDI
- * driver.
- */
+/// Addresses are to be fixed in the global offset area of the DLDI driver.
 #define FIX_GOT         0x04
 
-/**
- * @brief The driver's BSS area should be zero-filled on load.
- */
+/// The driver's BSS area should be zero-filled on load.
 #define FIX_BSS         0x08
 
 #define DLDI_SIZE_32KB  0x0f

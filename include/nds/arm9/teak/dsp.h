@@ -143,8 +143,11 @@ typedef enum
 /// a sensible default mapping without doing it manually, use
 /// dspExecuteDefaultTLF() instead.
 ///
-/// @param tlf Pointer to the TLF data in RAM.
-/// @return DSP_EXEC_OK on success, an error code on failure.
+/// @param tlf
+///     Pointer to the TLF data in RAM.
+///
+/// @return
+///     DSP_EXEC_OK on success, an error code on failure.
 DSPExecResult dspExecuteTLF(const void *tlf);
 
 /// This sets up NWRAM, powers on the DSP, loads a TLF file and executes it.
@@ -152,8 +155,11 @@ DSPExecResult dspExecuteTLF(const void *tlf);
 /// This function uses a sensible default NWRAM mapping. If you prefer to define
 /// it manually, use dspExecuteTLF() instead.
 ///
-/// @param tlf Pointer to the TLF data in RAM.
-/// @return DSP_EXEC_OK on success, an error code on failure.
+/// @param tlf
+///     Pointer to the TLF data in RAM.
+///
+/// @return
+///     DSP_EXEC_OK on success, an error code on failure.
 DSPExecResult dspExecuteDefaultTLF(const void *tlf);
 
 /// Sends data using one of the CMD registers.
@@ -166,27 +172,37 @@ void dspSendData(int id, u16 data);
 
 /// Checks if a CMD register is available to receive new data.
 ///
-/// @param id ID of the CMD register (0 to 2).
-/// @return true if it is available.
+/// @param id
+///     ID of the CMD register (0 to 2).
+///
+/// @return
+///     true if it is available.
 bool dspSendDataReady(int id);
 
 /// Receives data from one of the REP registers.
 ///
 /// This function waits until there is a value to be read.
 ///
-/// @param id ID of the REP register (0 to 2).
-/// @return Received data.
+/// @param id
+///     ID of the REP register (0 to 2).
+///
+/// @return
+///     Received data.
 u16 dspReceiveData(int id);
 
 /// Checks if a REP register has any data available.
 ///
-/// @param id ID of the REP register (0 to 2).
-/// @return true if there is data to be read.
+/// @param id
+///     ID of the REP register (0 to 2).
+///
+/// @return
+///     true if there is data to be read.
 bool dspReceiveDataReady(int id);
 
 /// Sets semaphore flags to be seen by the DSP in REG_APBP_SEM.
 ///
-/// @param mask Bits to set on top of the currently set bits.
+/// @param mask
+///     Bits to set on top of the currently set bits.
 static inline void dspSetSemaphore(u16 mask)
 {
     // Note that if we simply write the mask we will clear any semaphore that
@@ -196,7 +212,8 @@ static inline void dspSetSemaphore(u16 mask)
 
 /// Clears semaphore flags to be seen by the DSP in REG_APBP_SEM.
 ///
-/// @param mask Bits to clear.
+/// @param mask
+///     Bits to clear.
 static inline void apbpClearSemaphore(uint16_t mask)
 {
     REG_DSP_PSEM &= ~mask;
@@ -204,7 +221,8 @@ static inline void apbpClearSemaphore(uint16_t mask)
 
 /// Masks interrupts caused by DSP-to-ARM semaphores.
 ///
-/// @param mask Bits set to 1 will disable interrupts for that semaphore.
+/// @param mask
+///     Bits set to 1 will disable interrupts for that semaphore.
 static inline void dspSetSemaphoreMask(u16 mask)
 {
     REG_DSP_PMASK = mask;
@@ -212,7 +230,8 @@ static inline void dspSetSemaphoreMask(u16 mask)
 
 /// Clears semaphore bits that the DSP has set in REG_APBP_PSEM.
 ///
-/// @param mask Bits to clear.
+/// @param mask
+///     Bits to clear.
 static inline void dspAckSemaphore(u16 mask)
 {
     REG_DSP_PCLEAR = mask;
@@ -220,7 +239,8 @@ static inline void dspAckSemaphore(u16 mask)
 
 /// Gets semaphore bits that the DSP has set in REG_APBP_PSEM.
 ///
-/// @return Bits set by the DSP to 1.
+/// @return
+///     Bits set by the DSP to 1.
 static inline u16 dspGetSemaphore(void)
 {
     dspSpinWait();

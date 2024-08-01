@@ -110,20 +110,31 @@ typedef enum
 
 /// Gets the default keyboard.
 ///
-/// @return Returns the default keyboard.
+/// @return
+///     Returns the default keyboard.
 Keyboard *keyboardGetDefault(void);
 
 /// Initializes the keyboard system with the supplied keyboard.
 ///
-/// @param keyboard The keyboard struct to initialize (can be NULL).
-/// @param layer The background layer to use.
-/// @param type The background type to initialize.
-/// @param size The background size to initialize.
-/// @param mapBase The map base to use for the background.
-/// @param tileBase The graphics tile base to use for the background.
-/// @param mainDisplay If true the keyboard will render on the main display.
-/// @param loadGraphics If true the keyboard graphics will be loaded.
-/// @return Returns the initialized keyboard struct.
+/// @param keyboard
+///     The keyboard struct to initialize (can be NULL).
+/// @param layer
+///     The background layer to use.
+/// @param type
+///     The background type to initialize.
+/// @param size
+///     The background size to initialize.
+/// @param mapBase
+///     The map base to use for the background.
+/// @param tileBase
+///     The graphics tile base to use for the background.
+/// @param mainDisplay
+///     If true the keyboard will render on the main display.
+/// @param loadGraphics
+///     If true the keyboard graphics will be loaded.
+///
+/// @return
+///     Returns the initialized keyboard struct.
 static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
                                      int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
 {
@@ -140,7 +151,8 @@ static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type,
 /// keyboardInit(NULL, 3, BgType_Text4bpp, BgSize_T_256x512, 20, 0, false, true)
 /// ```
 ///
-/// @return A pointer to the current keyboard.
+/// @return
+///     A pointer to the current keyboard.
 Keyboard *keyboardDemoInit(void);
 
 /// De-initializes the keyboard system, if initialized.
@@ -161,15 +173,21 @@ void keyboardHide(void);
 ///
 /// Will not effect keyboard shift state.
 ///
-/// @param x The pixel x location.
-/// @param y The pixel y location.
-/// @return The key pressed or NOKEY if user pressed outside the keypad.
+/// @param x
+///     The pixel x location.
+/// @param y
+///     The pixel y location.
+///
+/// @return
+///     The key pressed or NOKEY if user pressed outside the keypad.
 s16 keyboardGetKey(int x, int y);
 
 /// Reads the input until a the return key is pressed or the maxLen is exceeded.
 ///
-/// @param buffer a buffer to hold the input string
-/// @param maxLen the maximum length to read
+/// @param buffer
+///     A buffer to hold the input string
+/// @param maxLen
+///     The maximum length to read
 void keyboardGetString(char *buffer, int maxLen);
 
 /// Waits for user to press a key and returns the key pressed.
@@ -178,7 +196,8 @@ void keyboardGetString(char *buffer, int maxLen);
 ///
 /// Remember to call scanKeys() every frame if you use keyboardGetChar().
 ///
-/// @return The key pressed.
+/// @return
+///     The key pressed.
 s16 keyboardGetChar(void);
 
 /// Processes the keyboard.
@@ -187,7 +206,8 @@ s16 keyboardGetChar(void);
 ///
 /// Remember to call scanKeys() every frame if you use keyboardUpdate().
 ///
-/// @return the ASCII code of the key pressed or NOKEY if no key was pressed.
+/// @return
+///     The ASCII code of the key pressed or NOKEY if no key was pressed.
 s16 keyboardUpdate(void);
 
 #ifdef __cplusplus

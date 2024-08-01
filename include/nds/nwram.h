@@ -89,16 +89,23 @@ typedef enum
 
 /// Returns the address of a NWRAM block that has been mapped to a CPU.
 ///
-/// @param block One of NWRAM_BLOCK.
-/// @return The address.
+/// @param block
+///     One of NWRAM_BLOCK.
+///
+/// @return
+///     The address.
 u32 nwramGetBlockAddress(NWRAM_BLOCK block);
 
 /// Maps a NWRAM block to a CPU to the specified address and length.
 ///
-/// @param block One of NWRAM_BLOCK.
-/// @param start The base address. Only 0x3000000 to 0x3800000 available.
-/// @param length Length of the block.
-/// @param imageSize Size of the block.
+/// @param block
+///     One of NWRAM_BLOCK.
+/// @param start
+///     The base address. Only 0x3000000 to 0x3800000 available.
+/// @param length
+///     Length of the block.
+/// @param imageSize
+///     Size of the block.
 void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
                           NWRAM_BLOCK_IMAGE_SIZE imageSize);
 
@@ -106,29 +113,47 @@ void nwramSetBlockMapping(NWRAM_BLOCK block, u32 start, u32 length,
 
 /// Maps a slot of WRAM slot A to the specified CPU.
 ///
-/// @param slot Slot index (0 to 3).
-/// @param master Owner of the slot (ARM7, ARM9 or DSP).
-/// @param offset Offset of the slot.
-/// @param enable true to enable the slot, false to disable it.
-/// @return Returns 0 on success, a negative number on failure.
+/// @param slot
+///     Slot index (0 to 3).
+/// @param master
+///     Owner of the slot (ARM7, ARM9 or DSP).
+/// @param offset
+///     Offset of the slot.
+/// @param enable
+///     true to enable the slot, false to disable it.
+///
+/// @return
+///     Returns 0 on success, a negative number on failure.
 int nwramMapWramASlot(int slot, NWRAM_A_SLOT_MASTER master, int offset, bool enable);
 
 /// Maps a slot of WRAM slot B to the specified CPU.
 ///
-/// @param slot Slot index (0 to 3).
-/// @param master Owner of the slot (ARM7, ARM9 or DSP).
-/// @param offset Offset of the slot.
-/// @param enable true to enable the slot, false to disable it.
-/// @return Returns 0 on success, a negative number on failure.
+/// @param slot
+///     Slot index (0 to 3).
+/// @param master
+///     Owner of the slot (ARM7, ARM9 or DSP).
+/// @param offset
+///     Offset of the slot.
+/// @param enable
+///     true to enable the slot, false to disable it.
+///
+/// @return
+///     Returns 0 on success, a negative number on failure.
 int nwramMapWramBSlot(int slot, NWRAM_B_SLOT_MASTER master, int offset, bool enable);
 
 /// Maps a slot of WRAM slot C to the specified CPU.
 ///
-/// @param slot Slot index (0 to 3).
-/// @param master Owner of the slot (ARM7, ARM9 or DSP).
-/// @param offset Offset of the slot.
-/// @param enable true to enable the slot, false to disable it.
-/// @return Returns 0 on success, a negative number on failure.
+/// @param slot
+///     Slot index (0 to 3).
+/// @param master
+///     Owner of the slot (ARM7, ARM9 or DSP).
+/// @param offset
+///     Offset of the slot.
+/// @param enable
+///     true to enable the slot, false to disable it.
+///
+/// @return
+///     Returns 0 on success, a negative number on failure.
 int nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool enable);
 
 #endif // ARM9
@@ -138,7 +163,8 @@ int nwramMapWramCSlot(int slot, NWRAM_C_SLOT_MASTER master, int offset, bool ena
 /// It is possible to be in an execution state where NWRAM isn't available even
 /// in DSi mode.
 ///
-/// @return If available, it returns true. If not, false.
+/// @return
+///     If available, it returns true. If not, false.
 static inline bool nwramIsAvailable(void)
 {
     if (!isDSiMode())

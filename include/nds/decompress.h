@@ -33,9 +33,12 @@ typedef enum
 /// When 'type' is HUFF, this function will allocate 512 bytes in the stack as a
 /// temporary buffer.
 ///
-/// @param dst Destination to decompress to.
-/// @param data Data to decompress.
-/// @param type Type of data to decompress.
+/// @param dst
+///     Destination to decompress to.
+/// @param data
+///     Data to decompress.
+/// @param type
+///     Type of data to decompress.
 void decompress(const void *data, void *dst, DecompressType type);
 
 /// Decompresses data using the suported type.
@@ -43,11 +46,16 @@ void decompress(const void *data, void *dst, DecompressType type);
 /// Only LZ77Vram, HUFF and RLEVram support streaming, but HUFF isn't supported
 /// by this function at all, use decompressStreamStruct() instead.
 ///
-/// @param dst Destination to decompress to.
-/// @param data Data to decompress.
-/// @param type Type of data to decompress.
-/// @param readCB A callback to read the next byte of data.
-/// @param getHeaderCB A callback to read the 32 byte header.
+/// @param dst
+///     Destination to decompress to.
+/// @param data
+///     Data to decompress.
+/// @param type
+///     Type of data to decompress.
+/// @param readCB
+///     A callback to read the next byte of data.
+/// @param getHeaderCB
+///     A callback to read the 32 byte header.
 void decompressStream(const void *data, void *dst, DecompressType type,
                       getByteCallback readCB, getHeaderCallback getHeaderCB);
 
@@ -58,12 +66,17 @@ void decompressStream(const void *data, void *dst, DecompressType type,
 /// For HUFF, make sure to pass a 512 byte buffer in 'param' to be used as a
 /// temporary buffer by the decompression code.
 ///
-/// @param dst Destination to decompress to.
-/// @param data Data to decompress.
-/// @param type Type of data to decompress.
-/// @param param A value to be passed to getHeaderCallback(), or a temporary
-///              buffer for HUFF.
-/// @param ds A struct with callbacks to be used by the decompression routine.
+/// @param dst
+///     Destination to decompress to.
+/// @param data
+///     Data to decompress.
+/// @param type
+///     Type of data to decompress.
+/// @param param
+///     A value to be passed to getHeaderCallback(), or a temporary buffer for
+///     HUFF.
+/// @param ds
+///     A struct with callbacks to be used by the decompression routine.
 void decompressStreamStruct(const void *data, void *dst, DecompressType type,
                             void *param, TDecompressionStream *ds);
 

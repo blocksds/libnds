@@ -30,7 +30,8 @@ typedef struct MotionCalibration
 /// Run this before using any of the DS Motion Sensor functions. Save the return
 /// value and pass it to the other functions.
 ///
-/// @return The motion sensor type, or 0 if there is no sensor present.
+/// @return
+///     The motion sensor type, or 0 if there is no sensor present.
 int motion_init(void);
 
 /// Deinitializes the DS Motion Sensor.
@@ -38,37 +39,44 @@ void motion_deinit(void);
 
 /// Reads the X acceleration.
 ///
-/// @return The X acceleration.
+/// @return
+///     The X acceleration.
 signed int motion_read_x(void);
 
 /// Reads the Y acceleration.
 ///
-/// @return The Y acceleration.
+/// @return
+///     The Y acceleration.
 signed int motion_read_y(void);
 
 /// Reads the Z acceleration.
 ///
-/// @return The Z acceleration.
+/// @return
+///     The Z acceleration.
 signed int motion_read_z(void);
 
 /// Reads the Z rotational speed.
 ///
-/// @return The Z rotational speed.
+/// @return
+///     The Z rotational speed.
 signed int motion_read_gyro(void);
 
 /// Gets acceleration value to mili G (where g is 9.8 m/s*s)
 ///
-/// @return The X acceleration value.
+/// @return
+///     The X acceleration value.
 int motion_acceleration_x(void);
 
 /// Gets acceleration value to mili G (where g is 9.8 m/s*s)
 ///
-/// @return The Y acceleration value.
+/// @return
+///     The Y acceleration value.
 int motion_acceleration_y(void);
 
 /// Gets acceleration value to mili G (where g is 9.8 m/s*s)
 ///
-/// @return The Z acceleration value.
+/// @return
+///     The Z acceleration value.
 int motion_acceleration_z(void);
 
 /// This should be passed the raw reading at 1g for accurate acceleration
@@ -76,7 +84,8 @@ int motion_acceleration_z(void);
 ///
 /// Default is 819
 ///
-/// @param sens The raw reading at 1g for accurate acceleration calculations.
+/// @param sens
+///     The raw reading at 1g for accurate acceleration calculations.
 void motion_set_sens_x(int sens);
 
 /// This should be passed the raw reading at 1g for accurate acceleration
@@ -84,7 +93,8 @@ void motion_set_sens_x(int sens);
 ///
 /// Default is 819
 ///
-/// @param sens The raw reading at 1g for accurate acceleration calculations.
+/// @param sens
+///     The raw reading at 1g for accurate acceleration calculations.
 void motion_set_sens_y(int sens);
 
 /// This should be passed the raw reading at 1g for accurate acceleration
@@ -92,7 +102,8 @@ void motion_set_sens_y(int sens);
 ///
 /// Default is 819
 ///
-/// @param sens The raw reading at 1g for accurate acceleration calculations.
+/// @param sens
+///     The raw reading at 1g for accurate acceleration calculations.
 void motion_set_sens_z(int sens);
 
 /// This should be passed the raw reading at 1g for accurate acceleration
@@ -100,7 +111,8 @@ void motion_set_sens_z(int sens);
 ///
 /// Default is 825
 ///
-/// @param sens The raw reading at 1g for accurate acceleration calculations.
+/// @param sens
+///     The raw reading at 1g for accurate acceleration calculations.
 void motion_set_sens_gyro(int sens);
 
 /// This should be called when the axis is under no acceleration.
@@ -125,19 +137,22 @@ void motion_set_offs_gyro(void);
 
 /// Converts raw rotation to degrees per second.
 ///
-/// @return Degrees per second.
+/// @return
+///     Degrees per second.
 int motion_rotation(void);
 
 /// This returns the current calibration settings for saving.
 ///
-/// @return The calibration settings.
+/// @return
+///     The calibration settings.
 MotionCalibration *motion_get_calibration(void);
 
 /// This sets the calibration settings.
 ///
 /// Intended to restore previously saved calibration settings
 ///
-/// @param cal The calibration settings
+/// @param cal
+///     The calibration settings
 void motion_set_calibration(MotionCalibration *cal);
 
 /// This enables the analog input number 1.
@@ -154,14 +169,16 @@ void motion_enable_ain_2(void);
 ///
 /// Analog input number 1 needs to be enabled before reading.
 ///
-/// @return Analog input number 1.
+/// @return
+///     Analog input number 1.
 int motion_read_ain_1(void);
 
 /// This reads the analog input number 2.
 ///
 /// Analog input number 2 needs to be enabled before reading.
 ///
-/// @return Analog input number 2.
+/// @return
+///     Analog input number 2.
 int motion_read_ain_2(void);
 
 #ifdef __cplusplus

@@ -137,20 +137,23 @@ void integerToBCD(uint8_t *data, uint32_t length);
 
 /// Initialize the RTC and setup the RTC interrupt to update the time.
 ///
-/// @deprecated The RTC interrupt isn't supported by the 3DS in DS or DSi modes.
-/// Any application that uses it will run on DS and DSi consoles, but not on
-/// 3DS. Also, most emulators don't support it either. The alternative is to use
-/// initClockIRQTimer(), which uses a timer interrupt instead.
+/// @deprecated
+///     The RTC interrupt isn't supported by the 3DS in DS or DSi modes.  Any
+///     application that uses it will run on DS and DSi consoles, but not on
+///     3DS. Also, most emulators don't support it either. The alternative is to
+///     use initClockIRQTimer(), which uses a timer interrupt instead.
 __attribute__((deprecated)) void initClockIRQ(void);
 
 /// Initialize the RTC and setup a timer interrupt to update the time.
 ///
-/// @param timer Timer index to use.
+/// @param timer
+///     Timer index to use.
 void initClockIRQTimer(int timer);
 
 /// Fills the provided rtcTime structure with the current time.
 ///
-/// @param rtc Pointer to the rtcTime struct to fill.
+/// @param rtc
+///     Pointer to the rtcTime struct to fill.
 void rtcTimeGet(rtcTime *rtc);
 
 /// Sets the current time to the provided rtcTime structure.
@@ -162,13 +165,17 @@ void rtcTimeGet(rtcTime *rtc);
 /// Note: Check the documentation of rtcOffset in struct tPERSONAL_DATA for
 /// additional information.
 ///
-/// @param rtc Pointer to the rtcTime struct with the new time.
-/// @return If the provided values were valid, it returns 0, else -1.
+/// @param rtc
+///     Pointer to the rtcTime struct with the new time.
+///
+/// @return
+///     If the provided values were valid, it returns 0, else -1.
 int rtcTimeSet(rtcTime *rtc);
 
 /// Fills the provided rtcTimeAndDate structure with the current time and date.
 ///
-/// @param rtc Pointer to the rtcTimeAndDate struct to fill.
+/// @param rtc
+///     Pointer to the rtcTimeAndDate struct to fill.
 void rtcTimeAndDateGet(rtcTimeAndDate *rtc);
 
 /// Saves the current time and date to the provided rtcTimeAndDate structure.
@@ -180,8 +187,11 @@ void rtcTimeAndDateGet(rtcTimeAndDate *rtc);
 /// Note: Check the documentation of rtcOffset in struct tPERSONAL_DATA for
 /// additional information.
 ///
-/// @param rtc Pointer to the rtcTimeAndDate struct with the new time and date.
-/// @return If the provided values were valid, it returns 0, else -1.
+/// @param rtc
+///     Pointer to the rtcTimeAndDate struct with the new time and date.
+///
+/// @return
+///     If the provided values were valid, it returns 0, else -1.
 int rtcTimeAndDateSet(rtcTimeAndDate *rtc);
 
 /// Reads RTC registers and updates the internal time of libnds.

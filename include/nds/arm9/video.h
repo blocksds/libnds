@@ -323,11 +323,17 @@ typedef _palette _ext_palette[16];
 
 /// Set the mode of the main 4 VRAM banks.
 ///
-/// @param a Mapping mode of VRAM_A
-/// @param b Mapping mode of VRAM_B
-/// @param c Mapping mode of VRAM_C
-/// @param d Mapping mode of VRAM_D
-/// @return The previous modes.
+/// @param a
+///     Mapping mode of VRAM_A
+/// @param b
+///     Mapping mode of VRAM_B
+/// @param c
+///     Mapping mode of VRAM_C
+/// @param d
+///     Mapping mode of VRAM_D
+///
+/// @return
+///     The previous modes.
 u32 vramSetPrimaryBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE d);
 
 // Same as vramSetPrimaryBanks(), but deprecated.
@@ -340,15 +346,21 @@ static inline u32 vramSetMainBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c,
 
 /// Set the mode of VRAM banks E, F and G.
 ///
-/// @param e Mapping mode of VRAM_E
-/// @param f Mapping mode of VRAM_F
-/// @param g Mapping mode of VRAM_G
-/// @return The previous modes.
+/// @param e
+///     Mapping mode of VRAM_E
+/// @param f
+///     Mapping mode of VRAM_F
+/// @param g
+///     Mapping mode of VRAM_G
+///
+/// @return
+///     The previous modes.
 u32 vramSetBanks_EFG(VRAM_E_TYPE e, VRAM_F_TYPE f, VRAM_G_TYPE g);
 
 /// Set VRAM banks to basic default.
 ///
-/// @return The previous settings.
+/// @return
+///     The previous settings.
 u32 vramDefault(void);
 
 /// Restore the main 4 VRAM bank modes.
@@ -356,7 +368,8 @@ u32 vramDefault(void);
 /// Restores the main 4 banks to the value encoded in vramTemp (returned from
 /// vramSetMainBanks).
 //
-/// @param vramTemp Value to restore the modes.
+/// @param vramTemp
+///     Value to restore the modes.
 static inline void vramRestorePrimaryBanks(u32 vramTemp)
 {
     COMPILER_MEMORY_BARRIER();
@@ -378,7 +391,8 @@ static inline void vramRestoreMainBanks(u32 vramTemp)
 /// Restores the E, F, G bank modes to the value encoded in vramTemp (returned
 /// from vramSetBanks_EFG).
 //
-/// @param vramTemp Value to restore the modes.
+/// @param vramTemp
+///     Value to restore the modes.
 static inline void vramRestoreBanks_EFG(u32 vramTemp)
 {
     COMPILER_MEMORY_BARRIER();
@@ -388,7 +402,8 @@ static inline void vramRestoreBanks_EFG(u32 vramTemp)
 
 /// Set VRAM bank A to the indicated mapping.
 ///
-/// @param a The mapping of the bank.
+/// @param a
+///     The mapping of the bank.
 static inline void vramSetBankA(VRAM_A_TYPE a)
 {
     COMPILER_MEMORY_BARRIER();
@@ -398,7 +413,8 @@ static inline void vramSetBankA(VRAM_A_TYPE a)
 
 /// Set VRAM bank B to the indicated mapping.
 ///
-/// @param b The mapping of the bank.
+/// @param b
+///     The mapping of the bank.
 static inline void vramSetBankB(VRAM_B_TYPE b)
 {
     COMPILER_MEMORY_BARRIER();
@@ -408,7 +424,8 @@ static inline void vramSetBankB(VRAM_B_TYPE b)
 
 /// Set VRAM bank C to the indicated mapping.
 ///
-/// @param c The mapping of the bank.
+/// @param c
+///     The mapping of the bank.
 static inline void vramSetBankC(VRAM_C_TYPE c)
 {
     COMPILER_MEMORY_BARRIER();
@@ -418,7 +435,8 @@ static inline void vramSetBankC(VRAM_C_TYPE c)
 
 /// Set VRAM bank D to the indicated mapping.
 ///
-/// @param d The mapping of the bank.
+/// @param d
+///     The mapping of the bank.
 static inline void vramSetBankD(VRAM_D_TYPE d)
 {
     COMPILER_MEMORY_BARRIER();
@@ -428,7 +446,8 @@ static inline void vramSetBankD(VRAM_D_TYPE d)
 
 /// Set VRAM bank E to the indicated mapping.
 ///
-/// @param e The mapping of the bank.
+/// @param e
+///     The mapping of the bank.
 static inline void vramSetBankE(VRAM_E_TYPE e)
 {
     COMPILER_MEMORY_BARRIER();
@@ -438,7 +457,8 @@ static inline void vramSetBankE(VRAM_E_TYPE e)
 
 /// Set VRAM bank F to the indicated mapping.
 ///
-/// @param f The mapping of the bank.
+/// @param f
+///     The mapping of the bank.
 static inline void vramSetBankF(VRAM_F_TYPE f)
 {
     COMPILER_MEMORY_BARRIER();
@@ -448,7 +468,8 @@ static inline void vramSetBankF(VRAM_F_TYPE f)
 
 /// Set VRAM bank G to the indicated mapping.
 ///
-/// @param g The mapping of the bank.
+/// @param g
+///     The mapping of the bank.
 static inline void vramSetBankG(VRAM_G_TYPE g)
 {
     COMPILER_MEMORY_BARRIER();
@@ -458,7 +479,8 @@ static inline void vramSetBankG(VRAM_G_TYPE g)
 
 /// Set VRAM bank H to the indicated mapping.
 ///
-/// @param h The mapping of the bank.
+/// @param h
+///     The mapping of the bank.
 static inline void vramSetBankH(VRAM_H_TYPE h)
 {
     COMPILER_MEMORY_BARRIER();
@@ -468,7 +490,8 @@ static inline void vramSetBankH(VRAM_H_TYPE h)
 
 /// Set VRAM bank I to the indicated mapping.
 ///
-/// @param i The mapping of the bank.
+/// @param i
+///     The mapping of the bank.
 static inline void vramSetBankI(VRAM_I_TYPE i)
 {
     COMPILER_MEMORY_BARRIER();
@@ -582,7 +605,8 @@ typedef enum
 
 /// Sets the main 2D engine video mode.
 ///
-/// @param mode The video mode to set.
+/// @param mode
+///     The video mode to set.
 static inline void videoSetMode(u32 mode)
 {
     REG_DISPCNT = mode;
@@ -590,7 +614,8 @@ static inline void videoSetMode(u32 mode)
 
 /// Sets the sub 2D engine video mode.
 ///
-/// @param mode The video mode to set.
+/// @param mode
+///     The video mode to set.
 static inline void videoSetModeSub(u32 mode)
 {
     REG_DISPCNT_SUB = mode;
@@ -598,7 +623,8 @@ static inline void videoSetModeSub(u32 mode)
 
 /// Gets the main 2D engine video mode.
 ///
-/// @return The video mode.
+/// @return
+///     The video mode.
 static inline int videoGetMode(void)
 {
     return REG_DISPCNT & 0x30007;
@@ -606,7 +632,8 @@ static inline int videoGetMode(void)
 
 /// Gets the sub 2D engine video mode.
 ///
-/// @return The video mode.
+/// @return
+///     The video mode.
 static inline int videoGetModeSub(void)
 {
     return REG_DISPCNT_SUB & 0x30007;
@@ -614,7 +641,8 @@ static inline int videoGetModeSub(void)
 
 /// Determine if 3D is enabled.
 ///
-/// @return Returns true if 3D is enabled.
+/// @return
+///     Returns true if 3D is enabled.
 static inline bool video3DEnabled(void)
 {
     return (REG_DISPCNT & ENABLE_3D) ? true : false;
@@ -622,7 +650,8 @@ static inline bool video3DEnabled(void)
 
 /// Enables the specified background on the main engine.
 ///
-/// @param number The background number (0 - 3).
+/// @param number
+///     The background number (0 - 3).
 static inline void videoBgEnable(int number)
 {
     REG_DISPCNT |= 1 << (DISPLAY_ENABLE_SHIFT + number);
@@ -630,7 +659,8 @@ static inline void videoBgEnable(int number)
 
 /// Enables the specified background on the sub engine.
 ///
-/// @param number The background number (0 - 3).
+/// @param number
+///     The background number (0 - 3).
 static inline void videoBgEnableSub(int number)
 {
     REG_DISPCNT_SUB |= 1 << (DISPLAY_ENABLE_SHIFT + number);
@@ -638,7 +668,8 @@ static inline void videoBgEnableSub(int number)
 
 /// Disables the specified background on the main engine.
 ///
-/// @param number The background number (0 - 3).
+/// @param number
+///     The background number (0 - 3).
 static inline void videoBgDisable(int number)
 {
     REG_DISPCNT &= ~(1 << (DISPLAY_ENABLE_SHIFT + number));
@@ -646,7 +677,8 @@ static inline void videoBgDisable(int number)
 
 /// Disables the specified background on the sub engine.
 ///
-/// @param number The background number (0 - 3).
+/// @param number
+///     The background number (0 - 3).
 static inline void videoBgDisableSub(int number)
 {
     REG_DISPCNT_SUB &= ~(1 << (DISPLAY_ENABLE_SHIFT + number));
@@ -654,8 +686,10 @@ static inline void videoBgDisableSub(int number)
 
 /// Sets the screens brightness.
 ///
-/// @param screen 1 = main screen, 2 = subscreen, 3 = both
-/// @param level -16 = black, 0 = full brightness, 16 = white
+/// @param screen
+///     1 = main screen, 2 = subscreen, 3 = both
+/// @param level
+///     -16 = black, 0 = full brightness, 16 = white
 void setBrightness(int screen, int level);
 
 /// Sets the backdrop color of the main engine.
@@ -663,7 +697,8 @@ void setBrightness(int screen, int level);
 /// The backdrop color is displayed when all pixels at a given location are
 /// transparent (no sprite or background is visible there).
 ///
-/// @param color The color to display.
+/// @param color
+///     The color to display.
 static inline void setBackdropColor(const u16 color)
 {
     BG_PALETTE[0] = color;
@@ -674,7 +709,8 @@ static inline void setBackdropColor(const u16 color)
 /// The backdrop color is displayed when all pixels at a given location are
 /// transparent (no sprite or background is visible there).
 ///
-/// @param color The color to display.
+/// @param color
+///     The color to display.
 static inline void setBackdropColorSub(const u16 color)
 {
     BG_PALETTE_SUB[0] = color;

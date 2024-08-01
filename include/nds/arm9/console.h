@@ -169,19 +169,25 @@ typedef enum
 
 /// Loads the font into the console.
 ///
-/// @param console Pointer to the console to update. If NULL, it will update the
-///                current console.
-/// @param font The font to load.
+/// @param console
+///     Pointer to the console to update. If NULL, it will update the current
+///     console.
+/// @param font
+///     The font to load.
 void consoleSetFont(PrintConsole *console, ConsoleFont *font);
 
 /// Sets the print window
 ///
-/// @param console Console to set. If NULL it will set the current console
-///                window
-/// @param x X location of the window.
-/// @param y Y location of the window.
-/// @param width Width of the window.
-/// @param height Height of the window.
+/// @param console
+///     Console to set. If NULL it will set the current console window
+/// @param x
+///     X location of the window.
+/// @param y
+///     Y location of the window.
+/// @param width
+///     Width of the window.
+/// @param height
+///     Height of the window.
 void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height);
 
 /// Gets a pointer to the console with the default values.
@@ -189,29 +195,42 @@ void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height
 /// This should only be used when using a single console or without changing the
 /// console that is returned, otherwise use consoleInit().
 ///
-/// @return A pointer to the console with the default values.
+/// @return
+///     A pointer to the console with the default values.
 PrintConsole *consoleGetDefault(void);
 
 /// Make the specified console the render target.
 ///
-/// @param console A pointer to the console struct (must have been initialized
-///                with consoleInit(PrintConsole* console)
-/// @return A pointer to the previous console.
+/// @param console
+///     A pointer to the console struct (must have been initialized with
+///     consoleInit(PrintConsole* console)
+///
+/// @return
+///     A pointer to the previous console.
 PrintConsole *consoleSelect(PrintConsole *console);
 
 /// Initialise the console.
 ///
-/// @param console A pointer to the console data to initialze (if it's NULL, the
-///                default console will be used).
-/// @param layer Background layer to use.
-/// @param type Type of the background.
-/// @param size Size of the background.
-/// @param mapBase Map base.
-/// @param tileBase Tile graphics base.
-/// @param mainDisplay If true main engine is used, otherwise false.
-/// @param loadGraphics If true the default font graphics will be loaded into
-///                     the layer.
-/// @return A pointer to the current console.
+/// @param console
+///     A pointer to the console data to initialze (if it's NULL, the default
+///     console will be used).
+/// @param layer
+///     Background layer to use.
+/// @param type
+///     Type of the background.
+/// @param size
+///     Size of the background.
+/// @param mapBase
+///     Map base.
+/// @param tileBase
+///     Tile graphics base.
+/// @param mainDisplay
+///     If true main engine is used, otherwise false.
+/// @param loadGraphics
+///     If true the default font graphics will be loaded into the layer.
+///
+/// @return
+///     A pointer to the current console.
 PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize size,
                           int mapBase, int tileBase, bool mainDisplay, bool loadGraphics);
 
@@ -222,7 +241,8 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
 /// applications which need print ability and not actual game use. Print
 /// functionality can be utilized with just this call.
 ///
-/// @return A pointer to the current PrintConsole.
+/// @return
+///     A pointer to the current PrintConsole.
 PrintConsole *consoleDemoInit(void);
 
 /// Clears the screan by using printf("\x1b[2J");
@@ -230,12 +250,14 @@ void consoleClear(void);
 
 /// Prints a character to the default console.
 ///
-/// @param c The character to print.
+/// @param c
+///     The character to print.
 void consolePrintChar(char c);
 
 /// Initializes the debug console output on stderr to the specified device.
 ///
-/// @param device The debug device (or devices) to output debug print to.
+/// @param device
+///     The debug device (or devices) to output debug print to.
 void consoleDebugInit(DebugDevice device);
 
 /// Sets the function where stdout is sent, bypassing the PrintConsole handler.
@@ -243,7 +265,8 @@ void consoleDebugInit(DebugDevice device);
 /// To reset it to the libnds console handler, call this function with NULL as
 /// an argument.
 ///
-/// @param fn Callback where stdout is sent.
+/// @param fn
+///     Callback where stdout is sent.
 void consoleSetCustomStdout(ConsoleOutFn fn);
 
 /// Sets the function where stderr is sent, bypassing the PrintConsole handler.
@@ -251,7 +274,8 @@ void consoleSetCustomStdout(ConsoleOutFn fn);
 /// To reset it to the libnds console handler, call this function with NULL as
 /// an argument, or call consoleDebugInit().
 ///
-/// @param fn Callback where stderr is sent.
+/// @param fn
+///     Callback where stderr is sent.
 void consoleSetCustomStderr(ConsoleOutFn fn);
 
 #ifdef __cplusplus

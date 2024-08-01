@@ -107,25 +107,34 @@ extern "C" {
 
 /// Starts a DMA transfer safely from ITCM.
 ///
-/// @param channel The DMA channel to use (0 - 3).
-/// @param src The source to copy from.
-/// @param dest The destination to copy to.
-/// @param ctrl Value to write to the control register.
+/// @param channel
+///     The DMA channel to use (0 - 3).
+/// @param src
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to.
+/// @param ctrl
+///     Value to write to the control register.
 void dmaSetParams(uint8_t channel, const void *src, void *dest, uint32_t ctrl);
 
 /// Stops a DMA channel safely from ITCM.
 ///
-/// @param channel The DMA channel to use (0 - 3).
+/// @param channel
+///     The DMA channel to use (0 - 3).
 void dmaStopSafe(uint8_t channel);
 
 /// Copies from source to destination on one of the 4 available channels in
 /// words.
 ///
-/// @param channel The DMA channel to use (0 - 3).
-/// @param src The source to copy from.
-/// @param dest The destination to copy to.
-/// @param size The size in bytes of the data to copy. Will be truncated to the
-///             nearest word (4 bytes).
+/// @param channel
+///     The DMA channel to use (0 - 3).
+/// @param src
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to.
+/// @param size
+///     The size in bytes of the data to copy. Will be truncated to the nearest
+///     word (4 bytes).
 static inline void dmaCopyWords(uint8_t channel, const void *src, void *dest,
                                 uint32_t size)
 {
@@ -136,11 +145,15 @@ static inline void dmaCopyWords(uint8_t channel, const void *src, void *dest,
 /// Copies from source to destination on one of the 4 available channels in half
 /// words.
 ///
-/// @param channel The DMA channel to use (0 - 3).
-/// @param src The source to copy from.
-/// @param dest The destination to copy to
-/// @param size The size in bytes of the data to copy. Will be truncated to the
-///             nearest half word (2 bytes)
+/// @param channel
+///     The DMA channel to use (0 - 3).
+/// @param src
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to
+/// @param size
+///     The size in bytes of the data to copy. Will be truncated to the nearest
+///     half word (2 bytes)
 static inline void dmaCopyHalfWords(uint8_t channel, const void *src, void *dest,
                                     uint32_t size)
 {
@@ -151,10 +164,13 @@ static inline void dmaCopyHalfWords(uint8_t channel, const void *src, void *dest
 /// Copies from source to destination using channel 3 of DMA available channels
 /// in half words.
 ///
-/// @param source The source to copy from.
-/// @param dest The destination to copy to
-/// @param size The size in bytes of the data to copy.  Will be truncated to the
-///             nearest half word (2 bytes).
+/// @param source
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to
+/// @param size
+///     The size in bytes of the data to copy.  Will be truncated to the nearest
+///     half word (2 bytes).
 static inline void dmaCopy(const void *source, void *dest, uint32_t size)
 {
 
@@ -167,11 +183,15 @@ static inline void dmaCopy(const void *source, void *dest, uint32_t size)
 ///
 /// This function returns immediately after starting the transfer.
 ///
-/// @param channel The DMA channel to use (0 - 3).
-/// @param src The source to copy from.
-/// @param dest The destination to copy to.
-/// @param size The size in bytes of the data to copy. Will be truncated to the
-///             nearest word (4 bytes)
+/// @param channel
+///     The DMA channel to use (0 - 3).
+/// @param src
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to.
+/// @param size
+///     The size in bytes of the data to copy. Will be truncated to the nearest
+///     word (4 bytes)
 static inline void dmaCopyWordsAsynch(uint8_t channel, const void *src, void *dest,
                                       uint32_t size)
 {
@@ -183,11 +203,15 @@ static inline void dmaCopyWordsAsynch(uint8_t channel, const void *src, void *de
 ///
 /// This function returns immediately after starting the transfer.
 ///
-/// @param channel The DMA channel to use (0 - 3).
-/// @param src The source to copy from.
-/// @param dest The destination to copy to.
-/// @param size The size in bytes of the data to copy. Will be truncated to the
-///             nearest half word (2 bytes)
+/// @param channel
+///     The DMA channel to use (0 - 3).
+/// @param src
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to.
+/// @param size
+///     The size in bytes of the data to copy. Will be truncated to the nearest
+///     half word (2 bytes)
 static inline void dmaCopyHalfWordsAsynch(uint8_t channel, const void *src,
                                           void *dest, uint32_t size)
 {
@@ -199,10 +223,13 @@ static inline void dmaCopyHalfWordsAsynch(uint8_t channel, const void *src,
 ///
 /// This function returns immediately after starting the transfer.
 ///
-/// @param source The source to copy from.
-/// @param dest The destination to copy to.
-/// @param size The size in bytes of the data to copy. Will be truncated to the
-///             nearest half word (2 bytes)
+/// @param source
+///     The source to copy from.
+/// @param dest
+///     The destination to copy to.
+/// @param size
+///     The size in bytes of the data to copy. Will be truncated to the nearest
+///     half word (2 bytes)
 static inline void dmaCopyAsynch(const void *source, void *dest, uint32_t size)
 {
     dmaSetParams(3, source, dest, DMA_COPY_HALFWORDS | (size >> 1));
@@ -210,10 +237,13 @@ static inline void dmaCopyAsynch(const void *source, void *dest, uint32_t size)
 
 /// Fills the source with the supplied value using DMA channel 3.
 ///
-/// @param value The 32 byte value to fill memory with.
-/// @param dest The destination to copy to.
-/// @param size The size in bytes of the area to fill. Will be truncated to the
-///             nearest word (4 bytes).
+/// @param value
+///     The 32 byte value to fill memory with.
+/// @param dest
+///     The destination to copy to.
+/// @param size
+///     The size in bytes of the area to fill. Will be truncated to the nearest
+///     word (4 bytes).
 static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
 {
     const void *src;
@@ -230,10 +260,13 @@ static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
 
 /// Fills the source with the supplied value using DMA channel 3.
 ///
-/// @param value The 16 byte value to fill memory with.
-/// @param dest The destination to copy to.
-/// @param size The size in bytes of the area to fill. Will be truncated to the
-///             nearest half word (2 bytes).
+/// @param value
+///     The 16 byte value to fill memory with.
+/// @param dest
+///     The destination to copy to.
+/// @param size
+///     The size in bytes of the area to fill. Will be truncated to the nearest
+///     half word (2 bytes).
 static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
 {
     const void *src;
@@ -250,8 +283,11 @@ static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
 
 /// Determines if the specified channel is busy.
 //
-/// @param channel The DMA channel to check (0 - 3).
-/// @return Non zero if busy, 0 if channel is free.
+/// @param channel
+///     The DMA channel to check (0 - 3).
+///
+/// @return
+///     Non zero if busy, 0 if channel is free.
 static inline int dmaBusy(uint8_t channel)
 {
     return (DMA_CR(channel) & DMA_BUSY) >> 31;

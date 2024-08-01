@@ -23,19 +23,19 @@ extern "C" {
 #include <nds/arm7/serial.h>
 #include <nds/touch.h>
 
-/**
- * @brief Initialize the touch subsystem (NDS/DSi).
- */
+/// Initialize the touch subsystem (NDS/DSi).
 void touchInit(void);
 
-/**
- * @brief Apply calibration to raw X/Y touch screen measurements.
- *
- * @param rawx Raw X value
- * @param rawy Raw Y value
- * @param px Calibrated X value
- * @param py Calibrated Y value
- */
+/// Apply calibration to raw X/Y touch screen measurements.
+///
+/// @param rawx
+///     Raw X value
+/// @param rawy
+///     Raw Y value
+/// @param px
+///     Calibrated X value
+/// @param py
+///     Calibrated Y value
 void touchApplyCalibration(u16 rawx, u16 rawy, u16 *px, u16 *py);
 
 // Do not modify the memory layout; touchReadData() functions rely on it.
@@ -47,20 +47,16 @@ typedef struct
     u16 z2[5];
 } touchRawArray;
 
-/**
- * @brief Read a complete, raw touch measurement into the provided buffer.
- * @return True if the read is successful, false otherwise.
- */
+/// Read a complete, raw touch measurement into the provided buffer.
+///
+/// @return
+///     True if the read is successful, false otherwise.
 bool touchReadData(touchRawArray *data);
 
-/**
- * @brief Read a touch X/Y position into the provided buffer.
- */
+/// Read a touch X/Y position into the provided buffer.
 void touchReadXY(touchPosition *touchPos);
 
-/**
- * @brief Returns true if the screen is currently being touched.
- */
+/// Returns true if the screen is currently being touched.
 bool touchPenDown(void);
 
 #ifdef __cplusplus

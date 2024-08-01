@@ -30,12 +30,16 @@ extern "C" {
 /// function, unless getResult is non-NULL and returns a negative value. This
 /// useally returns the 4 bytes that source points to.
 ///
-/// @param source A pointer to the compressed data.
-/// @param dest A pointer to the space where the decompressed data should be
-///             copied to.
-/// @param arg A callback value that gets passed to the bios function.
-/// @return The header of the compressed data containing the length of the data
-///         and the compression type.
+/// @param source
+///     A pointer to the compressed data.
+/// @param dest
+///     A pointer to the space where the decompressed data should be copied to.
+/// @param arg
+///     A callback value that gets passed to the bios function.
+///
+/// @return
+///     The header of the compressed data containing the length of the data and
+///     the compression type.
 typedef int (*getHeaderCallback)(u8 *source, u16 *dest, u32 arg);
 
 /// Should verify the result after data got decompressed.
@@ -45,27 +49,39 @@ typedef int (*getHeaderCallback)(u8 *source, u16 *dest, u32 arg);
 /// value is only returned if negative, otherwise the typical result is used, so
 /// it is likely some sort of error-checking procedure.
 ///
-/// @param source The current source address.
-/// @return 0 if it went right, or a negative number if something went wrong.
-///         The value will be returned from BIOS function if value is negative.
+/// @param source
+///     The current source address.
+///
+/// @return
+///     0 if it went right, or a negative number if something went wrong. The
+///     value will be returned from BIOS function if value is negative.
 typedef int (*getResultCallback)(u8 *source);
 
 /// Should return a raw byte of the stream.
 ///
-/// @param source A pointer to the byte.
-/// @return A byte.
+/// @param source
+///     A pointer to the byte.
+///
+/// @return
+///     A byte.
 typedef u8 (*getByteCallback)(u8 *source);
 
 /// Should return a raw halfword of the stream.
 ///
-/// @param source A pointer to the halfword.
-/// @return A halfword.
+/// @param source
+///     A pointer to the halfword.
+///
+/// @return
+///     A halfword.
 typedef u16 (*getHalfWordCallback)(u16 *source);
 
 /// Should return a raw word of the stream.
 ///
-/// @param source A pointer to the word.
-/// @return A word.
+/// @param source
+///     A pointer to the word.
+///
+/// @return
+///     A word.
 typedef u32 (*getWordCallback)(u32 *source);
 
 /// A struct that contains callback function pointers used by the decompression
@@ -119,8 +135,11 @@ static inline void swiSoftReset(void)
 ///        bgt loop
 /// </PRE></CODE>
 ///
-/// @param duration Length of delay.
-/// @note Duration should be 1 or more, a duration of 0 is a huge delay.
+/// @param duration
+///     Length of delay.
+///
+/// @note
+///     Duration should be 1 or more, a duration of 0 is a huge delay.
 #ifdef __clang__
 void swiDelay(uint32_t duration);
 #else
@@ -134,9 +153,13 @@ static inline void swiDelay(uint32_t duration)
 
 /// Divides 2 numbers.
 ///
-/// @param numerator Signed integer to divide.
-/// @param divisor Signed integer to divide by.
-/// @return Numerator / divisor
+/// @param numerator
+///     Signed integer to divide.
+/// @param divisor
+///     Signed integer to divide by.
+///
+/// @return
+///     Numerator / divisor
 #ifdef __clang__
 int swiDivide(int numerator, int divisor);
 #else
@@ -152,9 +175,13 @@ static inline int swiDivide(int numerator, int divisor)
 
 /// Calculate the remainder of an division.
 ///
-/// @param numerator Signed integer to divide
-/// @param divisor Signed integer to divide by
-/// @return Numerator % divisor
+/// @param numerator
+///     Signed integer to divide
+/// @param divisor
+///     Signed integer to divide by
+///
+/// @return
+///     Numerator % divisor
 #ifdef __clang__
 int swiRemainder(int numerator, int divisor);
 #else
@@ -170,10 +197,14 @@ static inline int swiRemainder(int numerator, int divisor)
 
 /// Divides 2 numbers and stores both the result and the remainder.
 ///
-/// @param numerator Signed integer to divide.
-/// @param divisor Signed integer to divide by.
-/// @param result Pointer to integer set to numerator / divisor.
-/// @param remainder Pointer to integer set to numerator % divisor.
+/// @param numerator
+///     Signed integer to divide.
+/// @param divisor
+///     Signed integer to divide by.
+/// @param result
+///     Pointer to integer set to numerator / divisor.
+/// @param remainder
+///     Pointer to integer set to numerator % divisor.
 #ifdef __clang__
 void swiDivMod(int numerator, int divisor, int *result, int *remainder);
 #else
@@ -199,11 +230,13 @@ static inline void swiDivMod(int numerator, int divisor, int *result, int *remai
 
 /// Copies or fills some memory.
 ///
-/// @param source Pointer to transfer source or pointer to value to fill the
-///               memory with.
-/// @param dest Pointer to transfer destination.
-/// @param flags bits(0-20): size of data to copy/fill in words, or'd with the
-///              copy mode size (word or halfword) and type (copy or fill).
+/// @param source
+///     Pointer to transfer source or pointer to value to fill the memory with.
+/// @param dest
+///     Pointer to transfer destination.
+/// @param flags
+///     bits(0-20): size of data to copy/fill in words, or'd with the copy mode
+///     size (word or halfword) and type (copy or fill).
 #ifdef __clang__
 void swiCopy(const void *source, void *dest, int flags);
 #else
@@ -221,12 +254,16 @@ static inline void swiCopy(const void *source, void *dest, int flags)
 ///
 /// Can only copy in word chunks.
 ///
-/// @param source Pointer to transfer source or pointer to value to fill the
-///               memory with.
-/// @param dest Pointer to transfer destination.
-/// @param flags bits(0-20): size of data to copy/fill in words, or'd with the
-///              type (copy or fill).
-/// @note Transfers more quickly than swiCopy, but has higher interrupt latency.
+/// @param source
+///     Pointer to transfer source or pointer to value to fill the memory with.
+/// @param dest
+///     Pointer to transfer destination.
+/// @param flags
+///     bits(0-20): size of data to copy/fill in words, or'd with the type (copy
+///     or fill).
+///
+/// @note
+///     Transfers more quickly than swiCopy, but has higher interrupt latency.
 #ifdef __clang__
 void swiFastCopy(const void *source, void *dest, int flags);
 #else
@@ -242,9 +279,14 @@ static inline void swiFastCopy(const void *source, void *dest, int flags)
 
 /// Calculates the square root.
 ///
-/// @param value The value to calculate.
-/// @return The square root of the value as an integer.
-/// @note Use fixed point math if you want more accuracy.
+/// @param value
+///     The value to calculate.
+///
+/// @return
+///     The square root of the value as an integer.
+///
+/// @note
+///     Use fixed point math if you want more accuracy.
 #ifdef __clang__
 int swiSqrt(int value);
 #else
@@ -263,10 +305,15 @@ static inline int swiSqrt(int value)
 /// - Result reflected: Yes
 /// - Polynomial: 0x8005
 ///
-/// @param crc Initial CRC-16 value.
-/// @param data Pointer to data (processed nibble by nibble)
-/// @param size Size in bytes.
-/// @return The CRC-16 value after the data has been processed.
+/// @param crc
+///     Initial CRC-16 value.
+/// @param data
+///     Pointer to data (processed nibble by nibble)
+/// @param size
+///     Size in bytes.
+///
+/// @return
+///     The CRC-16 value after the data has been processed.
 #ifdef __clang__
 uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size);
 #else
@@ -283,11 +330,13 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 
 /// Returns 1 if running on a Nintendo hardware debugger.
 ///
-/// @note It only works in DS mode (not DSi mode), and with the cache disabled.
-/// It's recommended to use isHwDebugger() instead, which works in DSi mode too,
-/// and it doesn't require the cache to be disabled.
+/// @note
+///     It only works in DS mode (not DSi mode), and with the cache disabled.
+///     It's recommended to use isHwDebugger() instead, which works in DSi mode
+///     too, and it doesn't require the cache to be disabled.
 ///
-/// @return 1 if running on a debugger (8 MB of RAM instead of 4 MB), else 0.
+/// @return
+///     1 if running on a debugger (8 MB of RAM instead of 4 MB), else 0.
 #ifdef __clang__
 int swiIsDebugger(void);
 #else
@@ -304,9 +353,12 @@ static inline int swiIsDebugger(void)
 ///
 /// i.e. 8 elements per byte (i.e. b/w font), into 1 element per byte.
 ///
-/// @param source Source address.
-/// @param destination Destination address (word aligned).
-/// @param params Pointer to an UnpackStruct.
+/// @param source
+///     Source address.
+/// @param destination
+///     Destination address (word aligned).
+/// @param params
+///     Pointer to an UnpackStruct.
 #ifdef __clang__
 void swiUnpackBits(const void *source, void *destination, TUnpackStruct *params);
 #else
@@ -322,11 +374,15 @@ static inline void swiUnpackBits(const void *source, void *destination, TUnpackS
 
 /// Decompresses LZSS compressed data.
 ///
-/// @param source Pointer to a header word, followed by compressed data. bit 0-7
-///               of header is ignored. bit 8-31 of header is size of
-///               uncompressed data in bytes.
-/// @param destination Destination address.
-/// @note Writes data a byte at a time.
+/// @param source
+///     Pointer to a header word, followed by compressed data. bit 0-7 of header
+///     is ignored. bit 8-31 of header is size of uncompressed data in bytes.
+/// @param destination
+///     Destination address.
+///
+/// @note
+///     Writes data a byte at a time.
+///
 /// @see decompress.h
 #ifdef __clang__
 void swiDecompressLZSSWram(const void *source, void *destination);
@@ -342,15 +398,23 @@ static inline void swiDecompressLZSSWram(const void *source, void *destination)
 
 /// Decompresses LZSS compressed data vram safe.
 ///
-/// @param source Pointer to source data (always goes through the function
-///               pointers, so could just be an offset).
-/// @param destination Pointer to destination.
-/// @param toGetSize Callback value that is passed to getHeaderCallback function
-///                  pointer.
-/// @param stream Pointer to struct with callback function pointers.
-/// @return The length of the decompressed data, or a signed errorcode from the
-///         Open/Close functions.
-/// @note Writes data a halfword at a time.
+/// @param source
+///     Pointer to source data (always goes through the function pointers, so
+///     could just be an offset).
+/// @param destination
+///     Pointer to destination.
+/// @param toGetSize
+///     Callback value that is passed to getHeaderCallback function pointer.
+/// @param stream
+///     Pointer to struct with callback function pointers.
+///
+/// @return
+///     The length of the decompressed data, or a signed errorcode from the
+///     Open/Close functions.
+///
+/// @note
+///     Writes data a halfword at a time.
+///
 /// @see decompress.h
 int swiDecompressLZSSVram(const void *source, void *destination, uint32_t toGetSize,
                           TDecompressionStream *stream);
@@ -391,14 +455,20 @@ static inline int swiDecompressLZSSVramTWL(const void *source, void *destination
 
 /// Decompresses Huffman compressed data.
 ///
-/// @param source Pointer to source data (always goes through the function
-///               pointers, so could just be an offset).
-/// @param destination Pointer to destination.
-/// @param toGetSize Callback value that is passed to getHeaderCallback function
-///                  pointer.
-/// @param stream Pointer to struct with callback function pointers.
-/// @return The length of the decompressed data, or a signed errorcode from the
-///         Open/Close functions.
+/// @param source
+///     Pointer to source data (always goes through the function pointers, so
+///     could just be an offset).
+/// @param destination
+///     Pointer to destination.
+/// @param toGetSize
+///     Callback value that is passed to getHeaderCallback function pointer.
+/// @param stream
+///     Pointer to struct with callback function pointers.
+///
+/// @return
+///     The length of the decompressed data, or a signed errorcode from the
+///     Open/Close functions.
+///
 /// @see decompress.h
 #ifdef __clang__
 int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
@@ -426,11 +496,15 @@ static inline int swiDecompressHuffman(const void *source, void *destination, ui
 /// - bit(0-6) when compressed: run length - 3, followed by one byte of true
 ///   data, to be repeated.
 ///
-/// @param source Pointer to a header word, followed by compressed data. bit 0-7
-///               of header is ignored. bit 8-31 of header is size of
-///               uncompressed data in bytes.
-/// @param destination Destination address.
-/// @note Writes data a byte at a time.
+/// @param source
+///     Pointer to a header word, followed by compressed data. bit 0-7 of header
+///     is ignored. bit 8-31 of header is size of uncompressed data in bytes.
+/// @param destination
+///     Destination address.
+///
+/// @note
+///     Writes data a byte at a time.
+///
 /// @see decompress.h
 #ifdef __clang__
 void swiDecompressRLEWram(const void *source, void *destination);
@@ -453,15 +527,23 @@ static inline void swiDecompressRLEWram(const void *source, void *destination)
 /// - bit(0-6) when compressed: run length - 3, followed by one byte of true
 ///   data, to be repeated.
 ///
-/// @param source Pointer to source data (always goes through the function
-///               pointers, so could just be an offset).
-/// @param destination Pointer to destination.
-/// @param toGetSize Callback value that is passed to getHeaderCallback function
-///                  pointer.
-/// @param stream Pointer to struct with callback function pointers.
-/// @return The length of the decompressed data, or a signed errorcode from the
-///         Open/Close functions.
-/// @note Writes data a halfword at a time.
+/// @param source
+///     Pointer to source data (always goes through the function pointers, so
+///     could just be an offset).
+/// @param destination
+///     Pointer to destination.
+/// @param toGetSize
+///     Callback value that is passed to getHeaderCallback function pointer.
+/// @param stream
+///     Pointer to struct with callback function pointers.
+///
+/// @return
+///     The length of the decompressed data, or a signed errorcode from the
+///     Open/Close functions.
+///
+/// @note
+///     Writes data a halfword at a time.
+///
 /// @see decompress.h
 #ifdef __clang__
 int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
@@ -484,7 +566,8 @@ static inline int swiDecompressRLEVram(const void *source, void *destination, ui
 
 /// Wait for any interrupt.
 ///
-/// @note ARM9 exclusive.
+/// @note
+///     ARM9 exclusive.
 #ifdef __clang__
 void swiWaitForIRQ(void);
 #else
@@ -497,18 +580,26 @@ static inline void swiWaitForIRQ(void)
 
 /// Writes a word of the data to 0x04000300:32
 ///
-/// @param data The word to write.
-/// @note This is on the ARM9, but works differently then the ARM7 function!
+/// @param data
+///     The word to write.
+///
+/// @note
+///     This is on the ARM9, but works differently then the ARM7 function!
 void swiSetHaltCR(uint32_t data);
 
 /// Decodes a stream of bytes based on the difference of the bytes.
 ///
-/// @param source Pointer to a header word, followed by encoded data.
-///               word(31..8) = size of data (in bytes).
-///               word(7..0) = ignored.
-/// @param destination Destination address.
-/// @note Writes data a byte at a time.
-/// @note ARM9 exclusive.
+/// @param source
+///     Pointer to a header word, followed by encoded data. word(31..8) = size
+///     of data (in bytes). word(7..0) = ignored.
+/// @param destination
+///     Destination address.
+///
+/// @note
+///     Writes data a byte at a time.
+///
+/// @note
+///     ARM9 exclusive.
 #ifdef __clang__
 void swiDecodeDelta8(const void *source, void *destination);
 #else
@@ -523,12 +614,17 @@ static inline void swiDecodeDelta8(const void *source, void *destination)
 
 /// Decodes a stream of bytes based on the difference of the bytes.
 ///
-/// @param source Pointer to a header word, followed by encoded data.
-///               word(31..8) = size of data (in bytes).
-///               word(7..0) = ignored.
-/// @param destination Destination address.
-/// @note Writes data a halfword at a time.
-/// @note ARM9 exclusive.
+/// @param source
+///     Pointer to a header word, followed by encoded data. word(31..8) = size
+///     of data (in bytes). word(7..0) = ignored.
+/// @param destination
+///     Destination address.
+///
+/// @note
+///     Writes data a halfword at a time.
+///
+/// @note
+///     ARM9 exclusive.
 #ifdef __clang__
 void swiDecodeDelta16(const void *source, void *destination);
 #else
@@ -547,13 +643,17 @@ static inline void swiDecodeDelta16(const void *source, void *destination)
 
 /// Writes a byte of the data to 0x04000301:8
 ///
-/// @param data The byte to write.
-/// @note ARM7 exclusive.
+/// @param data
+///     The byte to write.
+///
+/// @note
+///     ARM7 exclusive.
 void swiSetHaltCR(uint8_t data);
 
 /// Halts the CPU until an interupt occures.
 ///
-/// @note ARM7 exclusive.
+/// @note
+///     ARM7 exclusive.
 #ifdef __clang__
 void swiHalt(void);
 #else
@@ -566,7 +666,8 @@ static inline void swiHalt(void)
 
 /// Halts the CPU and most of the hardware untill an interupt occures.
 ///
-/// @note ARM7 exclusive.
+/// @note
+///     ARM7 exclusive.
 #ifdef __clang__
 void swiSleep(void);
 #else
@@ -579,15 +680,21 @@ static inline void swiSleep(void)
 
 /// Switches the DS to GBA mode.
 ///
-/// @note ARM7 exclusive.
+/// @note
+///     ARM7 exclusive.
 __attribute__((noreturn))
 void swiSwitchToGBAMode(void);
 
 /// Returns an entry in the sine table.
 ///
-/// @param index The index of the sine table (0 - 63).
-/// @return The entry.
-/// @note ARM7 exclusive.
+/// @param index
+///     The index of the sine table (0 - 63).
+///
+/// @return
+///     The entry.
+///
+/// @note
+///     ARM7 exclusive.
 #ifdef __clang__
 uint16_t swiGetSineTable(int index);
 #else
@@ -602,9 +709,14 @@ static inline uint16_t swiGetSineTable(int index)
 
 /// Returns an entry in the pitch table.
 ///
-/// @param index The index of the pitch table (0 - 767).
-/// @return The entry.
-/// @note ARM7 exclusive.
+/// @param index
+///     The index of the pitch table (0 - 767).
+///
+/// @return
+///     The entry.
+///
+/// @note
+///     ARM7 exclusive.
 #ifdef __clang__
 uint16_t swiGetPitchTable(int index);
 #else
@@ -619,9 +731,14 @@ static inline uint16_t swiGetPitchTable(int index)
 
 /// Returns an entry in the volume table.
 ///
-/// @param index The index of the volume table (0 - 723).
-/// @return The entry.
-/// @note ARM7 exclusive.
+/// @param index
+///     The index of the volume table (0 - 723).
+///
+/// @return
+///     The entry.
+///
+/// @note
+///     ARM7 exclusive.
 #ifdef __clang__
 uint8_t swiGetVolumeTable(int index);
 #else
@@ -636,10 +753,14 @@ static inline uint8_t swiGetVolumeTable(int index)
 
 /// Increments or decrements the sound bias once per delay.
 ///
-/// @param enabled Set to 0 to decrement it until it reaches 0x000, set to 1 to
-///                increment it until it reaches 0x200.
-/// @param delay Is in the same units of time as swiDelay.
-/// @note ARM7 exclusive.
+/// @param enabled
+///     Set to 0 to decrement it until it reaches 0x000, set to 1 to increment
+///     it until it reaches 0x200.
+/// @param delay
+///     Is in the same units of time as swiDelay.
+///
+/// @note
+///     ARM7 exclusive.
 #ifdef __clang__
 void swiChangeSoundBias(int enabled, int delay);
 #else

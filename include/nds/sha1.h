@@ -32,34 +32,47 @@ typedef struct swiSHA1context
 
 /// SHA-1 context setup.
 ///
-/// @param ctx Context to be initialized
+/// @param ctx
+///     Context to be initialized
 void swiSHA1Init(swiSHA1context_t *ctx);
 
 /// SHA-1 process buffer
 ///
-/// @param ctx SHA-1 context.
-/// @param data Buffer to process.
-/// @param len Length of data.
+/// @param ctx
+///     SHA-1 context.
+/// @param data
+///     Buffer to process.
+/// @param len
+///     Length of data.
 void swiSHA1Update(swiSHA1context_t *ctx, const void *data, size_t len);
 
 /// SHA-1 final digest
 ///
-/// @param digest Buffer to hold SHA-1 checksum result
-/// @param ctx SHA-1 context
+/// @param digest
+///     Buffer to hold SHA-1 checksum result
+/// @param ctx
+///     SHA-1 context
 void swiSHA1Final(void *digest, swiSHA1context_t *ctx);
 
 /// SHA-1 checksum
 ///
-/// @param digest Buffer to hold SHA-1 checksum result.
-/// @param data Buffer to process.
-/// @param len Length of data.
+/// @param digest
+///     Buffer to hold SHA-1 checksum result.
+/// @param data
+///     Buffer to process.
+/// @param len
+///     Length of data.
 void swiSHA1Calc(void *digest, const void *data, size_t len);
 
 /// SHA-1 verify
 ///
-/// @param digest1 Buffer containing hash to verify.
-/// @param digest2 Buffer containing hash to verify.
-/// @return 1 if they match, else 0. If either pointer is NULL it returns 0.
+/// @param digest1
+///     Buffer containing hash to verify.
+/// @param digest2
+///     Buffer containing hash to verify.
+///
+/// @return
+///     1 if they match, else 0. If either pointer is NULL it returns 0.
 int swiSHA1Verify(const void *digest1, const void *digest2);
 
 #ifdef __cplusplus

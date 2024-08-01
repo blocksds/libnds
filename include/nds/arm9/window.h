@@ -36,7 +36,8 @@ typedef enum
 
 /// Enable the specified window(s) (main engine).
 ///
-/// @param w The window to set bounds on (may be ORed together).
+/// @param w
+///     The window to set bounds on (may be ORed together).
 static inline void windowEnable(WINDOW w)
 {
     REG_DISPCNT |= w & WINDOW_MASK;
@@ -44,7 +45,8 @@ static inline void windowEnable(WINDOW w)
 
 /// Disable the specified window(s) (main engine).
 ///
-/// @param w The window to set bounds on (may be ORed together).
+/// @param w
+///     The window to set bounds on (may be ORed together).
 static inline void windowDisable(WINDOW w)
 {
     REG_DISPCNT &= ~(w & WINDOW_MASK);
@@ -52,7 +54,8 @@ static inline void windowDisable(WINDOW w)
 
 /// Enable the specified window(s) (sub engine).
 ///
-/// @param w The window to set bounds on (may be ORed together).
+/// @param w
+///     The window to set bounds on (may be ORed together).
 static inline void windowEnableSub(WINDOW w)
 {
     REG_DISPCNT_SUB |= w & WINDOW_MASK;
@@ -60,7 +63,8 @@ static inline void windowEnableSub(WINDOW w)
 
 /// Disable the specified window(s) (sub engine).
 ///
-/// @param w The window to set bounds on (may be ORed together).
+/// @param w
+///     The window to set bounds on (may be ORed together).
 static inline void windowDisableSub(WINDOW w)
 {
     REG_DISPCNT_SUB &= ~(w & WINDOW_MASK);
@@ -68,44 +72,62 @@ static inline void windowDisableSub(WINDOW w)
 
 /// Set the windows bounds (main engine).
 ///
-/// @param window The window to set bounds on.
-/// @param left The X coordinate of the left hand side of the rectangle.
-/// @param top The Y coordinate of the top of the rectangle.
-/// @param right The X coordinate of the right hand side of the rectangle.
-/// @param bottom The Y coordinate of the bottom of the rectangle.
+/// @param window
+///     The window to set bounds on.
+/// @param left
+///     The X coordinate of the left hand side of the rectangle.
+/// @param top
+///     The Y coordinate of the top of the rectangle.
+/// @param right
+///     The X coordinate of the right hand side of the rectangle.
+/// @param bottom
+///     The Y coordinate of the bottom of the rectangle.
 void windowSetBounds(WINDOW window, u8 left, u8 top, u8 right, u8 bottom);
 
 /// Set the windows bounds (sub engine).
 ///
-/// @param window The window to set bounds on.
-/// @param left The X coordinate of the left hand side of the rectangle.
-/// @param top The Y coordinate of the top of the rectangle.
-/// @param right The X coordinate of the right hand side of the rectangle.
-/// @param bottom The Y coordinate of the bottom of the rectangle.
+/// @param window
+///     The window to set bounds on.
+/// @param left
+///     The X coordinate of the left hand side of the rectangle.
+/// @param top
+///     The Y coordinate of the top of the rectangle.
+/// @param right
+///     The X coordinate of the right hand side of the rectangle.
+/// @param bottom
+///     The Y coordinate of the bottom of the rectangle.
 void windowSetBoundsSub(WINDOW window, u8 left, u8 top, u8 right, u8 bottom);
 
 /// Enables the window on the supplied background.
 ///
-/// @param id Background ID returned from bgInit or bgInitSub.
-/// @param window The window to enable.
+/// @param id
+///     Background ID returned from bgInit or bgInitSub.
+/// @param window
+///     The window to enable.
 void bgWindowEnable(int id, WINDOW window);
 
 /// Disables the window on the supplied background.
 ///
-/// @param id Background ID returned from bgInit or bgInitSub.
-/// @param window The window to disable.
+/// @param id
+///     Background ID returned from bgInit or bgInitSub.
+/// @param window
+///     The window to disable.
 void bgWindowDisable(int id, WINDOW window);
 
 /// Enables the specified OAM window.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param w The window to enable.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param w
+///     The window to enable.
 void oamWindowEnable(OamState *oam, WINDOW w);
 
 /// Disables the specified OAM window.
 ///
-/// @param oam Must be &oamMain or &oamSub.
-/// @param w The window to disable.
+/// @param oam
+///     Must be &oamMain or &oamSub.
+/// @param w
+///     The window to disable.
 void oamWindowDisable(OamState *oam, WINDOW w);
 
 #ifdef __cplusplus

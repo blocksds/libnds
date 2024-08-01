@@ -44,39 +44,47 @@ void scanKeys(void);
 /// Call this function to get keypad state without affecting state of other key
 /// functions (keysUp keysHeld etc...).
 ///
-/// @return Bitmask of keys that are pressed.
+/// @return
+///     Bitmask of keys that are pressed.
 uint32_t keysCurrent(void);
 
 /// Obtains the current keypad held state.
 ///
-/// @return Bitmask of keys that are pressed.
+/// @return
+///     Bitmask of keys that are pressed.
 uint32_t keysHeld(void);
 
 /// Obtains the keys that have been pressed right now.
 ///
-/// @return Bitmask of keys that have just been pressed.
+/// @return
+///     Bitmask of keys that have just been pressed.
 uint32_t keysDown(void);
 
 /// Obtains the keys that have been pressed right now (or repeated press).
 ///
-/// @return Bitmask of keys that have just been pressed or have been held for
-/// long enough to repeat the press.
+/// @return
+///     Bitmask of keys that have just been pressed or have been held for long
+///     enough to repeat the press.
 uint32_t keysDownRepeat(void);
 
 /// Sets the key repeat parameters.
 ///
-/// @param setDelay Number of %scanKeys calls before keys start to repeat.
-/// @param setRepeat Number of %scanKeys calls before keys repeat.
+/// @param setDelay
+///     Number of %scanKeys calls before keys start to repeat.
+/// @param setRepeat
+///     Number of %scanKeys calls before keys repeat.
 void keysSetRepeat(u8 setDelay, u8 setRepeat);
 
 /// Obtains the keys that have just been released.
 ///
-/// @return Bitmask of keys that have just been released.
+/// @return
+///     Bitmask of keys that have just been released.
 uint32_t keysUp(void);
 
 /// Obtains the current touchpad state.
 ///
-/// @param data A touchPosition pointer which will be filled by the function.
+/// @param data
+///     A touchPosition pointer which will be filled by the function.
 void touchRead(touchPosition *data);
 
 // Old way of reading the touchpad state.

@@ -42,13 +42,16 @@ extern "C" {
 
 /// Send a message to the no$gba debug window.
 ///
-/// @param message The message to send.
-/// @param len Length of the message.
+/// @param message
+///     The message to send.
+/// @param len
+///     Length of the message.
 void nocashWrite(const char *message, int len);
 
 /// Send a NULL-terminated message to the no$gba debug window.
 ///
-/// @param message The message to send (120 characters max).
+/// @param message
+///     The message to send (120 characters max).
 void nocashMessage(const char *message);
 
 #ifdef __cplusplus

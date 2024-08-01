@@ -52,36 +52,49 @@ typedef struct sImage
 
 /// Destructively converts a 24-bit image to 16-bit
 ///
-/// @param img Pointer to the image to manipulate.
-/// @return true on success, false on failure.
+/// @param img
+///     Pointer to the image to manipulate.
+///
+/// @return
+///     true on success, false on failure.
 bool image24to16(sImage *img);
 
 /// Destructively converts an 8-bit image to 16 bit setting the alpha bit.
 ///
-/// @param img Pointer to the image to manipulate.
-/// @return true on success, false on failure.
+/// @param img
+///     Pointer to the image to manipulate.
+///
+/// @return
+///     true on success, false on failure.
 bool image8to16(sImage *img);
 
 /// Destructively converts an 8-bit image to 16-bit with alpha bit cleared for
 /// the supplied palette index.
 ///
-/// @param img Pointer to the image to manipulate.
-/// @param transparentColor Color indexes equal to this value will have the
-///                         alpha bit clear
-/// @return true on success, false on failure.
+/// @param img
+///     Pointer to the image to manipulate.
+/// @param transparentColor
+///     Color indexes equal to this value will have the alpha bit clear
+///
+/// @return
+///     true on success, false on failure.
 bool image8to16trans(sImage *img, u8 transparentColor);
 
 /// Frees the image data.
 ///
 /// Only call if the image data was returned from an image loader.
 ///
-/// @param img Pointer to the image to manipulate.
+/// @param img
+///     Pointer to the image to manipulate.
 void imageDestroy(sImage *img);
 
 /// Tiles 8-bit image data into a sequence of 8x8 tiles.
 ///
-/// @param img Pointer to the image to manipulate.
-/// @return true on success, false on failure.
+/// @param img
+///     Pointer to the image to manipulate.
+///
+/// @return
+///     true on success, false on failure.
 bool imageTileData(sImage *img);
 
 #ifdef __cplusplus

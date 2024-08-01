@@ -14,11 +14,17 @@
 
 /// Function that asks the ARM7 to read from the slot-1 using card commands.
 ///
-/// @param dest Destination buffer.
-/// @param offset NDS ROM offset to read.
-/// @param size Size in bytes to read.
-/// @param flags The read flags.
-/// @return On error it returns true. On success, it returns false.
+/// @param dest
+///     Destination buffer.
+/// @param offset
+///     NDS ROM offset to read.
+/// @param size
+///     Size in bytes to read.
+/// @param flags
+///     The read flags.
+///
+/// @return
+///     On error it returns true. On success, it returns false.
 bool cardReadArm7(void *dest, size_t offset, size_t size, uint32_t flags);
 
 #endif // LIBNDS_NDS_ARM9_CARD_H__

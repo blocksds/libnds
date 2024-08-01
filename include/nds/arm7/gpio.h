@@ -16,6 +16,7 @@ extern "C" {
 /// @file nds/arm7/gpio.h
 ///
 /// @brief DSi GPIO ARM7 definitions and helpers.
+///
 /// Note that these are accessible in both DS and DSi mode.
 
 #include <nds/ndstypes.h>
@@ -47,7 +48,8 @@ extern "C" {
 /// Using the NDS Wi-Fi chip requires GPIO_WIFI_MODE_NTR on DSi consoles.
 /// On DSi, DWM-W024 boards require GPIO_WIFI_MODE_TWL to correctly operate.
 ///
-/// @param mode Requested mode. @see GPIO_WIFI_MODE_TWL or @see GPIO_WIFI_MODE_NTR
+/// @param mode
+///     Requested mode. @see GPIO_WIFI_MODE_TWL or @see GPIO_WIFI_MODE_NTR
 void gpioSetWifiMode(u16 mode);
 
 #ifdef __cplusplus

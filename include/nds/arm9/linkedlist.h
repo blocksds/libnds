@@ -29,11 +29,15 @@ typedef struct LinkedList
 /// This will only store the pointer to the data, so you have to make sure that
 /// the pointer stays valid.
 ///
-/// @param front A pointer to a pointer to the front of the linked list (or a
-///              pointer to NULL if you don't have a linked list yet).
-/// @param data A pointer to the data you want to store.
-/// @return A pointer to the new node, which is also the new front, or NULL if
-/// there is not enough memory.
+/// @param front
+///     A pointer to a pointer to the front of the linked list (or a pointer to
+///     NULL if you don't have a linked list yet).
+/// @param data
+///     A pointer to the data you want to store.
+///
+/// @return
+///     A pointer to the new node, which is also the new front, or NULL if there
+///     is not enough memory.
 LinkedList *linkedlistAdd(LinkedList **front, void *data);
 
 /// Removes a node from a linked list.
@@ -41,7 +45,8 @@ LinkedList *linkedlistAdd(LinkedList **front, void *data);
 /// The data pointer of the node will be lost after this, so make sure you don't
 /// need it anymore.
 ///
-/// @param node The node you want to remove.
+/// @param node
+///     The node you want to remove.
 void linkedlistRemove(LinkedList *node);
 
 #ifdef __cplusplus

@@ -42,13 +42,15 @@ bool fatInitDefault(void);
 /// effect. Any call after the first one returns the value returned the first
 /// time.
 ///
-/// @param cache_size_pages The desired size in pages. One page is made of 8
-///                         sectors (512 bytes each, 4KB in total).
-///                         Values < 0 leave the cache size decision to the
-///                         FAT filesystem implementation.
+/// @param cache_size_pages
+///     The desired size in pages. One page is made of 8 sectors (512 bytes
+///     each, 4KB in total). Values < 0 leave the cache size decision to the
+///     FAT filesystem implementation.
+/// @param set_as_default_device
+///     Ignored, kept for compatibility with libfat.
 ///
-/// @param set_as_default_device Ignored, kept for compatibility with libfat.
-/// @return It returns true on success, false on error.
+/// @return
+///     It returns true on success, false on error.
 bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 
 /// This function returns the default current working directory.
@@ -62,7 +64,8 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 ///
 /// For example, this function may return "sd:/folder/" or "fat:/".
 ///
-/// @return Returns a string with the path.
+/// @return
+///     Returns a string with the path.
 char *fatGetDefaultCwd(void);
 
 /// This function returns the default drive ("sd:/" or "fat:/").
@@ -76,7 +79,8 @@ char *fatGetDefaultCwd(void);
 ///
 /// The returned string must not be passed to free().
 ///
-/// @return Returns a string with the path.
+/// @return
+///     Returns a string with the path.
 const char *fatGetDefaultDrive(void);
 
 /// This function initializes a lookup cache on a given FAT file.
@@ -88,11 +92,13 @@ const char *fatGetDefaultDrive(void);
 /// Note that, if the file is opened for writing, using this function will
 /// prevent the file's size from being expanded.
 ///
-/// @param fd The file descriptor to initialize. Use fileno(file) for FILE *
-///           inputs.
-/// @param max_buffer_size The maximum buffer size, in bytes.
+/// @param fd
+///     The file descriptor to initialize. Use fileno(file) for FILE * inputs.
+/// @param max_buffer_size
+///     The maximum buffer size, in bytes.
 ///
-/// @return 0 if the initialization was successful, a non-zero value on error.
+/// @return
+///     0 if the initialization was successful, a non-zero value on error.
 int fatInitLookupCache(int fd, uint32_t max_buffer_size);
 
 static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size)
@@ -118,10 +124,12 @@ static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size)
 ///
 /// On error, this function sets errno to an error code.
 ///
-/// @param file Path to the file.
+/// @param file
+///     Path to the file.
 ///
-/// @return A combination of ATTR_* flags with the attributes of the file. On
-///         error, it returns -1.
+/// @return
+///     A combination of ATTR_* flags with the attributes of the file. On error,
+///     it returns -1.
 int FAT_getAttr(const char *file);
 
 /// Set FAT attributes of a file.
@@ -130,10 +138,13 @@ int FAT_getAttr(const char *file);
 ///
 /// On error, this function sets errno to an error code.
 ///
-/// @param file Path to the file.
-/// @param attr A combination of ATTR_* flags with the new attributes of the file.
+/// @param file
+///     Path to the file.
+/// @param attr
+///     A combination of ATTR_* flags with the new attributes of the file.
 ///
-/// @return 0 on success, -1 on error.
+/// @return
+///     0 on success, -1 on error.
 int FAT_setAttr(const char *file, uint8_t attr);
 
 #ifdef __cplusplus

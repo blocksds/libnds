@@ -215,14 +215,10 @@ void cdcWriteReg24(u8 bank, u8 reg, u32 value);
 // Touchscreen functions
 void cdcTouchInit(void);
 
-/**
- * @brief Check if the DSi CODEC is registering pen input.
- */
+/// Check if the DSi CODEC is registering pen input.
 bool cdcTouchPenDown(void);
 
-/**
- * @brief Read raw touch data from the DSi CODEC.
- */
+/// Read raw touch data from the DSi CODEC.
 bool cdcTouchReadData(touchRawArray *data);
 
 #ifdef __cplusplus

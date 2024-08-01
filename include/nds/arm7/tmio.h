@@ -321,38 +321,49 @@ void TMIO_deinit(void);
 
 /// Initializes a tmio port to defaults.
 ///
-/// @param     port    A pointer to the port struct.
-/// @param[in] portNum The port number.
+/// @param port
+///     A pointer to the port struct.
+/// @param[in] portNum
+///     The port number.
 void TMIO_initPort(TmioPort *const port, const u8 portNum);
 
 /// Checks if a MMC/SD card is inserted.
 ///
-/// @return Returns true if a card is inserted.
+/// @return
+///     Returns true if a card is inserted.
 bool TMIO_cardDetected(void);
 
 /// Checks if the write protect slider is set to locked.
 ///
-/// @return Returns true if the card is unlocked.
+/// @return
+///     Returns true if the card is unlocked.
 bool TMIO_cardWritable(void);
 
 /// Handles the device specific powerup sequence including the 74 clocks.
 ///
-/// @param port A pointer to the port struct.
+/// @param port
+///     A pointer to the port struct.
 void TMIO_powerupSequence(TmioPort *const port);
 
 /// Sends a command.
 ///
-/// @param     port A pointer to the port struct.
-/// @param[in] cmd  The command.
-/// @param[in] arg  The argument for the command.
+/// @param port
+///     A pointer to the port struct.
+/// @param[in] cmd
+///     The command.
+/// @param[in] arg
+///     The argument for the command.
 ///
-/// @return Returns 0 on success otherwise see REG_SD_STATUS1/2 bits.
+/// @return
+///     Returns 0 on success otherwise see REG_SD_STATUS1/2 bits.
 u32 TMIO_sendCommand(TmioPort *const port, const u16 cmd, const u32 arg);
 
 /// Sets the clock for a tmio port.
 ///
-/// @param     port A pointer to the port struct.
-/// @param[in] clk  The target clock in Hz.
+/// @param port
+///     A pointer to the port struct.
+/// @param[in] clk
+///     The target clock in Hz.
 static inline void TMIO_setClock(TmioPort *const port, const u32 clk)
 {
     port->sd_clk_ctrl = SD_CLK_AUTO_OFF | SD_CLK_EN | TMIO_CLK2DIV(clk) >> 2;
@@ -360,9 +371,11 @@ static inline void TMIO_setClock(TmioPort *const port, const u32 clk)
 
 /// Sets the transfer block length for a tmio port.
 ///
-/// @param     port     A pointer to the port struct.
-/// @param[in] blockLen The block length. Caution: Provide a buffer with
-///                     multiple of 4 size regardless of block length.
+/// @param port
+///     A pointer to the port struct.
+/// @param[in] blockLen
+///     The block length. Caution: Provide a buffer with multiple of 4 size
+///     regardless of block length.
 static inline void TMIO_setBlockLen(TmioPort *const port, u16 blockLen)
 {
     if (blockLen > 512)
@@ -373,8 +386,10 @@ static inline void TMIO_setBlockLen(TmioPort *const port, u16 blockLen)
 
 /// Sets the bus width for a tmio port.
 ///
-/// @param     port  A pointer to the port struct.
-/// @param[in] width The bus width.
+/// @param port
+///     A pointer to the port struct.
+/// @param[in] width
+///     The bus width.
 static inline void TMIO_setBusWidth(TmioPort *const port, const u8 width)
 {
     port->sd_option = (width == 4 ? SD_OPTION_BUS_WIDTH4 : SD_OPTION_BUS_WIDTH1) |
@@ -383,9 +398,12 @@ static inline void TMIO_setBusWidth(TmioPort *const port, const u8 width)
 
 /// Sets a transfer buffer for a tmio port.
 ///
-/// @param     port   A pointer to the port struct.
-/// @param     buf    The buffer pointer.
-/// @param[in] blocks The number of blocks to transfer.
+/// @param port
+///     A pointer to the port struct.
+/// @param buf
+///     The buffer pointer.
+/// @param[in] blocks
+///     The number of blocks to transfer.
 static inline void TMIO_setBuffer(TmioPort *const port, void *buf, const u16 blocks)
 {
     port->buf    = buf;

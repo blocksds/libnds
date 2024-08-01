@@ -25,13 +25,18 @@ typedef struct slot2TiltPosition
 /// Start a new tilt sensor measurement.
 /// This is required before a successful read can be performed.
 ///
-/// @return True on success.
+/// @return
+///     True on success.
 bool peripheralSlot2TiltStart(void);
 
 /// Read the tilt sensor values, if the sensor measurement has finished.
 ///
-/// @param data Tilt sensor position data.
-/// @return True if new values are available.
+/// @param data
+///     Tilt sensor position data.
+///
+/// @return
+///     True if new values are available.
+///
 /// @see peripheralSlot2TiltStart
 bool peripheralSlot2TiltRead(slot2TiltPosition *data);
 

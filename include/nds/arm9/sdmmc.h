@@ -25,45 +25,60 @@ extern "C" {
 
 /// Initialize the eMMC NAND.
 ///
-/// @return Returns true on success or false on failure.
+/// @return
+///     Returns true on success or false on failure.
 bool nand_Startup(void);
 
 /// Returns the SDMMC_STATUS bits of the eMMC NAND.
 ///
-/// @return Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK | SDMMC_STATUS_NOINIT on failure.
+/// @return
+///     Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK |
+///     SDMMC_STATUS_NOINIT on failure.
 u8 nand_GetDiskStatus(void);
 
 /// Returns the SDMMC_STATUS bits of the SD card.
 ///
-/// @return Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK | SDMMC_STATUS_NOINIT on failure.
+/// @return
+///     Returns the SDMMC_STATUS bits or SDMMC_STATUS_NODISK |
+///     SDMMC_STATUS_NOINIT on failure.
 u8 sdmmc_GetDiskStatus(void);
 
 /// Outputs the number of sectors for the eMMC NAND.
 ///
-/// @return Returns the number of sectors or 0 on failure.
+/// @return
+///     Returns the number of sectors or 0 on failure.
 u32 nand_GetSectors(void);
 
 /// Outputs the number of sectors for the SD card.
 ///
-/// @return Returns the number of sectors or 0 on failure.
+/// @return
+///     Returns the number of sectors or 0 on failure.
 u32 sdmmc_GetSectors(void);
 
 /// Reads one or more sectors from the eMMC NAND.
 ///
-/// @param[in] sector     The start sector.
-/// @param[in] numSectors The number of sectors to read.
-/// @param     buffer     The output buffer pointer.
+/// @param[in] sector
+///     The start sector.
+/// @param[in] numSectors
+///     The number of sectors to read.
+/// @param buffer
+///     The output buffer pointer.
 ///
-/// @return    Returns true on success or false on failure.
+/// @return
+///     Returns true on success or false on failure.
 bool nand_ReadSectors(sec_t sector, sec_t numSectors, void *buffer);
 
 /// Writes one or more sectors to the eMMC NAND.
 ///
-/// @param[in] sector     The start sector.
-/// @param[in] numSectors The number of sectors to read.
-/// @param[in] buffer     The input buffer pointer.
+/// @param[in] sector
+///     The start sector.
+/// @param[in] numSectors
+///     The number of sectors to read.
+/// @param[in] buffer
+///     The input buffer pointer.
 ///
-/// @return    Returns true on success or false on failure.
+/// @return
+///     Returns true on success or false on failure.
 bool nand_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer);
 
 // Compatibility macros.

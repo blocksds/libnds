@@ -42,7 +42,8 @@ void enterException(void);
 
 /// Sets a custom hardware exception handler.
 ///
-/// @param handler Exception handler routine.
+/// @param handler
+///     Exception handler routine.
 void setExceptionHandler(VoidFn handler);
 
 /// Sets the default hardware exception handler.

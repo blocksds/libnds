@@ -34,9 +34,7 @@ extern "C" {
 #define FIRMWARE_DP             0xB9 ///< Deep Power Down
 #define FIRMWARE_RDP            0xAB ///< Release from Deep Power Down
 
-/**
- * @brief Read the JEDEC ID of the firmware flash.
- */
+/// Read the JEDEC ID of the firmware flash.
 int readFirmwareJEDEC(u8 *destination, u32 size);
 
 #ifdef __cplusplus

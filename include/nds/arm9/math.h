@@ -62,8 +62,10 @@ extern "C" {
 
 /// Asynchronous fixed point divide start
 ///
-/// @param num 20.12 numerator.
-/// @param den 20.12 denominator.
+/// @param num
+///     20.12 numerator.
+/// @param den
+///     20.12 denominator.
 static inline void divf32_asynch(int32_t num, int32_t den)
 {
     REG_DIV_NUMER = ((int64_t)num) << 12;
@@ -76,7 +78,8 @@ static inline void divf32_asynch(int32_t num, int32_t den)
 
 /// Asynchronous fixed point divide result
 ///
-/// @return returns 20.12 result.
+/// @return
+///     Returns 20.12 result.
 static inline int32_t divf32_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
@@ -86,9 +89,13 @@ static inline int32_t divf32_result(void)
 
 /// Fixed point divide
 ///
-/// @param num 20.12 numerator.
-/// @param den 20.12 denominator.
-/// @return returns 20.12 result.
+/// @param num
+///     20.12 numerator.
+/// @param den
+///     20.12 denominator.
+///
+/// @return
+///     Returns 20.12 result.
 static inline int32_t divf32(int32_t num, int32_t den)
 {
     divf32_asynch(num, den);
@@ -97,9 +104,13 @@ static inline int32_t divf32(int32_t num, int32_t den)
 
 /// Fixed point multiply.
 ///
-/// @param a 20.12 value.
-/// @param b 20.12 value.
-/// @return returns 20.12 result.
+/// @param a
+///     20.12 value.
+/// @param b
+///     20.12 value.
+///
+/// @return
+///     Returns 20.12 result.
 static inline int32_t mulf32(int32_t a, int32_t b)
 {
     int64_t result = (int64_t)a * (int64_t)b;
@@ -108,7 +119,8 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 
 /// Asynchronous fixed point sqrt start.
 ///
-/// @param a 20.12 positive value.
+/// @param a
+///     20.12 positive value.
 static inline void sqrtf32_asynch(int32_t a)
 {
     REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
@@ -120,7 +132,8 @@ static inline void sqrtf32_asynch(int32_t a)
 
 /// Asynchronous fixed point sqrt result.
 ///
-/// @return 20.12 result.
+/// @return
+///     20.12 result.
 static inline int32_t sqrtf32_result(void)
 {
     while (REG_SQRTCNT & SQRT_BUSY);
@@ -137,8 +150,11 @@ static inline int32_t sqrtf32_result(void)
 
 /// Fixed point sqrt.
 ///
-/// @param a 20.12 positive value.
-/// @return 20.12 result.
+/// @param a
+///     20.12 positive value.
+///
+/// @return
+///     20.12 result.
 static inline int32_t sqrtf32(int32_t a)
 {
     sqrtf32_asynch(a);
@@ -149,8 +165,10 @@ static inline int32_t sqrtf32(int32_t a)
 
 /// Asynchronous integer divide start.
 ///
-/// @param num Numerator.
-/// @param den Denominator.
+/// @param num
+///     Numerator.
+/// @param den
+///     Denominator.
 static inline void div32_asynch(int32_t num, int32_t den)
 {
     REG_DIV_NUMER_L = num;
@@ -163,7 +181,8 @@ static inline void div32_asynch(int32_t num, int32_t den)
 
 /// Asynchronous integer divide result.
 ///
-/// @return 32 bit integer result.
+/// @return
+///     32 bit integer result.
 static inline int32_t div32_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
@@ -173,9 +192,13 @@ static inline int32_t div32_result(void)
 
 /// Integer divide.
 ///
-/// @param num Numerator.
-/// @param den Denominator.
-/// @return 32 bit integer result.
+/// @param num
+///     Numerator.
+/// @param den
+///     Denominator.
+///
+/// @return
+///     32 bit integer result.
 static inline int32_t div32(int32_t num, int32_t den)
 {
     div32_asynch(num, den);
@@ -184,8 +207,10 @@ static inline int32_t div32(int32_t num, int32_t den)
 
 /// Asynchronous integer modulo start.
 ///
-/// @param num Numerator.
-/// @param den Denominator.
+/// @param num
+///     Numerator.
+/// @param den
+///     Denominator.
 static inline void mod32_asynch(int32_t num, int32_t den)
 {
     REG_DIV_NUMER_L = num;
@@ -198,7 +223,8 @@ static inline void mod32_asynch(int32_t num, int32_t den)
 
 /// Asynchronous integer modulo result.
 ///
-/// @return 32 bit integer remainder.
+/// @return
+///     32 bit integer remainder.
 static inline int32_t mod32_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
@@ -208,9 +234,13 @@ static inline int32_t mod32_result(void)
 
 /// Integer modulo.
 ///
-/// @param num Numerator.
-/// @param den Denominator.
-/// @return 32 bit integer remainder.
+/// @param num
+///     Numerator.
+/// @param den
+///     Denominator.
+///
+/// @return
+///     32 bit integer remainder.
 static inline int32_t mod32(int32_t num, int32_t den)
 {
     mod32_asynch(num, den);
@@ -219,8 +249,10 @@ static inline int32_t mod32(int32_t num, int32_t den)
 
 /// Asynchronous integer 64 bit divide start.
 ///
-/// @param num 64 bit numerator.
-/// @param den 32 bit denominator.
+/// @param num
+///     64 bit numerator.
+/// @param den
+///     32 bit denominator.
 static inline void div64_asynch(int64_t num, int32_t den)
 {
     REG_DIV_NUMER = num;
@@ -233,7 +265,8 @@ static inline void div64_asynch(int64_t num, int32_t den)
 
 /// Asynchronous integer 64 bit divide result.
 ///
-/// @return 32 bit integer result.
+/// @return
+///     32 bit integer result.
 static inline int32_t div64_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
@@ -243,9 +276,13 @@ static inline int32_t div64_result(void)
 
 /// Integer 64 bit divide.
 ///
-/// @param num 64 bit numerator.
-/// @param den 32 bit denominator.
-/// @return 32 bit integer result.
+/// @param num
+///     64 bit numerator.
+/// @param den
+///     32 bit denominator.
+///
+/// @return
+///     32 bit integer result.
 static inline int32_t div64(int64_t num, int32_t den)
 {
     div64_asynch(num, den);
@@ -254,8 +291,10 @@ static inline int32_t div64(int64_t num, int32_t den)
 
 /// Asynchronous integer 64 bit modulo start.
 ///
-/// @param num 64 bit numerator.
-/// @param den 32 bit denominator.
+/// @param num
+///     64 bit numerator.
+/// @param den
+///     32 bit denominator.
 static inline void mod64_asynch(int64_t num, int32_t den)
 {
     REG_DIV_NUMER = num;
@@ -268,7 +307,8 @@ static inline void mod64_asynch(int64_t num, int32_t den)
 
 /// Asynchronous integer 64 bit modulo result.
 ///
-/// @return returns 32 bit integer remainder.
+/// @return
+///     Returns 32 bit integer remainder.
 static inline int32_t mod64_result(void)
 {
     while (REG_DIVCNT & DIV_BUSY);
@@ -278,9 +318,13 @@ static inline int32_t mod64_result(void)
 
 /// Integer 64 bit modulo.
 ///
-/// @param num 64 bit numerator.
-/// @param den 32 bit denominator.
-/// @return returns 32 bit integer remainder.
+/// @param numerator
+///     64 bit numerator.
+/// @param den
+///     32 bit denominator.
+///
+/// @return
+///     Returns 32 bit integer remainder.
 static inline int32_t mod64(int64_t num, int32_t den)
 {
     mod64_asynch(num, den);
@@ -289,7 +333,8 @@ static inline int32_t mod64(int64_t num, int32_t den)
 
 /// Asynchronous 32-bit integer sqrt start.
 ///
-/// @param a 32 bit positive integer value.
+/// @param a
+///     32 bit positive integer value.
 static inline void sqrt32_asynch(uint32_t a)
 {
     REG_SQRTCNT = SQRT_32;
@@ -298,7 +343,8 @@ static inline void sqrt32_asynch(uint32_t a)
 
 /// Asynchronous 32-bit integer sqrt result.
 ///
-/// @return 32 bit integer result.
+/// @return
+///     32 bit integer result.
 static inline uint32_t sqrt32_result(void)
 {
     while (REG_SQRTCNT & SQRT_BUSY);
@@ -308,8 +354,11 @@ static inline uint32_t sqrt32_result(void)
 
 /// 32-bit integer sqrt.
 ///
-/// @param a 32 bit positive integer value.
-/// @return 32 bit integer result.
+/// @param a
+///     32 bit positive integer value.
+///
+/// @return
+///     32 bit integer result.
 static inline uint32_t sqrt32(uint32_t a)
 {
     sqrt32_asynch(a);
@@ -318,7 +367,8 @@ static inline uint32_t sqrt32(uint32_t a)
 
 /// Asynchronous 64-bit integer sqrt start.
 ///
-/// @param a 64 bit positive integer value.
+/// @param a
+///     64 bit positive integer value.
 static inline void sqrt64_asynch(uint64_t a)
 {
     REG_SQRTCNT = SQRT_64;
@@ -327,7 +377,8 @@ static inline void sqrt64_asynch(uint64_t a)
 
 /// Asynchronous 64-bit integer sqrt result.
 ///
-/// @return 32 bit integer result.
+/// @return
+///     32 bit integer result.
 static inline uint32_t sqrt64_result(void)
 {
     while (REG_SQRTCNT & SQRT_BUSY);
@@ -337,8 +388,11 @@ static inline uint32_t sqrt64_result(void)
 
 /// 64-bit integer sqrt.
 ///
-/// @param a 64 bit positive integer value.
-/// @return 32 bit integer result.
+/// @param a
+///     64 bit positive integer value.
+///
+/// @return
+///     32 bit integer result.
 static inline uint32_t sqrt64(uint64_t a)
 {
     sqrt64_asynch(a);
@@ -347,11 +401,17 @@ static inline uint32_t sqrt64(uint64_t a)
 
 /// 32-bit floating point sqrt
 ///
-/// @warning Subnormal floats are treated as if they were zero.
-/// @warning Not safe to call inside an interrupt handler.
+/// @warning
+///     Subnormal floats are treated as if they were zero.
 ///
-/// @param x Valid 32 bit non-negative floating point value.
-/// @return 32 bit floating point value
+/// @warning
+///     Not safe to call inside an interrupt handler.
+///
+/// @param x
+///     Valid 32 bit non-negative floating point value.
+///
+/// @return
+///     32 bit floating point value
 ARM_CODE float hw_sqrtf(float x);
 
 /// 20.12 fixed point cross product.
@@ -364,9 +424,12 @@ ARM_CODE float hw_sqrtf(float x);
 ///     y = Az * Bx - Bz * Ax
 ///     z = Ax * By - Bx * Ay
 ///
-/// @param a Pointer to fixed 3 dimensions vector.
-/// @param b Pointer to fixed 3 dimensions vector.
-/// @param result Result pointer to fixed 3x3 matrix
+/// @param a
+///     Pointer to fixed 3 dimensions vector.
+/// @param b
+///     Pointer to fixed 3 dimensions vector.
+/// @param result
+///     Result pointer to fixed 3x3 matrix
 static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 {
     result[0] = mulf32(a[1], b[2]) - mulf32(b[1], a[2]);
@@ -380,9 +443,13 @@ static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 ///
 ///     Result = Ax * Bx + Ay * By + Az * Bz
 ///
-/// @param a Pointer to fixed 3 dimensions vector.
-/// @param b Pointer to fixed 3 dimensions vector.
-/// @return 32 bit integer result
+/// @param a
+///     Pointer to fixed 3 dimensions vector.
+/// @param b
+///     Pointer to fixed 3 dimensions vector.
+///
+/// @return
+///     32 bit integer result
 static inline int32_t dotf32(int32_t *a, int32_t *b)
 {
     return mulf32(a[0], b[0]) + mulf32(a[1], b[1]) + mulf32(a[2], b[2]);
@@ -390,7 +457,8 @@ static inline int32_t dotf32(int32_t *a, int32_t *b)
 
 /// 20.12 fixed point normalize (set magnitude to 1.0 and keep the direction).
 ///
-/// @param a Pointer to the vector to normalize.
+/// @param a
+///     Pointer to the vector to normalize.
 static inline void normalizef32(int32_t *a)
 {
     // magnitude = sqrt(Ax^2 + Ay^2 + Az^2)

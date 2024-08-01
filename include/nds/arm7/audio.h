@@ -102,17 +102,20 @@ typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 
 /// Read a 8-bit unsigned value from the microphone.
 ///
-/// @return The 8 bit unsigned value.
+/// @return
+///     The 8 bit unsigned value.
 u8 micReadData8(void);
 
 /// Read a 12-bit unsigned value from the microphone.
 ///
-/// @return The 12 bit value.
+/// @return
+///     The 12 bit value.
 u16 micReadData12(void);
 
 /// Read a 16-bit signed value from the microphone.
 ///
-/// @return The 16 bit signed value.
+/// @return
+///     The 16 bit signed value.
 s16 micReadData16(void);
 
 /// Start recording data from the microphone.
@@ -121,18 +124,25 @@ s16 micReadData16(void);
 /// sound data at 16 kHz. Once the length of the buffer is reached, no more
 /// data will be stored. It uses the specified ARM7 timer.
 ///
-/// @param buffer Destination buffer.
-/// @param length Destination buffer length in bytes.
-/// @param freq Frequency of the recording.
-/// @param timer Hardware timer to use to get samples from the microphone.
-/// @param eightBitSample Set to true to record 8 bit samples instead of 12 bit.
-/// @param bufferSwapCallback Callback called whenver the buffer is filled.
+/// @param buffer
+///     Destination buffer.
+/// @param length
+///     Destination buffer length in bytes.
+/// @param freq
+///     Frequency of the recording.
+/// @param timer
+///     Hardware timer to use to get samples from the microphone.
+/// @param eightBitSample
+///     Set to true to record 8 bit samples instead of 12 bit.
+/// @param bufferSwapCallback
+///     Callback called whenver the buffer is filled.
 void micStartRecording(u8 *buffer, int length, int freq, int timer,
                        bool eightBitSample, MIC_BUF_SWAP_CB bufferSwapCallback);
 
 /// Stop recording data, and return the length of data recorded.
 ///
-/// @return Returns the length in bytes.
+/// @return
+///     Returns the length in bytes.
 int micStopRecording(void);
 
 /// Routine that must be called from a timer interrupt to get samples from the
@@ -141,8 +151,10 @@ void micTimerHandler(void);
 
 /// Turn amplifier on or off and set the gain in db.
 ///
-/// @param control Use PM_AMP_ON or PM_AMP_OFF.
-/// @param gain Use one of PM_GAIN_20, PM_GAIN_40, PM_GAIN_80 or PM_GAIN_160.
+/// @param control
+///     Use PM_AMP_ON or PM_AMP_OFF.
+/// @param gain
+///     Use one of PM_GAIN_20, PM_GAIN_40, PM_GAIN_80 or PM_GAIN_160.
 void micSetAmp(u8 control, u8 gain);
 
 /// Turn the microphone ON.
@@ -160,8 +172,11 @@ static inline void micOff(void)
 
 /// Set extended sound hardware frequency.
 ///
-/// @param freq_khz Frequency in KHz. The default is 32, but 47 is allowed too.
-/// @return Returns true if the change was successful.
+/// @param freq_khz
+///     Frequency in KHz. The default is 32, but 47 is allowed too.
+///
+/// @return
+///     Returns true if the change was successful.
 bool soundExtSetFrequencyTWL(unsigned int freq_khz);
 
 /// Enable sound hardware and clear sound registers.

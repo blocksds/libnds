@@ -29,80 +29,79 @@ typedef bool (*FN_MEDIUM_SHUTDOWN)(void);
 
 typedef struct DISC_INTERFACE_STRUCT
 {
-    /**
-     * @brief Four-byte identifier of the device type implemented by this interface.
-     */
+    /// Four-byte identifier of the device type implemented by this interface.
     unsigned long           ioType;
 
-    /**
-     * @brief Available device features.
-     *
-     * @see FEATURE_MEDIUM_CANREAD
-     * @see FEATURE_MEDIUM_CANWRITE
-     * @see FEATURE_SLOT_GBA
-     * @see FEATURE_SLOT_NDS
-     * @see FEATURE_ARM7_CAPABLE
-     */
+    /// Available device features.
+    ///
+    /// @see FEATURE_MEDIUM_CANREAD
+    /// @see FEATURE_MEDIUM_CANWRITE
+    /// @see FEATURE_SLOT_GBA
+    /// @see FEATURE_SLOT_NDS
+    /// @see FEATURE_ARM7_CAPABLE
     unsigned long           features;
 
-    /**
-     * @brief Initialize the device.
-     * @return True on success.
-     */
+    /// Initialize the device.
+    ///
+    /// @return
+    ///     True on success.
     FN_MEDIUM_STARTUP       startup;
 
-    /**
-     * @brief Check if the device's removable storage, if any, is inserted.
-     * @return True if storage is available.
-     */
+    /// Check if the device's removable storage, if any, is inserted.
+    ///
+    /// @return
+    ///     True if storage is available.
     FN_MEDIUM_ISINSERTED    isInserted;
 
-    /**
-     * @brief Read sectors from the device.
-     *
-     * Sectors are assumed to always be 512 bytes in size.
-     * Note that some drivers only support aligned buffers.
-     *
-     * @param sector The sector number.
-     * @param numSectors The number of sectors.
-     * @param buffer The destination buffer.
-     * @return True on success.
-     */
+    /// Read sectors from the device.
+    ///
+    /// Sectors are assumed to always be 512 bytes in size. Note that some
+    /// drivers only support aligned buffers.
+    ///
+    /// @param sector
+    ///     The sector number.
+    /// @param numSectors
+    ///     The number of sectors.
+    /// @param buffer
+    ///     The destination buffer.
+    ///
+    /// @return
+    ///     True on success.
     FN_MEDIUM_READSECTORS   readSectors;
 
-    /**
-     * @brief Write sectors to the device.
-     *
-     * Sectors are assumed to always be 512 bytes in size.
-     * Note that some drivers only support aligned buffers.
-     *
-     * @param sector The sector number.
-     * @param numSectors The number of sectors.
-     * @param buffer The source buffer.
-     * @return True on success.
-     */
+    /// Write sectors to the device.
+    ///
+    /// Sectors are assumed to always be 512 bytes in size. Note that some
+    /// drivers only support aligned buffers.
+    ///
+    /// @param sector
+    ///     The sector number.
+    /// @param numSectors
+    ///     The number of sectors.
+    /// @param buffer
+    ///     The source buffer.
+    ///
+    /// @return
+    ///     True on success.
     FN_MEDIUM_WRITESECTORS  writeSectors;
 
-    /**
-     * @brief Reset the device's error status after an error occured.
-     *
-     * This is not used by applications. Drivers are expected to do this
-     * automatically.
-     *
-     * @return True on success.
-     */
+    /// Reset the device's error status after an error occured.
+    ///
+    /// This is not used by applications. Drivers are expected to do this
+    /// automatically.
+    ///
+    /// @return
+    ///     True on success.
     FN_MEDIUM_CLEARSTATUS   clearStatus;
 
-    /**
-     * @brief Shut down the device.
-     * @return True on success.
-     */
+    /// Shut down the device.
+    ///
+    /// @return
+    ///     True on success.
     FN_MEDIUM_SHUTDOWN      shutdown;
 } DISC_INTERFACE;
 
-/**
- * @brief Return the internal DSi SD card interface.
- */
+/// Return the internal DSi SD card interface.
 const DISC_INTERFACE *get_io_dsisd(void);
 
 #ifdef __cplusplus

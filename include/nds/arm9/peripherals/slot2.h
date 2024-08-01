@@ -41,15 +41,19 @@ extern "C" {
 ///
 /// Note that this method can take up to a few blocking frames to complete.
 ///
-/// @param peripheral_mask The peripheral mask to use. This allows narrowing
-/// the cartridge search query down to specific cartridges for faster detection
-/// and minimizing false positives.
-/// @return True if a peripheral was detected, false otherwise.
+/// @param peripheral_mask
+///     The peripheral mask to use. This allows narrowing the cartridge search
+///     query down to specific cartridges for faster detection and minimizing
+///     false positives.
+///
+/// @return
+///     True if a peripheral was detected, false otherwise.
 bool peripheralSlot2Init(uint32_t peripheral_mask);
 
 /// Initialize any Slot-2 peripheral.
 ///
-/// @return True if a peripheral was detected, false otherwise.
+/// @return
+///     True if a peripheral was detected, false otherwise.
 static inline bool peripheralSlot2InitDefault(void)
 {
     return peripheralSlot2Init(SLOT2_PERIPHERAL_ANY);
@@ -60,17 +64,20 @@ void peripheralSlot2Exit(void);
 
 /// Check if a Slot-2 peripheral has been detected.
 ///
-/// @return True if a peripheral was detected, false otherwise.
+/// @return
+///     True if a peripheral was detected, false otherwise.
 bool peripheralSlot2IsDetected(void);
 
 /// Get the name of the detected Slot-2 peripheral, or "None".
 ///
-/// @return Pointer to the string. Don't call free() with this pointer.
+/// @return
+///     Pointer to the string. Don't call free() with this pointer.
 const char *peripheralSlot2GetName(void);
 
 /// Get the mask of SLOT2_PERIPHERALs supported by this device.
 ///
-/// @returns The mask.
+/// @returns
+///     The mask.
 uint32_t peripheralSlot2GetSupportMask(void);
 
 /// Open (unlock) the specific Slot-2 peripheral.
@@ -78,8 +85,11 @@ uint32_t peripheralSlot2GetSupportMask(void);
 /// This is necessary for some cartridges which may have multiple functions
 /// (for example, external RAM and rumble in a conflicting address space).
 ///
-/// @param peripheral_mask The peripheral mask to unlock.
-/// @return True on success, false on failure (no peripheral of type present).
+/// @param peripheral_mask
+///     The peripheral mask to unlock.
+///
+/// @return
+///     True on success, false on failure (no peripheral of type present).
 bool peripheralSlot2Open(uint32_t peripheral_mask);
 
 /// Close (lock) the detected Slot-2 peripheral.
@@ -87,22 +97,26 @@ void peripheralSlot2Close(void);
 
 /// Return the beginning of Slot-2 RAM space; NULL if not detected.
 ///
-/// @return A pointer to the start of the RAM space, or NULL.
+/// @return
+///     A pointer to the start of the RAM space, or NULL.
 uint16_t *peripheralSlot2RamStart(void);
 
 /// Return the size, in bytes, of Slot-2 RAM space; 0 if not detected.
 ///
-/// @return The size in bytes.
+/// @return
+///     The size in bytes.
 uint32_t peripheralSlot2RamSize(void);
 
 /// Return the number of Slot-2 RAM banks; 0 if not detected.
 ///
-/// @return The number of banks.
+/// @return
+///     The number of banks.
 uint32_t peripheralSlot2RamBanks(void);
 
 /// Switch to a different Slot-2 RAM bank.
 ///
-/// @param bank The bank to switch to.
+/// @param bank
+///     The bank to switch to.
 void peripheralSlot2RamSetBank(uint32_t bank);
 
 #ifdef __cplusplus

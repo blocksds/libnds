@@ -305,7 +305,8 @@ typedef struct sNDSBanner
 ///
 /// Both CPUs cannot have access to the GBA cart at the same time (slot 2).
 ///
-/// @param arm9 If true the ARM9 is the owner, otherwise the ARM7
+/// @param arm9
+///     If true the ARM9 is the owner, otherwise the ARM7
 static inline void sysSetCartOwner(bool arm9)
 {
     REG_EXMEMCNT = (REG_EXMEMCNT & ~ARM7_OWNS_ROM) | (arm9 ? 0 : ARM7_OWNS_ROM);
@@ -315,7 +316,8 @@ static inline void sysSetCartOwner(bool arm9)
 ///
 /// Both CPUs cannot have access to the DS card bus at the same time (slot 1).
 ///
-/// @param arm9 If true the ARM9 is the owner, otherwise the ARM7
+/// @param arm9
+///     If true the ARM9 is the owner, otherwise the ARM7
 static inline void sysSetCardOwner(bool arm9)
 {
     REG_EXMEMCNT = (REG_EXMEMCNT & ~ARM7_OWNS_CARD) | (arm9 ? 0 : ARM7_OWNS_CARD);
@@ -325,8 +327,10 @@ static inline void sysSetCardOwner(bool arm9)
 ///
 /// Only one CPU may access the devices at a time.
 ///
-/// @param arm9rom If true the ARM9 is the owner of slot 2, otherwise the ARM7
-/// @param arm9card If true the ARM9 is the owner of slot 1, otherwise the ARM7
+/// @param arm9rom
+///     If true the ARM9 is the owner of slot 2, otherwise the ARM7
+/// @param arm9card
+///     If true the ARM9 is the owner of slot 1, otherwise the ARM7
 static inline void sysSetBusOwners(bool arm9rom, bool arm9card)
 {
     REG_EXMEMCNT = (REG_EXMEMCNT & ~(ARM7_OWNS_CARD | ARM7_OWNS_ROM))

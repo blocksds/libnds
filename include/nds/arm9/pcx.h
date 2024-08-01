@@ -35,10 +35,14 @@ typedef struct PCXHeader
 
 /// Loads an image structure with data from PCX formatted data.
 ///
-/// @param pcx A pointer to the pcx file loaded into memory.
-/// @param image The image structure to fill in (the loader will allocate room
-///              for the palette and pixel data)
-/// @return true on success, false on failure.
+/// @param pcx
+///     A pointer to the pcx file loaded into memory.
+/// @param image
+///     The image structure to fill in (the loader will allocate room for the
+///     palette and pixel data)
+///
+/// @return
+///     true on success, false on failure.
 bool loadPCX(const unsigned char *pcx, sImage *image);
 
 #ifdef __cplusplus

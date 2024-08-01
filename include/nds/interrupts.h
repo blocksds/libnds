@@ -79,8 +79,11 @@ typedef uint32_t IRQ_MASKSAUX;
 
 /// Returns the mask for a given timer.
 ///
-/// @param n Timer index.
-/// @return Bitmask.
+/// @param n
+///     Timer index.
+///
+/// @return
+///     Bitmask.
 #define IRQ_TIMER(n)    (1 << ((n) + 3))
 
 #define IRQ_DMA(n)      (1 << ((n) + 8))
@@ -144,13 +147,18 @@ void irqInit(void);
 /// default interrupt handler, do not mix the use of this routine with a
 /// user-installed IRQ handler.
 ///
-/// @param irq Mask associated with the interrupt.
-/// @param handler Address of the function to use as an interrupt service
-///                routine
-/// @note When any handler specifies using IRQ_VBLANK or IRQ_HBLANK, DISP_SR is
-///       automatically updated to include the corresponding DISP_VBLANK_IRQ or
-///       DISP_HBLANK_IRQ.
-/// @warning Only one IRQ_MASK can be specified with this function.
+/// @param irq
+///     Mask associated with the interrupt.
+/// @param handler
+///     Address of the function to use as an interrupt service routine
+///
+/// @note
+///     When any handler specifies using IRQ_VBLANK or IRQ_HBLANK, DISP_SR is
+///     automatically updated to include the corresponding DISP_VBLANK_IRQ or
+///     DISP_HBLANK_IRQ.
+///
+/// @warning
+///     Only one IRQ_MASK can be specified with this function.
 void irqSet(u32 irq, VoidFn handler);
 #ifdef ARM7
 void irqSetAUX(u32 irq, VoidFn handler);
@@ -158,7 +166,8 @@ void irqSetAUX(u32 irq, VoidFn handler);
 
 /// Remove the handler associated with the interrupt mask IRQ.
 ///
-/// @param irq Mask associated with the interrupt.
+/// @param irq
+///     Mask associated with the interrupt.
 void irqClear(u32 irq);
 #ifdef ARM7
 void irqClearAUX(u32 irq);
@@ -171,14 +180,20 @@ void irqClearAUX(u32 irq);
 /// dispacther should be used in preference to user code unless you know
 /// *exactly* what you're doing.
 ///
-/// @param handler Address of the function to use as an interrupt dispatcher.
-/// @note The function must be ARM code.
+/// @param handler
+///     Address of the function to use as an interrupt dispatcher.
+///
+/// @note
+///     The function must be ARM code.
 void irqInitHandler(VoidFn handler);
 
 /// Allow the given interrupt to occur.
 ///
-/// @param irq The set of interrupt masks to enable.
-/// @note Specify multiple interrupts to enable by ORing several IRQ_MASKS.
+/// @param irq
+///     The set of interrupt masks to enable.
+///
+/// @note
+///     Specify multiple interrupts to enable by ORing several IRQ_MASKS.
 void irqEnable(u32 irq);
 #ifdef ARM7
 void irqEnableAUX(u32 irq);
@@ -186,8 +201,11 @@ void irqEnableAUX(u32 irq);
 
 /// Prevent the given interrupt from occuring.
 ///
-/// @param irq The set of interrupt masks to disable.
-/// @note Specify multiple interrupts to disable by ORing several IRQ_MASKS.
+/// @param irq
+///     The set of interrupt masks to disable.
+///
+/// @note
+///     Specify multiple interrupts to disable by ORing several IRQ_MASKS.
 void irqDisable(u32 irq);
 #ifdef ARM7
 void irqDisableAUX(u32 irq);
@@ -195,20 +213,26 @@ void irqDisableAUX(u32 irq);
 
 /// Wait for interrupt(s) to occur.
 ///
-/// @param waitForSet 0: Return if the interrupt has already occured; 1: Wait
-///                   until the interrupt has been set since the call
-/// @param flags Interrupt mask to wait for.
+/// @param waitForSet
+///     0: Return if the interrupt has already occured; 1: Wait until the
+///     interrupt has been set since the call
+/// @param flags
+///     Interrupt mask to wait for.
 void swiIntrWait(u32 waitForSet, uint32_t flags);
 
 /// Waits for a vertical blank interrupt
 ///
-/// @note Identical to calling swiIntrWait(1, 1)
+/// @note
+///     Identical to calling swiIntrWait(1, 1)
 void swiWaitForVBlank(void);
 
 /// Set callback for DSi Powerbutton press
 ///
-/// @param CB Function to call when power button pressed
-/// @return The previously set callback
+/// @param CB
+///     Function to call when power button pressed
+///
+/// @return
+///     The previously set callback
 VoidFn setPowerButtonCB(VoidFn CB);
 
 static inline int enterCriticalSection(void)

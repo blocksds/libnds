@@ -23,8 +23,11 @@ extern "C" {
 /// using DLDI will be made first. If that fails, the official cartridge
 /// protocol will be used instead.
 ///
-/// @param basepath The .nds file path - NULL to auto-detect.
-/// @return It returns true on success, false on error.
+/// @param basepath
+///     The .nds file path - NULL to auto-detect.
+///
+/// @return
+///     It returns true on success, false on error.
 bool nitroFSInit(const char *basepath);
 
 /// Exits NitroFS.
@@ -38,9 +41,11 @@ void nitroFSExit(void);
 /// This function will return 0 on non-DLDI/SD NitroFS accesses, as lookup
 /// caches are unnecessary in these situations.
 ///
-/// @param max_buffer_size The maximum buffer size, in bytes.
+/// @param max_buffer_size
+///     The maximum buffer size, in bytes.
 ///
-/// @return 0 if the initialization was successful, a non-zero value on error.
+/// @return
+///     0 if the initialization was successful, a non-zero value on error.
 int nitroFSInitLookupCache(uint32_t max_buffer_size);
 
 /// Open a NitroFS file descriptor directly by its FAT offset ID.
@@ -51,9 +56,11 @@ int nitroFSInitLookupCache(uint32_t max_buffer_size);
 /// In all other functions, this file descriptor behaves identically to one
 /// sourced from @see open , and should be closed likewise.
 ///
-/// @param id The FAT offset ID of the file (0x0000..0xEFFF).
+/// @param id
+///     The FAT offset ID of the file (0x0000..0xEFFF).
 ///
-/// @return A valid file descriptor; -1 on error.
+/// @return
+///     A valid file descriptor; -1 on error.
 int nitroFSOpenById(uint16_t id);
 
 /// Open a NitroFS file directly by its FAT offset ID.
@@ -64,10 +71,13 @@ int nitroFSOpenById(uint16_t id);
 /// In all other functions, this file behaves identically to one sourced from
 /// @see fopen , and should be closed likewise.
 ///
-/// @param id The FAT offset ID of the file (0x0000..0xEFFF).
-/// @param mode The file open mode. Only "r" and "rb" are supported.
+/// @param id
+///     The FAT offset ID of the file (0x0000..0xEFFF).
+/// @param mode
+///     The file open mode. Only "r" and "rb" are supported.
 ///
-/// @return A valid file pointer; NULL on error.
+/// @return
+///     A valid file pointer; NULL on error.
 FILE *nitroFSFopenById(uint16_t id, const char *mode);
 
 #ifdef __cplusplus

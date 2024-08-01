@@ -22,7 +22,8 @@ extern "C" {
 
 /// Check for the paddle
 ///
-/// @return Returns true if a paddle is in the slot-2.
+/// @return
+///     Returns true if a paddle is in the slot-2.
 bool paddleIsInserted(void);
 
 /// Obtain the current paddle state.
@@ -30,7 +31,8 @@ bool paddleIsInserted(void);
 /// Returns a u16 containing a 12bit number (fixed point fraction), incrementing
 /// for clockwise rotations and decrementing for counterclockwise/
 ///
-/// @return The value.
+/// @return
+///     The value.
 u16 paddleRead(void);
 
 /// Resets the paddle device.
