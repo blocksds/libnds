@@ -19,13 +19,23 @@ extern "C" {
 #include <nds/ndstypes.h>
 
 /// The types of decompression available.
+///
+/// VRAM only accepts 16-bit and 32-bit writes. If the CPU tries to write in
+/// 8-bit units, the write is ignored. Due to how the BIOS decompresses data,
+/// some of the options of this enum are safe to be used in VRAM, and others
+/// aren't.
 typedef enum
 {
-    LZ77,       ///< LZ77 decompression.
-    LZ77Vram,   ///< VRAM safe LZ77 decompression.
-    HUFF,       ///< VRAM safe huff decompression.
-    RLE,        ///< Run length encoded decompression.
-    RLEVram     ///< VRAM safe run length encoded decompression.
+    /// LZ77 decompression.
+    LZ77,
+    /// LZ77 decompression (VRAM can be used as destination).
+    LZ77Vram,
+    /// Huffman decompression (VRAM can be used as destination).
+    HUFF,
+    /// Run Length Encoding decompression.
+    RLE,
+    /// Run Length Encoding decompression (VRAM can be used as detination).
+    RLEVram
 } DecompressType;
 
 /// Decompresses data using the suported type.
