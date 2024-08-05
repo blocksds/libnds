@@ -277,12 +277,8 @@ Keyboard *keyboardGetDefault(void)
 Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize size,
                             int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
 {
-    if (keyboard)
-        curKeyboard = keyboard;
-    else
-        keyboard = curKeyboard;
-
-    *keyboard = defaultKeyboard;
+    sassert(keyboard != NULL, "libnds error");
+    curKeyboard = keyboard;
 
     keyboard->keyboardOnSub = !mainDisplay;
 
