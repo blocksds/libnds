@@ -74,11 +74,16 @@ typedef struct Keyboard
     u32 paletteLen;      ///< Length in bytes of the palette data
     int mapBase;         ///< Map base to be used by the keyboard. Initialized by keyboardInit().
     int tileBase;        ///< Tile base to be used by keyboard graphics. Initialized by keyboardInit().
-    int tileOffset;      ///< Tile offset (in bytes) to load graphics (the map
-                         /// must be preadjusted for this offset)
 
-    u32 scrollSpeed;     ///< Keyboard scroll speed on hide and show in pixels
-                         /// per frame (must be positive; 0 == instant on).
+    /// Tile offset (in bytes) to load graphics.
+    ///
+    /// The map must be preadjusted for this offset. TODO: Make this work.
+    int tileOffset;
+
+    /// Keyboard scroll speed on hide and show in pixels per frame.
+    ///
+    /// Must be positive. 0 means that the keyboard is shown/hidden right away.
+    u32 scrollSpeed;
 
     KeyChangeCallback OnKeyPressed;  ///< Will be called on key press
     KeyChangeCallback OnKeyReleased; ///< Will be called on key release
