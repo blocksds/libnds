@@ -13,7 +13,7 @@ ARM_NONE_EABI_PATH	?= $(WONDERFUL_TOOLCHAIN)/toolchain/gcc-arm-none-eabi/bin/
 
 SOURCEDIRS	:= source/arm9 source/common fatfs/source
 INCLUDEDIRS	:= include source source/common/ndsabi fatfs/source source/arm9/libc/fatfs
-GFXDIRS		:= source/arm9/gfx
+GFXDIRS		:= graphics
 BINDIRS		:= source/arm9
 
 # Defines passed to all files
