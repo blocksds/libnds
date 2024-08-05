@@ -95,21 +95,21 @@ static KeyMap lowerCase =
 
 static Keyboard defaultKeyboard =
 {
-    .background = 3,        // Background layer to use
-    .keyboardOnSub = true,  // Display on sub screen
-    .offset_x = 0,          // X offset
-    .offset_y = 0,          // Y offset
-    .grid_width = 8,        // Grid width
-    .grid_height = 16,      // Grid height
-    .state = Lower,         // Start with lower case
-    .shifted = false,       // Shifted
-    .visible = false,       // Visible
+    //.background       // Initialized by keyboardInit().
+    //.keyboardOnSub    // Initialized by keyboardInit().
+    //.offset_x         // Initialized by keyboardInit().
+    //.offset_y         // Initialized by keyboardInit().
+    .grid_width = 8,
+    .grid_height = 16,
+    .state = Lower,     // Start with lower case
+    .shifted = false,   // Start not shifted
+    //.visible          // Initialized by keyboardInit().
 
     .mappings = {
-        &lowerCase,         // keymap for lowercase
-        &capsLock,          // keymap for caps lock
-        0,                  // keymap for numeric entry
-        0                   // keymap for reduced footprint
+        &lowerCase,     // keymap for lowercase
+        &capsLock,      // keymap for caps lock
+        0,              // keymap for numeric entry
+        0               // keymap for reduced footprint
     },
 
     .tiles = keyboardGfxTiles,       // graphics tiles

@@ -54,15 +54,15 @@ typedef struct KeyMap
 /// Describes a keyboard.
 typedef struct Keyboard
 {
-    int background;      ///< Background ID used by the bg, filled by keyboardInit()
-    bool keyboardOnSub;  ///< If true, the keyboard is displayed on the sub screen.
-    int offset_x;        ///< X offset of the map, can be used to center a custom keyboard
-    int offset_y;        ///< Y offset of the map, can be used to center a custom keyboard
+    int background;      ///< Background ID used by the keyboard. Initialized by keyboardInit()
+    bool keyboardOnSub;  ///< True if the keyboard is on the sub screen. Initialized by keyboardInit().
+    int offset_x;        ///< Current X offset of the map. Initialized by keyboardInit()
+    int offset_y;        ///< Current Y offset of the map. Initialized by keyboardInit()
     int grid_width;      ///< Grid width, used to translate x coordinate to keymap
     int grid_height;     ///< Grid height, used to translate y coordinate to keymap
     KeyboardState state; ///< The state of the keyboard
-    bool shifted;        ///< If shifted, true
-    bool visible;        ///< If visible, true
+    bool shifted;        ///< If shifted, true (e.g. if you want the first char to be uppercase).
+    bool visible;        ///< If visible, true. Initialized by keyboardInit().
     KeyMap *mappings[4]; ///< Array of 4 keymap pointers, one for every KeyboardState
     //KeyMap *lower;     ///< Keymapping for lower case normal keyboard
     //KeyMap *upper;     ///< Keymapping for shifted upper case normal keyboard
