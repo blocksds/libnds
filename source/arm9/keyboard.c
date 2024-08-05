@@ -116,13 +116,16 @@ static Keyboard defaultKeyboard =
     .tileLen = keyboardGfxTilesLen,  // graphics tiles length
     .palette = keyboardGfxPal,       // palette
     .paletteLen = keyboardGfxPalLen, // size of palette
-    .mapBase = 20,                   // map base
-    .tileBase = 0,                   // tile base
+    //.mapBase                       // Initialized by keyboardInit().
+    //.tileBase                      // Initialized by keyboardInit().
     .tileOffset = 0,                 // tile offset
     .scrollSpeed = 3,                // scroll speed
-    .OnKeyPressed = NULL,            // keypress callback
+    .OnKeyPressed = NULL,            // key press callback
     .OnKeyReleased = NULL,           // key release callback
 };
+
+#define DEFAULT_KEYBOARD_MAP_BASE   20
+#define DEFAULT_KEYBOARD_TILE_BASE  0
 
 Keyboard *curKeyboard = NULL;
 
@@ -343,7 +346,7 @@ void keyboardExit(void)
 Keyboard *keyboardDemoInit(void)
 {
     return keyboardInit_call(keyboardGetDefault(), 3, BgType_Text4bpp, BgSize_T_256x512,
-                             defaultKeyboard.mapBase, defaultKeyboard.tileBase, false, true);
+                             DEFAULT_KEYBOARD_MAP_BASE, DEFAULT_KEYBOARD_TILE_BASE, false, true);
 }
 
 void keyboardShow(void)

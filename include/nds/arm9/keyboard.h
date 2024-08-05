@@ -72,8 +72,8 @@ typedef struct Keyboard
     u32 tileLen;         ///< Length in bytes of graphics data
     const void *palette; ///< Pointer to the palette
     u32 paletteLen;      ///< Length in bytes of the palette data
-    int mapBase;         ///< Map base to be used by the keyboard
-    int tileBase;        ///< Tile base to be used by keyboard graphics
+    int mapBase;         ///< Map base to be used by the keyboard. Initialized by keyboardInit().
+    int tileBase;        ///< Tile base to be used by keyboard graphics. Initialized by keyboardInit().
     int tileOffset;      ///< Tile offset (in bytes) to load graphics (the map
                          /// must be preadjusted for this offset)
 
