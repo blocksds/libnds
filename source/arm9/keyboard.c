@@ -25,7 +25,7 @@ s16 lastKey = -1;
 extern bool stdin_buf_empty;
 
 // Default keyboard map
-const s16 SimpleKbdLower[] =
+static const s16 SimpleKbdLower[] =
 {
     DVK_FOLD, DVK_FOLD, NOKEY, '1', '1', '2', '2', '3', '3', '4', '4', '5', '5',
     '6', '6', '7', '7', '8', '8', '9', '9', '0', '0', '-', '-', '=', '=',
@@ -50,7 +50,7 @@ const s16 SimpleKbdLower[] =
     DVK_DOWN, DVK_RIGHT, DVK_RIGHT
 };
 
-const s16 SimpleKbdUpper[] =
+static const s16 SimpleKbdUpper[] =
 {
     DVK_FOLD, DVK_FOLD, NOKEY, '!', '!', '@', '@', '#', '#', '$', '$', '%', '%',
     '^', '^', '&', '&', '*', '*', '(', '(', ')', ')', '_', '_', '+', '+',
@@ -75,7 +75,7 @@ const s16 SimpleKbdUpper[] =
     DVK_DOWN, DVK_RIGHT, DVK_RIGHT
 };
 
-KeyMap capsLock =
+static KeyMap capsLock =
 {
     .mapDataPressed = keyboardGfxMap + 32 * 20,
     .mapDataReleased = keyboardGfxMap,
@@ -84,7 +84,7 @@ KeyMap capsLock =
     .height = 5
 };
 
-KeyMap lowerCase =
+static KeyMap lowerCase =
 {
     .mapDataPressed = keyboardGfxMap + 32 * 30,
     .mapDataReleased = keyboardGfxMap + 32 * 10,
@@ -93,7 +93,7 @@ KeyMap lowerCase =
     .height = 5
 };
 
-Keyboard defaultKeyboard =
+static Keyboard defaultKeyboard =
 {
     .background = 3,        // Background layer to use
     .keyboardOnSub = true,  // Display on sub screen
