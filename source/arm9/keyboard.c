@@ -27,7 +27,6 @@ extern bool stdin_buf_empty;
 // Default keyboard map
 const s16 SimpleKbdLower[] =
 {
-
     DVK_FOLD, DVK_FOLD, NOKEY, '1', '1', '2', '2', '3', '3', '4', '4', '5', '5',
     '6', '6', '7', '7', '8', '8', '9', '9', '0', '0', '-', '-', '=', '=',
     DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE,
@@ -53,7 +52,6 @@ const s16 SimpleKbdLower[] =
 
 const s16 SimpleKbdUpper[] =
 {
-
     DVK_FOLD, DVK_FOLD, NOKEY, '!', '!', '@', '@', '#', '#', '$', '$', '%', '%',
     '^', '^', '&', '&', '*', '*', '(', '(', ')', ')', '_', '_', '+', '+',
     DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE, DVK_BACKSPACE,
@@ -79,49 +77,51 @@ const s16 SimpleKbdUpper[] =
 
 KeyMap capsLock =
 {
-    keyboardGfxMap + 32 * 20,
-    keyboardGfxMap,
-    SimpleKbdUpper,
-    32,
-    5
+    .mapDataPressed = keyboardGfxMap + 32 * 20,
+    .mapDataReleased = keyboardGfxMap,
+    .keymap = SimpleKbdUpper,
+    .width = 32,
+    .height = 5
 };
 
 KeyMap lowerCase =
 {
-    keyboardGfxMap + 32 * 30,
-    keyboardGfxMap + 32 * 10,
-    SimpleKbdLower,
-    32,
-    5
+    .mapDataPressed = keyboardGfxMap + 32 * 30,
+    .mapDataReleased = keyboardGfxMap + 32 * 10,
+    .keymap = SimpleKbdLower,
+    .width = 32,
+    .height = 5
 };
 
 Keyboard defaultKeyboard =
 {
-    3,                             // background
-    1,                             // display on sub screen
-    0,                             // offset x
-    0,                             // offset y
-    8,                             // grid width
-    16,                            // grid height
-    Lower,                         // start with lower case
-    0,                             // shifted
-    0,                             // visible
-    {
-        &lowerCase,                // keymap for lowercase
-        &capsLock,                 // keymap for caps lock
-        0,                         // keymap for numeric entry
-        0                          // keymap for reduced footprint
+    .background = 3,        // Background layer to use
+    .keyboardOnSub = true,  // Display on sub screen
+    .offset_x = 0,          // X offset
+    .offset_y = 0,          // Y offset
+    .grid_width = 8,        // Grid width
+    .grid_height = 16,      // Grid height
+    .state = Lower,         // Start with lower case
+    .shifted = false,       // Shifted
+    .visible = false,       // Visible
+
+    .mappings = {
+        &lowerCase,         // keymap for lowercase
+        &capsLock,          // keymap for caps lock
+        0,                  // keymap for numeric entry
+        0                   // keymap for reduced footprint
     },
-    (const u16 *)keyboardGfxTiles, // graphics tiles
-    keyboardGfxTilesLen,           // graphics tiles length
-    keyboardGfxPal,                // palette
-    keyboardGfxPalLen,             // size of palette
-    20,                            // map base
-    0,                             // tile base
-    0,                             // tile offset
-    3,                             // scroll speed
-    0,                             // keypress callback
-    0,                             // key release callback
+
+    .tiles = keyboardGfxTiles,       // graphics tiles
+    .tileLen = keyboardGfxTilesLen,  // graphics tiles length
+    .palette = keyboardGfxPal,       // palette
+    .paletteLen = keyboardGfxPalLen, // size of palette
+    .mapBase = 20,                   // map base
+    .tileBase = 0,                   // tile base
+    .tileOffset = 0,                 // tile offset
+    .scrollSpeed = 3,                // scroll speed
+    .OnKeyPressed = NULL,            // keypress callback
+    .OnKeyReleased = NULL,           // key release callback
 };
 
 Keyboard *curKeyboard = NULL;
@@ -225,7 +225,7 @@ s16 keyboardUpdate(void)
             else if (lastKey == DVK_SHIFT)
             {
                 keyboardShiftState();
-                curKeyboard->shifted = curKeyboard->shifted ? 0 : 1;
+                curKeyboard->shifted = curKeyboard->shifted ? false : true;
                 return -1;
             }
 
@@ -235,7 +235,7 @@ s16 keyboardUpdate(void)
                 curKeyboard->shifted = 0;
             }
 
-            if (curKeyboard->OnKeyReleased)
+            if (curKeyboard->OnKeyReleased != NULL)
                 curKeyboard->OnKeyReleased(lastKey);
         }
 
@@ -259,7 +259,7 @@ s16 keyboardUpdate(void)
             if (key == DVK_BACKSPACE && stdin_buf_empty)
                 return -1;
 
-            if (curKeyboard->OnKeyPressed)
+            if (curKeyboard->OnKeyPressed != NULL)
                 curKeyboard->OnKeyPressed(lastKey);
 
             return lastKey;
@@ -325,7 +325,7 @@ Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize s
     keyboard->offset_x = 0;
     keyboard->offset_y = -192 + map->height * keyboard->grid_height;
 
-    keyboard->visible = 0;
+    keyboard->visible = false;
 
     bgUpdate();
 
@@ -337,7 +337,7 @@ void keyboardExit(void)
     if (curKeyboard == NULL)
         return;
 
-    curKeyboard->visible = 0;
+    curKeyboard->visible = false;
     bgHide(curKeyboard->background);
     bgUpdate();
 
@@ -357,7 +357,7 @@ void keyboardShow(void)
 
     cothread_yield_irq(IRQ_VBLANK);
 
-    curKeyboard->visible = 1;
+    curKeyboard->visible = true;
 
     bgSetScroll(curKeyboard->background, 0, -192);
     bgShow(curKeyboard->background);
@@ -382,7 +382,7 @@ void keyboardHide(void)
     if (curKeyboard == NULL)
         return;
 
-    curKeyboard->visible = 0;
+    curKeyboard->visible = false;
 
     if (curKeyboard->scrollSpeed)
     {

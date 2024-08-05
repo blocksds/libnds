@@ -54,23 +54,23 @@ typedef struct KeyMap
 /// Describes a keyboard.
 typedef struct Keyboard
 {
-    int background;      ///< Background use, after init() this contains the background ID
-    int keyboardOnSub;   ///< boolean to determine if keyboard is on sub screen or main
+    int background;      ///< Background ID used by the bg, filled by keyboardInit()
+    bool keyboardOnSub;  ///< If true, the keyboard is displayed on the sub screen.
     int offset_x;        ///< X offset of the map, can be used to center a custom keyboard
     int offset_y;        ///< Y offset of the map, can be used to center a custom keyboard
     int grid_width;      ///< Grid width, used to translate x coordinate to keymap
     int grid_height;     ///< Grid height, used to translate y coordinate to keymap
     KeyboardState state; ///< The state of the keyboard
-    int shifted;         ///< If shifted, true
-    int visible;         ///< If visible, true
-    KeyMap *mappings[4]; ///< Array of 4 keymap pointers, one for every keyboard state
+    bool shifted;        ///< If shifted, true
+    bool visible;        ///< If visible, true
+    KeyMap *mappings[4]; ///< Array of 4 keymap pointers, one for every KeyboardState
     //KeyMap *lower;     ///< Keymapping for lower case normal keyboard
     //KeyMap *upper;     ///< Keymapping for shifted upper case normal keyboard
     //KeyMap *numeric;   ///< Keymapping for numeric keypad
     //KeyMap *reduced;   ///< Keymapping for reduced footprint keyboard
-    const u16 *tiles;    ///< Pointer to graphics tiles, cannot exceed 44KB with default base
+    const void *tiles;   ///< Pointer to graphics tiles, cannot exceed 44KB with default base
     u32 tileLen;         ///< Length in bytes of graphics data
-    const u16 *palette;  ///< Pointer to the palette
+    const void *palette; ///< Pointer to the palette
     u32 paletteLen;      ///< Length in bytes of the palette data
     int mapBase;         ///< Map base to be used by the keyboard
     int tileBase;        ///< Tile base to be used by keyboard graphics
