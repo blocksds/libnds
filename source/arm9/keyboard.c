@@ -209,6 +209,9 @@ s16 keyboardUpdate(void)
     if (!keyboardLoaded)
         return -1;
 
+    if (!curKeyboard.visible)
+        return -1;
+
     static int pressed = 0;
     touchPosition touch;
 
@@ -438,6 +441,9 @@ s16 keyboardGetChar(void)
     if (!keyboardLoaded)
         return 0;
 
+    if (!curKeyboard.visible)
+        return -1;
+
     while (1)
     {
         cothread_yield_irq(IRQ_VBLANK);
@@ -461,6 +467,12 @@ s16 keyboardGetChar(void)
 
 void keyboardGetString(char *buffer, int maxLen)
 {
+    if (!keyboardLoaded)
+        return;
+
+    if (!curKeyboard.visible)
+        return;
+
     char *end = buffer + maxLen;
 
     while (buffer < end)
