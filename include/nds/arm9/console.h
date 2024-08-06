@@ -245,7 +245,7 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
 ///     A pointer to the current PrintConsole.
 PrintConsole *consoleDemoInit(void);
 
-/// Clears the screan by using printf("\x1b[2J");
+/// Clears the console and returns the cursor to the top left corner.
 void consoleClear(void);
 
 /// Prints a character to the default console.
