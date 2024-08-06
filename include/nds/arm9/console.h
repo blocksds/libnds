@@ -105,8 +105,6 @@ typedef struct ConsoleFont
 ///     .fontCharOffset = 0,
 ///     .fontCurPal = 0,
 ///     .PrintChar = NULL,
-///     .consoleInitialised = false,
-///     .loadGraphics = true,
 /// };
 /// ```
 typedef struct PrintConsole
@@ -151,13 +149,6 @@ typedef struct PrintConsole
     /// It should return true if it has handled rendering the graphics. If not,
     /// the print engine will attempt to render via tiles)
     ConsolePrint PrintChar;
-
-    /// This is set to true by consoleInit()
-    bool consoleInitialised;
-
-    /// Set this to true if consoleInit() should attempt to load font graphics
-    /// into background VRAM.
-    bool loadGraphics;
 } PrintConsole;
 
 /// Console debug devices supported by libnds.

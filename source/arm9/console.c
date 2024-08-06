@@ -55,8 +55,6 @@ PrintConsole defaultConsole =
     .fontCharOffset = 0,
     .fontCurPal = 0,   // selected palette
     .PrintChar = NULL, // print callback
-    .consoleInitialised = false, // Set to true by consoleInit(). TODO: Actually unused
-    .loadGraphics = true,
 };
 
 #define DEFAULT_CONSOLE_MAP_BASE 22
@@ -490,8 +488,6 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
 
     console->fontBgGfx = bgGetGfxPtr(console->bgId);
     console->fontBgMap = bgGetMapPtr(console->bgId);
-
-    console->consoleInitialised = true;
 
     consoleCls('2');
 
