@@ -95,15 +95,13 @@ static const KeyMap lowerCase =
 
 static const Keyboard defaultKeyboard =
 {
-    //.background       // Initialized by keyboardInit().
-    //.keyboardOnSub    // Initialized by keyboardInit().
-    //.offset_x         // Initialized by keyboardInit().
-    //.offset_y         // Initialized by keyboardInit().
+    .scrollSpeed = 3,
+
     .grid_width = 8,
     .grid_height = 16,
-    .state = Lower,     // Start with lower case
+
     .shifted = false,   // Start not shifted
-    //.visible          // Initialized by keyboardInit().
+    .state = Lower,     // Start with lower case
 
     .mappings = {
         &lowerCase,     // keymap for lowercase
@@ -114,14 +112,21 @@ static const Keyboard defaultKeyboard =
 
     .tiles = keyboardGfxTiles,       // graphics tiles
     .tileLen = keyboardGfxTilesLen,  // graphics tiles length
+    .tileOffset = 0,                 // tile offset
     .palette = keyboardGfxPal,       // palette
     .paletteLen = keyboardGfxPalLen, // size of palette
-    //.mapBase                       // Initialized by keyboardInit().
-    //.tileBase                      // Initialized by keyboardInit().
-    .tileOffset = 0,                 // tile offset
-    .scrollSpeed = 3,                // scroll speed
+
     .OnKeyPressed = NULL,            // key press callback
     .OnKeyReleased = NULL,           // key release callback
+
+    // Initialized by keyboardInit():
+    //.visible
+    //.mapBase
+    //.tileBase
+    //.keyboardOnSub
+    //.background
+    //.offset_x
+    //.offset_y
 };
 
 #define DEFAULT_KEYBOARD_MAP_BASE   20

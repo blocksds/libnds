@@ -47,22 +47,22 @@ typedef struct KeyMap
     const u16 *mapDataPressed;  ///< The map for keys pressed
     const u16 *mapDataReleased; ///< The map for keys released
     const s16 *keymap; ///< The lookup table for x y grid location to corresponding key
-    int width;         ///< Width of the keyboard in grid spaces
-    int height;        ///< Height of the keyboard in grid spaces
+    u8 width;          ///< Width of the keyboard in grid spaces
+    u8 height;         ///< Height of the keyboard in grid spaces
 } KeyMap;
 
 /// Describes a keyboard.
 typedef struct Keyboard
 {
-    int background;      ///< Background ID used by the keyboard. Initialized by keyboardInit()
-    bool keyboardOnSub;  ///< True if the keyboard is on the sub screen. Initialized by keyboardInit().
-    int offset_x;        ///< Current X offset of the map. Initialized by keyboardInit()
-    int offset_y;        ///< Current Y offset of the map. Initialized by keyboardInit()
-    int grid_width;      ///< Grid width, used to translate x coordinate to keymap
-    int grid_height;     ///< Grid height, used to translate y coordinate to keymap
-    KeyboardState state; ///< The state of the keyboard
+    /// Keyboard scroll speed on hide and show in pixels per frame.
+    ///
+    /// Must be positive. 0 means that the keyboard is shown/hidden right away.
+    u8 scrollSpeed;
+
+    u8 grid_width;       ///< Grid width, used to translate x coordinate to keymap
+    u8 grid_height;      ///< Grid height, used to translate y coordinate to keymap
     bool shifted;        ///< If shifted, true (e.g. if you want the first char to be uppercase).
-    bool visible;        ///< If visible, true. Initialized by keyboardInit().
+    KeyboardState state; ///< The state of the keyboard
     const KeyMap *mappings[4]; ///< Array of 4 keymap pointers, one for every KeyboardState
     //KeyMap *lower;     ///< Keymapping for lower case normal keyboard
     //KeyMap *upper;     ///< Keymapping for shifted upper case normal keyboard
@@ -70,25 +70,26 @@ typedef struct Keyboard
     //KeyMap *reduced;   ///< Keymapping for reduced footprint keyboard
     const void *tiles;   ///< Pointer to graphics tiles, cannot exceed 44KB with default base
     u32 tileLen;         ///< Length in bytes of graphics data
-    const void *palette; ///< Pointer to the palette
-    u32 paletteLen;      ///< Length in bytes of the palette data
-    int mapBase;         ///< Map base to be used by the keyboard. Initialized by keyboardInit().
-    int tileBase;        ///< Tile base to be used by keyboard graphics. Initialized by keyboardInit().
 
     /// Tile offset (in bytes) to load graphics.
     ///
     /// The map must be preadjusted for this offset. TODO: Make this work.
     int tileOffset;
 
-    /// Keyboard scroll speed on hide and show in pixels per frame.
-    ///
-    /// Must be positive. 0 means that the keyboard is shown/hidden right away.
-    u32 scrollSpeed;
+    const void *palette; ///< Pointer to the palette
+    u32 paletteLen;      ///< Length in bytes of the palette data
 
     KeyChangeCallback OnKeyPressed;  ///< Will be called on key press
     KeyChangeCallback OnKeyReleased; ///< Will be called on key release
-} Keyboard;
 
+    bool visible;        ///< If visible, true. Initialized by keyboardInit().
+    u8 mapBase;          ///< Map base to be used by the keyboard. Initialized by keyboardInit().
+    u8 tileBase;         ///< Tile base to be used by keyboard graphics. Initialized by keyboardInit().
+    bool keyboardOnSub;  ///< True if the keyboard is on the sub screen. Initialized by keyboardInit().
+    int background;      ///< Background ID used by the keyboard. Initialized by keyboardInit()
+    s16 offset_x;        ///< Current X offset of the map. Initialized by keyboardInit()
+    s16 offset_y;        ///< Current Y offset of the map. Initialized by keyboardInit()
+} Keyboard;
 
 /// Enum values for the keyboard control keys.
 ///
