@@ -46,8 +46,8 @@ PrintConsole defaultConsole =
     //.bgId    // Initialized by consoleInit()
     //.cursorX // Initialized by consoleInit()
     //.cursorY // Initialized by consoleInit()
-    .prevCursorX = 0,
-    .prevCursorY = 0,
+    //.prevCursorX // Initialized by consoleInit()
+    //.prevCursorY // Initialized by consoleInit()
     .consoleWidth = 32,
     .consoleHeight = 24,
     .windowX = 0,
@@ -493,6 +493,9 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
     console->consoleInitialised = true;
 
     consoleCls('2');
+
+    console->prevCursorX = 0;
+    console->prevCursorY = 0;
 
     if (loadGraphics)
         consoleLoadFont(console);
