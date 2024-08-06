@@ -75,7 +75,7 @@ static const s16 SimpleKbdUpper[] =
     DVK_DOWN, DVK_RIGHT, DVK_RIGHT
 };
 
-static KeyMap capsLock =
+static const KeyMap capsLock =
 {
     .mapDataPressed = keyboardGfxMap + 32 * 20,
     .mapDataReleased = keyboardGfxMap,
@@ -84,7 +84,7 @@ static KeyMap capsLock =
     .height = 5
 };
 
-static KeyMap lowerCase =
+static const KeyMap lowerCase =
 {
     .mapDataPressed = keyboardGfxMap + 32 * 30,
     .mapDataReleased = keyboardGfxMap + 32 * 10,
@@ -93,7 +93,7 @@ static KeyMap lowerCase =
     .height = 5
 };
 
-static Keyboard defaultKeyboard =
+static const Keyboard defaultKeyboard =
 {
     //.background       // Initialized by keyboardInit().
     //.keyboardOnSub    // Initialized by keyboardInit().
@@ -127,16 +127,25 @@ static Keyboard defaultKeyboard =
 #define DEFAULT_KEYBOARD_MAP_BASE   20
 #define DEFAULT_KEYBOARD_TILE_BASE  0
 
-Keyboard *curKeyboard = NULL;
+static bool keyboardLoaded = false;
+
+// This pointer keeps track of the original struct used to initialize the
+// keyboard. This is important so that we can re-initialize the keyboard state
+// to the correct one whenever the user calls keyboardShow().
+static const Keyboard *curKeyboardOriginal = NULL;
+
+// Whenever a keyboard is loaded, this struct will hold all of its information.
+// That way the original struct will remain intact.
+static Keyboard curKeyboard;
 
 s16 keyboardGetKey(int x, int y)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return NOKEY;
 
-    KeyMap *keymap = curKeyboard->mappings[curKeyboard->state];
-    x = (x - curKeyboard->offset_x) / curKeyboard->grid_width;
-    y = (y + curKeyboard->offset_y) / curKeyboard->grid_height;
+    const KeyMap *keymap = curKeyboard.mappings[curKeyboard.state];
+    x = (x - curKeyboard.offset_x) / curKeyboard.grid_width;
+    y = (y + curKeyboard.offset_y) / curKeyboard.grid_height;
 
     if (x < 0 || y < 0 || x >= keymap->width || y >= keymap->height)
         return NOKEY;
@@ -148,31 +157,31 @@ s16 keyboardGetKey(int x, int y)
 
 void keyboardShiftState(void)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return;
 
-    curKeyboard->state = curKeyboard->state == Upper ? Lower : Upper;
+    curKeyboard.state = curKeyboard.state == Upper ? Lower : Upper;
 
-    KeyMap *map = curKeyboard->mappings[curKeyboard->state];
+    const KeyMap *map = curKeyboard.mappings[curKeyboard.state];
 
-    dmaCopy(map->mapDataReleased, bgGetMapPtr(curKeyboard->background),
-            map->width * map->height * curKeyboard->grid_height * curKeyboard->grid_width
-                / 64 * 2);
+    size_t map_size = (map->width * map->height * curKeyboard.grid_height *
+                       curKeyboard.grid_width * 2) / 64;
+    dmaCopy(map->mapDataReleased, bgGetMapPtr(curKeyboard.background), map_size);
 }
 
 void swapKeyGfx(int key, bool pressed)
 {
-    if (curKeyboard == NULL || key == NOKEY)
+    if ((!keyboardLoaded) || (key == NOKEY))
         return;
 
-    KeyMap *keymap = curKeyboard->mappings[curKeyboard->state];
+    const KeyMap *keymap = curKeyboard.mappings[curKeyboard.state];
 
-    u16 *map = bgGetMapPtr(curKeyboard->background);
+    u16 *map = bgGetMapPtr(curKeyboard.background);
 
     const u16 *source = pressed ? keymap->mapDataPressed : keymap->mapDataReleased;
 
-    int gw = curKeyboard->grid_width >> 3;
-    int gh = curKeyboard->grid_height >> 3;
+    int gw = curKeyboard.grid_width >> 3;
+    int gh = curKeyboard.grid_height >> 3;
 
     for (int gy = 0; gy < keymap->height; gy++)
     {
@@ -197,7 +206,7 @@ void swapKeyGfx(int key, bool pressed)
 
 s16 keyboardUpdate(void)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return -1;
 
     static int pressed = 0;
@@ -228,18 +237,18 @@ s16 keyboardUpdate(void)
             else if (lastKey == DVK_SHIFT)
             {
                 keyboardShiftState();
-                curKeyboard->shifted = curKeyboard->shifted ? false : true;
+                curKeyboard.shifted = !curKeyboard.shifted;
                 return -1;
             }
 
-            if (curKeyboard->shifted)
+            if (curKeyboard.shifted)
             {
                 keyboardShiftState();
-                curKeyboard->shifted = 0;
+                curKeyboard.shifted = false;
             }
 
-            if (curKeyboard->OnKeyReleased != NULL)
-                curKeyboard->OnKeyReleased(lastKey);
+            if (curKeyboard.OnKeyReleased != NULL)
+                curKeyboard.OnKeyReleased(lastKey);
         }
 
         return -1;
@@ -262,8 +271,8 @@ s16 keyboardUpdate(void)
             if (key == DVK_BACKSPACE && stdin_buf_empty)
                 return -1;
 
-            if (curKeyboard->OnKeyPressed != NULL)
-                curKeyboard->OnKeyPressed(lastKey);
+            if (curKeyboard.OnKeyPressed != NULL)
+                curKeyboard.OnKeyPressed(lastKey);
 
             return lastKey;
         }
@@ -272,75 +281,89 @@ s16 keyboardUpdate(void)
     return -1;
 }
 
-Keyboard *keyboardGetDefault(void)
+const Keyboard *keyboardGetDefault(void)
 {
     return &defaultKeyboard;
 }
 
-Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize size,
+Keyboard *keyboardInit_call(const Keyboard *keyboard, int layer, BgType type, BgSize size,
                             int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
 {
     sassert(keyboard != NULL, "No keyboard provided");
-    curKeyboard = keyboard;
 
-    keyboard->keyboardOnSub = !mainDisplay;
+    // Keep a pointer to the original data of the keyboard. We will needed it to
+    // re-initialize the shift and mapping state whenever the user calls
+    // keyboardShow(). If not, if the keyboard is hidden by keyboardHide() while
+    // CAPS is pressed, it will still be pressed when it is shown again.
+    curKeyboardOriginal = keyboard;
+
+    // Copy keyboard information so that the original struct is kept untouched
+    memcpy(&curKeyboard, keyboard, sizeof(Keyboard));
+
+    // Start setting up the keyboard
+    // -----------------------------
+
+    curKeyboard.keyboardOnSub = !mainDisplay;
 
     // First, it's needed to disable the layer in case something was using it
     // before. Then, we initialize the background. However, bgInit() and
     // bgInitSub() enable the layer, which isn't ready yet, so it is needed to
     // disable it again.
-    if (keyboard->keyboardOnSub)
+    if (curKeyboard.keyboardOnSub)
     {
         videoBgDisableSub(layer);
-        keyboard->background = bgInitSub(layer, type, size, mapBase, tileBase);
+        curKeyboard.background = bgInitSub(layer, type, size, mapBase, tileBase);
     }
     else
     {
         videoBgDisable(layer);
-        keyboard->background = bgInit(layer, type, size, mapBase, tileBase);
+        curKeyboard.background = bgInit(layer, type, size, mapBase, tileBase);
     }
 
     // This call hides the background right away without calling bgUpdate().
-    bgHide(keyboard->background);
+    bgHide(curKeyboard.background);
 
-    keyboard->mapBase = mapBase;
-    keyboard->tileBase = tileBase;
+    curKeyboard.mapBase = mapBase;
+    curKeyboard.tileBase = tileBase;
 
-    KeyMap *map = keyboard->mappings[keyboard->state];
+    const KeyMap *map = curKeyboard.mappings[curKeyboard.state];
 
     if (loadGraphics)
     {
-        u16 *pal = keyboard->keyboardOnSub ? BG_PALETTE_SUB : BG_PALETTE;
+        u16 *pal = curKeyboard.keyboardOnSub ? BG_PALETTE_SUB : BG_PALETTE;
 
-        decompress(keyboard->tiles, bgGetGfxPtr(keyboard->background), LZ77Vram);
+        decompress(curKeyboard.tiles, bgGetGfxPtr(curKeyboard.background), LZ77Vram);
 
-        dmaCopy(map->mapDataReleased, bgGetMapPtr(keyboard->background),
-                map->width * map->height * keyboard->grid_height * keyboard->grid_width
-                    * 2 / 64);
+        size_t map_size = (map->width * map->height *
+                           curKeyboard.grid_height * curKeyboard.grid_width * 2) / 64;
 
-        dmaCopy(keyboard->palette, pal, keyboard->paletteLen);
+        dmaCopy(map->mapDataReleased, bgGetMapPtr(curKeyboard.background), map_size);
+
+        dmaCopy(curKeyboard.palette, pal, curKeyboard.paletteLen);
     }
 
-    keyboard->offset_x = 0;
-    keyboard->offset_y = -192 + map->height * keyboard->grid_height;
+    curKeyboard.offset_x = 0;
+    curKeyboard.offset_y = -192 + map->height * curKeyboard.grid_height;
 
-    keyboard->visible = false;
+    curKeyboard.visible = false;
 
     bgUpdate();
 
-    return keyboard;
+    keyboardLoaded = true;
+
+    return &curKeyboard;
 }
 
 void keyboardExit(void)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return;
 
-    curKeyboard->visible = false;
-    bgHide(curKeyboard->background);
+    curKeyboard.visible = false;
+    bgHide(curKeyboard.background);
     bgUpdate();
 
-    curKeyboard = NULL;
+    keyboardLoaded = false;
 }
 
 Keyboard *keyboardDemoInit(void)
@@ -351,54 +374,68 @@ Keyboard *keyboardDemoInit(void)
 
 void keyboardShow(void)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return;
 
     cothread_yield_irq(IRQ_VBLANK);
 
-    curKeyboard->visible = true;
+    // Make sure that the keyboard state is the right one
+    curKeyboard.state = curKeyboardOriginal->state;
+    curKeyboard.shifted = curKeyboardOriginal->shifted;
 
-    bgSetScroll(curKeyboard->background, 0, -192);
-    bgShow(curKeyboard->background);
+    // Refresh graphics to show the right keyboard state
+    const KeyMap *map = curKeyboard.mappings[curKeyboard.state];
+
+    size_t map_size = (map->width * map->height * curKeyboard.grid_height *
+                       curKeyboard.grid_width * 2) / 64;
+
+    dmaCopy(map->mapDataReleased, bgGetMapPtr(curKeyboard.background), map_size);
+
+    // Start animation
+
+    curKeyboard.visible = true;
+
+    bgSetScroll(curKeyboard.background, 0, -192);
+    bgShow(curKeyboard.background);
     bgUpdate();
 
-    if (curKeyboard->scrollSpeed)
+    if (curKeyboard.scrollSpeed)
     {
-        for (int i = -192; i < curKeyboard->offset_y; i += curKeyboard->scrollSpeed)
+        for (int i = -192; i < curKeyboard.offset_y; i += curKeyboard.scrollSpeed)
         {
             cothread_yield_irq(IRQ_VBLANK);
-            bgSetScroll(curKeyboard->background, 0, i);
+            bgSetScroll(curKeyboard.background, 0, i);
             bgUpdate();
         }
     }
 
-    bgSetScroll(curKeyboard->background, 0, curKeyboard->offset_y);
+    bgSetScroll(curKeyboard.background, 0, curKeyboard.offset_y);
     bgUpdate();
 }
 
 void keyboardHide(void)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return;
 
-    curKeyboard->visible = false;
+    curKeyboard.visible = false;
 
-    if (curKeyboard->scrollSpeed)
+    if (curKeyboard.scrollSpeed)
     {
-        for (int i = curKeyboard->offset_y; i > -192; i -= curKeyboard->scrollSpeed)
+        for (int i = curKeyboard.offset_y; i > -192; i -= curKeyboard.scrollSpeed)
         {
             cothread_yield_irq(IRQ_VBLANK);
-            bgSetScroll(curKeyboard->background, 0, i);
+            bgSetScroll(curKeyboard.background, 0, i);
             bgUpdate();
         }
     }
-    bgHide(curKeyboard->background);
+    bgHide(curKeyboard.background);
     bgUpdate();
 }
 
 s16 keyboardGetChar(void)
 {
-    if (curKeyboard == NULL)
+    if (!keyboardLoaded)
         return 0;
 
     while (1)

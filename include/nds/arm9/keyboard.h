@@ -63,7 +63,7 @@ typedef struct Keyboard
     KeyboardState state; ///< The state of the keyboard
     bool shifted;        ///< If shifted, true (e.g. if you want the first char to be uppercase).
     bool visible;        ///< If visible, true. Initialized by keyboardInit().
-    KeyMap *mappings[4]; ///< Array of 4 keymap pointers, one for every KeyboardState
+    const KeyMap *mappings[4]; ///< Array of 4 keymap pointers, one for every KeyboardState
     //KeyMap *lower;     ///< Keymapping for lower case normal keyboard
     //KeyMap *upper;     ///< Keymapping for shifted upper case normal keyboard
     //KeyMap *numeric;   ///< Keymapping for numeric keypad
@@ -116,10 +116,16 @@ typedef enum
 /// Gets the default keyboard.
 ///
 /// @return
-///     Returns the default keyboard.
-Keyboard *keyboardGetDefault(void);
+///     Returns a read-only pointer to the default keyboard.
+const Keyboard *keyboardGetDefault(void);
 
 /// Initializes the keyboard system with the supplied keyboard.
+///
+/// @note
+///     If you pass a custom keyboard struct to this function, make sure that
+///     the pointer is never deallocated while the keyboard is in use. That
+///     pointer will be used to restore the keyboard to the right state every
+///     time it is hidden and shown again on the screen.
 ///
 /// @param keyboard
 ///     The keyboard struct to initialize (can be NULL).
@@ -139,14 +145,17 @@ Keyboard *keyboardGetDefault(void);
 ///     If true the keyboard graphics will be loaded.
 ///
 /// @return
-///     Returns the initialized keyboard struct.
-static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type, BgSize size,
+///     A pointer to the new active keyboard, which you can modify (to modify
+///     the key press and key release callbacks, for example).
+static inline Keyboard *keyboardInit(const Keyboard *keyboard, int layer, BgType type, BgSize size,
                                      int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
 {
-    Keyboard *keyboardInit_call(Keyboard *keyboard, int layer, BgType type, BgSize size,
+    // Internal function, don't use this directly from outside of libnds
+    Keyboard *keyboardInit_call(const Keyboard *keyboard, int layer, BgType type, BgSize size,
                                 int mapBase, int tileBase, bool mainDisplay, bool loadGraphics);
 
-    return keyboardInit_call(keyboard == NULL ? keyboardGetDefault() : keyboard, layer, type, size, mapBase, tileBase, mainDisplay, loadGraphics);
+    return keyboardInit_call(keyboard == NULL ? keyboardGetDefault() : keyboard, layer, type,
+                             size, mapBase, tileBase, mainDisplay, loadGraphics);
 }
 
 /// Initializes the default keyboard of libnds.
@@ -157,15 +166,22 @@ static inline Keyboard *keyboardInit(Keyboard *keyboard, int layer, BgType type,
 /// ```
 ///
 /// @return
-///     A pointer to the current keyboard.
+///     A pointer to the new active keyboard, which you can modify (to setup key
+///     press and key release callbacks, for example).
 Keyboard *keyboardDemoInit(void);
 
 /// De-initializes the keyboard system, if initialized.
 ///
-/// After calling this, one may de-allocate any custom keyboard struct used.
+/// After calling this function you'll need to call keyboardInit() again to use
+/// the keyboard, so it is safe to free any struct that you may have allocated
+/// (for example, if you're using a custom keyboard).
 void keyboardExit(void);
 
 /// Displays the keyboard.
+///
+/// This will set the state of the keyboard to the original one (the one it had
+/// when the keyboard was initialized). If the default state of the keyboard is
+/// to show upper-case letters, this will return to that state.
 void keyboardShow(void);
 
 /// Hides the keyboard.
