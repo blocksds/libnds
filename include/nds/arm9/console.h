@@ -126,21 +126,21 @@ typedef struct PrintConsole
     u8 bgLayer;         ///< Bg layer used by the background
     int bgId;           ///< bgId, should be set with a call to bgInit() or bgInitSub()
 
-    int cursorX;        ///< Current X location of the cursor (as a tile offset by default)
-    int cursorY;        ///< Current Y location of the cursor (as a tile offset by default)
+    s16 cursorX;        ///< Current X location of the cursor (as a tile offset by default)
+    s16 cursorY;        ///< Current Y location of the cursor (as a tile offset by default)
 
-    int prevCursorX;    ///< Internal state
-    int prevCursorY;    ///< Internal state
+    s16 prevCursorX;    ///< Internal state
+    s16 prevCursorY;    ///< Internal state
 
-    int consoleWidth;   ///< Width of the console hardware layer in tiles
-    int consoleHeight;  ///< Height of the console hardware layer in tiles
+    u16 consoleWidth;   ///< Width of the console hardware layer in tiles
+    u16 consoleHeight;  ///< Height of the console hardware layer in tiles
 
-    int windowX;        ///< Window X location in tiles
-    int windowY;        ///< Window Y location in tiles
-    int windowWidth;    ///< Window width in tiles
-    int windowHeight;   ///< Window height in tiles
+    u16 windowX;        ///< Window X location in tiles
+    u16 windowY;        ///< Window Y location in tiles
+    u16 windowWidth;    ///< Window width in tiles
+    u16 windowHeight;   ///< Window height in tiles
 
-    int tabSize;        ///< Size of a tab
+    u8 tabSize;        ///< Size of a tab
 
     u16 fontCharOffset; ///< Offset to the first graphics tile in background
                         /// memory (in case your font is not loaded at a
