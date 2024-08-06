@@ -31,21 +31,21 @@ PrintConsole defaultConsole =
     .font =
     {
         .gfx = default_fontTiles, // font gfx
-        .pal = 0,                 // font palette
+        .pal = NULL,              // font palette
         .numColors = 0,           // font color count
         .bpp = 1,
         .asciiOffset = 32,        // first ascii character in the set
         .numChars = 96            // number of characters in the font set
     },
 
-    //.fontBgMap // Initialized by consoleInit()
-    //.fontBgGfx // Initialized by consoleInit()
+    //.fontBgMap   // Initialized by consoleInit()
+    //.fontBgGfx   // Initialized by consoleInit()
     .mapBase = 22, // map base
     .gfxBase = 3,  // char base
-    .bgLayer = 0,  // bg layer in use
-    //.bgId    // Initialized by consoleInit()
-    //.cursorX // Initialized by consoleInit()
-    //.cursorY // Initialized by consoleInit()
+    .bgLayer = 0,  // BG layer to use
+    //.bgId        // Initialized by consoleInit()
+    //.cursorX     // Initialized by consoleInit()
+    //.cursorY     // Initialized by consoleInit()
     //.prevCursorX // Initialized by consoleInit()
     //.prevCursorY // Initialized by consoleInit()
     .consoleWidth = 32,
@@ -607,8 +607,10 @@ void consolePrintChar(char c)
         return;
 
     if (currentConsole->PrintChar)
+    {
         if (currentConsole->PrintChar(currentConsole, c))
             return;
+    }
 
     if (currentConsole->cursorX >= currentConsole->windowWidth)
     {

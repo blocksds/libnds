@@ -63,8 +63,16 @@ typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 /// rendering.
 typedef struct ConsoleFont
 {
-    const void *gfx; ///< A pointer to the font graphics (will be loaded by consoleInit() if loadGraphics is true)
-    const void *pal; ///< A pointer to the font palette (will be loaded by consoleInit() if loadGraphics is true)
+    /// Pointer to the font graphics.
+    ///
+    /// They will be loaded by consoleInit() if loadGraphics is true.
+    const void *gfx;
+
+    /// Pointer to the font palette.
+    ///
+    /// They will be loaded by consoleInit() if loadGraphics is true.
+    const void *pal;
+
     u16 numColors;   ///< Number of colors in the font palette
     u8 bpp;          ///< Bits per pixel in the font graphics
     u16 asciiOffset; ///< Offset to the first valid character in the font table
@@ -77,86 +85,86 @@ typedef struct ConsoleFont
 /// ```
 /// PrintConsole defaultConsole =
 /// {
-///     // Font:
+///     .font =
 ///     {
-///         (u16 *)default_font_bin, // Font gfx
-///         0,      // Font palette
-///         0,      // Font color count
-///         4,      // bpp
-///         0,      // First ascii character in the set
-///         128,    // Number of characters in the font set
-///         true,   // Convert to single color
+///         .gfx = default_fontTiles, // font gfx
+///         .pal = NULL,              // font palette
+///         .numColors = 0,           // font color count
+///         .bpp = 1,
+///         .asciiOffset = 32,        // first ascii character in the set
+///         .numChars = 96            // number of characters in the font set
 ///     },
-///     0,      // Font background map
-///     0,      // Font background gfx
-///     31,     // Map base
-///     0,      // Char base
-///     0,      // BG layer in use
-///     -1,     // BG id
-///     0, 0,   // CursorX cursorY
-///     0, 0,   // PrevcursorX prevcursorY
-///     32,     // Console width
-///     24,     // Console height
-///     0,      // Window x
-///     0,      // Window y
-///     32,     // Window width
-///     24,     // Window height
-///     3,      // Tab size
-///     0,      // Font character offset
-///     0,      // Selected palette
-///     0,      // Print callback
-///     false,  // Console initialized
-///     true,   // Load graphics
+///
+///     .mapBase = 22, // map base
+///     .gfxBase = 3,  // char base
+///     .bgLayer = 0,  // bg layer in use
+///     .consoleWidth = 32,
+///     .consoleHeight = 24,
+///     .windowX = 0,
+///     .windowY = 0,
+///     .windowWidth = 32,
+///     .windowHeight = 24,
+///     .tabSize = 3,
+///     .fontCharOffset = 0,
+///     .fontCurPal = 0,
+///     .PrintChar = NULL,
+///     .consoleInitialised = false,
+///     .loadGraphics = true,
 /// };
 /// ```
 typedef struct PrintConsole
 {
-    ConsoleFont font;   ///< Font of the console.
+    ConsoleFont font; ///< Font of the console.
 
-    u16 *fontBgMap;     ///< Pointer to the bg layer map if used. Is set by
-                        /// bgInit if bgId is valid
+    /// Pointer to the bg layer map if used. Initialized by consoleInit().
+    u16 *fontBgMap;
+    /// Pointer to the bg layer graphics if used. Initialized by consoleInit().
+    u16 *fontBgGfx;
 
-    u16 *fontBgGfx;     ///< Pointer to the bg layer graphics if used. Is set by
-                        /// bgInit if bgId is valid
+    u8 mapBase; ///< Map base set by console init based on background setup.
+    u8 gfxBase; ///< Tile graphics base set by console init based on background setup.
 
-    u8 mapBase;         ///< Map base set by console init based on background setup
-    u8 gfxBase;         ///< Tile graphics base set by console init based on
-                        /// background setup
+    u8 bgLayer; ///< BG layer to be used by the background
+    int bgId;   ///< Background ID. Initialized by consoleInit().
 
-    u8 bgLayer;         ///< Bg layer used by the background
-    int bgId;           ///< bgId, should be set with a call to bgInit() or bgInitSub()
+    /// Current X location of the cursor. Initialized by consoleInit().
+    s16 cursorX;
+    /// Current Y location of the cursor. Initialized by consoleInit().
+    s16 cursorY;
 
-    s16 cursorX;        ///< Current X location of the cursor (as a tile offset by default)
-    s16 cursorY;        ///< Current Y location of the cursor (as a tile offset by default)
+    s16 prevCursorX; ///< Internal state. Initialized by consoleInit().
+    s16 prevCursorY; ///< Internal state. Initialized by consoleInit().
 
-    s16 prevCursorX;    ///< Internal state
-    s16 prevCursorY;    ///< Internal state
+    u16 consoleWidth;  ///< Width of the console hardware layer in tiles
+    u16 consoleHeight; ///< Height of the console hardware layer in tiles
 
-    u16 consoleWidth;   ///< Width of the console hardware layer in tiles
-    u16 consoleHeight;  ///< Height of the console hardware layer in tiles
+    u16 windowX;      ///< Window X location in tiles
+    u16 windowY;      ///< Window Y location in tiles
+    u16 windowWidth;  ///< Window width in tiles
+    u16 windowHeight; ///< Window height in tiles
 
-    u16 windowX;        ///< Window X location in tiles
-    u16 windowY;        ///< Window Y location in tiles
-    u16 windowWidth;    ///< Window width in tiles
-    u16 windowHeight;   ///< Window height in tiles
+    u8 tabSize; ///< Size of a tab
 
-    u8 tabSize;        ///< Size of a tab
+    /// Offset to the first graphics tile in background memory (in case your
+    /// font is not loaded at a graphics base boundary)
+    u16 fontCharOffset;
 
-    u16 fontCharOffset; ///< Offset to the first graphics tile in background
-                        /// memory (in case your font is not loaded at a
-                        /// graphics base boundary)
+    /// The current palette used by the engine (only applies to 4bpp text
+    /// backgrounds)
+    u16 fontCurPal;
 
-    u16 fontCurPal;     ///< The current palette used by the engine (only
-                        /// applies to 4bpp text backgrounds)
+    /// Callback for printing a character.
+    ///
+    /// It should return true if it has handled rendering the graphics. If not,
+    /// the print engine will attempt to render via tiles)
+    ConsolePrint PrintChar;
 
-    ConsolePrint PrintChar;  ///< Callback for printing a character. It should
-                             /// return true if it has handled rendering the
-                             /// graphics (else the print engine will attempt to
-                             /// render via tiles)
+    /// This is set to true by consoleInit()
+    bool consoleInitialised;
 
-    bool consoleInitialised; ///< True if the console is initialized
-    bool loadGraphics;       ///< True if consoleInit should attempt to load
-                             /// font graphics into background memory
+    /// Set this to true if consoleInit() should attempt to load font graphics
+    /// into background VRAM.
+    bool loadGraphics;
 } PrintConsole;
 
 /// Console debug devices supported by libnds.
