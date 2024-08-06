@@ -312,6 +312,17 @@ static inline void sysSetCartOwner(bool arm9)
     REG_EXMEMCNT = (REG_EXMEMCNT & ~ARM7_OWNS_ROM) | (arm9 ? 0 : ARM7_OWNS_ROM);
 }
 
+/// Retrieves the owner of the GBA cart.
+///
+/// Both CPUs cannot have access to the GBA cart at the same time (slot 2).
+///
+/// @return
+///     The current owner of the GBA cart bus (true if ARM9 is the owner).
+static inline bool sysGetCartOwner(void)
+{
+    return ! (REG_EXMEMCNT & ARM7_OWNS_ROM);
+}
+
 /// Sets the owner of the DS card bus.
 ///
 /// Both CPUs cannot have access to the DS card bus at the same time (slot 1).
@@ -321,6 +332,17 @@ static inline void sysSetCartOwner(bool arm9)
 static inline void sysSetCardOwner(bool arm9)
 {
     REG_EXMEMCNT = (REG_EXMEMCNT & ~ARM7_OWNS_CARD) | (arm9 ? 0 : ARM7_OWNS_CARD);
+}
+
+/// Retrieves the owner of the DS card bus.
+///
+/// Both CPUs cannot have access to the DS card bus at the same time (slot 1).
+///
+/// @return
+///     The current owner of the DS card bus (true if ARM9 is the owner).
+static inline bool sysGetCardOwner(void)
+{
+    return ! (REG_EXMEMCNT & ARM7_OWNS_CARD);
 }
 
 /// Sets the owner of the DS card bus (slot 1) and GBA cart bus (slot 2).
