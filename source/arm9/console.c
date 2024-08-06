@@ -40,9 +40,6 @@ PrintConsole defaultConsole =
 
     //.fontBgMap   // Initialized by consoleInit()
     //.fontBgGfx   // Initialized by consoleInit()
-    .mapBase = 22, // map base
-    .gfxBase = 3,  // char base
-    .bgLayer = 0,  // BG layer to use
     //.bgId        // Initialized by consoleInit()
     //.cursorX     // Initialized by consoleInit()
     //.cursorY     // Initialized by consoleInit()
@@ -61,6 +58,10 @@ PrintConsole defaultConsole =
     .consoleInitialised = false, // Set to true by consoleInit(). TODO: Actually unused
     .loadGraphics = true,
 };
+
+#define DEFAULT_CONSOLE_MAP_BASE 22
+#define DEFAULT_CONSOLE_GFX_BASE 3
+#define DEFAULT_CONSOLE_BG_LAYER 0
 
 PrintConsole currentCopy;
 
@@ -552,8 +553,8 @@ PrintConsole *consoleDemoInit(void)
     vramSetBankC(VRAM_C_SUB_BG);
     setBrightness(2, 0);
 
-    return consoleInit(NULL, defaultConsole.bgLayer, BgType_Text4bpp, BgSize_T_256x256,
-                       defaultConsole.mapBase, defaultConsole.gfxBase, false, true);
+    return consoleInit(NULL, DEFAULT_CONSOLE_BG_LAYER, BgType_Text4bpp, BgSize_T_256x256,
+                       DEFAULT_CONSOLE_MAP_BASE, DEFAULT_CONSOLE_GFX_BASE, false, true);
 }
 
 static void newRow(void)

@@ -95,9 +95,6 @@ typedef struct ConsoleFont
 ///         .numChars = 96            // number of characters in the font set
 ///     },
 ///
-///     .mapBase = 22, // map base
-///     .gfxBase = 3,  // char base
-///     .bgLayer = 0,  // bg layer in use
 ///     .consoleWidth = 32,
 ///     .consoleHeight = 24,
 ///     .windowX = 0,
@@ -121,10 +118,6 @@ typedef struct PrintConsole
     /// Pointer to the bg layer graphics if used. Initialized by consoleInit().
     u16 *fontBgGfx;
 
-    u8 mapBase; ///< Map base set by console init based on background setup.
-    u8 gfxBase; ///< Tile graphics base set by console init based on background setup.
-
-    u8 bgLayer; ///< BG layer to be used by the background
     int bgId;   ///< Background ID. Initialized by consoleInit().
 
     /// Current X location of the cursor. Initialized by consoleInit().
@@ -248,6 +241,11 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
 /// enables MODE_0_2D on the sub display. It is intended for use in prototyping
 /// applications which need print ability and not actual game use. Print
 /// functionality can be utilized with just this call.
+///
+/// The console initialization is equivalent to:
+/// ```
+/// consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 22, 3, false, true);
+/// ```
 ///
 /// @return
 ///     A pointer to the current PrintConsole.
