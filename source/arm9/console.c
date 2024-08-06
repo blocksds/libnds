@@ -30,12 +30,12 @@ PrintConsole defaultConsole =
 {
     .font =
     {
-        .gfx = default_fontTiles, // font gfx
-        .pal = NULL,              // font palette
-        .numColors = 0,           // font color count
+        .gfx = default_fontTiles, // Font tiles
+        .pal = NULL,              // No font palette (use the default palettes)
+        .numColors = 0,           // Font color count
         .bpp = 1,
-        .asciiOffset = 32,        // first ascii character in the set
-        .numChars = 96            // number of characters in the font set
+        .asciiOffset = 32,        // First ascii character in the set
+        .numChars = 96            // Number of characters in the font set
     },
 
     //.fontBgMap   // Initialized by consoleInit()

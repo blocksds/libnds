@@ -32,8 +32,6 @@
 /// consoleDebugInit(DebugDevice_CONSOLE);
 /// fprintf(stderr, "debug message on DS console screen");
 /// ```
-///
-/// The print console must be initialized to use DB_CONSOLE.
 
 #ifndef LIBNDS_NDS_ARM9_CONSOLE_H__
 #define LIBNDS_NDS_ARM9_CONSOLE_H__
@@ -81,7 +79,7 @@ typedef struct ConsoleFont
 
 /// Console structure used to store the state of a console render context.
 ///
-/// Default values from consoleGetDefault();
+/// Default values from consoleGetDefault():
 /// ```
 /// PrintConsole defaultConsole =
 /// {
@@ -116,15 +114,18 @@ typedef struct PrintConsole
     /// Pointer to the bg layer graphics if used. Initialized by consoleInit().
     u16 *fontBgGfx;
 
-    int bgId;   ///< Background ID. Initialized by consoleInit().
+    /// Background ID. Initialized by consoleInit().
+    int bgId;
 
     /// Current X location of the cursor. Initialized by consoleInit().
     s16 cursorX;
     /// Current Y location of the cursor. Initialized by consoleInit().
     s16 cursorY;
 
-    s16 prevCursorX; ///< Internal state. Initialized by consoleInit().
-    s16 prevCursorY; ///< Internal state. Initialized by consoleInit().
+    /// Internal. Used by "\x1b[s" and "\x1b[u". Initialized by consoleInit().
+    s16 prevCursorX;
+    /// Internal. Used by "\x1b[s" and "\x1b[u". Initialized by consoleInit().
+    s16 prevCursorY;
 
     u16 consoleWidth;  ///< Width of the console hardware layer in tiles
     u16 consoleHeight; ///< Height of the console hardware layer in tiles
