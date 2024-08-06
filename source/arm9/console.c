@@ -28,37 +28,38 @@
 
 PrintConsole defaultConsole =
 {
-    // Font:
+    .font =
     {
-        (u16 *)default_fontTiles, // font gfx
-        0,                        // font palette
-        0,                        // font color count
-        1,                        // bpp
-        32,                       // first ascii character in the set
-        96                        // number of characters in the font set
+        .gfx = default_fontTiles, // font gfx
+        .pal = 0,                 // font palette
+        .numColors = 0,           // font color count
+        .bpp = 1,
+        .asciiOffset = 32,        // first ascii character in the set
+        .numChars = 96            // number of characters in the font set
     },
-    0,  // font background map
-    0,  // font background gfx
-    22, // map base
-    3,  // char base
-    0,  // bg layer in use
-    -1, // bg id
-    0,
-    0, // cursorX cursorY
-    0,
-    0,     // prevcursorX prevcursorY
-    32,    // console width
-    24,    // console height
-    0,     // window x
-    0,     // window y
-    32,    // window width
-    24,    // window height
-    3,     // tab size
-    0,     // font character offset
-    0,     // selected palette
-    0,     // print callback
-    false, // console initialized
-    true,  // load graphics
+
+    //.fontBgMap // Initialized by consoleInit()
+    //.fontBgGfx // Initialized by consoleInit()
+    .mapBase = 22, // map base
+    .gfxBase = 3,  // char base
+    .bgLayer = 0,  // bg layer in use
+    //.bgId    // Initialized by consoleInit()
+    //.cursorX // Initialized by consoleInit()
+    //.cursorY // Initialized by consoleInit()
+    .prevCursorX = 0,
+    .prevCursorY = 0,
+    .consoleWidth = 32,
+    .consoleHeight = 24,
+    .windowX = 0,
+    .windowY = 0,
+    .windowWidth = 32,
+    .windowHeight = 24,
+    .tabSize = 3,
+    .fontCharOffset = 0,
+    .fontCurPal = 0,   // selected palette
+    .PrintChar = NULL, // print callback
+    .consoleInitialised = false, // Set to true by consoleInit(). TODO: Actually unused
+    .loadGraphics = true,
 };
 
 PrintConsole currentCopy;
@@ -486,10 +487,10 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
     else
         console->bgId = bgInitSub(layer, type, size, mapBase, tileBase);
 
-    console->fontBgGfx = (u16 *)bgGetGfxPtr(console->bgId);
-    console->fontBgMap = (u16 *)bgGetMapPtr(console->bgId);
+    console->fontBgGfx = bgGetGfxPtr(console->bgId);
+    console->fontBgMap = bgGetMapPtr(console->bgId);
 
-    console->consoleInitialised = 1;
+    console->consoleInitialised = true;
 
     consoleCls('2');
 
@@ -599,7 +600,7 @@ void consolePrintChar(char c)
 {
     if (c == 0)
         return;
-    if (currentConsole->fontBgMap == 0)
+    if (currentConsole->fontBgMap == NULL)
         return;
 
     if (currentConsole->PrintChar)

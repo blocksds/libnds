@@ -63,8 +63,8 @@ typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 /// rendering.
 typedef struct ConsoleFont
 {
-    u16 *gfx; ///< A pointer to the font graphics (will be loaded by consoleInit() if loadGraphics is true)
-    u16 *pal; ///< A pointer to the font palette (will be loaded by consoleInit() if loadGraphics is true)
+    const void *gfx; ///< A pointer to the font graphics (will be loaded by consoleInit() if loadGraphics is true)
+    const void *pal; ///< A pointer to the font palette (will be loaded by consoleInit() if loadGraphics is true)
     u16 numColors;   ///< Number of colors in the font palette
     u8 bpp;          ///< Bits per pixel in the font graphics
     u16 asciiOffset; ///< Offset to the first valid character in the font table
