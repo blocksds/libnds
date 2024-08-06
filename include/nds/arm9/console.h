@@ -135,10 +135,10 @@ typedef struct PrintConsole
     int consoleWidth;   ///< Width of the console hardware layer in tiles
     int consoleHeight;  ///< Height of the console hardware layer in tiles
 
-    int windowX;        ///< Window X location in tiles (not implemented)
-    int windowY;        ///< Window Y location in tiles (not implemented)
-    int windowWidth;    ///< Window width in tiles (not implemented)
-    int windowHeight;   ///< Window height in tiles (not implemented)
+    int windowX;        ///< Window X location in tiles
+    int windowY;        ///< Window Y location in tiles
+    int windowWidth;    ///< Window width in tiles
+    int windowHeight;   ///< Window height in tiles
 
     int tabSize;        ///< Size of a tab
 
