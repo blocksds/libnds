@@ -32,19 +32,21 @@ static const PrintConsole defaultConsole =
     {
         .gfx = default_fontTiles, // Font tiles
         .pal = NULL,              // No font palette (use the default palettes)
-        .numColors = 0,           // Font color count
+        .numColors = 0,
         .bpp = 1,
         .asciiOffset = 32,        // First ASCII character in the set
         .numChars = 96            // Number of characters in the font set
     },
 
-    //.fontBgMap   // Initialized by consoleInit()
-    //.fontBgGfx   // Initialized by consoleInit()
-    //.bgId        // Initialized by consoleInit()
-    //.cursorX     // Initialized by consoleInit()
-    //.cursorY     // Initialized by consoleInit()
-    //.prevCursorX // Initialized by consoleInit()
-    //.prevCursorY // Initialized by consoleInit()
+    // Initialized by consoleInit():
+    //.fontBgMap
+    //.fontBgGfx
+    //.bgId
+    //.cursorX
+    //.cursorY
+    //.prevCursorX
+    //.prevCursorY
+
     .consoleWidth = 32,
     .consoleHeight = 24,
     .windowX = 0,

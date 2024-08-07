@@ -122,29 +122,46 @@ typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 
 /// A font struct for the console.
 ///
-/// If convertSingleColor is true, the font is treated as a single color font
-/// where all non zero pixels are set to a value of 15 or 255 (4bpp / 8bpp
-/// respectivly). This ensures only one palette entry is utilized for font
-/// rendering.
+/// The graphics defined in this struct are loaded by consoleInit() if
+/// `loadGraphics` is true, and by consoleSetFont().
 typedef struct ConsoleFont
 {
     /// Pointer to the font graphics.
     ///
-    /// They will be loaded by consoleInit() if loadGraphics is true.
+    /// This pointer can't be NULL.
     const void *gfx;
 
     /// Pointer to the font palette.
     ///
-    /// They will be loaded by consoleInit() if loadGraphics is true.
+    /// If this pointer is NULL, the default palettes will be loaded instead.
+    /// For 1 BPP and 4BPP fonts, 16 different palettes will be setup to be able
+    /// to change the color of the text. For 8 BPP palettes, there is only one
+    /// palette, so the only color that is loaded is white.
     const void *pal;
 
-    u16 numColors;   ///< Number of colors in the font palette
-    u8 bpp;          ///< Bits per pixel in the font graphics
-    u16 asciiOffset; ///< Offset to the first valid character in the font table
-    u16 numChars;    ///< Number of characters in the font graphics
+    /// Number of colors in the font palette to be loaded.
+    u16 numColors;
+
+    /// Bits per pixel in the font graphics.
+    ///
+    /// 4 BPP and 8 BPP graphics are loaded as they are provided. 1 BPP fonts
+    /// are extended to 4 BPP and then treated like a 4 BPP font.
+    u8 bpp;
+
+    /// Offset to the first valid character in the font table.
+    ///
+    /// This is useful to save space at the beginning of the font, where there
+    /// are lots of non-printable ASCII characters.
+    u16 asciiOffset;
+
+    /// Number of characters in the font graphics to be loaded.
+    u16 numChars;
 } ConsoleFont;
 
 /// Console structure used to store the state of a console render context.
+///
+/// Many of the values in this struct are actually initialized by libnds, and
+/// the user should leave them as 0 when consoleInit() is called.
 ///
 /// Default values from consoleGetDefault():
 /// ```
@@ -152,12 +169,12 @@ typedef struct ConsoleFont
 /// {
 ///     .font =
 ///     {
-///         .gfx = default_fontTiles, // font gfx
-///         .pal = NULL,              // font palette
-///         .numColors = 0,           // font color count
+///         .gfx = default_fontTiles, // Font tiles
+///         .pal = NULL,              // No font palette (use the default palettes)
+///         .numColors = 0,
 ///         .bpp = 1,
-///         .asciiOffset = 32,        // first ascii character in the set
-///         .numChars = 96            // number of characters in the font set
+///         .asciiOffset = 32,        // First ASCII character in the set
+///         .numChars = 96            // Number of characters in the font set
 ///     },
 ///
 ///     .consoleWidth = 32,
@@ -202,10 +219,11 @@ typedef struct PrintConsole
     u16 windowWidth;  ///< Window width in tiles
     u16 windowHeight; ///< Window height in tiles
 
-    u8 tabSize; ///< Size of a tab
+    u8 tabSize; ///< Size of a TAB character
 
     /// Offset to the first graphics tile in background memory (in case your
-    /// font is not loaded at a graphics base boundary)
+    /// font is not loaded at a graphics base boundary). Initialized by
+    /// consoleInit().
     u16 fontCharOffset;
 
     /// The current palette used by the engine.
@@ -219,7 +237,7 @@ typedef struct PrintConsole
     /// Callback for printing a character.
     ///
     /// It should return true if it has handled rendering the graphics. If not,
-    /// the print engine will attempt to render via tiles)
+    /// the print engine will attempt to render via tiles).
     ConsolePrint PrintChar;
 } PrintConsole;
 
@@ -228,7 +246,7 @@ typedef enum
 {
     DebugDevice_NULL = 0x0,     ///< Ignores prints to stderr
     DebugDevice_NOCASH = 0x1,   ///< Directs stderr to the no$gba debug window
-    DebugDevice_CONSOLE = 0x02  ///< Directs stderr to the DS console window
+    DebugDevice_CONSOLE = 0x02  ///< Directs stderr to the DS console
 } DebugDevice;
 
 /// Loads the font into the console.
