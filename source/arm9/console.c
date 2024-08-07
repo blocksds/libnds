@@ -34,7 +34,7 @@ PrintConsole defaultConsole =
         .pal = NULL,              // No font palette (use the default palettes)
         .numColors = 0,           // Font color count
         .bpp = 1,
-        .asciiOffset = 32,        // First ascii character in the set
+        .asciiOffset = 32,        // First ASCII character in the set
         .numChars = 96            // Number of characters in the font set
     },
 
@@ -53,8 +53,8 @@ PrintConsole defaultConsole =
     .windowHeight = 24,
     .tabSize = 3,
     .fontCharOffset = 0,
-    .fontCurPal = 0,   // selected palette
-    .PrintChar = NULL, // print callback
+    .fontCurPal = 0,   // Selected palette
+    .PrintChar = NULL, // Print callback
 };
 
 #define DEFAULT_CONSOLE_MAP_BASE 22
@@ -338,7 +338,7 @@ static ssize_t con_write(const char *ptr, size_t len)
                             parameter += 8;
 
                         if (parameter < 16 && parameter >= 0)
-                            currentConsole->fontCurPal = parameter << 12;
+                            currentConsole->fontCurPal = parameter;
 
                         escaping = false;
                         break;
@@ -368,8 +368,6 @@ void consoleLoadFont(PrintConsole *console)
     // Check which display is being utilized
     if (console->fontBgGfx < BG_GFX_SUB)
         palette = BG_PALETTE;
-
-    console->fontCurPal <<= 12;
 
     if (console->font.bpp == 1)
     {
@@ -410,6 +408,7 @@ void consoleLoadFont(PrintConsole *console)
         DC_FlushRange(console->font.gfx, size);
         dmaCopy(console->font.gfx, console->fontBgGfx, size);
 
+        // TODO: Extended palettes aren't supported currently, set index to 0
         console->fontCurPal = 0;
     }
 
@@ -420,7 +419,7 @@ void consoleLoadFont(PrintConsole *console)
         // Use user-provided palette
         size_t size = console->font.numColors * 2;
         DC_FlushRange(console->font.pal, size);
-        dmaCopy(console->font.pal, palette + (console->fontCurPal >> 8), size);
+        dmaCopy(console->font.pal, palette + (console->fontCurPal * 16), size);
     }
     else
     {
@@ -449,7 +448,7 @@ void consoleLoadFont(PrintConsole *console)
             palette[14 * 16 - 1] = RGB15(31, 0, 31);  // 45 bright magenta
             palette[15 * 16 - 1] = RGB15(0, 31, 31);  // 46 bright cyan
 
-            console->fontCurPal = 15 << 12;
+            console->fontCurPal = 15;
         }
     }
 
@@ -647,7 +646,7 @@ void consolePrintChar(char c)
                       + (currentConsole->cursorY + currentConsole->windowY)
                          * currentConsole->consoleWidth;
 
-            currentConsole->fontBgMap[index] = currentConsole->fontCurPal | tile;
+            currentConsole->fontBgMap[index] = TILE_PALETTE(currentConsole->fontCurPal) | tile;
             break;
         }
         case 9:
@@ -673,7 +672,7 @@ void consolePrintChar(char c)
                       + (currentConsole->cursorY + currentConsole->windowY)
                          * currentConsole->consoleWidth;
 
-            currentConsole->fontBgMap[index] = currentConsole->fontCurPal | tile;
+            currentConsole->fontBgMap[index] = TILE_PALETTE(currentConsole->fontCurPal) | tile;
             currentConsole->cursorX++;
             break;
         }

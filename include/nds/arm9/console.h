@@ -141,8 +141,12 @@ typedef struct PrintConsole
     /// font is not loaded at a graphics base boundary)
     u16 fontCharOffset;
 
-    /// The current palette used by the engine (only applies to 4bpp text
-    /// backgrounds)
+    /// The current palette used by the engine.
+    ///
+    /// This only applies to 4 BPP text backgrounds. For that type of
+    /// backgrounds, when the graphics of a PrintConsole are loaded, if the
+    /// console font comes with a palette, this is the palette index where the
+    /// palette is loaded.
     u16 fontCurPal;
 
     /// Callback for printing a character.
