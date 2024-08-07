@@ -12,4 +12,6 @@ extern ConsoleOutFn libnds_stdout_write, libnds_stderr_write;
 
 void setTransferInputData(touchPosition *touch, u16 buttons);
 
+__attribute__((noreturn)) void libndsCrash(const char *message);
+
 #endif // ARM9_LIBNDS_INTERNAL_H__

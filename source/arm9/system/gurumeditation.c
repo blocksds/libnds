@@ -4,15 +4,19 @@
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 
 #include <stdio.h>
+#include <string.h>
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
 #include <nds/arm9/exceptions.h>
 #include <nds/arm9/video.h>
 #include <nds/cpu_asm.h>
+#include <nds/interrupts.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
+
+static const char *exception_msg = NULL;
 
 uint32_t ARMShift(uint32_t value, uint8_t shift)
 {
@@ -227,10 +231,12 @@ extern const char __itcm_start[];
 
 void guruMeditationDump(void)
 {
+    REG_IME = 0;
+
     consoleDemoInit();
 
     // White text on a red background
-    BG_PALETTE_SUB[0] = RGB15(31, 0, 0);
+    BG_PALETTE_SUB[0] = RGB15(15, 0, 0);
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     consoleSetCursor(NULL, 5, 0);
@@ -244,51 +250,21 @@ void guruMeditationDump(void)
     // the exception.
     u32 thumbState = *(EXCEPTION_STACK_TOP - 3) & CPSR_FLAG_T;
 
-    u32 codeAddress, exceptionAddress = 0;
+    u32 codeAddress = 0, exceptionAddress = 0;
 
     int offset = 8;
 
-    if (currentMode == CPSR_MODE_ABORT)
+    bool print_information = true;
+
+    if (exception_msg != NULL)
     {
-        printf("\x1b[10Cdata abort!\n\n");
+        size_t tab = (32 - strlen(exception_msg)) / 2;
+        if (tab > 16)
+            tab = 0;
+        printf("\x1b[%zuC%s\n\n", tab, exception_msg);
 
-        // In a data abort, there is an instruction that tried to access an
-        // invalid address, and an invalid address.
-
-        // Get the address where the exception was triggered
-
-        codeAddress = exceptionRegisters[15] - offset;
-
-        // Check if the address is a region that normally contains code
-
-        // TODO: Support DS debugger regions?
-        bool is_main_ram;
-        if (isDSiMode())
-            is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x03000000;
-        else
-            is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
-
-        bool is_itcm = codeAddress > (u32)__itcm_start
-                       && codeAddress < (u32)(__itcm_start + 32768);
-
-        // If it's in a code region, try to decode the instruction. This will
-        // let us know exactly which address was trying to be accessed.
-
-        if (is_main_ram || is_itcm)
-            exceptionAddress = getExceptionAddress(codeAddress, thumbState);
-        else
-            exceptionAddress = codeAddress;
-    }
-    else
-    {
-        printf("\x1b[5Cundefined instruction!\n\n");
-
-        // Get the address where the exception was triggered, which is the one
-        // that holds the undefined instruction, so it's the same address as the
-        // exception address.
-
-        // That PC will have advanced one instruction, so the actual location of
-        // the undefined instruction is one instruction before the current PC.
+        // This should have happened because of an undefined instruction, get
+        // information the same way.
         if (thumbState)
             offset = 2;
         else
@@ -297,6 +273,68 @@ void guruMeditationDump(void)
         codeAddress = exceptionRegisters[15] - offset;
         exceptionAddress = codeAddress;
     }
+    else
+    {
+        if (currentMode == CPSR_MODE_ABORT)
+        {
+            printf("\x1b[10CData abort!\n\n");
+
+            // In a data abort, there is an instruction that tried to access an
+            // invalid address, and an invalid address.
+
+            // Get the address where the exception was triggered
+
+            codeAddress = exceptionRegisters[15] - offset;
+
+            // Check if the address is a region that normally contains code
+
+            // TODO: Support DS debugger regions?
+            bool is_main_ram;
+            if (isDSiMode())
+                is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x03000000;
+            else
+                is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
+
+            bool is_itcm = codeAddress > (u32)__itcm_start
+                        && codeAddress < (u32)(__itcm_start + 32768);
+
+            // If it's in a code region, try to decode the instruction. This
+            // will let us know exactly which address was trying to be accessed.
+
+            if (is_main_ram || is_itcm)
+                exceptionAddress = getExceptionAddress(codeAddress, thumbState);
+            else
+                exceptionAddress = codeAddress;
+        }
+        else if (currentMode == CPSR_MODE_UNDEFINED)
+        {
+            printf("\x1b[5CUndefined instruction!\n\n");
+
+            // Get the address where the exception was triggered, which is the
+            // one that holds the undefined instruction, so it's the same
+            // address as the exception address.
+
+            // That PC will have advanced one instruction, so the actual
+            // location of the undefined instruction is one instruction before
+            // the current PC.
+            if (thumbState)
+                offset = 2;
+            else
+                offset = 4;
+
+            codeAddress = exceptionRegisters[15] - offset;
+            exceptionAddress = codeAddress;
+        }
+        else
+        {
+            printf("\x1b[8CUnknown error!\n\n");
+            print_information = false;
+        }
+    }
+
+    // If we're here because of an unknown error we can't print anything
+    if (!print_information)
+        return;
 
     // Finally, print everything to the screen
 
@@ -317,6 +355,7 @@ void guruMeditationDump(void)
     }
 }
 
+__attribute__((noreturn))
 static void defaultHandler(void)
 {
     guruMeditationDump();
@@ -336,4 +375,73 @@ static void defaultHandler(void)
 void defaultExceptionHandler(void)
 {
     setExceptionHandler(defaultHandler);
+}
+
+// ---------------------------------------
+
+__attribute__((noreturn))
+static void releaseCrashHandler(void)
+{
+    REG_IME = 0;
+
+    consoleDemoInit();
+
+    // White text on a red background
+    BG_PALETTE_SUB[0] = RGB15(15, 0, 0);
+    BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
+
+    const char *msg = exception_msg;
+
+    if (msg == NULL)
+    {
+        // If there is no message, try to determine the reason for the crash.
+        // The current CPU mode specifies whether the exception was caused by a
+        // data abort or an undefined instruction.
+        u32 currentMode = getCPSR() & CPSR_MODE_MASK;
+        if (currentMode == CPSR_MODE_ABORT)
+            msg = "Data abort";
+        else if (currentMode == CPSR_MODE_UNDEFINED)
+            msg = "Undefined instruction";
+        else
+            msg = "Unknown error";
+    }
+
+    while (1)
+    {
+        char c = *msg++;
+        if (c == '\0')
+            break;
+
+        consolePrintChar(c);
+    }
+
+    while (1)
+        ;
+}
+
+void releaseExceptionHandler(void)
+{
+    setExceptionHandler(releaseCrashHandler);
+}
+
+// ---------------------------------------
+
+__attribute__((noreturn))
+THUMB_CODE void libndsCrash(const char *message)
+{
+    exception_msg = message;
+
+    // This function causes an undefined instruction exception to crash the CPU
+    // in a controlled way. We set an error message before the exception, so
+    // that error message will be printed instead of "Undefined instruction".
+    //
+    // Opcodes defined as "Undefined Instruction" by the ARM architecture:
+    //
+    // - Thumb: 0xE800 | (ignored & 0x7FF)
+    // - ARM:   0x?6000010 | (ignored & 0x1FFFFEF)
+    //
+    // It's better to use Thumb because that way the ARM7 can jump to it with a
+    // BL instruction instead of BL+BX (BLX only exists in the ARM9)./
+    asm volatile inline(".hword 0xE800 | 0xBAD");
+    __builtin_unreachable();
 }

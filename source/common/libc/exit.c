@@ -8,8 +8,13 @@
 #include <nds/fifocommon.h>
 #include <nds/system.h>
 
-#include "../fifo_ipc_messages.h"
-#include "../libnds_internal.h"
+#ifdef ARM9
+#include "arm9/libnds_internal.h"
+#else
+#include "arm7/libnds_internal.h"
+#endif
+#include "common/fifo_ipc_messages.h"
+#include "common/libnds_internal.h"
 
 extern char *fake_heap_end;
 
@@ -91,10 +96,5 @@ uintptr_t __stack_chk_guard = 0x00000aff;
 __attribute__((noreturn))
 THUMB_CODE void __stack_chk_fail(void)
 {
-    // This function causes an undefined instruction exception to crash the CPU
-    // in a controlled way.
-    //
-    // See common/libc/locks.c for more information.
-    asm volatile inline(".hword 0xE800 | 0xBAD");
-    __builtin_unreachable();
+    libndsCrash("Stack corrupted");
 }
