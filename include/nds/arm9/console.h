@@ -193,8 +193,8 @@ void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height
 /// console that is returned, otherwise use consoleInit().
 ///
 /// @return
-///     A pointer to the console with the default values.
-PrintConsole *consoleGetDefault(void);
+///     A read-only pointer to the console with the default values.
+const PrintConsole *consoleGetDefault(void);
 
 /// Make the specified console the render target.
 ///
