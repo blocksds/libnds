@@ -234,7 +234,7 @@ void guruMeditationDump(void)
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     consoleSetCursor(NULL, 5, 0);
-    printf("Guru Meditation Error!\n");
+    printf("Guru Meditation Error!");
 
     // The current CPU mode specifies whether the exception was caused by a data
     // abort or an undefined instruction.
@@ -250,7 +250,8 @@ void guruMeditationDump(void)
 
     if (currentMode == CPSR_MODE_ABORT)
     {
-        printf("\x1b[10Cdata abort!\n\n");
+        consoleSetCursor(NULL, 10, 1);
+        printf("data abort!\n\n");
 
         // In a data abort, there is an instruction that tried to access an
         // invalid address, and an invalid address.
@@ -281,7 +282,8 @@ void guruMeditationDump(void)
     }
     else
     {
-        printf("\x1b[5Cundefined instruction!\n\n");
+        consoleSetCursor(NULL, 5, 1);
+        printf("undefined instruction!\n\n");
 
         // Get the address where the exception was triggered, which is the one
         // that holds the undefined instruction, so it's the same address as the
