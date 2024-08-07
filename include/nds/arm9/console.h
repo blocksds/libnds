@@ -258,7 +258,54 @@ typedef enum
 ///     The font to load.
 void consoleSetFont(PrintConsole *console, ConsoleFont *font);
 
-/// Sets the print window
+/// Sets the console cursor.
+///
+/// @param console
+///     Console to set. If NULL it will set the current console window
+/// @param x
+///     New X location of the cursor.
+/// @param y
+///     New Y location of the cursor.
+void consoleSetCursor(PrintConsole *console, int x, int y);
+
+/// Gets the console cursor.
+///
+/// @param console
+///     Console to set. If NULL it will set the current console window
+/// @param x
+///     Pointer to store the X location of the cursor.
+/// @param y
+///     Pointer to store the Y location of the cursor.
+void consoleGetCursor(PrintConsole *console, int *x, int *y);
+
+/// Colors of the default palettes of libnds.
+typedef enum {
+    CONSOLE_BLACK   = 0, ///< Black
+    CONSOLE_RED     = 1, ///< Red
+    CONSOLE_GREEN   = 2, ///< Green
+    CONSOLE_YELLOW  = 3, ///< Yellow
+    CONSOLE_BLUE    = 4, ///< Blue
+    CONSOLE_MAGENTA = 5, ///< Magenta
+    CONSOLE_CYAN    = 6, ///< Cyan
+    CONSOLE_WHITE   = 7, ///< White
+    CONSOLE_DEFAULT = 9, ///< Default color (white)
+} ConsoleColor;
+
+/// Sets the color to use to print new text.
+///
+/// @note
+///     This only works for 4 BPP backgrounds. 8 BPP extended palettes are not
+///     supported.
+///
+/// @param console
+///     Console to set. If NULL it will set the current console window
+/// @param color
+///     Color to be used for new text.
+/// @param intensity
+///     If true, it will make the color brighter.
+void consoleSetColor(PrintConsole *console, ConsoleColor color, bool intensity);
+
+/// Sets the print window dimensions.
 ///
 /// @param console
 ///     Console to set. If NULL it will set the current console window

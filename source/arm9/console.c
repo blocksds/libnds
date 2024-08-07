@@ -720,6 +720,54 @@ void consoleClear(void)
     consoleCls('2');
 }
 
+void consoleSetCursor(PrintConsole *console, int x, int y)
+{
+    if (!console)
+        console = currentConsole;
+
+    int max_y = currentConsole->windowHeight - 1;
+    if (y > max_y)
+        y = max_y;
+
+    int max_x = currentConsole->windowWidth - 1;
+    if (x > max_x)
+        x = max_x;
+
+    currentConsole->cursorX = x;
+    currentConsole->cursorY = y;
+}
+
+void consoleGetCursor(PrintConsole *console, int *x, int *y)
+{
+    if (!console)
+        console = currentConsole;
+
+    if (x != NULL)
+        *x = currentConsole->cursorX;
+
+    if (y != NULL)
+        *y = currentConsole->cursorY;
+}
+
+void consoleSetColor(PrintConsole *console, ConsoleColor color, bool intensity)
+{
+    if (!console)
+        console = currentConsole;
+
+    // Only colors 0 to 7 are allowed, treat the rest as white
+    if (color > CONSOLE_WHITE)
+    {
+        currentConsole->fontCurPal = 15;
+    }
+    else
+    {
+        if (intensity)
+            currentConsole->fontCurPal = color + 8;
+        else
+            currentConsole->fontCurPal = color;
+    }
+}
+
 void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height)
 {
     if (!console)
