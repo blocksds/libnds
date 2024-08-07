@@ -268,7 +268,7 @@ static ssize_t con_write(const char *ptr, size_t len)
                     }
                     case 'D':
                     {
-                        int new_x = currentConsole->cursorY - params[0];
+                        int new_x = currentConsole->cursorX - params[0];
                         if (new_x < 0)
                             new_x = 0;
 
