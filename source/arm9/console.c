@@ -568,13 +568,12 @@ static void newRow(void)
         {
             for (colCount = 0; colCount < currentConsole->windowWidth; colCount++)
             {
-                int dst_index =
-                    (colCount + currentConsole->windowX)
-                    + (rowCount + currentConsole->windowY) * currentConsole->consoleWidth;
+                int dst_index = (colCount + currentConsole->windowX)
+                              + (rowCount + currentConsole->windowY) * currentConsole->consoleWidth;
 
                 int src_index = (colCount + currentConsole->windowX)
-                                + (rowCount + currentConsole->windowY + 1)
-                                      * currentConsole->consoleWidth;
+                              + (rowCount + currentConsole->windowY + 1)
+                                 * currentConsole->consoleWidth;
 
                 u16 value = currentConsole->fontBgMap[src_index];
 
@@ -584,12 +583,10 @@ static void newRow(void)
 
         for (colCount = 0; colCount < currentConsole->windowWidth; colCount++)
         {
-            int index =
-                (colCount + currentConsole->windowX)
-                + (rowCount + currentConsole->windowY) * currentConsole->consoleWidth;
+            int index = (colCount + currentConsole->windowX)
+                      + (rowCount + currentConsole->windowY) * currentConsole->consoleWidth;
 
-            u16 value =
-                ' ' + currentConsole->fontCharOffset - currentConsole->font.asciiOffset;
+            u16 value = ' ' + currentConsole->fontCharOffset - currentConsole->font.asciiOffset;
 
             currentConsole->fontBgMap[index] = value;
         }
@@ -628,6 +625,7 @@ void consolePrintChar(char c)
         // non-portable.
 
         case 8:
+        {
             currentConsole->cursorX--;
 
             if (currentConsole->cursorX < 0)
@@ -643,22 +641,23 @@ void consolePrintChar(char c)
                 }
             }
 
-            currentConsole
-                ->fontBgMap[currentConsole->cursorX + currentConsole->windowX
-                            + (currentConsole->cursorY + currentConsole->windowY)
-                                  * currentConsole->consoleWidth] =
-                currentConsole->fontCurPal
-                | (u16)(' ' + currentConsole->fontCharOffset
-                        - currentConsole->font.asciiOffset);
+            uint16_t tile = ' ' + currentConsole->fontCharOffset - currentConsole->font.asciiOffset;
 
+            int index = currentConsole->cursorX + currentConsole->windowX
+                      + (currentConsole->cursorY + currentConsole->windowY)
+                         * currentConsole->consoleWidth;
+
+            currentConsole->fontBgMap[index] = currentConsole->fontCurPal | tile;
             break;
-
+        }
         case 9:
-            currentConsole->cursorX +=
-                currentConsole->tabSize
-                - ((currentConsole->cursorX) % (currentConsole->tabSize));
-            break;
+        {
+            int spaces = currentConsole->tabSize
+                       - ((currentConsole->cursorX) % (currentConsole->tabSize));
 
+            currentConsole->cursorX += spaces;
+            break;
+        }
         case 10:
             newRow();
             // fallthrough
@@ -667,15 +666,17 @@ void consolePrintChar(char c)
             break;
 
         default:
-            currentConsole
-                ->fontBgMap[currentConsole->cursorX + currentConsole->windowX
-                            + (currentConsole->cursorY + currentConsole->windowY)
-                                  * currentConsole->consoleWidth] =
-                currentConsole->fontCurPal
-                | (u16)(c + currentConsole->fontCharOffset
-                        - currentConsole->font.asciiOffset);
-            ++currentConsole->cursorX;
+        {
+            uint16_t tile = c + currentConsole->fontCharOffset - currentConsole->font.asciiOffset;
+
+            int index = currentConsole->cursorX + currentConsole->windowX
+                      + (currentConsole->cursorY + currentConsole->windowY)
+                         * currentConsole->consoleWidth;
+
+            currentConsole->fontBgMap[index] = currentConsole->fontCurPal | tile;
+            currentConsole->cursorX++;
             break;
+        }
     }
 }
 
