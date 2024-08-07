@@ -749,23 +749,16 @@ void consoleGetCursor(PrintConsole *console, int *x, int *y)
         *y = currentConsole->cursorY;
 }
 
-void consoleSetColor(PrintConsole *console, ConsoleColor color, bool intensity)
+void consoleSetColor(PrintConsole *console, ConsoleColor color)
 {
     if (!console)
         console = currentConsole;
 
     // Only colors 0 to 7 are allowed, treat the rest as white
-    if (color > CONSOLE_WHITE)
-    {
-        currentConsole->fontCurPal = 15;
-    }
+    if (color >= CONSOLE_DEFAULT)
+        currentConsole->fontCurPal = CONSOLE_WHITE;
     else
-    {
-        if (intensity)
-            currentConsole->fontCurPal = color + 8;
-        else
-            currentConsole->fontCurPal = color;
-    }
+        currentConsole->fontCurPal = color;
 }
 
 void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height)

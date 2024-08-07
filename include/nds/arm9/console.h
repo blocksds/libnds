@@ -280,15 +280,25 @@ void consoleGetCursor(PrintConsole *console, int *x, int *y);
 
 /// Colors of the default palettes of libnds.
 typedef enum {
-    CONSOLE_BLACK   = 0, ///< Black
-    CONSOLE_RED     = 1, ///< Red
-    CONSOLE_GREEN   = 2, ///< Green
-    CONSOLE_YELLOW  = 3, ///< Yellow
-    CONSOLE_BLUE    = 4, ///< Blue
-    CONSOLE_MAGENTA = 5, ///< Magenta
-    CONSOLE_CYAN    = 6, ///< Cyan
-    CONSOLE_WHITE   = 7, ///< White
-    CONSOLE_DEFAULT = 9, ///< Default color (white)
+    CONSOLE_BLACK           = 0, ///< Black
+    CONSOLE_RED             = 1, ///< Red
+    CONSOLE_GREEN           = 2, ///< Green
+    CONSOLE_YELLOW          = 3, ///< Yellow
+    CONSOLE_BLUE            = 4, ///< Blue
+    CONSOLE_MAGENTA         = 5, ///< Magenta
+    CONSOLE_CYAN            = 6, ///< Cyan
+    CONSOLE_LIGHT_GRAY      = 7, ///< Light gray
+
+    CONSOLE_GRAY            = 8,  ///< Gray
+    CONSOLE_LIGHT_RED       = 9,  ///< Light red
+    CONSOLE_LIGHT_GREEN     = 10, ///< Light green
+    CONSOLE_LIGHT_YELLOW    = 11, ///< Light yellow
+    CONSOLE_LIGHT_BLUE      = 12, ///< Light blue
+    CONSOLE_LIGHT_MAGENTA   = 13, ///< Light magenta
+    CONSOLE_LIGHT_CYAN      = 14, ///< Light cyan
+    CONSOLE_WHITE           = 15, ///< White
+
+    CONSOLE_DEFAULT         = 16, ///< Default color (white)
 } ConsoleColor;
 
 /// Sets the color to use to print new text.
@@ -301,9 +311,7 @@ typedef enum {
 ///     Console to set. If NULL it will set the current console window
 /// @param color
 ///     Color to be used for new text.
-/// @param intensity
-///     If true, it will make the color brighter.
-void consoleSetColor(PrintConsole *console, ConsoleColor color, bool intensity);
+void consoleSetColor(PrintConsole *console, ConsoleColor color);
 
 /// Sets the print window dimensions.
 ///

@@ -24,11 +24,11 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
 
     consoleDemoInit();
 
-    consoleSetColor(NULL, CONSOLE_YELLOW, 1);
+    consoleSetColor(NULL, CONSOLE_LIGHT_YELLOW);
 
     printf("Assertion!\n\n");
 
-    consoleSetColor(NULL, CONSOLE_DEFAULT, 1);
+    consoleSetColor(NULL, CONSOLE_DEFAULT);
 
     printf("File: \n"
            "%s\n\n"                 // Print filename
