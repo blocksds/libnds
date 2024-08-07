@@ -184,8 +184,6 @@ typedef struct ConsoleFont
 ///     .windowWidth = 32,
 ///     .windowHeight = 24,
 ///     .tabSize = 3,
-///     .fontCharOffset = 0,
-///     .fontCurPal = 0,
 ///     .PrintChar = NULL,
 /// };
 /// ```
@@ -197,6 +195,8 @@ typedef struct PrintConsole
     u16 *fontBgMap;
     /// Pointer to the bg layer graphics if used. Initialized by consoleInit().
     u16 *fontBgGfx;
+    /// Palette index where a custom palette is loaded. Initialized by consoleInit().
+    u8 fontPalIndex;
 
     /// Background ID. Initialized by consoleInit().
     int bgId;
@@ -226,12 +226,7 @@ typedef struct PrintConsole
     /// consoleInit().
     u16 fontCharOffset;
 
-    /// The current palette used by the engine.
-    ///
-    /// This only applies to 4 BPP text backgrounds. For that type of
-    /// backgrounds, when the graphics of a PrintConsole are loaded, if the
-    /// console font comes with a palette, this is the palette index where the
-    /// palette is loaded.
+    /// The current palette used by the engine. Initialized by consoleInit().
     u16 fontCurPal;
 
     /// Callback for printing a character.
@@ -292,6 +287,44 @@ const PrintConsole *consoleGetDefault(void);
 PrintConsole *consoleSelect(PrintConsole *console);
 
 /// Initialise the console.
+///
+/// @param console
+///     A pointer to the console data to initialze (if it's NULL, the default
+///     console will be used).
+/// @param layer
+///     Background layer to use.
+/// @param type
+///     Type of the background.
+/// @param size
+///     Size of the background.
+/// @param mapBase
+///     Map base.
+/// @param tileBase
+///     Tile graphics base.
+/// @param palIndex
+///     For 4 BPP (and 1 BPP) fonts. Palette index to load custom palettes to.
+/// @param fontCharOffset
+///     How many characters to skip in the tile base slot. This can be used to
+///     load multiple fonts to the same slot. One of them can set this to 0, and
+///     the other one can set it to 128 so that they don't overlap. Note that
+///     tile map slots can't be used by multiple consoles, they all need to be
+///     independent.
+/// @param mainDisplay
+///     If true main engine is used, otherwise false.
+/// @param loadGraphics
+///     If true the default font graphics will be loaded into the layer.
+///
+/// @return
+///     A pointer to the current console.
+PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSize size,
+                            int mapBase, int tileBase, int palIndex, int fontCharOffset,
+                            bool mainDisplay, bool loadGraphics);
+
+/// Initialise the console.
+///
+/// @note
+///     If you want a more customizable version of this function, check
+///     consoleInitEx().
 ///
 /// @param console
 ///     A pointer to the console data to initialze (if it's NULL, the default

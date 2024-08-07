@@ -39,13 +39,17 @@ static const PrintConsole defaultConsole =
     },
 
     // Initialized by consoleInit():
+    //
     //.fontBgMap
     //.fontBgGfx
+    //.fontPalIndex
     //.bgId
     //.cursorX
     //.cursorY
     //.prevCursorX
     //.prevCursorY
+    //.fontCurPal
+    //.fontCharOffset
 
     .consoleWidth = 32,
     .consoleHeight = 24,
@@ -54,8 +58,6 @@ static const PrintConsole defaultConsole =
     .windowWidth = 32,
     .windowHeight = 24,
     .tabSize = 3,
-    .fontCharOffset = 0,
-    .fontCurPal = 0,   // Selected palette
     .PrintChar = NULL, // Print callback
 };
 
@@ -371,8 +373,14 @@ void consoleLoadFont(PrintConsole *console)
     if (console->fontBgGfx < BG_GFX_SUB)
         palette = BG_PALETTE;
 
+    // Base pointer of the graphics slot
+    u32 *bgGfxDestPtr = (u32 *)console->fontBgGfx;
+
     if (console->font.bpp == 1)
     {
+        // The size of 1 BPP characters is the same as 4 BPP
+        bgGfxDestPtr += console->fontCharOffset * (8 * 8) / (sizeof(u32) * 2);
+
         for (int i = 0; i < console->font.numChars * 8; i++)
         {
             u8 row = ((const u8 *)console->font.gfx)[i];
@@ -395,22 +403,27 @@ void consoleLoadFont(PrintConsole *console)
             if (row & 0x80)
                 temp |= 0xF0000000;
 
-            ((u32 *)console->fontBgGfx)[i] = temp;
+            bgGfxDestPtr[i] = temp;
         }
     }
     else if (console->font.bpp == 4)
     {
-        size_t size = console->font.numChars * 64 / 2;
+        bgGfxDestPtr += console->fontCharOffset * (8 * 8) / (sizeof(u32) * 2);
+
+        size_t size = console->font.numChars * (8 * 8) / 2;
         DC_FlushRange(console->font.gfx, size);
-        dmaCopy(console->font.gfx, console->fontBgGfx, size);
+        dmaCopy(console->font.gfx, bgGfxDestPtr, size);
     }
     else if (console->font.bpp == 8)
     {
-        size_t size = console->font.numChars * 64;
-        DC_FlushRange(console->font.gfx, size);
-        dmaCopy(console->font.gfx, console->fontBgGfx, size);
+        bgGfxDestPtr += console->fontCharOffset * (8 * 8) / sizeof(u32);
 
-        // TODO: Extended palettes aren't supported currently, set index to 0
+        size_t size = console->font.numChars * (8 * 8);
+        DC_FlushRange(console->font.gfx, size);
+        dmaCopy(console->font.gfx, bgGfxDestPtr, size);
+
+        // TODO: Extended palettes aren't supported currently
+        sassert(console->fontPalIndex == 0, "Extended palettes not supported");
         console->fontCurPal = 0;
     }
 
@@ -421,7 +434,10 @@ void consoleLoadFont(PrintConsole *console)
         // Use user-provided palette
         size_t size = console->font.numColors * 2;
         DC_FlushRange(console->font.pal, size);
-        dmaCopy(console->font.pal, palette + (console->fontCurPal * 16), size);
+        dmaCopy(console->font.pal, palette + (console->fontPalIndex * 16), size);
+
+        // Set the user-provided palette as the active one
+        console->fontCurPal = console->fontPalIndex;
     }
     else
     {
@@ -450,6 +466,7 @@ void consoleLoadFont(PrintConsole *console)
             palette[14 * 16 - 1] = RGB15(31, 0, 31);  // 45 bright magenta
             palette[15 * 16 - 1] = RGB15(0, 31, 31);  // 46 bright cyan
 
+            // Set the white pre-defined palette as the active palette
             console->fontCurPal = 15;
         }
     }
@@ -459,8 +476,9 @@ void consoleLoadFont(PrintConsole *console)
     consoleSelect(tmp);
 }
 
-PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize size,
-                          int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
+PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSize size,
+                            int mapBase, int tileBase, int palIndex, int fontCharOffset,
+                            bool mainDisplay, bool loadGraphics)
 {
     static bool firstConsoleInit = true;
 
@@ -489,6 +507,9 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
 
     console->fontBgGfx = bgGetGfxPtr(console->bgId);
     console->fontBgMap = bgGetMapPtr(console->bgId);
+    console->fontCharOffset = fontCharOffset;
+    console->fontPalIndex = palIndex;
+    console->fontCurPal = 0;
 
     consoleCls('2');
 
@@ -499,6 +520,13 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
         consoleLoadFont(console);
 
     return currentConsole;
+}
+
+PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize size,
+                          int mapBase, int tileBase, bool mainDisplay, bool loadGraphics)
+{
+    return consoleInitEx(console, layer, type, size, mapBase, tileBase, 0, 0,
+                         mainDisplay, loadGraphics);
 }
 
 PrintConsole *consoleSelect(PrintConsole *console)
