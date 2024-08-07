@@ -24,8 +24,7 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
 
     consoleDemoInit();
 
-    printf("\x1b[2J"                // Clear screen
-           "\x1b[43mAssertion!\n\n" // Print in yellow
+    printf("\x1b[43mAssertion!\n\n" // Print in yellow
            "\x1b[39mFile: \n"       // Print in default color
            "%s\n\n"                 // Print filename
            "Line: %d\n\n"           // Print line number
