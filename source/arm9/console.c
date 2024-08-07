@@ -26,7 +26,7 @@
 #include "common/libnds_internal.h"
 #include "default_font.h"
 
-const PrintConsole defaultConsole =
+static const PrintConsole defaultConsole =
 {
     .font =
     {
@@ -61,9 +61,9 @@ const PrintConsole defaultConsole =
 #define DEFAULT_CONSOLE_GFX_BASE 3
 #define DEFAULT_CONSOLE_BG_LAYER 0
 
-PrintConsole currentCopy;
+static PrintConsole currentCopy;
 
-PrintConsole *currentConsole = &currentCopy;
+static PrintConsole *currentConsole = &currentCopy;
 
 const PrintConsole *consoleGetDefault(void)
 {
