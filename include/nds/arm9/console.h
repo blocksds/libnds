@@ -7,18 +7,23 @@
 
 /// @file nds/arm9/console.h
 ///
-/// @brief NDS stdio support.
+/// @brief NDS stdout and stderr support.
 ///
-/// Provides stdio integration for printing to the DS screen as well as debug
-/// print functionality provided by stderr.
+/// Provides stdio integration for printing using <stdio.h> functions.
 ///
-/// General usage is to initialize the console by calling consoleDemoInit() or
-/// to customize the console usage by calling consoleInit()
+/// ### Regular console
 ///
-/// The default instance utilizes the sub display, approximatly 4 KiB of VRAM C
+/// It is initialized by calling consoleDemoInit() (or consoleInit() to
+/// customize the console), and it will simply print messages to the screen of
+/// the DS whenever the user sends text to `stdout` (with `printf()`, for
+/// example).
+///
+/// The default console utilizes the sub display, approximatly 4 KiB of VRAM C
 /// starting at tile base 3 and 2 KiB of map at map base 22.
 ///
-/// Debug printing is performed by initializing the debug console via
+/// ### Debug console
+///
+/// The debug console uses `stderr`, and it is initialized by calling
 /// consoleDebugInit() as follows:
 ///
 /// ```
@@ -32,6 +37,68 @@
 /// consoleDebugInit(DebugDevice_CONSOLE);
 /// fprintf(stderr, "debug message on DS console screen");
 /// ```
+///
+/// ### ANSI excape sequences
+///
+/// The regular console supports ANSI escape sequences. They are special strings
+/// that can be sent to printf() and have special effects on the console. For
+/// example, `printf("\x1b[2J");` will clear the console.
+///
+/// Note that in the following strings a `n` means that you can use any positive
+/// integer value. It doesn't need to be only one character long. `0` is valid,
+/// but `23` is also valid. Also, note that you can use `%d` instead of a
+/// hardcoded number. That way you can pass the ANSI escape sequence parameter
+/// as an argument to `printf()`:
+///
+/// ```
+/// printf("\x1b[%d;%dm%c", color, intensity, char_to_print);`
+/// ```
+///
+/// The escape sequences supported by libnds are:
+///
+/// - `[nA`: Move cursor up by `n` chars (stops at the top row).
+///
+/// - `[nB`: Move cursor down by `n` chars (stops at the bottom row).
+///
+/// - `[nC`: Move cursor right by `n` chars (stops at the rightmost column).
+///
+/// - `[nD`: Move cursor left by `n` chars (stops at the leftmost column).
+///
+/// - `[y;xH` and `[y;xf`: Set cursor to `(x, y)`.
+///
+///   If the coordinates are too big, the cursor will stop at the rightmost
+///   column and the bottom row.
+///
+/// - `[nJ`: Clear screen.
+///
+///   If `n` is 0 or it is missing, it will clear from the cursor to the end of
+///   the screen. If `n` is 1, it will clear from the beginning of the screen to
+///   the cursor. If `n` is 2, it will clear the screen and reset the cursor to
+///   (0, 0).
+///
+/// - `[nK`: Clear line.
+///
+///   If `n` is 0 or it is missing, it will clear from the cursor to the end of
+///   the line. If `n` is 1, it will clear from the beginning of the line to the
+///   cursor. If `n` is 2, it will clear the line and reset the cursor to the
+///   start of the line.
+///
+/// - `[s`: Save current cursor position. It will overwrite the previously
+///   saved position.
+///
+/// - `[u`: Restore saved cursor position. It will preserve the saved position
+///   in case you want to restore it later.
+///
+/// - `[c;im`: Change color of the text that will be printed after this.
+///
+///   Parameter `c` is the color, and parameter `i` is the intensity. Colors go
+///   from 30 to 37 (black, red, green, yellow, blue, magenta, cyan, white), and
+///   intensity can be 0 or 1 (1 will make the colors brighter).
+///
+///   Color 39 resets the color back to white: `printf("\x1b[39;0m");`
+///
+/// A list of all ANSI escape sequences is available here:
+/// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
 
 #ifndef LIBNDS_NDS_ARM9_CONSOLE_H__
 #define LIBNDS_NDS_ARM9_CONSOLE_H__
