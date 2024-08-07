@@ -626,6 +626,7 @@ void consolePrintChar(char c)
 {
     if (c == 0)
         return;
+
     if (currentConsole->fontBgMap == NULL)
         return;
 
@@ -696,6 +697,11 @@ void consolePrintChar(char c)
 
         default:
         {
+            if (c < currentConsole->font.asciiOffset)
+                c = ' ';
+            if (c >= currentConsole->font.asciiOffset + currentConsole->font.numChars)
+                c = ' ';
+
             uint16_t tile = c + currentConsole->fontCharOffset - currentConsole->font.asciiOffset;
 
             int index = currentConsole->cursorX + currentConsole->windowX

@@ -124,6 +124,11 @@ typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 ///
 /// The graphics defined in this struct are loaded by consoleInit() if
 /// `loadGraphics` is true, and by consoleSetFont().
+///
+/// @warning
+///     The space character must always be included in the font! It is required
+///     by the functions that clear the console, and it is printed when
+///     characters that are out of range are sent to the console.
 typedef struct ConsoleFont
 {
     /// Pointer to the font graphics.
