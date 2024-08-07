@@ -258,7 +258,7 @@ typedef enum
 ///     The font to load.
 void consoleSetFont(PrintConsole *console, ConsoleFont *font);
 
-/// Sets the console cursor.
+/// Sets the console cursor position.
 ///
 /// @param console
 ///     Console to set. If NULL it will set the current console window
@@ -267,6 +267,16 @@ void consoleSetFont(PrintConsole *console, ConsoleFont *font);
 /// @param y
 ///     New Y location of the cursor.
 void consoleSetCursor(PrintConsole *console, int x, int y);
+
+/// Moves the console cursor position from its current position.
+///
+/// @param console
+///     Console to set. If NULL it will set the current console window
+/// @param deltaX
+///     Value to add to the X location of the cursor.
+/// @param deltaY
+///     Value to add to the Y location of the cursor.
+void consoleAddToCursor(PrintConsole *console, int deltaX, int deltaY);
 
 /// Gets the console cursor.
 ///

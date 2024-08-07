@@ -737,6 +737,30 @@ void consoleSetCursor(PrintConsole *console, int x, int y)
     currentConsole->cursorY = y;
 }
 
+void consoleAddToCursor(PrintConsole *console, int deltaX, int deltaY)
+{
+    if (!console)
+        console = currentConsole;
+
+    int x = currentConsole->cursorX + deltaX;
+    int y = currentConsole->cursorY + deltaY;
+
+    int max_y = currentConsole->windowHeight - 1;
+    if (y > max_y)
+        y = max_y;
+    if (y < 0)
+        y = 0;
+
+    int max_x = currentConsole->windowWidth - 1;
+    if (x > max_x)
+        x = max_x;
+    if (x < 0)
+        x = 0;
+
+    currentConsole->cursorX = x;
+    currentConsole->cursorY = y;
+}
+
 void consoleGetCursor(PrintConsole *console, int *x, int *y)
 {
     if (!console)
