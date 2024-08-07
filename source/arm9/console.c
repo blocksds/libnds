@@ -359,6 +359,10 @@ ConsoleOutFn libnds_stderr_write = NULL;
 
 void consoleLoadFont(PrintConsole *console)
 {
+    // This function is only called if it is required to load console graphics,
+    // so it makes no sense to call it unless there are graphics in the struct.
+    sassert(console->font.gfx != NULL, "No font graphics found");
+
     u16 *palette = BG_PALETTE_SUB;
 
     // Check which display is being utilized
@@ -396,25 +400,21 @@ void consoleLoadFont(PrintConsole *console)
     }
     else if (console->font.bpp == 4)
     {
-        if (console->font.gfx)
-        {
-            size_t size = console->font.numChars * 64 / 2;
-            DC_FlushRange(console->font.gfx, size);
-            dmaCopy(console->font.gfx, console->fontBgGfx, size);
-        }
+        size_t size = console->font.numChars * 64 / 2;
+        DC_FlushRange(console->font.gfx, size);
+        dmaCopy(console->font.gfx, console->fontBgGfx, size);
     }
     else if (console->font.bpp == 8)
     {
-        if (console->font.gfx)
-        {
-            size_t size = console->font.numChars * 64;
-            DC_FlushRange(console->font.gfx, size);
-            dmaCopy(console->font.gfx, console->fontBgGfx, size);
-        }
+        size_t size = console->font.numChars * 64;
+        DC_FlushRange(console->font.gfx, size);
+        dmaCopy(console->font.gfx, console->fontBgGfx, size);
 
         console->fontCurPal = 0;
     }
 
+    // Palette graphics are optional. 1 BPP and 4 BPP fonts can use the 16
+    // default palettes loaded by this function.
     if (console->font.pal)
     {
         // Use user-provided palette
