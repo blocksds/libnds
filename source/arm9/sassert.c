@@ -24,8 +24,13 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
 
     consoleDemoInit();
 
-    printf("\x1b[43mAssertion!\n\n" // Print in yellow
-           "\x1b[39mFile: \n"       // Print in default color
+    consoleSetColor(NULL, CONSOLE_YELLOW, 1);
+
+    printf("Assertion!\n\n");
+
+    consoleSetColor(NULL, CONSOLE_DEFAULT, 1);
+
+    printf("File: \n"
            "%s\n\n"                 // Print filename
            "Line: %d\n\n"           // Print line number
            "Condition:\n"
@@ -37,7 +42,8 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
     vprintf(format, ap);
     va_end(ap);
 
-    printf("\x1b[23;0HPress SELECT+START to exit");
+    consoleSetCursor(NULL, 0, 23);
+    printf("Press SELECT+START to exit");
 
     while (1)
     {
@@ -52,7 +58,8 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
     // be seen by the user because exit() is called right afterwards. It will
     // only be seen if exit() hangs, which is not its normal behaviour (it
     // should power off the NDS if it fails to exit to the loader).
-    printf("\x1b[23;0HFailed to exit            ");
+    consoleSetCursor(NULL, 0, 23);
+    printf("Failed to exit            ");
 
     // Return an error code to the loader
     exit(-1);

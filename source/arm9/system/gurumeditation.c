@@ -233,7 +233,8 @@ void guruMeditationDump(void)
     BG_PALETTE_SUB[0] = RGB15(31, 0, 0);
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
-    printf("\x1b[5CGuru Meditation Error!\n");
+    consoleSetCursor(NULL, 5, 0);
+    printf("Guru Meditation Error!\n");
 
     // The current CPU mode specifies whether the exception was caused by a data
     // abort or an undefined instruction.
@@ -311,8 +312,8 @@ void guruMeditationDump(void)
     u32 *stack = (u32 *)exceptionRegisters[13];
     for (int i = 0; i < 10; i++)
     {
-        printf("\x1b[%d;2H%08lX:  %08lX %08lX", i + 14, (u32)&stack[i * 2], stack[i * 2],
-               stack[(i * 2) + 1]);
+        consoleSetCursor(NULL, 2, i + 14);
+        printf("%08lX:  %08lX %08lX", (u32)&stack[i * 2], stack[i * 2], stack[(i * 2) + 1]);
     }
 }
 
