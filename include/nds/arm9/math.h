@@ -318,7 +318,7 @@ static inline int32_t mod64_result(void)
 
 /// Integer 64 bit modulo.
 ///
-/// @param numerator
+/// @param num
 ///     64 bit numerator.
 /// @param den
 ///     32 bit denominator.

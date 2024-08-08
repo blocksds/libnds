@@ -49,14 +49,23 @@ typedef struct
 
 /// Read a complete, raw touch measurement into the provided buffer.
 ///
+/// @param data
+///     Struct to hold the read data.
+///
 /// @return
 ///     True if the read is successful, false otherwise.
 bool touchReadData(touchRawArray *data);
 
 /// Read a touch X/Y position into the provided buffer.
+///
+/// @param touchPos
+///     Struct to hold the read data.
 void touchReadXY(touchPosition *touchPos);
 
-/// Returns true if the screen is currently being touched.
+/// Checks if the screen is currently being touched.
+///
+/// @return
+///     If the pen is down it returns true.
 bool touchPenDown(void);
 
 #ifdef __cplusplus

@@ -24,17 +24,22 @@ extern "C" {
 #include <nds/system.h>
 #include <nds/touch.h>
 
+/// Determine if the CDC is available or not.
+///
+/// @return
+///     If the CDC is available, it returns true.
 static inline bool cdcIsAvailable(void)
 {
     return isDSiMode() && (__DSiHeader->appflags & 0x01);
 }
 
+/// Devices that can be controled with the CDC
 enum cdcBanks
 {
     CDC_CONTROL     = 0x00, ///< Chip control
     CDC_SOUND       = 0x01, ///< ADC/DAC control
     CDC_TOUCHCNT    = 0x03, ///< TSC control
-    CDC_TOUCHDATA    = 0xFC, ///< TSC data buffer
+    CDC_TOUCHDATA   = 0xFC, ///< TSC data buffer
 };
 
 // TODO: These lists are incomplete.
@@ -216,9 +221,18 @@ void cdcWriteReg24(u8 bank, u8 reg, u32 value);
 void cdcTouchInit(void);
 
 /// Check if the DSi CODEC is registering pen input.
+///
+/// @return
+///     If the pen is down, it returns true.
 bool cdcTouchPenDown(void);
 
 /// Read raw touch data from the DSi CODEC.
+///
+/// @param data
+///     Struct to hold the read data.
+///
+/// @return
+///     If there is valid data, true. Otherwise, false.
 bool cdcTouchReadData(touchRawArray *data);
 
 #ifdef __cplusplus

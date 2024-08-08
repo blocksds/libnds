@@ -329,9 +329,23 @@ void installSystemFIFO(void);
 int sleepEnabled(void);
 
 /// Write to a power management register.
+///
+/// @param reg
+///     Register address.
+/// @param command
+///     Command to send to the register.
+///
+/// @return
+///     Value returned from the command/value exchange.
 int writePowerManagement(int reg, int command);
 
 /// Read from a power management register.
+///
+/// @param reg
+///     The register to read from.
+///
+/// @return
+///     The value read from the register.
 static inline int readPowerManagement(int reg)
 {
     return writePowerManagement(reg | PM_READ_REGISTER, 0);
@@ -349,8 +363,12 @@ static inline void powerOff(uint32_t bits)
 
 /// Read user settings/personal data from firmware flash to a shared memory
 /// location.
+///
+/// @return
+///     It returns true on success, false on error.
 bool readUserSettings(void);
 
+/// This function shutds down the console.
 void systemShutDown(void);
 
 #endif // ARM7

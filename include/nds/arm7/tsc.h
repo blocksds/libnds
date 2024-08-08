@@ -39,6 +39,9 @@ extern "C" {
 #define TSC_MEASURE_TEMP2       (TSC_START | TSC_CHANNEL(7) | TSC_CONVERT_12BIT | TSC_MODE_SER)
 
 /// Check if the NDS-mode TSC is registering pen input.
+///
+/// @return
+///     Returns true if the TSC registers that the pen is down.
 static inline bool tscTouchPenDown(void)
 {
     return !(REG_KEYXY & KEYXY_TOUCH);
@@ -64,6 +67,12 @@ u16 tscRead(u32 command);
 void tscMeasure(u32 command, u16 *buffer, u32 count);
 
 /// Read raw touch data from the NDS-mode TSC.
+///
+/// @param data
+///     Struct to hold the read data.
+///
+/// @return
+///     On success, true. On failure, false.
 bool tscTouchReadData(touchRawArray *data);
 
 /// Read temperature from the NDS-mode TSC.
