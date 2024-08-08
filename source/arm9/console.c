@@ -145,7 +145,7 @@ static void consoleClearLine(char mode)
 
             currentConsole->cursorX = 0;
 
-            while (i++ < ((currentConsole->windowWidth - colTemp) - 2))
+            while (i++ < (currentConsole->windowWidth - colTemp))
                 consolePrintChar(' ');
 
             currentConsole->cursorX = colTemp;
