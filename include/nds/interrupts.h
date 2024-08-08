@@ -77,7 +77,7 @@ typedef uint32_t IRQ_MASK;
 typedef uint32_t IRQ_MASKSAUX;
 #endif
 
-/// Returns the mask for a given timer.
+/// Returns the interrupt mask for a given timer.
 ///
 /// @param n
 ///     Timer index.
@@ -86,32 +86,57 @@ typedef uint32_t IRQ_MASKSAUX;
 ///     Bitmask.
 #define IRQ_TIMER(n)    (1 << ((n) + 3))
 
+/// Returns the interrupt mask for a given DMA channel.
+///
+/// @param n
+///     DMA channel.
+///
+/// @return
+///     Bitmask.
 #define IRQ_DMA(n)      (1 << ((n) + 8))
+
+/// Returns the interrupt mask for a given NDMA channel (DSi only).
+///
+/// @param n
+///     NDMA channel.
+///
+/// @return
+///     Bitmask.
 #define IRQ_NDMA(n)     (1 << ((n) + 28))
 
 /// Maximum number of interrupts.
 #define MAX_INTERRUPTS      32
+
 #ifdef ARM7
+/// Maximum number of ARM7 interrupts in DSi mode (REG_AUXIE and REG_AUXIF).
 #define MAX_INTERRUPTS_AUX  15
 #endif
 
-/// Interrupt Enable Register.
+/// Interrupt Enable register.
 ///
 /// This is the activation mask for the internal interrupts. Unless the
 /// corresponding bit is set, the IRQ will be masked out.
 #define REG_IE      (*(vuint32 *)0x04000210)
-#ifdef ARM7
-#define REG_AUXIE   (*(vuint32 *)0x04000218)
-#endif
 
-/// Interrupt Flag Register.
+/// Interrupt Flag register.
 ///
 /// Since there is only one hardware interrupt vector, the IF register contains
 /// flags to indicate when a particular of interrupt has occured. To acknowledge
 /// processing interrupts, set IF to the value of the interrupt handled.
 #define REG_IF      (*(vuint32 *)0x04000214)
+
 #ifdef ARM7
+
+/// Auxiliary Interrupt Enable register.
+///
+/// Like REG_IE, but only available in the ARM7 in DSi mode.
+#define REG_AUXIE   (*(vuint32 *)0x04000218)
+
+/// Auxiliary Interrupt Flag register.
+///
+/// Like REG_IF, but only available in the ARM7 in DSi mode.
 #define REG_AUXIF   (*(vuint32 *)0x0400021C)
+
 #endif
 
 /// Interrupt Master Enable Register.
@@ -131,8 +156,13 @@ extern VoidFn  __irq_vector[];
 extern vuint32 __irq_flags[];
 extern vuint32 __irq_flagsaux[];
 
+/// BIOS register used by swiIntrWait() and swiWaitForVBlank().
 #define INTR_WAIT_FLAGS     *(__irq_flags)
+
+/// BIOS register used by swiIntrWait() in the ARM7 in DSi mode.
 #define INTR_WAIT_FLAGSAUX  *(__irq_flagsaux)
+
+/// BIOS register that contains the address of the global interrupt handler.
 #define IRQ_HANDLER         *(__irq_vector)
 
 /// Initialise the libnds interrupt system.
@@ -235,6 +265,19 @@ void swiWaitForVBlank(void);
 ///     The previously set callback
 VoidFn setPowerButtonCB(VoidFn CB);
 
+/// Disable interrupts by setting IME to 0.
+///
+/// This is meant to be used with leaveCriticalSection():
+/// ````
+/// int oldIME = enterCriticalSection();
+///
+/// // Your time-critical code goes here
+///
+/// leaveCriticalSection(oldIME);
+/// ````
+///
+/// @return
+///     Old value of IME.
 static inline int enterCriticalSection(void)
 {
     int oldIME = REG_IME;
@@ -242,6 +285,10 @@ static inline int enterCriticalSection(void)
     return oldIME;
 }
 
+/// Leaves a critical section by restoring IME to its previous value.
+///
+/// @param oldIME
+///     Value obtained from enterCriticalSection().
 static inline void leaveCriticalSection(int oldIME)
 {
     REG_IME = oldIME;
