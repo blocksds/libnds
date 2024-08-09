@@ -30,7 +30,7 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
 
     consoleSetColor(NULL, CONSOLE_DEFAULT);
 
-    printf("File: \n"
+    printf("File:\n"
            "%s\n\n"                 // Print filename
            "Line: %d\n\n"           // Print line number
            "Condition:\n"
