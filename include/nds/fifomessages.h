@@ -20,6 +20,8 @@ typedef enum
     SOUND_PLAY_MESSAGE = 0x1234,
     SOUND_PSG_MESSAGE,
     SOUND_NOISE_MESSAGE,
+    SOUND_CAPTURE_START,
+    SOUND_CAPTURE_STOP,
     MIC_RECORD_MESSAGE,
     MIC_BUFFER_FULL_MESSAGE,
     SYS_INPUT_MESSAGE,
@@ -60,6 +62,17 @@ typedef struct FifoMessage
             u8 pan;
             s8 channel;
         } SoundPsg;
+
+        struct
+        {
+            void *buffer;
+            u16 bufferLen; // In words
+            u8 sndcapChannel;
+            u8 addCapToChannel; // Direct / add to channel N
+            u8 sourceIsMixer;   // Mixer / channel N
+            u8 repeat;
+            u8 format;
+        } SoundCaptureStart;
 
         struct
         {

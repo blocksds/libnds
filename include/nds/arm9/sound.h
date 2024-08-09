@@ -31,6 +31,13 @@ typedef enum
     SoundFormat_ADPCM = 2  ///< IMA ADPCM compressed audio
 } SoundFormat;
 
+/// Sound formats used by the audio capture unit
+typedef enum
+{
+    SoundCaptureFormat_16Bit = 0, ///< 16-bit PCM
+    SoundCaptureFormat_8Bit = 1,  ///< 8-bit PCM
+} SoundCaptureFormat;
+
 /// Microphone recording formats DS
 typedef enum
 {
@@ -50,7 +57,6 @@ typedef enum
     DutyCycle_75 = 5, ///< 75.0% duty cycle
     DutyCycle_87 = 6  ///< 87.5% duty cycle
 } DutyCycle;
-
 
 /// Enables Sound on the DS.
 ///
@@ -256,6 +262,52 @@ void soundSetPan(int soundId, u8 pan);
 /// @param freq
 ///     The frequency in Hz.
 void soundSetFreq(int soundId, u16 freq);
+
+/// This starts a sound capture channel.
+///
+/// Audio capture channel 0 requires the frequency of sound channel 1 to be set
+/// with soundSetFreq(), for example. For audio capture channel 1, you need to
+/// do the same to sound channel 3. The sample rate of the capture circuit
+/// matches the one of its corresponding sound channel because the channels are
+/// the ones that can output the captured audio.
+///
+/// @param buffer
+///     Buffer to store the captured audio.
+/// @param bufferLen
+///     Size of the buffer in words. A value of 0 will be treated as 1.
+/// @param sndcapChannel
+///     The audio capture channel to use.
+/// @param addCapToChannel
+///     For audio capture channel 0:
+///     - If false, nothing special is done with the output of sound channel 1.
+///     - If true, the output of sound channel 1 is added to sound channel 0.
+///     For audio capture channel 1:
+///     - If false, nothing special is done with the output of sound channel 3.
+///     - If true, the output of sound channel 3 is added to sound channel 2.
+/// @param sourceIsMixer
+///     For audio capture channel 0:
+///     - If true, the capture source is the output of the left mixer.
+///     - If false, the capture source is sound channel 0.
+///     For audio capture channel 1:
+///     - If true, the capture source is the output of the right mixer.
+///     - If false, the capture source is sound channel 2.
+/// @param repeat
+///     If true, the capture will continue even after the buffer is full (it
+///     will go back to the start).
+/// @param format
+///     The audio format that will be used to store data in the provided buffer.
+///
+/// @returns
+///     It returns the capture channel index on success, -1 on error.
+int soundCaptureStart(void *buffer, u16 bufferLen, int sndcapChannel,
+                      bool addCapToChannel, bool sourceIsMixer, bool repeat,
+                      SoundCaptureFormat format);
+
+/// This stops a sound capture channel.
+///
+/// @param sndcapChannel
+///     The channel to stop.
+void soundCaptureStop(int sndcapChannel);
 
 /// Starts a microphone recording to a double buffer specified by buffer.
 ///

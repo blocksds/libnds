@@ -62,6 +62,23 @@ extern "C" {
 #define REG_SNDCAP0CNT      (*(vu8 *)0x04000508)
 #define REG_SNDCAP1CNT      (*(vu8 *)0x04000509)
 
+#define SND0CAPCNT_CH1_OUT_DIRECT       (0 << 0)
+#define SND0CAPCNT_CH1_OUT_ADD_TO_CH0   (1 << 0)
+#define SND0CAPCNT_SOURCE_LEFT_MIXER    (0 << 1)
+#define SND0CAPCNT_SOURCE_CH0           (1 << 1)
+
+#define SND1CAPCNT_CH3_OUT_DIRECT       (0 << 0)
+#define SND1CAPCNT_CH3_OUT_ADD_TO_CH2   (1 << 0)
+#define SND1CAPCNT_SOURCE_RIGHT_MIXER   (0 << 1)
+#define SND1CAPCNT_SOURCE_CH2           (1 << 1)
+
+#define SNDCAPCNT_REPEAT                (0 << 2)
+#define SNDCAPCNT_ONESHOT               (1 << 2)
+#define SNDCAPCNT_FORMAT_16BIT          (0 << 3)
+#define SNDCAPCNT_FORMAT_8BIT           (1 << 3)
+#define SNDCAPCNT_STOP                  (0 << 7)
+#define SNDCAPCNT_START_BUSY            (1 << 7)
+
 // The destination must be word-aligned, and the sizes are in words
 #define REG_SNDCAP0DAD      (*(vu32 *)0x04000510)
 #define REG_SNDCAP0LEN      (*(vu16 *)0x04000514)
@@ -175,7 +192,6 @@ static inline void micOff(void)
 {
     micSetAmp(PM_AMP_OFF, 0);
 }
-
 
 /// Set extended sound hardware frequency.
 ///

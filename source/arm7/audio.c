@@ -127,6 +127,44 @@ void soundDataHandler(int bytes, void *user_data)
             SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPsg.freq);
         }
     }
+    else if (msg.type == SOUND_CAPTURE_START)
+    {
+        u8 value = SNDCAPCNT_START_BUSY;
+
+        if (msg.SoundCaptureStart.repeat == 0)
+            value |= SNDCAPCNT_ONESHOT;
+        if (msg.SoundCaptureStart.format)
+            value |= SNDCAPCNT_FORMAT_8BIT;
+
+        if (msg.SoundCaptureStart.sndcapChannel == 0)
+        {
+            REG_SNDCAP0DAD = (u32)msg.SoundCaptureStart.buffer;
+            REG_SNDCAP0LEN = msg.SoundCaptureStart.bufferLen;
+
+            if (msg.SoundCaptureStart.addCapToChannel)
+                value |= SND0CAPCNT_CH1_OUT_ADD_TO_CH0;
+            if (msg.SoundCaptureStart.sourceIsMixer == 0)
+                value |= SND0CAPCNT_SOURCE_CH0;
+
+            REG_SNDCAP0CNT = value;
+
+            channel = 0;
+        }
+        else if (msg.SoundCaptureStart.sndcapChannel == 1)
+        {
+            REG_SNDCAP1DAD = (u32)msg.SoundCaptureStart.buffer;
+            REG_SNDCAP1LEN = msg.SoundCaptureStart.bufferLen;
+
+            if (msg.SoundCaptureStart.addCapToChannel)
+                value |= SND1CAPCNT_CH3_OUT_ADD_TO_CH2;
+            if (msg.SoundCaptureStart.sourceIsMixer == 0)
+                value |= SND1CAPCNT_SOURCE_CH2;
+
+            REG_SNDCAP1CNT = value;
+
+            channel = 1;
+        }
+    }
     else if (msg.type == MIC_RECORD_MESSAGE)
     {
         micStartRecording(msg.MicRecord.buffer, msg.MicRecord.bufferLength,
@@ -221,6 +259,13 @@ void soundCommandHandler(u32 command, void *userdata)
 
         case SOUND_RESUME:
             SCHANNEL_CR(channel) |= SCHANNEL_ENABLE;
+            break;
+
+        case SOUND_CAPTURE_STOP:
+            if (channel == 0)
+                REG_SNDCAP0CNT = SNDCAPCNT_STOP;
+            else if (channel == 1)
+                REG_SNDCAP1CNT = SNDCAPCNT_STOP;
             break;
 
         case MIC_SET_POWER_ON:

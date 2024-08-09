@@ -131,6 +131,37 @@ void soundSetWaveDuty(int soundId, DutyCycle cycle)
     fifoSendValue32(FIFO_SOUND, SOUND_SET_WAVEDUTY | (soundId << 16) | cycle);
 }
 
+int soundCaptureStart(void *buffer, u16 bufferLen, int sndcapChannel,
+                      bool addCapToChannel, bool sourceIsMixer, bool repeat,
+                      SoundCaptureFormat format)
+{
+    FifoMessage msg;
+
+    msg.type = SOUND_CAPTURE_START;
+    msg.SoundCaptureStart.buffer = buffer;
+    msg.SoundCaptureStart.bufferLen = bufferLen;
+    msg.SoundCaptureStart.sndcapChannel = sndcapChannel;
+    msg.SoundCaptureStart.addCapToChannel = addCapToChannel;
+    msg.SoundCaptureStart.sourceIsMixer = sourceIsMixer;
+    msg.SoundCaptureStart.repeat = repeat;
+    msg.SoundCaptureStart.format = format;
+
+    fifoMutexAcquire(FIFO_SOUND);
+
+    fifoSendDatamsg(FIFO_SOUND, sizeof(msg), (u8 *)&msg);
+    fifoWaitValue32Async(FIFO_SOUND);
+    int result = fifoGetValue32(FIFO_SOUND);
+
+    fifoMutexRelease(FIFO_SOUND);
+
+    return result;
+}
+
+void soundCaptureStop(int sndcapChannel)
+{
+    fifoSendValue32(FIFO_SOUND, SOUND_CAPTURE_STOP | (sndcapChannel << 16));
+}
+
 MicCallback micCallback = 0;
 
 void micBufferHandler(int bytes, void *user_data)
