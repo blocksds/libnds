@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2024 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_ARM7_CAMERA_H__
 #define LIBNDS_NDS_ARM7_CAMERA_H__
@@ -8,6 +9,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// @file nds/arm7/camera.h
+///
+/// @brief Low-level camera functions for the ARM7.
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -39,7 +44,7 @@ void aptCameraDeinit(u8 device);
 void aptCameraActivate(u8 device);
 void aptCameraDeactivate(u8 device);
 
-// Camera FIFO handler
+/// Camera FIFO handler
 void installCameraFIFO(void);
 
 #ifdef __cplusplus

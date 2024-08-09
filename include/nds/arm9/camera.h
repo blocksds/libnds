@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2024 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_ARM9_CAMERA_H__
 #define LIBNDS_NDS_ARM9_CAMERA_H__
@@ -8,6 +9,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// @file nds/arm9/camera.h
+///
+/// @brief Camera functions for the ARM9.
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -43,25 +48,67 @@ extern "C" {
 
 #define CAMERA_CMD_FIFO(command, arg) ((command) << 22 | (arg))
 
+/// Types of camera in a DSi
 typedef enum
 {
-    CAMERA_INNER = 0,
-    CAMERA_OUTER = 1,
-    CAMERA_NONE = 2
+    CAMERA_INNER = 0, ///< Internal camera (facing the player)
+    CAMERA_OUTER = 1, ///< External camera (facing away from the player)
+    CAMERA_NONE  = 2  ///< Don't select any camera.
 } CameraDevice;
 
 // High-level camera functions
 u8 cameraGetActive(void);
+
+/// Initializes the camera driver.
+///
+/// @return
+///     It returns true on success, false on failure.
 bool cameraInit(void);
+
+/// Deinitializes the camera driver.
+///
+/// @return
+///     It returns true on success, false on failure.
 bool cameraDeinit(void);
+
+/// Selects the active camera.
+///
+/// @param device
+///     Camera to use (internal or external).
+///
+/// @return
+///     It returns true on success, false on failure.
 bool cameraSelect(CameraDevice device);
+
+/// Starts a camera transfer using the specified NDMA channel.
+///
+/// To check if the transfer is finished, use ndmaBusy() and
+/// cameraTransferActive(). If either of them is busy, the transfer is in
+/// progress.
+///
+/// @param buffer
+///     Buffer where the captured image will be stored.
+/// @param captureMode
+///     Normally MCUREG_APT_SEQ_CMD_PREVIEW or MCUREG_APT_SEQ_CMD_CAPTURE.
+/// @param ndmaId
+///     NDMA channel to use (0 - 3).
+///
+/// @return
+///     It returns true on success, false on failure.
 bool cameraStartTransfer(u16 *buffer, u8 captureMode, u8 ndmaId);
 
+/// Stops a camera transfer.
+///
+/// Call this function after the NDMA transfer has ended.
 static inline void cameraStopTransfer(void)
 {
     REG_CAM_CNT &= ~CAM_CNT_TRANSFER_ENABLE;
 }
 
+/// Checks if a camera transfer is active.
+///
+/// @return
+///     Returns true if the transfer is active.
 static inline bool cameraTransferActive(void)
 {
     return REG_CAM_CNT >> 15;

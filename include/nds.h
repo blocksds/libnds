@@ -67,6 +67,10 @@
 /// - @ref nds/touch.h "Touch screen definitions"
 /// - @ref nds/input.h "Input definitions"
 ///
+/// @section dsi_camera DSi Camera
+/// - @ref nds/arm9/camera.h "High-level ARM9 DSi camera functions"
+/// - @ref nds/arm7/camera.h "Low-level ARM7 DSi camera functions"
+///
 /// @section dsp_api DSi Teak DSP Utilities
 /// - @ref nds/arm9/teak/dsp.h "DSP general utilities"
 /// - @ref nds/arm9/teak/fifo.h "DSP <-> ARM9 FIFO transfer utilities"
