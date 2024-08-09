@@ -62,11 +62,18 @@ extern "C" {
 #define REG_SNDCAP0CNT      (*(vu8 *)0x04000508)
 #define REG_SNDCAP1CNT      (*(vu8 *)0x04000509)
 
+// The destination must be word-aligned, and the sizes are in words
 #define REG_SNDCAP0DAD      (*(vu32 *)0x04000510)
 #define REG_SNDCAP0LEN      (*(vu16 *)0x04000514)
 #define REG_SNDCAP1DAD      (*(vu32 *)0x04000518)
 #define REG_SNDCAP1LEN      (*(vu16 *)0x0400051C)
 
+/// Callback called whenever one buffer used micStartRecording() is full.
+///
+/// @param completedBuffer
+///     Pointer to the buffer that has been filled.
+/// @param length
+///     Size of the buffer in bytes.
 typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 
 // DSi Registers
