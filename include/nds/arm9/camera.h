@@ -19,11 +19,11 @@ extern "C" {
 
 // ARM9 camera registers
 
-#define REG_CAM_MCNT                *(vu16 *)0x4004200
-#define REG_CAM_CNT                 *(vu16 *)0x4004202
-#define REG_CAM_DATA                *(vu32 *)0x4004204
-#define REG_CAM_SOFS                *(vu32 *)0x4004210
-#define REG_CAM_EOFS                *(vu32 *)0x4004214
+#define REG_CAM_MCNT                (*(vu16 *)0x4004200)
+#define REG_CAM_CNT                 (*(vu16 *)0x4004202)
+#define REG_CAM_DATA                (*(vu32 *)0x4004204)
+#define REG_CAM_SOFS                (*(vu32 *)0x4004210)
+#define REG_CAM_EOFS                (*(vu32 *)0x4004214)
 
 #define CAM_MCNT_RESET_ENABLE        (0)
 #define CAM_MCNT_RESET_DISABLE       BIT(1)
@@ -111,7 +111,10 @@ static inline void cameraStopTransfer(void)
 ///     Returns true if the transfer is active.
 static inline bool cameraTransferActive(void)
 {
-    return REG_CAM_CNT >> 15;
+    if (REG_CAM_CNT & CAM_CNT_TRANSFER_ENABLE)
+        return true;
+
+    return false;
 }
 
 // Low-level I2C/MCU functions
