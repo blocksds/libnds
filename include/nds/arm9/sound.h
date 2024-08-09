@@ -62,6 +62,9 @@ void soundDisable(void);
 
 /// Plays a sound in the specified format at the specified frequency.
 ///
+/// @param channel
+///     Channel to be used for this sound. If -1 is used, libnds will select a
+///     free channel and use it.
 /// @param data
 ///     A pointer to the sound data.
 /// @param format
@@ -85,10 +88,68 @@ void soundDisable(void);
 ///     An integer id coresponding to the channel of playback. This value can be
 ///     used to pause, resume, or kill the sound as well as adjust volume, pan,
 ///     and frequency
-int soundPlaySample(const void *data, SoundFormat format, u32 dataSize, u16 freq,
-                    u8 volume, u8 pan, bool loop, u16 loopPoint);
+int soundPlaySampleChannel(int channel, const void *data, SoundFormat format,
+                           u32 dataSize, u16 freq, u8 volume, u8 pan,
+                           bool loop, u16 loopPoint);
+
+/// Plays a sound in the specified format at the specified frequency.
+///
+/// libnds will select a free channel to play the sound.
+///
+/// @param data
+///     A pointer to the sound data.
+/// @param format
+///     The format of the data (only 16-bit and 8-bit pcm and ADPCM formats are
+///     supported by this function).
+/// @param dataSize
+///     The size in bytes of the sound data.
+/// @param freq
+///     The frequency in Hz of the sample.
+/// @param volume
+///     The channel volume. 0 to 127 (min to max).
+/// @param pan
+///     The channel pan 0 to 127 (left to right with 64 being centered).
+/// @param loop
+///     If true, the sample will loop playing once then repeating starting at
+///     the offset stored in loopPoint.
+/// @param loopPoint
+///     The offset for the sample loop to restart when repeating.
+///
+/// @return
+///     An integer id coresponding to the channel of playback. This value can be
+///     used to pause, resume, or kill the sound as well as adjust volume, pan,
+///     and frequency
+static inline int soundPlaySample(const void *data, SoundFormat format,
+                                  u32 dataSize, u16 freq, u8 volume, u8 pan,
+                                  bool loop, u16 loopPoint)
+{
+    return soundPlaySampleChannel(-1, data, format, dataSize, freq, volume, pan,
+                                  loop, loopPoint);
+}
 
 /// Pause a tone with the specified properties.
+///
+/// @param channel
+///     Channel to be used for this sound. If -1 is used, libnds will select a
+///     free channel and use it.
+/// @param cycle
+///     The DutyCycle of the sound wave.
+/// @param freq
+///     The frequency in Hz of the sample.
+/// @param volume
+///     The channel volume.  0 to 127 (min to max)
+/// @param pan
+///     The channel pan 0 to 127 (left to right with 64 being centered).
+///
+/// @return
+///     An integer id coresponding to the channel of playback. This value can be
+///     used to pause, resume, or kill the sound as well as adjust volume, pan,
+///     and frequency.
+int soundPlayPSGChannel(int channel, DutyCycle cycle, u16 freq, u8 volume, u8 pan);
+
+/// Pause a tone with the specified properties.
+///
+/// libnds will select a free channel to play the sound.
 ///
 /// @param cycle
 ///     The DutyCycle of the sound wave.
@@ -103,9 +164,32 @@ int soundPlaySample(const void *data, SoundFormat format, u32 dataSize, u16 freq
 ///     An integer id coresponding to the channel of playback. This value can be
 ///     used to pause, resume, or kill the sound as well as adjust volume, pan,
 ///     and frequency.
-int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan);
+static inline int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan)
+{
+    return soundPlayPSGChannel(-1, cycle, freq, volume, pan);
+}
 
 /// Plays white noise with the specified parameters.
+///
+/// @param channel
+///     Channel to be used for this sound. If -1 is used, libnds will select a
+///     free channel and use it.
+/// @param freq
+///     The frequency in Hz of the sample.
+/// @param volume
+///     The channel volume. 0 to 127 (min to max).
+/// @param pan
+///     The channel pan 0 to 127 (left to right with 64 being centered).
+///
+/// @return
+///     An integer id coresponding to the channel of playback. This value can be
+///     used to pause, resume, or kill the sound as well as adjust volume, pan,
+///     and frequency.
+int soundPlayNoiseChannel(int channel, u16 freq, u8 volume, u8 pan);
+
+/// Plays white noise with the specified parameters.
+///
+/// libnds will select a free channel to play the sound.
 ///
 /// @param freq
 ///     The frequency in Hz of the sample.
@@ -118,7 +202,10 @@ int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan);
 ///     An integer id coresponding to the channel of playback. This value can be
 ///     used to pause, resume, or kill the sound as well as adjust volume, pan,
 ///     and frequency.
-int soundPlayNoise(u16 freq, u8 volume, u8 pan);
+static inline int soundPlayNoise(u16 freq, u8 volume, u8 pan)
+{
+    return soundPlayNoiseChannel(-1, freq, volume, pan);
+}
 
 /// Pause the sound specified by soundId.
 ///

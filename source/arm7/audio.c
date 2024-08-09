@@ -66,7 +66,15 @@ void soundDataHandler(int bytes, void *user_data)
 
     if (msg.type == SOUND_PLAY_MESSAGE)
     {
-        channel = getFreeChannel();
+        channel = msg.SoundPlay.channel;
+
+        // If the user wants libnds to look for a free channel
+        if (channel < 0)
+            channel = getFreeChannel();
+
+        // If the user-specified channel is invalid or all channels are busy
+        if (channel > 15)
+            channel = -1;
 
         if (channel >= 0)
         {
@@ -82,7 +90,15 @@ void soundDataHandler(int bytes, void *user_data)
     }
     else if (msg.type == SOUND_PSG_MESSAGE)
     {
-        channel = getFreePSGChannel();
+        channel = msg.SoundPsg.channel;
+
+        // If the user wants libnds to look for a free channel
+        if (channel < 0)
+            channel = getFreePSGChannel();
+
+        // If the user-specified channel is invalid or all channels are busy
+        if (channel < 8 || channel > 13)
+            channel = -1;
 
         if (channel >= 0)
         {
@@ -94,7 +110,15 @@ void soundDataHandler(int bytes, void *user_data)
     }
     else if (msg.type == SOUND_NOISE_MESSAGE)
     {
-        channel = getFreeNoiseChannel();
+        channel = msg.SoundPsg.channel;
+
+        // If the user wants libnds to look for a free channel
+        if (channel < 0)
+            channel = getFreeNoiseChannel();
+
+        // If the user-specified channel is invalid or all channels are busy
+        if (channel < 14 || channel > 15)
+            channel = -1;
 
         if (channel >= 0)
         {

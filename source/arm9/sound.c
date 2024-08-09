@@ -19,15 +19,18 @@ void soundEnable(void)
 {
     fifoSendValue32(FIFO_SOUND, SOUND_MASTER_ENABLE);
 }
+
 void soundDisable(void)
 {
     fifoSendValue32(FIFO_SOUND, SOUND_MASTER_DISABLE);
 }
-int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan)
+
+int soundPlayPSGChannel(int channel, DutyCycle cycle, u16 freq, u8 volume, u8 pan)
 {
     FifoMessage msg;
 
     msg.type = SOUND_PSG_MESSAGE;
+    msg.SoundPsg.channel = channel;
     msg.SoundPsg.dutyCycle = cycle;
     msg.SoundPsg.freq = freq;
     msg.SoundPsg.volume = volume;
@@ -44,11 +47,12 @@ int soundPlayPSG(DutyCycle cycle, u16 freq, u8 volume, u8 pan)
     return result;
 }
 
-int soundPlayNoise(u16 freq, u8 volume, u8 pan)
+int soundPlayNoiseChannel(int channel, u16 freq, u8 volume, u8 pan)
 {
     FifoMessage msg;
 
     msg.type = SOUND_NOISE_MESSAGE;
+    msg.SoundPsg.channel = channel;
     msg.SoundPsg.freq = freq;
     msg.SoundPsg.volume = volume;
     msg.SoundPsg.pan = pan;
@@ -64,12 +68,14 @@ int soundPlayNoise(u16 freq, u8 volume, u8 pan)
     return result;
 }
 
-int soundPlaySample(const void *data, SoundFormat format, u32 dataSize, u16 freq,
-                    u8 volume, u8 pan, bool loop, u16 loopPoint)
+int soundPlaySampleChannel(int channel, const void *data, SoundFormat format,
+                           u32 dataSize, u16 freq, u8 volume, u8 pan,
+                           bool loop, u16 loopPoint)
 {
     FifoMessage msg;
 
     msg.type = SOUND_PLAY_MESSAGE;
+    msg.SoundPlay.channel = channel;
     msg.SoundPlay.data = data;
     msg.SoundPlay.freq = freq;
     msg.SoundPlay.volume = volume;
