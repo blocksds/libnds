@@ -269,7 +269,8 @@ void soundSetFreq(int soundId, u16 freq);
 /// with soundSetFreq(), for example. For audio capture channel 1, you need to
 /// do the same to sound channel 3. The sample rate of the capture circuit
 /// matches the one of its corresponding sound channel because the channels are
-/// the ones that can output the captured audio.
+/// the ones that can output the captured audio. Even if the channel is
+/// disabled, as long as the frequency is set, audio capture will work.
 ///
 /// @param buffer
 ///     Buffer to store the captured audio.
