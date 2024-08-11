@@ -25,4 +25,13 @@ typedef struct {
  */
 libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5]);
 
+// In the ARM7 we can't really print anything without adding a lot of additional
+// code, so just crash in a controlled way.
+__attribute__((always_inline, noreturn))
+THUMB_CODE static inline void libndsCrash(__attribute__((unused)) const char *message)
+{
+    asm volatile("udf" ::: "memory");
+    while (1);
+}
+
 #endif // ARM7_LIBNDS_INTERNAL_H__

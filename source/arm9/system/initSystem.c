@@ -7,6 +7,7 @@
 
 #include <time.h>
 
+#include <nds/arm9/exceptions.h>
 #include <nds/arm9/input.h>
 #include <nds/arm9/sprite.h>
 #include <nds/arm9/video.h>
@@ -38,6 +39,13 @@ void __attribute__((weak)) initSystem(void)
         TIMER_CR(i) = 0;
         TIMER_DATA(i) = 0;
     }
+
+    // Setup exception handler
+#ifdef NDEBUG
+    releaseExceptionHandler();
+#else
+    defaultExceptionHandler();
+#endif
 
     // Clear video display registers
     dmaFillWords(0, (void *)0x04000000, 0x56);
