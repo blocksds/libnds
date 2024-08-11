@@ -230,7 +230,7 @@ void guruMeditationDump(void)
     consoleDemoInit();
 
     // White text on a red background
-    BG_PALETTE_SUB[0] = RGB15(31, 0, 0);
+    BG_PALETTE_SUB[0] = RGB15(15, 0, 0);
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     consoleSetCursor(NULL, 5, 0);
