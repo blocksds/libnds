@@ -31,7 +31,11 @@ extern "C" {
 bool nitroFSInit(const char *basepath);
 
 /// Exits NitroFS.
-void nitroFSExit(void);
+///
+/// @return
+///     It returns true on success, false on error. If NitroFS hadn't been
+///     initialized before, it will also return true.
+bool nitroFSExit(void);
 
 /// This function initializes a NitroFS lookup cache.
 ///

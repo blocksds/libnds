@@ -605,16 +605,22 @@ int nitrofs_fstat(int fd, struct stat *st)
 
 /// Initialization
 
-void nitroFSExit(void)
+bool nitroFSExit(void)
 {
-    if (nitrofs_local.fat_offset)
-    {
-        if (nitrofs_local.file)
-            fclose(nitrofs_local.file);
+    if (nitrofs_local.fat_offset == 0)
+        return true;
 
-        nitrofs_local.fnt_offset = 0;
-        nitrofs_local.fat_offset = 0;
+    if (nitrofs_local.file)
+    {
+        // TODO: Should we crash here if it fails? It could be leaving a file
+        // descriptor open forever.
+        if (fclose(nitrofs_local.file) != 0)
+            return false;
     }
+
+    nitrofs_local.fnt_offset = 0;
+    nitrofs_local.fat_offset = 0;
+    return true;
 }
 
 bool nitroFSInit(const char *basepath)
@@ -676,11 +682,17 @@ bool nitroFSInit(const char *basepath)
 
     // Initialize FAT offset, if valid; otherwise exit.
     if (nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0)
+    {
         nitrofs_local.fat_offset = nitrofs_offsets[2];
+    }
     else
     {
         if (nitrofs_local.file)
+        {
             fclose(nitrofs_local.file);
+            // TODO: Should we crash here if it fails? It could be leaving a
+            // file descriptor open forever.
+        }
 
         nitrofs_local.fnt_offset = 0;
         return false;
