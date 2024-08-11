@@ -252,7 +252,8 @@ GRFError grfLoadPathEx(const char *path, GRFHeader *header,
                                  palDst, palSize, mtilDst, mtilSize,
                                  mmapDst, mmapSize);
 
-    fclose(file);
+    if (fclose(file) != 0)
+        return GRF_FILE_NOT_CLOSED;
 
     return ret;
 }

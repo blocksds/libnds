@@ -55,11 +55,12 @@ typedef enum
     GRF_NULL_POINTER            = -1, ///< NULL pointer passed as argument
     GRF_FILE_NOT_OPENED         = -2, ///< Failed to open file with fopen()
     GRF_FILE_NOT_READ           = -3, ///< Failed to read file
-    GRF_INVALID_ID_RIFF         = -4, ///< Chunk ID "RIFF" not found
-    GRF_INVALID_ID_GRF          = -5, ///< Chunk ID "GRF " not found
-    GRF_INCONSISTENT_SIZES      = -6, ///< Sizes of "RIFF" and "GRF " don't match
-    GRF_NOT_ENOUGH_MEMORY       = -7, ///< Not enough memory for malloc()
-    GRF_UNKNOWN_COMPRESSION     = -8, ///< Unknown graphics compression format
+    GRF_FILE_NOT_CLOSED         = -4, ///< Failed to close file with fclose()
+    GRF_INVALID_ID_RIFF         = -5, ///< Chunk ID "RIFF" not found
+    GRF_INVALID_ID_GRF          = -6, ///< Chunk ID "GRF " not found
+    GRF_INCONSISTENT_SIZES      = -7, ///< Sizes of "RIFF" and "GRF " don't match
+    GRF_NOT_ENOUGH_MEMORY       = -8, ///< Not enough memory for malloc()
+    GRF_UNKNOWN_COMPRESSION     = -9, ///< Unknown graphics compression format
 } GRFError;
 
 /// From a GRF file in RAM, extract all data and allocate memory for it.
