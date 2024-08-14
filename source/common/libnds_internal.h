@@ -21,6 +21,7 @@ typedef struct __TransferRegion
     struct __bootstub *bootcode;
 } __TransferRegion, *__pTransferRegion;
 
+WARN_UNUSED_RESULT
 static inline __TransferRegion volatile *__transferRegion(void)
 {
     // The transfer region address needs to be in an uncached mirror of main RAM

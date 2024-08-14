@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+#include <nds/ndstypes.h>
+
 typedef struct MotionCalibration
 {
     short xoff, yoff, zoff, goff;
@@ -145,6 +147,7 @@ int motion_rotation(void);
 ///
 /// @return
 ///     The calibration settings.
+WARN_UNUSED_RESULT
 MotionCalibration *motion_get_calibration(void);
 
 /// This sets the calibration settings.
