@@ -640,20 +640,27 @@ bool nitroFSInit(const char *basepath)
     // Try to open the basepath file.
     if (basepath)
     {
-        fatInitDefault();
-        nitrofs_local.file = fopen(basepath, "r");
+        if (fatInitDefault())
+        {
+            nitrofs_local.file = fopen(basepath, "r");
 
-        // Initialize the FAT lookup cache for NitroFS files.
-        // NitroFS files inherently do a lot of seeking, so it's almost always
-        // beneficial. At the same time, for a defragmented drive, this should
-        // only occupy a few dozen bytes.
-        //
-        // FIXME: Move this to the DLDI driver space and remove the 2KB
-        // size limit.
-        if (!nitrofs_local.file)
-            basepath = NULL;
+            // Initialize the FAT lookup cache for NitroFS files.
+            //
+            // NitroFS files inherently do a lot of seeking, so it's almost
+            // always beneficial. At the same time, for a defragmented drive,
+            // this should only occupy a few dozen bytes.
+            //
+            // FIXME: Move this to the DLDI driver space and remove the 2KB
+            // size limit.
+            if (nitrofs_local.file == NULL)
+                basepath = NULL;
+            else
+                fatInitLookupCacheFile(nitrofs_local.file, 2048);
+        }
         else
-            fatInitLookupCacheFile(nitrofs_local.file, 2048);
+        {
+            basepath = NULL;
+        }
     }
 
     // Read FNT/FAT offset/size information.
