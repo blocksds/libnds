@@ -70,10 +70,9 @@ static inline void divf32_asynch(int32_t num, int32_t den)
 {
     REG_DIV_NUMER = ((int64_t)num) << 12;
     REG_DIV_DENOM_L = den;
+
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
-    {
         REG_DIVCNT = DIV_64_32;
-    }
 }
 
 /// Asynchronous fixed point divide result
@@ -124,10 +123,9 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 static inline void sqrtf32_asynch(int32_t a)
 {
     REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
+
     if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
-    {
         REG_SQRTCNT = SQRT_64;
-    }
 }
 
 /// Asynchronous fixed point sqrt result.
@@ -173,10 +171,9 @@ static inline void div32_asynch(int32_t num, int32_t den)
 {
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
+
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_32_32)
-    {
         REG_DIVCNT = DIV_32_32;
-    }
 }
 
 /// Asynchronous integer divide result.
@@ -215,10 +212,9 @@ static inline void mod32_asynch(int32_t num, int32_t den)
 {
     REG_DIV_NUMER_L = num;
     REG_DIV_DENOM_L = den;
+
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_32_32)
-    {
         REG_DIVCNT = DIV_32_32;
-    }
 }
 
 /// Asynchronous integer modulo result.
@@ -257,10 +253,9 @@ static inline void div64_asynch(int64_t num, int32_t den)
 {
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
+
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
-    {
         REG_DIVCNT = DIV_64_32;
-    }
 }
 
 /// Asynchronous integer 64 bit divide result.
@@ -299,10 +294,9 @@ static inline void mod64_asynch(int64_t num, int32_t den)
 {
     REG_DIV_NUMER = num;
     REG_DIV_DENOM_L = den;
+
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
-    {
         REG_DIVCNT = DIV_64_32;
-    }
 }
 
 /// Asynchronous integer 64 bit modulo result.
