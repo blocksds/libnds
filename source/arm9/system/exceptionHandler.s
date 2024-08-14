@@ -64,7 +64,7 @@ BEGIN_ASM_FUNC enterException
     ldr     r13, [r12, #(oldStack - exceptionRegisters)]
 
     // Return through BIOS
-    mov    pc, lr
+    mov     pc, lr
 
 
     .global exceptionC

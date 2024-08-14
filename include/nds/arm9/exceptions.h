@@ -46,8 +46,17 @@ void enterException(void);
 ///     Exception handler routine.
 void setExceptionHandler(VoidFn handler);
 
-/// Sets the default hardware exception handler.
+/// Sets the default debug hardware exception handler.
+///
+/// This handler prints a lot of information, like the state of the CPU
+/// registers when the CPU crashed.
 void defaultExceptionHandler(void);
+
+/// Sets the release hardware exception handler.
+///
+/// This is similar to defaultExceptionHandler(), but it only prints a minimal
+/// error message, and it uses a lot less code to do it.
+void releaseExceptionHandler(void);
 
 #ifdef __cplusplus
 }
