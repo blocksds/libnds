@@ -177,28 +177,78 @@ GRFError grfLoadMem(const void *src, GRFHeader *header,
                         palDst, palSize, NULL, NULL, NULL, NULL);
 }
 
-static void *grfReadAllFile(FILE *file)
+// Extracts a GRF item from a FILE pointer
+static GRFError grfExtractFile(FILE *file, size_t chunk_size,
+                               void **dst, size_t *sz)
 {
-    if (file == NULL)
-        return NULL;
+    if ((file == NULL) || (chunk_size == 0) || (dst == NULL))
+        return GRF_NULL_POINTER;
 
-    if (fseek(file, 0, SEEK_END) != 0)
-        return NULL;
+    // The header of this data is the header used for all GBA/NDS BIOS
+    // decompression routines. Uncompressed chunks also use the same format for
+    // consistency.
 
-    size_t size = ftell(file);
-    rewind(file);
+    uint32_t header;
 
-    char *buffer = malloc(size);
-    if (buffer == NULL)
-        return NULL;
+    if (fread(&header, sizeof(header), 1, file) != 1)
+        return GRF_FILE_NOT_READ;
 
-    if (fread(buffer, 1, size, file) != size)
+    uint32_t size = header >> 8;
+
+    // Allocate destination buffer
+    if (sz != NULL)
+        *sz = size;
+
+    // If the user has already provided a pointer, use it. If not, allocate mem
+    if (*dst == NULL)
     {
-        free(buffer);
-        return NULL;
+        *dst = malloc(size);
+        if (*dst == NULL)
+            return GRF_NOT_ENOUGH_MEMORY;
     }
 
-    return buffer;
+    if ((header & 0xF0) == 0x00)
+    {
+        // No compression. Read the data to the destination buffer
+        if (fread(*dst, 1, chunk_size - 4, file) != (chunk_size - 4))
+            return GRF_FILE_NOT_READ;
+
+        return GRF_NO_ERROR;
+    }
+
+    // Allocate temporary buffer to hold the compressed contents of the file
+
+    uint32_t *tmp = malloc(chunk_size);
+    if (tmp == NULL)
+        return GRF_NOT_ENOUGH_MEMORY;
+
+    // We have already read the header. Read the rest of the chunk.
+    *tmp = header;
+    if (fread(tmp + 1, 1, chunk_size - 4, file) != (chunk_size - 4))
+        return GRF_FILE_NOT_READ;
+
+    GRFError err = GRF_NO_ERROR;
+
+    switch (header & 0xF0)
+    {
+        case 0x10: // LZ77
+            decompress(tmp, *dst, LZ77Vram);
+            break;
+        case 0x20: // Huffman
+            decompress(tmp, *dst, HUFF);
+            break;
+        case 0x30: // RLE
+            decompress(tmp, *dst, RLEVram);
+            break;
+        default:
+            err = GRF_UNKNOWN_COMPRESSION;
+            break;
+    }
+
+    // Free the temporary buffer
+    free(tmp);
+
+    return err;
 }
 
 GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
@@ -211,17 +261,127 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
     if (file == NULL)
         return GRF_NULL_POINTER;
 
-    void *src = grfReadAllFile(file);
-    if (src == NULL)
+    RIFFChunk riff_chunk;
+
+    if (fread(&riff_chunk, sizeof(RIFFChunk), 1, file) != 1)
         return GRF_FILE_NOT_READ;
 
-    GRFError ret = grfLoadMemEx(src, header, gfxDst, gfxSize, mapDst, mapSize,
-                                palDst, palSize, mtilDst, mtilSize,
-                                mmapDst, mmapSize);
+    if (riff_chunk.id != ID_RIFF)
+        return GRF_INVALID_ID_RIFF;
 
-    free(src);
+    RIFFChunk grf_chunk;
 
-    return ret;
+    if (fread(&grf_chunk, sizeof(RIFFChunk), 1, file) != 1)
+        return GRF_FILE_NOT_READ;
+
+    if (grf_chunk.id != ID_GRF)
+        return GRF_INVALID_ID_GRF;
+
+    // Ensure that both sizes are consistent
+    if (riff_chunk.size != (grf_chunk.size + 8))
+        return GRF_INCONSISTENT_SIZES;
+
+    while (1)
+    {
+        RIFFChunk chunk;
+
+        // Try to read the ID and size of a chunk. If it fails, it could be that
+        // we have reached the end of the file. If so, exit without flagging an
+        // error.
+        if (fread(&chunk, sizeof(RIFFChunk), 1, file) != 1)
+        {
+            if (feof(file) != 0)
+                break;
+            else
+                return GRF_FILE_NOT_READ;
+        }
+
+        uint32_t id = chunk.id;
+        uint32_t size = chunk.size;
+
+        GRFError ret = GRF_NO_ERROR;
+
+        switch (id)
+        {
+            case ID_HDR:
+                if (size != sizeof(GRFHeader))
+                    return GRF_INCONSISTENT_SIZES;
+                if (fread(header, sizeof(GRFHeader), 1, file) != 1)
+                    return GRF_FILE_NOT_READ;
+                break;
+
+            case ID_GFX:
+                if (gfxDst)
+                {
+                    ret = grfExtractFile(file, size, gfxDst, gfxSize);
+                }
+                else
+                {
+                    if (fseek(file, size, SEEK_CUR) != 0)
+                        ret = GRF_FILE_NOT_READ;
+                }
+                break;
+
+            case ID_MAP:
+                if (mapDst)
+                {
+                    ret = grfExtractFile(file, size, mapDst, mapSize);
+                }
+                else
+                {
+                    if (fseek(file, size, SEEK_CUR) != 0)
+                        ret = GRF_FILE_NOT_READ;
+                }
+                break;
+
+            case ID_MTIL:
+                if (mtilDst)
+                {
+                    ret = grfExtractFile(file, size, mtilDst, mtilSize);
+                }
+                else
+                {
+                    if (fseek(file, size, SEEK_CUR) != 0)
+                        ret = GRF_FILE_NOT_READ;
+                }
+                break;
+
+            case ID_MMAP:
+                if (mmapDst)
+                {
+                    ret = grfExtractFile(file, size, mmapDst, mmapSize);
+                }
+                else
+                {
+                    if (fseek(file, size, SEEK_CUR) != 0)
+                        ret = GRF_FILE_NOT_READ;
+                }
+                break;
+
+            case ID_PAL:
+                if (palDst)
+                {
+                    ret = grfExtractFile(file, size, palDst, palSize);
+                }
+                else
+                {
+                    if (fseek(file, size, SEEK_CUR) != 0)
+                        ret = GRF_FILE_NOT_READ;
+                }
+                break;
+
+            default:
+                // Ignore unknown chunks rather than failing
+                if (fseek(file, size, SEEK_CUR) != 0)
+                    ret = GRF_FILE_NOT_READ;
+                break;
+        }
+
+        if (ret != GRF_NO_ERROR)
+            return ret;
+    }
+
+    return GRF_NO_ERROR;
 }
 
 GRFError grfLoadFile(FILE *file, GRFHeader *header,
