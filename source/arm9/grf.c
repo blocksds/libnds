@@ -134,7 +134,7 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
         {
             case ID_HDR:
                 if (size != sizeof(GRFHeader))
-                    return -6;
+                    return GRF_INCONSISTENT_SIZES;
                 memcpy(header, data, size);
                 break;
             case ID_GFX:
