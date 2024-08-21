@@ -70,8 +70,7 @@ static GRFError grfExtract(const void *src, void **dst, size_t *sz)
     switch (header & 0xF0)
     {
         case 0x00: // No compression
-            swiCopy((const uint8_t *)src + 4, *dst,
-                    COPY_MODE_HWORD | COPY_MODE_COPY | (size >> 1));
+            memcpy(*dst, (const uint8_t *)src + 4, size);
             return GRF_NO_ERROR;
         case 0x10: // LZ77
             decompress(src, *dst, LZ77Vram);
