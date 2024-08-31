@@ -663,9 +663,10 @@ bool nitroFSInit(const char *basepath)
     {
         memcpy(nitrofs_offsets, &(__NDSHeader->filenameOffset), 4 * sizeof(uint32_t));
 
-        if (!isDSiMode())
+        // If not in DSi mode and the .nds file is <= 32MB...
+        if (!isDSiMode() && __NDSHeader->deviceSize <= 8)
         {
-            // If not reading from DLDI, we could still be reading from Slot-2.
+            // ... we could still be reading from Slot-2.
             // Figure this out by comparing NitroFS header data between the two.
             sysSetCartOwner(BUS_OWNER_ARM9);
             nitrofs_local.use_slot2 = !memcmp(((uint16_t *) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
