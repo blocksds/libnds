@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/times.h>
-#include <sys/_timeval.h>
 #include <time.h>
 
 #include "common/libnds_internal.h"

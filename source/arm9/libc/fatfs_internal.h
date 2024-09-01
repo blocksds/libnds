@@ -6,6 +6,7 @@
 #define FATFS_INTERNAL_H__
 
 #include <stdint.h>
+#include <time.h>
 #include <sys/time.h>
 #include "ff.h"
 

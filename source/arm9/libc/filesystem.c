@@ -9,7 +9,6 @@
 #include <sys/fcntl.h>
 #include <sys/stat.h>
 #include <sys/times.h>
-#include <sys/_timeval.h>
 #include <sys/unistd.h>
 #include <time.h>
 

@@ -3,10 +3,11 @@
 // Copyright (c) 2023 Antonio Niño Díaz
 
 #include <errno.h>
-#include <sys/_timeval.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/times.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "../libnds_internal.h"
 
