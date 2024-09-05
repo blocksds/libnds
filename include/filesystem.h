@@ -30,6 +30,7 @@ extern "C" {
 ///
 /// @return
 ///     It returns true on success, false on error.
+WARN_UNUSED_RESULT
 bool nitroFSInit(const char *basepath);
 
 /// Exits NitroFS.

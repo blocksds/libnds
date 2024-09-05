@@ -22,6 +22,7 @@ extern "C" {
 /// This function calls fatInit() with the default cache size (5 pages = 20 KB).
 ///
 /// @return It returns true on success, false on error.
+WARN_UNUSED_RESULT
 bool fatInitDefault(void);
 
 /// This function initializes the FAT filesystem with a default cache size.
@@ -53,6 +54,7 @@ bool fatInitDefault(void);
 ///
 /// @return
 ///     It returns true on success, false on error.
+WARN_UNUSED_RESULT
 bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 
 /// This function returns the default current working directory.
@@ -84,6 +86,7 @@ char *fatGetDefaultCwd(void);
 ///
 /// @return
 ///     Returns a string with the path.
+WARN_UNUSED_RESULT
 const char *fatGetDefaultDrive(void);
 
 /// This function initializes a lookup cache on a given FAT file.
