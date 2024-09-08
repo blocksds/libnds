@@ -16,11 +16,8 @@ int nocash_putc_buffered(char c, FILE *file)
 {
     (void)file;
 
-    if (c != '\n')
-    {
-        nocash_buf[nocash_buf_len] = c;
-        nocash_buf_len++;
-    }
+    nocash_buf[nocash_buf_len] = c;
+    nocash_buf_len++;
 
     if ((c == '\n') || (nocash_buf_len == NOCASHGBA_BUFFER_SIZE))
     {
