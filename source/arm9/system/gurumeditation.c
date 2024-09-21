@@ -441,7 +441,7 @@ void libndsCrash(const char *msg)
     exceptionMsg = msg;
 
     // Use an undefined instruction defined by the assembler
-    asm volatile("udf" ::: "memory");
+    asm volatile("udf #0" ::: "memory");
 
     while (1);
 }

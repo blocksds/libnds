@@ -30,7 +30,7 @@ libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5])
 __attribute__((always_inline, noreturn))
 THUMB_CODE static inline void libndsCrash(__attribute__((unused)) const char *message)
 {
-    asm volatile("udf" ::: "memory");
+    asm volatile("udf #0" ::: "memory");
     while (1);
 }
 
