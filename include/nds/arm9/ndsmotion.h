@@ -19,6 +19,14 @@
 extern "C" {
 #endif
 
+typedef enum
+{
+    MOTION_TYPE_NONE, ///< No sensor present
+    MOTION_TYPE_PAK, ///< DS Motion Pak
+    MOTION_TYPE_CARD, ///< DS Motion Card
+    MOTION_TYPE_MK6 ///< MK6
+} MotionType;
+
 typedef struct MotionCalibration
 {
     short xoff, yoff, zoff, goff;
@@ -32,7 +40,19 @@ typedef struct MotionCalibration
 ///
 /// @return
 ///     The motion sensor type, or 0 if there is no sensor present.
-int motion_init(void);
+MotionType motion_init(void);
+
+/// Get the type of the current initialized DS Motion Sensor.
+///
+/// @return
+///     The motion sensor type, or 0 if there is no sensor initialized or present.
+MotionType motion_get_type(void);
+
+/// Get the name of a given motion sensor type, or "None".
+///
+/// @return
+///     Pointer to the string. Don't call free() with this pointer.
+const char *motion_get_name(MotionType type);
 
 /// Deinitializes the DS Motion Sensor.
 void motion_deinit(void);
@@ -41,25 +61,25 @@ void motion_deinit(void);
 ///
 /// @return
 ///     The X acceleration.
-signed int motion_read_x(void);
+int motion_read_x(void);
 
 /// Reads the Y acceleration.
 ///
 /// @return
 ///     The Y acceleration.
-signed int motion_read_y(void);
+int motion_read_y(void);
 
 /// Reads the Z acceleration.
 ///
 /// @return
 ///     The Z acceleration.
-signed int motion_read_z(void);
+int motion_read_z(void);
 
 /// Reads the Z rotational speed.
 ///
 /// @return
 ///     The Z rotational speed.
-signed int motion_read_gyro(void);
+int motion_read_gyro(void);
 
 /// Gets acceleration value to mili G (where g is 9.8 m/s*s)
 ///

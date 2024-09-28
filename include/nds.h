@@ -164,6 +164,7 @@ extern "C" {
 #    include <nds/arm9/keyboard.h>
 #    include <nds/arm9/linkedlist.h>
 #    include <nds/arm9/math.h>
+#    include <nds/arm9/ndsmotion.h>
 #    include <nds/arm9/paddle.h>
 #    include <nds/arm9/grf.h>
 #    include <nds/arm9/pcx.h>
