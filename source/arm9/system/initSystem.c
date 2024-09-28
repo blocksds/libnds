@@ -48,8 +48,8 @@ void __attribute__((weak)) initSystem(void)
 #endif
 
     // Clear video display registers
-    dmaFillWords(0, (void *)0x04000000, 0x56);
-    dmaFillWords(0, (void *)0x04001008, 0x56);
+    dmaFillWords(0, (void *)0x04000000, 0x58);
+    dmaFillWords(0, (void *)0x04001008, 0x58 - 8);
 
     // Turn on power for 2D video
     REG_POWERCNT = (POWER_LCD | POWER_2D_A | POWER_2D_B | POWER_SWAP_LCDS) & 0xFFFF;
@@ -57,12 +57,6 @@ void __attribute__((weak)) initSystem(void)
     videoSetModeSub(0);
 
     vramDefault();
-
-    VRAM_E_CR = 0;
-    VRAM_F_CR = 0;
-    VRAM_G_CR = 0;
-    VRAM_H_CR = 0;
-    VRAM_I_CR = 0;
 
     if (isDSiMode())
         setCpuClock(true);
