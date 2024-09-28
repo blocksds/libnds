@@ -13,7 +13,7 @@ u8 cardEepromCommand(u8 command)
 {
     u8 retval;
 
-    REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
     REG_AUXSPIDATA = command;
 
@@ -22,13 +22,13 @@ u8 cardEepromCommand(u8 command)
     REG_AUXSPIDATA = 0;
     eepromWaitBusy();
     retval = REG_AUXSPIDATA;
-    REG_AUXSPICNT = /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
     return retval;
 }
 
 u32 cardEepromReadID(void)
 {
-    REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
     REG_AUXSPIDATA = SPI_EEPROM_RDID;
 
@@ -42,7 +42,7 @@ u32 cardEepromReadID(void)
         id = (id << 8) | REG_AUXSPIDATA;
     }
 
-    REG_AUXSPICNT = /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
     return id;
 }
@@ -181,7 +181,7 @@ uint32_t cardEepromGetSize(void)
 
 void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype)
 {
-    REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
     REG_AUXSPIDATA = 0x03 | ((addrtype == 1) ? address >> 8 << 3 : 0);
     eepromWaitBusy();
 
@@ -209,7 +209,7 @@ void cardReadEeprom(u32 address, u8 *data, u32 length, u32 addrtype)
     }
 
     eepromWaitBusy();
-    REG_AUXSPICNT = /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 }
 
 void cardWriteEeprom(uint32_t address, uint8_t *data, uint32_t length, uint32_t addrtype)
@@ -229,13 +229,13 @@ void cardWriteEeprom(uint32_t address, uint8_t *data, uint32_t length, uint32_t 
     while (address < address_end)
     {
         // Set WEL (Write Enable Latch)
-        REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+        REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
         REG_AUXSPIDATA = 0x06;
         eepromWaitBusy();
-        REG_AUXSPICNT = /*MODE*/ 0x40;
+        REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
         // program maximum of 32 bytes
-        REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+        REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
         if (addrtype == 1)
         {
@@ -271,10 +271,10 @@ void cardWriteEeprom(uint32_t address, uint8_t *data, uint32_t length, uint32_t 
             REG_AUXSPIDATA = *data++;
             eepromWaitBusy();
         }
-        REG_AUXSPICNT = /*MODE*/ 0x40;
+        REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
         // Wait programming to finish
-        REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+        REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
         REG_AUXSPIDATA = 0x05;
         eepromWaitBusy();
         do
@@ -284,7 +284,7 @@ void cardWriteEeprom(uint32_t address, uint8_t *data, uint32_t length, uint32_t 
         } while (REG_AUXSPIDATA & 0x01); // WIP (Write In Progress) ?
 
         eepromWaitBusy();
-        REG_AUXSPICNT = /*MODE*/ 0x40;
+        REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
     }
 }
 
@@ -301,14 +301,14 @@ void cardEepromChipErase(void)
 void cardEepromSectorErase(uint32_t address)
 {
     // set WEL (Write Enable Latch)
-    REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
     REG_AUXSPIDATA = 0x06;
     eepromWaitBusy();
 
-    REG_AUXSPICNT = /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
     // SectorErase 0xD8
-    REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
     REG_AUXSPIDATA = 0xD8;
     eepromWaitBusy();
     REG_AUXSPIDATA = (address >> 16) & 0xFF;
@@ -318,7 +318,7 @@ void cardEepromSectorErase(uint32_t address)
     REG_AUXSPIDATA = address & 0xFF;
     eepromWaitBusy();
 
-    REG_AUXSPICNT = /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 
     // wait erase to finish
     REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40;
@@ -331,5 +331,5 @@ void cardEepromSectorErase(uint32_t address)
         eepromWaitBusy();
     } while (REG_AUXSPIDATA & 0x01); // WIP (Write In Progress) ?
 
-    REG_AUXSPICNT = /*MODE*/ 0x40;
+    REG_AUXSPICNT = CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 }

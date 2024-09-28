@@ -5,6 +5,7 @@
 // Copyright (C) 2007 Jason Rogers (dovoto)
 // Copyright (C) 2007 Dave Murphy (WinterMute)
 // Copyright (C) 2007 Keith Epstein (KeithE)
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 // DS Motion Card/DS Motion Pak functionality
 
@@ -16,16 +17,22 @@
 
 #define WAIT_CYCLES 185
 
-static inline void CARD_WaitBusy(void)
-{
-    while (REG_AUXSPICNT & /*BUSY*/ 0x80)
-        ;
-}
+#define KXPB5_CMD_CONVERT_X     0x00
+#define KXPB5_CMD_CONVERT_Z     0x01
+#define KXPB5_CMD_CONVERT_Y     0x02
+#define KXPB5_CMD_READ_CONTROL  0x03
+#define KXPB5_CMD_WRITE_CONTROL 0x04
+#define KXPB5_CMD_CONVERT_AUX   0x07
+
+#define KXPB5_CONTROL_ENABLE    0x04
+#define KXPB5_CONTROL_DISABLE   0x00
+#define KXPB5_CONTROL_SELF_TEST 0x02
+#define KXPB5_CONTROL_PARITY    0x01
 
 // Enables SPI bus at 4.19 MHz
 static inline void SPI_On(void)
 {
-    REG_AUXSPICNT = /*E*/ 0x8000 | /*SEL*/ 0x2000 | /*MODE*/ 0x40 | 0;
+    REG_AUXSPICNT = CARD_ENABLE | CARD_SPI_ENABLE | CARD_SPI_HOLD | CARD_SPI_BAUD_4MHz;
 }
 
 // Disables SPI bus
@@ -37,22 +44,22 @@ static inline void SPI_Off(void)
 // Volatile GBA bus SRAM for reading from DS Motion Pak
 #define V_SRAM ((volatile unsigned char *)0x0A000000)
 
-static int card_type = -1;
+static uint8_t card_type = MOTION_TYPE_NONE;
 
 // these are the default calibration values for sensitivity and offset
-MotionCalibration calibration = { 2048, 2048, 2048, 1680, 819, 819, 819, 825 };
+static MotionCalibration calibration = { 2048, 2048, 2048, 1680, 819, 819, 819, 825 };
 
 // sends and receives 1 byte on the SPI bus
-unsigned char motion_spi(unsigned char in_byte)
+static unsigned char motion_spi(unsigned char in_byte)
 {
     unsigned char out_byte;
     REG_AUXSPIDATA = in_byte;  // Send the output byte to the SPI bus
-    CARD_WaitBusy();           // Wait for transmission to complete
+    eepromWaitBusy();           // Wait for transmission to complete
     out_byte = REG_AUXSPIDATA; // Read the input byte from the SPI bus
     return out_byte;
 }
 
-void motion_MK6_sensor_mode(void)
+static void motion_MK6_sensor_mode(void)
 {
     // Send some commands on the SPI bus
     SPI_On();
@@ -69,7 +76,7 @@ void motion_MK6_sensor_mode(void)
     SPI_Off();
 }
 
-void motion_MK6_EEPROM_mode(void)
+static void motion_MK6_EEPROM_mode(void)
 {
     // Send some commands on the SPI bus
     SPI_On();
@@ -89,7 +96,8 @@ void motion_MK6_EEPROM_mode(void)
 // Checks whether a DS Motion Pak is plugged in
 int motion_pak_is_inserted(void)
 {
-    int motion_pak = 0;
+    if (isDSiMode())
+        return 0;
 
     // Read first byte of DS Motion Pak check
     unsigned char return_byte = V_SRAM[10];
@@ -102,10 +110,10 @@ int motion_pak_is_inserted(void)
         return_byte = V_SRAM[0]; // Read second byte of DS Motion Pak check
         swiDelay(WAIT_CYCLES);
         if (return_byte == 0x0F) // DS Motion Pak returns 0x0F
-            motion_pak = 1;
+            return 1;
     }
 
-    return motion_pak;
+    return 0;
 }
 
 // Checks whether a DS Motion Card is plugged in. This only works after
@@ -114,10 +122,10 @@ int motion_card_is_inserted(void)
 {
     // Send 0x03 to read from DS Motion Card control register
     SPI_On();
-    motion_spi(0x03); // Command to read from control register
+    motion_spi(KXPB5_CMD_READ_CONTROL); // Command to read from control register
 
     // If the control register is 0x04 then the enable was successful
-    if (motion_spi(0x00) == 0x04)
+    if (motion_spi(0x00) == KXPB5_CONTROL_ENABLE)
     {
         SPI_Off();
         return 1;
@@ -129,30 +137,22 @@ int motion_card_is_inserted(void)
 
 // Turn on the DS Motion Sensor (DS Motion Pak or DS Motion Card)
 // Requires knowing which type is present (can be found by using motion_init)
-int motion_enable(int card_type_)
+static int motion_enable(int card_type_)
 {
     switch (card_type_)
     {
-        case 1: // DS Motion Pak - automatically enabled on powerup
+        case MOTION_TYPE_PAK:
             // Check to see whether Motion Pak is alive
             return motion_pak_is_inserted();
 
-        case 2: // DS Motion Card
+        case MOTION_TYPE_CARD:
+        case MOTION_TYPE_MK6:
             // Send 0x04, 0x04 to enable
             SPI_On();
-            motion_spi(0x04); // Command to write to control register
-            motion_spi(0x04); // Enable
+            motion_spi(KXPB5_CMD_WRITE_CONTROL); // Command to write to control register
+            motion_spi(KXPB5_CONTROL_ENABLE); // Enable
             SPI_Off();
             // check to see whether Motion Card is alive
-            return motion_card_is_inserted();
-
-        case 3: // MK6 - same command as DS Motion Card
-            // Send 0x04, 0x04 to enable
-            SPI_On();
-            motion_spi(0x04); // Command to write to control register
-            motion_spi(0x04); // Enable
-            SPI_Off();
-            // Check to see whether Motion Card is alive
             return motion_card_is_inserted();
 
         default: // If input parameter is not recognized, return 0
@@ -162,35 +162,40 @@ int motion_enable(int card_type_)
 
 // Initialize the DS Motion Sensor. Determines which DS Motion Sensor is
 // present and turns it on. It does not require knowing which type is present.
-int motion_init(void)
+MotionType motion_init(void)
 {
     sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
 
     // First, check for the DS Motion Pak - type 1
     if (motion_pak_is_inserted() == 1)
     {
-        card_type = 1;
-        return 1;
+        card_type = MOTION_TYPE_PAK;
+        return MOTION_TYPE_PAK;
     }
 
     // Next, check for DS Motion Card - type 2
-    if (motion_enable(2) == 1)
+    if (motion_enable(MOTION_TYPE_CARD) == 1)
     {
-        card_type = 2;
-        return 2;
+        card_type = MOTION_TYPE_CARD;
+        return MOTION_TYPE_CARD;
     }
 
     // Send command to switch MK6 to sensor mode
     motion_MK6_sensor_mode();
 
-    if (motion_enable(3) == 1)
+    if (motion_enable(MOTION_TYPE_MK6) == 1)
     {
-        card_type = 3;
-        return 3;
+        card_type = MOTION_TYPE_MK6;
+        return MOTION_TYPE_MK6;
     }
 
     // If neither cases are true, then return 0 to indicate no DS Motion Sensor
-    return 0;
+    return MOTION_TYPE_NONE;
+}
+
+MotionType motion_get_type(void)
+{
+    return card_type;
 }
 
 // Deinitialize the DS Motion Sensor.
@@ -200,46 +205,56 @@ int motion_init(void)
 //   mode into EEPROM mode.
 void motion_deinit(void)
 {
-    // DS Motion Card - turn off accelerometer
-    SPI_On();
-    motion_spi(0x04); // Command to write to control register
-    motion_spi(0x00); // Turn it off
-    SPI_Off();
-    // MK6 - switch to EEPROM mode
-    motion_MK6_EEPROM_mode(); // Switch MK6 to EEPROM mode
+    if (card_type >= MOTION_TYPE_CARD)
+    {
+        // DS Motion Card - turn off accelerometer
+        SPI_On();
+        motion_spi(KXPB5_CMD_WRITE_CONTROL); // Command to write to control register
+        motion_spi(KXPB5_CONTROL_DISABLE); // Turn it off
+        SPI_Off();
+
+        if (card_type == MOTION_TYPE_MK6)
+            motion_MK6_EEPROM_mode(); // Switch MK6 to EEPROM mode
+    }
+
+    card_type = 0;
 }
 
-// read the X acceleration
-signed int motion_read_x(void)
+static const char *motion_names[] = {
+    "None",
+    "DS Motion Pak",
+    "DS Motion Card",
+    "MK6/R6"
+};
+
+const char *motion_get_name(MotionType type)
+{
+    return motion_names[type > MOTION_TYPE_MK6 ? 0 : type];
+}
+
+static int motion_read(uint32_t pak_offset, uint8_t spi_command, int default_value)
 {
     unsigned char High_byte = 0;
     unsigned char Low_byte = 0;
-    signed int output = 0;
+    int output = 0;
+
     switch (card_type)
     {
-        case 1:                    // DS Motion Pak
-            High_byte = V_SRAM[2]; // Command to load X High onto bus
+        case MOTION_TYPE_PAK:
+            High_byte = V_SRAM[pak_offset];
             swiDelay(WAIT_CYCLES); // Wait for data ready
             High_byte = V_SRAM[0]; // Get the high byte
             swiDelay(WAIT_CYCLES); // Wait for data ready
             Low_byte = V_SRAM[0];  // Get the low byte
             // Wait after for Motion Pak to be ready for the next command
             swiDelay(WAIT_CYCLES);
-            output = (signed int)((High_byte << 8 | Low_byte) >> 4);
+            output = (int)((High_byte << 8 | Low_byte) >> 4);
             return output;
 
-        case 2: // DS Motion Card
+        case MOTION_TYPE_CARD:
+        case MOTION_TYPE_MK6:
             SPI_On();
-            motion_spi(0x00); // Command to convert X axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        case 3: // MK6 - same command as DS Motion Card
-            SPI_On();
-            motion_spi(0x00); // Command to convert X axis
+            motion_spi(spi_command);
             swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
             // Read 16 bits and store as a 12 bit number
             output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
@@ -247,138 +262,33 @@ signed int motion_read_x(void)
             return output;
 
         default:
-            return 0;
+            return default_value;
     }
+}
+
+
+// read the X acceleration
+int motion_read_x(void)
+{
+    return motion_read(2, KXPB5_CMD_CONVERT_X, calibration.xoff);
 }
 
 // read the Y acceleration
-signed int motion_read_y(void)
+int motion_read_y(void)
 {
-    unsigned char High_byte = 0;
-    unsigned char Low_byte = 0;
-    signed int output = 0;
-
-    switch (card_type)
-    {
-        case 1:                    // DS Motion Pak
-            High_byte = V_SRAM[4]; // Command to load Y High onto bus
-            swiDelay(WAIT_CYCLES); // Wait for data ready
-            High_byte = V_SRAM[0]; // Get the high byte
-            swiDelay(WAIT_CYCLES); // Wait for data ready
-            Low_byte = V_SRAM[0];  // Get the low byte
-
-            // Wait after for Motion Pak to be ready for next command
-            swiDelay(WAIT_CYCLES);
-            output = (signed int)((High_byte << 8 | Low_byte) >> 4);
-            return output;
-
-        case 2: // DS Motion Card
-            SPI_On();
-            motion_spi(0x02); // Command to convert Y axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        case 3: // MK6 - same command as DS Motion Card
-            SPI_On();
-            motion_spi(0x02); // Command to convert Y axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        default:
-            return 0;
-    }
+    return motion_read(4, KXPB5_CMD_CONVERT_Y, calibration.yoff);
 }
 
 // read the Z acceleration
-signed int motion_read_z(void)
+int motion_read_z(void)
 {
-    unsigned char High_byte = 0;
-    unsigned char Low_byte = 0;
-    signed int output = 0;
-
-    switch (card_type)
-    {
-        case 1: // DS Motion Pak
-            High_byte = V_SRAM[6]; // Command to load Z High onto bus
-            swiDelay(WAIT_CYCLES); // Wait for data ready
-            High_byte = V_SRAM[0]; // Get the high byte
-            swiDelay(WAIT_CYCLES); // Wait for data ready
-            Low_byte = V_SRAM[0];  // Get the low byte
-            // Wait after for Motion Pak to be ready for next command
-            swiDelay(WAIT_CYCLES);
-            output = (signed int)((High_byte << 8 | Low_byte) >> 4);
-            return output;
-
-        case 2: // DS Motion Card
-            SPI_On();
-            motion_spi(0x01); // Command to convert Z axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        case 3: // MK6 - same command as DS Motion Card
-            SPI_On();
-            motion_spi(0x01); // Command to convert Z axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        default:
-            return 0;
-    }
+    return motion_read(6, KXPB5_CMD_CONVERT_Z, calibration.zoff);
 }
 
 // read the Z rotation (gyro)
-signed int motion_read_gyro(void)
+int motion_read_gyro(void)
 {
-    unsigned char High_byte = 0;
-    unsigned char Low_byte = 0;
-    signed int output = 0;
-
-    switch (card_type)
-    {
-        case 1: // DS Motion Pak
-            High_byte = V_SRAM[8]; // Command to load Gyro High onto bus
-            swiDelay(WAIT_CYCLES); // Wait for data ready
-            High_byte = V_SRAM[0]; // Get the high byte
-            swiDelay(WAIT_CYCLES); // Wait for data ready
-            Low_byte = V_SRAM[0];  // Get the low byte
-            // Wait after for Motion Pak to be ready for next command
-            swiDelay(WAIT_CYCLES);
-            output = (signed int)((High_byte << 8 | Low_byte) >> 4);
-            return output;
-
-        case 2: // DS Motion Card
-            SPI_On();
-            motion_spi(0x07); // Command to convert Gyro axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        case 3: // MK6 - same command as DS Motion Card
-            SPI_On();
-            motion_spi(0x07); // Command to convert Gyro axis
-            swiDelay(625);    // Wait at least 40 microseconds for the A-D conversion
-            // Read 16 bits and store as a 12 bit number
-            output = ((motion_spi(0x00) << 8) | motion_spi(0x00)) >> 4;
-            SPI_Off();
-            return output;
-
-        default:
-            return 0;
-    }
+    return motion_read(8, KXPB5_CMD_CONVERT_AUX, calibration.goff);
 }
 
 // gets acceleration value in mili G (where g is 9.8 m/s*s)
@@ -484,6 +394,9 @@ void motion_set_calibration(MotionCalibration *cal)
 // enable analog input number 1 (ain_1)
 void motion_enable_ain_1(void)
 {
+    if (card_type != MOTION_TYPE_PAK)
+        return;
+
     V_SRAM[16];
     swiDelay(WAIT_CYCLES);
 }
@@ -491,6 +404,9 @@ void motion_enable_ain_1(void)
 // enable analog input number 2 (ain_2)
 void motion_enable_ain_2(void)
 {
+    if (card_type != MOTION_TYPE_PAK)
+        return;
+
     V_SRAM[18];
     swiDelay(WAIT_CYCLES);
 }
@@ -498,27 +414,18 @@ void motion_enable_ain_2(void)
 // read from the analog input number 1 - requires enabling ain_1 first
 int motion_read_ain_1(void)
 {
-    unsigned char High_byte = V_SRAM[12]; // Command to load AIN_1 High onto bus
-    swiDelay(WAIT_CYCLES);                // Wait for data ready
-    High_byte = V_SRAM[0];                // Get the high byte
-    swiDelay(WAIT_CYCLES);                // Wait for data ready
-    unsigned char Low_byte = V_SRAM[0];   // Get the low byte
-    // Wait after for Motion Pak to be ready for next command
-    swiDelay(WAIT_CYCLES);
-    signed int output = (signed int)((High_byte << 8 | Low_byte) >> 4);
-    return output;
+    if (card_type != MOTION_TYPE_PAK)
+        return 0;
+
+    return motion_read(12, 0, 0);
 }
 
 // read from the analog input number 2 - requires enabling ain_2 first
 int motion_read_ain_2(void)
 {
-    unsigned char High_byte = V_SRAM[14]; // Command to load AIN_1 High onto bus
-    swiDelay(WAIT_CYCLES);                // Wait for data ready
-    High_byte = V_SRAM[0];                // Get the high byte
-    swiDelay(WAIT_CYCLES);                // Wait for data ready
-    unsigned char Low_byte = V_SRAM[0];   // Get the low byte
-    // Wait after for Motion Pak to be ready for next command
-    swiDelay(WAIT_CYCLES);
-    signed int output = (signed int)((High_byte << 8 | Low_byte) >> 4);
-    return output;
+    if (card_type != MOTION_TYPE_PAK)
+        return 0;
+
+    return motion_read(14, 0, 0);
 }
+
