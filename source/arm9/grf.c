@@ -14,7 +14,7 @@
 //
 // "RIFF" # {
 //     "GRF " # {
-//         "HDR " # { header info }
+//         "HDRX" # { header info }
 //         "GFX " # { gfx data }
 //         "MAP " # { map data }
 //         "MTIL" # { metatile data }
@@ -23,7 +23,8 @@
 //     }
 // }
 //
-// The only mandatory chunk inside the "GRF " is "HDR ".
+// The only mandatory chunk inside the "GRF " is "HDRX". "HDR " is an old header
+// chunk no longer supported.
 
 typedef struct
 {
@@ -37,7 +38,7 @@ typedef struct
 
 #define ID_RIFF     CHUNK_ID('R', 'I', 'F', 'F')
 #define ID_GRF      CHUNK_ID('G', 'R', 'F', ' ')
-#define ID_HDR      CHUNK_ID('H', 'D', 'R', ' ')
+#define ID_HDRX     CHUNK_ID('H', 'D', 'R', 'X')
 #define ID_GFX      CHUNK_ID('G', 'F', 'X', ' ')
 #define ID_MAP      CHUNK_ID('M', 'A', 'P', ' ')
 #define ID_MTIL     CHUNK_ID('M', 'T', 'I', 'L')
@@ -131,7 +132,7 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
 
         switch (id)
         {
-            case ID_HDR:
+            case ID_HDRX:
                 if (size != sizeof(GRFHeader))
                     return GRF_INCONSISTENT_SIZES;
                 memcpy(header, data, size);
@@ -303,7 +304,7 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
 
         switch (id)
         {
-            case ID_HDR:
+            case ID_HDRX:
                 if (size != sizeof(GRFHeader))
                     return GRF_INCONSISTENT_SIZES;
                 if (fread(header, sizeof(GRFHeader), 1, file) != 1)

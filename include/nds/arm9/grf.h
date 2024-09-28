@@ -31,6 +31,7 @@ extern "C" {
 /// Header chunk of a GRF file.
 typedef struct
 {
+    uint16_t version;  ///< Version of the GRF format (currently 2)
     uint16_t gfxAttr;  ///< BPP of graphics (or GRFTextureTypes). 0 if not present.
     uint16_t mapAttr;  ///< BPP of map (16 or 8 for affine). 0 if not present.
     uint16_t mmapAttr; ///< BPP of metamap (16). 0 if not present.
