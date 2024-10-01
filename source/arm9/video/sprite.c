@@ -229,7 +229,9 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
     else
     {
         oam->oamMemory[id].blendMode = OBJMODE_NORMAL;
-        oam->oamMemory[id].colorMode = format;
+        // SpriteColorFormat is identical to ObjColMode except for
+        // SpriteColorFormat_Bmp, checked for above
+        oam->oamMemory[id].colorMode = (ObjColMode)format;
         oam->oamMemory[id].palette = palette_alpha;
     }
 }
@@ -254,7 +256,9 @@ void oamSetGfx(OamState *oam, int id, SpriteSize size, SpriteColorFormat format,
     else
     {
         oam->oamMemory[id].blendMode = OBJMODE_NORMAL;
-        oam->oamMemory[id].colorMode = format;
+        // SpriteColorFormat is identical to ObjColMode except for
+        // SpriteColorFormat_Bmp, checked for above
+        oam->oamMemory[id].colorMode = (ObjColMode)format;
     }
 }
 
