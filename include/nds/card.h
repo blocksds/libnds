@@ -51,7 +51,7 @@ extern "C" {
 #define SPI_EEPROM_RDP  0xab // Release from deep power down
 #define SPI_EEPROM_DPD  0xb9 // Deep power down
 
-#define CARD_ACTIVATE     (1 << 31) // When writing, get the ball rolling
+#define CARD_ACTIVATE     (1u << 31) // When writing, get the ball rolling
 #define CARD_WR           (1 << 30) // Card write enable
 #define CARD_nRESET       (1 << 29) // Value on the /reset pin (1 = high out, not a reset state, 0 = low out = in reset)
 #define CARD_SEC_LARGE    (1 << 28) // Use "other" secure area mode, which tranfers blocks of 0x1000 bytes at a time
@@ -66,7 +66,7 @@ extern "C" {
 
 // 3 bits in b10..b8 indicate something
 // Read bits
-#define CARD_BUSY         (1 << 31) // When reading, still expecting incomming data?
+#define CARD_BUSY         (1u << 31) // When reading, still expecting incomming data?
 #define CARD_DATA_READY   (1 << 23) // When reading, CARD_DATA_RD or CARD_DATA has another word of data and is good to go
 
 // Card commands

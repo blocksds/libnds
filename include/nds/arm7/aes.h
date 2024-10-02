@@ -41,7 +41,7 @@ typedef struct aes_keyslot
 
 #define AES_CNT_IRQ             (1 << 30)
 
-#define AES_CNT_ENABLE          (1 << 31)
+#define AES_CNT_ENABLE          (1u << 31)
 
 #define REG_AES_BLKCNT  (*(vu32 *)0x4004404)
 

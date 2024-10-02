@@ -40,7 +40,7 @@ ARM_CODE float hw_sqrtf(float x)
     // It is critical that this happens as early as possible so that
     // we have time to do other stuff in the meantime
     u32 raw_exponent = xu.i & (255 << 23);
-    u32 sign = xu.i & (1 << 31);
+    u32 sign = xu.i & (1u << 31);
     // check if exponent is 0
     if (raw_exponent != 0)
     {

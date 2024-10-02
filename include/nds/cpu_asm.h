@@ -8,7 +8,7 @@
 // This file must only have definitions that can be used from assembly files.
 
 #ifndef BIT
-#define BIT(n) (1 << (n))
+#define BIT(n) (1u << (n))
 #endif
 
 #define CPSR_MODE_MASK          (0x1F)
