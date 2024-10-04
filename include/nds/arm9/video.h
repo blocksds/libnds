@@ -586,9 +586,9 @@ typedef enum
 #define DISPLAY_SPR_1D_BMP_SIZE_256 (1 << 22)
 
 // Mask to clear all attributes related to sprites from display control
-#define DISPLAY_SPRITE_ATTR_MASK    ((7 << 4) | (7 << 20) | (1 << 31))
+#define DISPLAY_SPRITE_ATTR_MASK    ((7u << 4) | (7u << 20) | (1u << 31))
 
-#define DISPLAY_SPR_EXT_PALETTE     (1 << 31)
+#define DISPLAY_SPR_EXT_PALETTE     (1u << 31)
 #define DISPLAY_BG_EXT_PALETTE      (1 << 30)
 
 #define DISPLAY_SCREEN_OFF          (1 << 7)

@@ -76,7 +76,7 @@ extern "C" {
 #define GETRAWEND(name)     ((int)name##_end)
 
 /// Returns a number with the nth bit set.
-#define BIT(n) (1 << (n))
+#define BIT(n) (1u << (n))
 
 // Deprecated types. TODO: Remove
 typedef uint8_t uint8;

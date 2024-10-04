@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
@@ -338,7 +339,7 @@ void guruMeditationDump(void)
     {
         // Finally, print everything to the screen
 
-        printf("  pc: %08lX addr: %08lX\n\n", codeAddress, exceptionAddress);
+        printf("  pc: %08" PRIX32 " addr: %08" PRIX32 "\n\n", codeAddress, exceptionAddress);
 
         for (int i = 0; i < 8; i++)
         {
@@ -348,7 +349,7 @@ void guruMeditationDump(void)
                 "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
             };
 
-            printf("  %s: %08lX   %s: %08lX\n",
+            printf("  %s: %08" PRIX32 "   %s: %08" PRIX32 "\n",
                    registerNames[i], exceptionRegisters[i],
                    registerNames[i + 8], exceptionRegisters[i + 8]);
         }
@@ -358,8 +359,8 @@ void guruMeditationDump(void)
         for (int i = 0; i < 10; i++)
         {
             consoleSetCursor(NULL, 2, i + 14);
-            printf("%08lX:  %08lX %08lX", (u32)&stack[i * 2],
-                   stack[i * 2], stack[(i * 2) + 1]);
+            printf("%08" PRIX32 ":  %08" PRIX32 " %08" PRIX32 "",
+                   (u32)&stack[i * 2], stack[i * 2], stack[(i * 2) + 1]);
         }
     }
 
@@ -441,7 +442,7 @@ void libndsCrash(const char *msg)
     exceptionMsg = msg;
 
     // Use an undefined instruction defined by the assembler
-    asm volatile("udf" ::: "memory");
+    asm volatile("udf #0" ::: "memory");
 
     while (1);
 }

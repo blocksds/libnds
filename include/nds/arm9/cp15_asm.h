@@ -11,7 +11,7 @@
 // one even if they don't have a documented meaning.
 
 #ifndef BIT
-#define BIT(n)          (1 << (n))
+#define BIT(n)          (1u << (n))
 #endif
 
 // General definitions for the NDS
