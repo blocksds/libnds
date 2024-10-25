@@ -22,12 +22,13 @@ int peripheralSlot2SolarScanFast(void)
     GPIO_DATA = 0x00;
 
     // count
-    int result = 0;
+    int result = -1;
     do
     {
         // increment binary counter
         GPIO_DATA = 0x01;
         GPIO_DATA = 0x00;
+        result++;
     } while (!(GPIO_DATA & 0x08) && result < 0x100);
 
     leaveCriticalSection(oldIME);
