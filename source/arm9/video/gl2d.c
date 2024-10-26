@@ -17,20 +17,6 @@
 static v16 g_depth = 0;
 int gCurrentTexture = 0;
 
-// Set orthographic projection at 1:1 correspondence to screen coords.
-//
-// glOrtho expects f32 values but if we use the standard f32 values, we need to
-// rescale either every vert or the modelview matrix by the same amount to make
-// it work. That's gonna give us lots of overflows and headaches. So we "scale
-// down" and use an all integer value.
-static inline void SetOrtho(void)
-{
-    glMatrixMode(GL_PROJECTION);    // Set matrixmode to projection
-    glLoadIdentity();               // Reset
-    // Downscale projection matrix
-    glOrthof32(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -(1 << 12), 1 << 12);
-}
-
 void glScreen2D(void)
 {
     // Initialize gl
@@ -75,13 +61,25 @@ void glScreen2D(void)
 
 void glBegin2D(void)
 {
-    // Save 3d perpective projection matrix
+    // Reset texture matrix just in case we did some funky stuff with it
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+
+    // Set orthographic projection at 1:1 correspondence to screen coords.
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
+    glLoadIdentity();
 
-    // Save 3d modelview matrix for safety
+    // glOrtho expects f32 values but if we use the standard f32 values, we need
+    // to rescale either every vert or the modelview matrix by the same amount
+    // to make it work. That's gonna give us lots of overflows and headaches. So
+    // we "scale down" and use an all integer value.
+    glOrthof32(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -inttof32(1), inttof32(1));
+
+    // Reset modelview matrix. No need to scale up by << 12
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
+    glLoadIdentity();
 
     // What?!! No glDisable(GL_DEPTH_TEST)?!!!!!!
     glEnable(GL_BLEND);
@@ -92,16 +90,6 @@ void glBegin2D(void)
     glColor(0x7FFF);            // White
 
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE); // No culling
-
-    SetOrtho();
-
-    // Reset texture matrix just in case we did some funky stuff with it
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-
-    // Reset modelview matrix. No need to scale up by << 12
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 
     gCurrentTexture = 0; // Set current texture to 0
     // Set depth to 0. We need this var since we cannot disable depth testing
@@ -146,7 +134,6 @@ void glLine(int x1, int y1, int x2, int y2, int color)
     glColor(0x7FFF);
     g_depth++;
     gCurrentTexture = 0;
-
 }
 
 void glBox(int x1, int y1, int x2, int y2, int color)
@@ -252,7 +239,6 @@ void glTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int color)
 
 void glTriangleFilled(int x1, int y1, int x2, int y2, int x3, int y3, int color)
 {
-
     glBindTexture(0, 0);
     glColor(color);
     glBegin(GL_TRIANGLES);
@@ -265,7 +251,6 @@ void glTriangleFilled(int x1, int y1, int x2, int y2, int x3, int y3, int color)
     glColor(0x7FFF);
     g_depth++;
     gCurrentTexture = 0;
-
 }
 
 void glTriangleFilledGradient(int x1, int y1, int x2, int y2, int x3, int y3,
