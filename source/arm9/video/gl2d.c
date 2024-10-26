@@ -325,9 +325,9 @@ void glSpriteScale(int x, int y, s32 scale, int flipmode, const glImage *spr)
     int y2 = spr->height;
 
     int u1 = spr->u_off + ((flipmode & GL_FLIP_H) ? spr->width - 1 : 0);
-    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width - 1);
+    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width);
     int v1 = spr->v_off + ((flipmode & GL_FLIP_V) ? spr->height - 1 : 0);
-    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height - 1);
+    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height);
 
     if (spr->textureID != gCurrentTexture)
     {
@@ -366,9 +366,9 @@ void glSpriteScaleXY(int x, int y, s32 scaleX, s32 scaleY, int flipmode,
     int y2 = spr->height;
 
     int u1 = spr->u_off + ((flipmode & GL_FLIP_H) ? spr->width - 1 : 0);
-    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width - 1);
+    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width);
     int v1 = spr->v_off + ((flipmode & GL_FLIP_V) ? spr->height - 1 : 0);
-    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height - 1);
+    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height);
 
     if (spr->textureID != gCurrentTexture)
     {
@@ -410,9 +410,9 @@ void glSpriteRotate(int x, int y, s32 angle, int flipmode, const glImage *spr)
     int y2 = s_half_y;
 
     int u1 = spr->u_off + ((flipmode & GL_FLIP_H) ? spr->width - 1 : 0);
-    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width - 1);
+    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width);
     int v1 = spr->v_off + ((flipmode & GL_FLIP_V) ? spr->height - 1 : 0);
-    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height - 1);
+    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height);
 
     if (spr->textureID != gCurrentTexture)
     {
@@ -456,9 +456,9 @@ void glSpriteRotateScale(int x, int y, s32 angle, s32 scale, int flipmode,
     int y2 = s_half_y;
 
     int u1 = spr->u_off + ((flipmode & GL_FLIP_H) ? spr->width - 1 : 0);
-    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width - 1);
+    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width);
     int v1 = spr->v_off + ((flipmode & GL_FLIP_V) ? spr->height - 1 : 0);
-    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height - 1);
+    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height);
 
     if (spr->textureID != gCurrentTexture)
     {
@@ -505,9 +505,9 @@ void glSpriteRotateScaleXY(int x, int y, s32 angle, s32 scaleX, s32 scaleY,
     int y2 = s_half_y;
 
     int u1 = spr->u_off + ((flipmode & GL_FLIP_H) ? spr->width - 1 : 0);
-    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width - 1);
+    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width);
     int v1 = spr->v_off + ((flipmode & GL_FLIP_V) ? spr->height - 1 : 0);
-    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height - 1);
+    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height);
 
     if (spr->textureID != gCurrentTexture)
     {
@@ -621,9 +621,9 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
                     int uoff, int voff, int flipmode, const glImage *spr)
 {
     int u1 = spr->u_off + ((flipmode & GL_FLIP_H) ? spr->width - 1 : 0);
-    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width - 1);
+    int u2 = spr->u_off + ((flipmode & GL_FLIP_H) ? 0 : spr->width);
     int v1 = spr->v_off + ((flipmode & GL_FLIP_V) ? spr->height - 1 : 0);
-    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height - 1);
+    int v2 = spr->v_off + ((flipmode & GL_FLIP_V) ? 0 : spr->height);
 
     if (spr->textureID != gCurrentTexture)
     {
