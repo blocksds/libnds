@@ -474,7 +474,7 @@ static slot2_definition_t definitions[] =
     },
     // Boktai 1 (GPIO Solar)
     {
-        0x00313355, // "U31_"
+        0x00493355, // "U3I_"
         SLOT2_PERIPHERAL_SOLAR_GPIO,
         SLOT2_EXMEMCNT_3_1,
         0,
