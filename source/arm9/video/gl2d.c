@@ -74,12 +74,47 @@ void glBegin2D(void)
     // to rescale either every vert or the modelview matrix by the same amount
     // to make it work. That's gonna give us lots of overflows and headaches. So
     // we "scale down" and use an all integer value.
-    glOrthof32(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -inttof32(1), inttof32(1));
+    //
+    // The projection matrix actually thinks that the size of the DS is
+    // (256 << factor) x (192 << factor). After this, we scale the MODELVIEW
+    // matrix to match this scale factor.
+    //
+    // This way, it is possible to draw on the screen by using numbers up to 256
+    // x 192, but internally the DS has more digits when it does transformations
+    // like a rotation. Not having this factor results in noticeable flickering,
+    // specially in some emulators.
+    //
+    // Unfortunately, applying this factor reduces the accuracy of the Y
+    // coordinate a lot (nothing is noticeable in the X coordinate). Any factor
+    // over 4 starts showing a noticeable accuracy loss: some sprites start
+    // being slightly distorted, with missing some horizontal lines as the
+    // height is reduced. When the number is higher, like 12, the Y coordinate
+    // is significantly compressed. When the number is even higher, like 18, the
+    // polygons disappear because too much accuracy has been lost.
+    //
+    // The current solution is to compromise, and use a factor of 2, which
+    // doesn't cause any distortion, and solves most of the flickering. Ideally
+    // we would use 0 to simplify the calculations, but we want to reduce the
+    // flickering.
+    //
+    // On hardware, the difference in flickering between 0 and 2 isn't too
+    // noticeable, but it is noticeable. In DeSmuMe it is very noticeable.
+    // In my tests, Y axis distortion starts to happen with a factor of 4, so a
+    // factor of 2 should be safe and reduce enough flickering.
+
+    int factor = 2;
+
+    // Downscale projection matrix
+    glOrthof32(0, SCREEN_WIDTH << factor, SCREEN_HEIGHT << factor, 0, -inttof32(1), inttof32(1));
 
     // Reset modelview matrix. No need to scale up by << 12
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
+
+    MATRIX_SCALE = inttof32(1 << factor);
+    MATRIX_SCALE = inttof32(1 << factor);
+    MATRIX_SCALE = inttof32(1);
 
     // What?!! No glDisable(GL_DEPTH_TEST)?!!!!!!
     glEnable(GL_BLEND);
