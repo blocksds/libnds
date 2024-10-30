@@ -33,9 +33,9 @@ extern "C" {
 #define REG_DIVREM_RESULT_H (*(vs32 *)(0x040002AC))
 
 #define REG_SQRTCNT         (*(vu16 *)(0x040002B0))
-#define REG_SQRT_PARAM      (*(vs64 *)(0x040002B8))
-#define REG_SQRT_PARAM_L    (*(vs32 *)(0x040002B8))
-#define REG_SQRT_PARAM_H    (*(vs32 *)(0x040002BC))
+#define REG_SQRT_PARAM      (*(vu64 *)(0x040002B8))
+#define REG_SQRT_PARAM_L    (*(vu32 *)(0x040002B8))
+#define REG_SQRT_PARAM_H    (*(vu32 *)(0x040002BC))
 #define REG_SQRT_RESULT     (*(vu32 *)(0x040002B4))
 
 // Math coprocessor modes
@@ -120,9 +120,9 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 ///
 /// @param a
 ///     20.12 positive value.
-static inline void sqrtf32_asynch(int32_t a)
+static inline void sqrtf32_asynch(uint32_t a)
 {
-    REG_SQRT_PARAM = ((uint64_t)(uint32_t)a) << 12;
+    REG_SQRT_PARAM = ((uint64_t)) << 12;
 
     if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
         REG_SQRTCNT = SQRT_64;
@@ -132,7 +132,7 @@ static inline void sqrtf32_asynch(int32_t a)
 ///
 /// @return
 ///     20.12 result.
-static inline int32_t sqrtf32_result(void)
+static inline uint32_t sqrtf32_result(void)
 {
     while (REG_SQRTCNT & SQRT_BUSY);
 
@@ -153,7 +153,7 @@ static inline int32_t sqrtf32_result(void)
 ///
 /// @return
 ///     20.12 result.
-static inline int32_t sqrtf32(int32_t a)
+static inline uint32_t sqrtf32(uint32_t a)
 {
     sqrtf32_asynch(a);
     return sqrtf32_result();
@@ -331,8 +331,10 @@ static inline int32_t mod64(int64_t num, int32_t den)
 ///     32 bit positive integer value.
 static inline void sqrt32_asynch(uint32_t a)
 {
-    REG_SQRTCNT = SQRT_32;
     REG_SQRT_PARAM_L = a;
+
+    if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_32)
+        REG_SQRTCNT = SQRT_32;
 }
 
 /// Asynchronous 32-bit integer sqrt result.
@@ -365,8 +367,10 @@ static inline uint32_t sqrt32(uint32_t a)
 ///     64 bit positive integer value.
 static inline void sqrt64_asynch(uint64_t a)
 {
-    REG_SQRTCNT = SQRT_64;
     REG_SQRT_PARAM = a;
+
+    if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
+        REG_SQRTCNT = SQRT_64;
 }
 
 /// Asynchronous 64-bit integer sqrt result.
@@ -400,6 +404,8 @@ static inline uint32_t sqrt64(uint64_t a)
 ///
 /// @warning
 ///     Not safe to call inside an interrupt handler.
+/// @warning
+///     Cannot be used concurrently with integer square root functions.
 ///
 /// @param x
 ///     Valid 32 bit non-negative floating point value.
