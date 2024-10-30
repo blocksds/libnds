@@ -9,6 +9,7 @@
 ///
 /// @brief hardware coprocessor math instructions.
 
+
 #ifndef LIBNDS_NDS_ARM9_MATH_H__
 #define LIBNDS_NDS_ARM9_MATH_H__
 
@@ -122,7 +123,7 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 ///     20.12 positive value.
 static inline void sqrtf32_asynch(uint32_t a)
 {
-    REG_SQRT_PARAM = ((uint64_t)) << 12;
+    REG_SQRT_PARAM = ((uint64_t)a) << 12;
 
     if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
         REG_SQRTCNT = SQRT_64;
@@ -404,8 +405,6 @@ static inline uint32_t sqrt64(uint64_t a)
 ///
 /// @warning
 ///     Not safe to call inside an interrupt handler.
-/// @warning
-///     Cannot be used concurrently with integer square root functions.
 ///
 /// @param x
 ///     Valid 32 bit non-negative floating point value.
