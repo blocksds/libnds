@@ -15,6 +15,8 @@
 #ifndef LIBNDS_NDS_ARM9_NDSMOTION_H__
 #define LIBNDS_NDS_ARM9_NDSMOTION_H__
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,9 +24,12 @@ extern "C" {
 typedef enum
 {
     MOTION_TYPE_NONE, ///< No sensor present
-    MOTION_TYPE_PAK, ///< DS Motion Pak
+    /* Slot-2 devices */
+    MOTION_TYPE_PAK, ///< DS Motion Pak (homebrew)
+    MOTION_TYPE_PAK_ATTINY, ///< DS Motion Pack (retail)
+    /* Slot-1 devices */
     MOTION_TYPE_CARD, ///< DS Motion Card
-    MOTION_TYPE_MK6 ///< MK6
+    MOTION_TYPE_MK6, ///< MK6
 } MotionType;
 
 typedef struct MotionCalibration
@@ -56,6 +61,28 @@ const char *motion_get_name(MotionType type);
 
 /// Deinitializes the DS Motion Sensor.
 void motion_deinit(void);
+
+/// Check if the accelerometer is supported on this device.
+///
+/// @return
+///     True if the accelerometer is supported.
+bool motion_accelerometer_supported(void);
+
+/// Check if the gyroscope is likely supported on this device.
+///
+/// Note that some cartridges may come with the gyroscope not populated;
+/// this only allows ruling out devices which are guaranteed not to have
+/// a gyroscope.
+///
+/// @return
+///     True if the gyroscope is likely supported.
+bool motion_gyroscope_supported(void);
+
+/// Check if the analog input is supported on this device.
+///
+/// @return
+///     True if the analog input is supported.
+bool motion_ain_supported(void);
 
 /// Reads the X acceleration.
 ///
