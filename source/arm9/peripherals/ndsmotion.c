@@ -12,6 +12,7 @@
 #include <nds/arm9/ndsmotion.h>
 #include <nds/bios.h>
 #include <nds/card.h>
+#include <nds/interrupts.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -236,6 +237,8 @@ static int motion_enable(int card_type_)
     }
 }
 
+extern void __libnds_twl_cardInit(void);
+
 // Initialize the DS Motion Sensor. Determines which DS Motion Sensor is
 // present and turns it on. It does not require knowing which type is present.
 MotionType motion_init(void)
@@ -255,6 +258,9 @@ MotionType motion_init(void)
         card_type = MOTION_TYPE_PAK_ATTINY;
         return MOTION_TYPE_PAK_ATTINY;
     }
+
+    if (isDSiMode())
+        __libnds_twl_cardInit();
 
     // Next, check for DS Motion Card
     if (motion_enable(MOTION_TYPE_CARD) == 1)
