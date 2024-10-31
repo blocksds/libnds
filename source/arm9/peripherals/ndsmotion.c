@@ -17,6 +17,9 @@
 #include <nds/system.h>
 
 #define WAIT_CYCLES 185
+// Appears to be stable for values <= 100, but let's not push our luck.
+#define ATTINY_WAIT_CYCLES 185
+#define ATTINY_TIMEOUT 40
 
 #define KXPB5_CMD_CONVERT_X     0x00
 #define KXPB5_CMD_CONVERT_Z     0x01
@@ -98,12 +101,10 @@ enum {
 static uint8_t attiny_step = 0;
 
 #define ATTINY_STEP_ERROR 0xFF
-#define ATTINY_TIMEOUT 48
 
 static uint8_t motion_attiny_read_bits(void)
 {
-    // TODO: Validate wait cycle count for the ATTiny cart.
-    swiDelay(WAIT_CYCLES);
+    swiDelay(ATTINY_WAIT_CYCLES);
     return V_SRAM[0] & 3;
 }
 
@@ -121,7 +122,7 @@ static uint8_t motion_attiny_step(uint8_t target_step)
     uint8_t result = 0;
 
     target_step = (target_step + 1) & 3;
-    while (attiny_step != target_step)
+    do
     {
         switch (attiny_step)
         {
@@ -153,6 +154,7 @@ static uint8_t motion_attiny_step(uint8_t target_step)
                 break;
         }
     }
+    while (attiny_step != target_step);
     return result;
 }
 
@@ -161,7 +163,8 @@ static bool motion_pak_attiny_is_inserted(void)
     if (isDSiMode())
         return false;
 
-    if (*(vu16 *)0x08000000 != 0xFCFF)
+    // TODO: A ROM read returns 0x7C7C. Is this stable / can more bits be relied on?
+    if ((*(vu16 *)0x08000000) & 0x0300)
         return false;
 
     return motion_attiny_step(ATTINY_STEP_SYNC) == 0;
