@@ -21,6 +21,7 @@
 extern "C" {
 #endif
 
+/// List of types of motion sensors supported.
 typedef enum
 {
     MOTION_TYPE_NONE, ///< No sensor present
@@ -32,6 +33,7 @@ typedef enum
     MOTION_TYPE_MK6, ///< MK6
 } MotionType;
 
+/// Struct that contains data read from a motion sensor.
 typedef struct MotionCalibration
 {
     short xoff, yoff, zoff, goff;
@@ -54,6 +56,9 @@ MotionType motion_init(void);
 MotionType motion_get_type(void);
 
 /// Get the name of a given motion sensor type, or "None".
+///
+/// @param type
+///     The type of the motion sensor.
 ///
 /// @return
 ///     Pointer to the string. Don't call free() with this pointer.
