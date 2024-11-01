@@ -8,7 +8,7 @@
 /// @file nds/arm9/math.h
 ///
 /// @brief hardware coprocessor math instructions.
-
+/// @warning Only one type of sqrt and one type of division can be used concurrently.
 
 #ifndef LIBNDS_NDS_ARM9_MATH_H__
 #define LIBNDS_NDS_ARM9_MATH_H__
