@@ -12,10 +12,14 @@
 #include <nds/arm9/ndsmotion.h>
 #include <nds/bios.h>
 #include <nds/card.h>
+#include <nds/interrupts.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
 #define WAIT_CYCLES 185
+// Appears to be stable for values <= 100, but let's not push our luck.
+#define ATTINY_WAIT_CYCLES 185
+#define ATTINY_TIMEOUT 40
 
 #define KXPB5_CMD_CONVERT_X     0x00
 #define KXPB5_CMD_CONVERT_Z     0x01
@@ -59,9 +63,9 @@ static unsigned char motion_spi(unsigned char in_byte)
     return out_byte;
 }
 
-static void motion_MK6_sensor_mode(void)
+// MK6 helper functions
+static void motion_MK6_command(uint8_t cmd)
 {
-    // Send some commands on the SPI bus
     SPI_On();
     motion_spi(0xFE);
     SPI_Off();
@@ -72,25 +76,98 @@ static void motion_MK6_sensor_mode(void)
     motion_spi(0xFB);
     SPI_Off();
     SPI_On();
-    motion_spi(0xF8);
+    motion_spi(cmd);
     SPI_Off();
+}
+
+static void motion_MK6_sensor_mode(void)
+{
+    motion_MK6_command(0xF8);
 }
 
 static void motion_MK6_EEPROM_mode(void)
 {
-    // Send some commands on the SPI bus
-    SPI_On();
-    motion_spi(0xFE);
-    SPI_Off();
-    SPI_On();
-    motion_spi(0xFD);
-    SPI_Off();
-    SPI_On();
-    motion_spi(0xFB);
-    SPI_Off();
-    SPI_On();
-    motion_spi(0xF9);
-    SPI_Off();
+    motion_MK6_command(0xF9);
+}
+
+// ATTiny helper functions
+enum {
+    ATTINY_STEP_SYNC = 0,
+    ATTINY_STEP_X,
+    ATTINY_STEP_Y,
+    ATTINY_STEP_Z
+};
+
+static uint8_t attiny_step = 0;
+
+#define ATTINY_STEP_ERROR 0xFF
+
+static uint8_t motion_attiny_read_bits(void)
+{
+    swiDelay(ATTINY_WAIT_CYCLES);
+    return V_SRAM[0] & 3;
+}
+
+static uint8_t motion_attiny_read_value(void)
+{
+    uint8_t value = motion_attiny_read_bits();
+    value = (value << 2) | motion_attiny_read_bits();
+    value = (value << 2) | motion_attiny_read_bits();
+    value = (value << 2) | motion_attiny_read_bits();
+    return value;
+}
+
+static uint8_t motion_attiny_step(uint8_t target_step)
+{
+    uint8_t result = 0;
+
+    target_step = (target_step + 1) & 3;
+    do
+    {
+        switch (attiny_step)
+        {
+            case ATTINY_STEP_SYNC:
+                result = motion_attiny_read_bits();
+                for (int i = 0; i < ATTINY_TIMEOUT; i++)
+                {
+                    if (result == 0)
+                    {
+                        if ((result = motion_attiny_read_bits()) != 3) continue;
+                        if ((result = motion_attiny_read_bits()) != 3) continue;
+                        if ((result = motion_attiny_read_bits()) != 3) continue;
+                        if ((result = motion_attiny_read_bits()) != 3) continue;
+                        result = 0;
+                        attiny_step = ATTINY_STEP_X;
+                        break;
+                    }
+                    result = motion_attiny_read_bits();
+                }
+                if (attiny_step == ATTINY_STEP_SYNC)
+                    return ATTINY_STEP_ERROR;
+                break;
+
+            case ATTINY_STEP_X:
+            case ATTINY_STEP_Y:
+            case ATTINY_STEP_Z:
+                result = motion_attiny_read_value();
+                attiny_step = (attiny_step + 1) & 3;
+                break;
+        }
+    }
+    while (attiny_step != target_step);
+    return result;
+}
+
+static bool motion_pak_attiny_is_inserted(void)
+{
+    if (isDSiMode())
+        return false;
+
+    // TODO: A ROM read returns 0x7C7C. Is this stable / can more bits be relied on?
+    if ((*(vu16 *)0x08000000) & 0x0300)
+        return false;
+
+    return motion_attiny_step(ATTINY_STEP_SYNC) == 0;
 }
 
 // Checks whether a DS Motion Pak is plugged in
@@ -155,10 +232,15 @@ static int motion_enable(int card_type_)
             // check to see whether Motion Card is alive
             return motion_card_is_inserted();
 
+        case MOTION_TYPE_PAK_ATTINY:
+            return motion_pak_attiny_is_inserted();
+
         default: // If input parameter is not recognized, return 0
             return 0;
     }
 }
+
+extern void __libnds_twl_cardInit(void);
 
 // Initialize the DS Motion Sensor. Determines which DS Motion Sensor is
 // present and turns it on. It does not require knowing which type is present.
@@ -166,14 +248,24 @@ MotionType motion_init(void)
 {
     sysSetBusOwners(BUS_OWNER_ARM9, BUS_OWNER_ARM9);
 
-    // First, check for the DS Motion Pak - type 1
+    // First, check for the DS Motion Pak
     if (motion_pak_is_inserted() == 1)
     {
         card_type = MOTION_TYPE_PAK;
         return MOTION_TYPE_PAK;
     }
 
-    // Next, check for DS Motion Card - type 2
+    // Next, check for the ATTiny Motion Pack
+    if (motion_pak_attiny_is_inserted())
+    {
+        card_type = MOTION_TYPE_PAK_ATTINY;
+        return MOTION_TYPE_PAK_ATTINY;
+    }
+
+    if (isDSiMode())
+        __libnds_twl_cardInit();
+
+    // Next, check for DS Motion Card
     if (motion_enable(MOTION_TYPE_CARD) == 1)
     {
         card_type = MOTION_TYPE_CARD;
@@ -223,8 +315,9 @@ void motion_deinit(void)
 static const char *motion_names[] = {
     "None",
     "DS Motion Pak",
+    "DS Motion Pack",
     "DS Motion Card",
-    "MK6/R6"
+    "MK6"
 };
 
 const char *motion_get_name(MotionType type)
@@ -261,11 +354,34 @@ static int motion_read(uint32_t pak_offset, uint8_t spi_command, int default_val
             SPI_Off();
             return output;
 
+        case MOTION_TYPE_PAK_ATTINY:
+            if (pak_offset <= 6)
+            {
+                High_byte = motion_attiny_step(pak_offset >> 1);
+                if (High_byte != ATTINY_STEP_ERROR)
+                    return (High_byte << 4);
+            }
+            // fall through
+
         default:
             return default_value;
     }
 }
 
+bool motion_accelerometer_supported(void)
+{
+    return card_type != MOTION_TYPE_NONE;
+}
+
+bool motion_gyroscope_supported(void)
+{
+    return card_type != MOTION_TYPE_NONE && card_type != MOTION_TYPE_PAK_ATTINY;
+}
+
+bool motion_ain_supported(void)
+{
+    return card_type == MOTION_TYPE_PAK;
+}
 
 // read the X acceleration
 int motion_read_x(void)
