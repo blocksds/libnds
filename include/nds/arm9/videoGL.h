@@ -794,7 +794,7 @@ static inline void glColor(rgb color)
 ///     The z component for the vertex.
 static inline void glVertex3v16(v16 x, v16 y, v16 z)
 {
-    GFX_VERTEX16 = (y << 16) | (x & 0xFFFF);
+    GFX_VERTEX16 = ((u32)(u16)y << 16) | (x & 0xFFFF);
     GFX_VERTEX16 = z;
 }
 
@@ -808,7 +808,7 @@ static inline void glVertex3v16(v16 x, v16 y, v16 z)
 ///     The y component for the vertex.
 static inline void glVertex2v16(v16 x, v16 y)
 {
-    GFX_VERTEX_XY = (y << 16) | (x & 0xFFFF);
+    GFX_VERTEX_XY = ((u32)(u16)y << 16) | (x & 0xFFFF);
 }
 
 /// Sets texture coordinates for the following vertices.
@@ -985,7 +985,7 @@ static inline void glMatrixMode(GL_MATRIX_MODE_ENUM mode)
 ///     The top of the viewport.
 static inline void glViewport(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
-    GFX_VIEWPORT = x1 + (y1 << 8) + (x2 << 16) + (y2 << 24);
+    GFX_VIEWPORT = (uint32_t)x1 + ((uint32_t)y1 << 8u) + ((uint32_t)x2 << 16u) + ((uint32_t)y2 << 24u);
 }
 
 /// Waits for a vertical blank (like swiWaitForVBlank) and swaps the buffers.

@@ -71,7 +71,7 @@ extern "C" {
 ///     20.12 denominator.
 static inline void divf32_asynch(int32_t num, int32_t den)
 {
-    REG_DIV_NUMER = ((int64_t)num) << 12;
+    REG_DIV_NUMER = (int64_t)((uint64_t)(int64_t)num << 12);
     REG_DIV_DENOM_L = den;
 
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
