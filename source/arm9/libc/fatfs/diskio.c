@@ -32,6 +32,7 @@
 #include <string.h>
 #include <time.h>
 
+#include <aeabi.h>
 #include <nds/arm9/cache.h>
 #include <nds/arm9/dldi.h>
 #include <nds/arm9/sdmmc.h>
@@ -48,7 +49,11 @@
 #define DEV_DLDI    0x00 // DLDI driver (flashcard)
 #define DEV_SD      0x01 // SD slot of the DSi
 
-// #define DISABLE_UNCACHED_READS
+// Debugging defines.
+// #define DISABLE_DIRECT_READS
+// #define DISABLE_DIRECT_WRITES
+// #define FORCE_CACHE_ALL
+// #define FORCE_CACHE_NONE
 
 // NOTE: The clearStatus() function of DISC_INTERFACE isn't used in libfat, so
 // it isn't needed here either.
@@ -131,7 +136,13 @@ DSTATUS disk_initialize(BYTE pdrv)
 // count:  Number of sectors to read
 DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 {
+#if defined(FORCE_CACHE_NONE)
+    bool cacheable = false;
+#elif defined(FORCE_CACHE_ALL)
+    bool cacheable = true;
+#else
     bool cacheable = (pdrv & 0x80);
+#endif
     pdrv &= 0x7F;
 
     if (!fs_initialized[pdrv])
@@ -144,7 +155,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
         {
             const DISC_INTERFACE *io = fs_io[pdrv];
 
-#ifndef DISABLE_UNCACHED_READS
+#ifndef DISABLE_DIRECT_READS
             // The DSi SD driver supports unaligned buffers; we cannot make
             // the same guarantee for DLDI in practice.
             if (!cacheable && IS_MAIN_RAM(buff, count << 9) && (pdrv == DEV_SD || IS_WORD_ALIGNED(buff)))
@@ -156,26 +167,47 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
             }
 #endif
 
-            while (count > 0)
+            if (!cacheable)
             {
-                void *cache = cache_sector_get(pdrv, sector);
-                if (cache != NULL)
-                {
-                    memcpy(buff, cache, FF_MAX_SS);
-                }
-                else
-                {
-                    cache = cache_sector_add(pdrv, sector);
+                void *cache = cache_sector_borrow();
 
+                while (count > 0)
+                {
                     if (!io->readSectors(sector, 1, cache))
+                    {
                         return RES_ERROR;
+                    }
 
-                    memcpy(buff, cache, FF_MAX_SS);
+                    __aeabi_memcpy(buff, cache, FF_MAX_SS);
+
+                    count--;
+                    sector++;
+                    buff += FF_MAX_SS;
                 }
+            }
+            else
+            {
+                while (count > 0)
+                {
+                    void *cache = cache_sector_get(pdrv, sector);
 
-                count--;
-                sector++;
-                buff += FF_MAX_SS;
+                    if (cache == NULL)
+                    {
+                        cache = cache_sector_add(pdrv, sector);
+
+                        if (!io->readSectors(sector, 1, cache))
+                        {
+                            cache_sector_invalidate(pdrv, sector, sector);
+                            return RES_ERROR;
+                        }
+                    }
+
+                    __aeabi_memcpy(buff, cache, FF_MAX_SS);
+
+                    count--;
+                    sector++;
+                    buff += FF_MAX_SS;
+                }
             }
 
             return RES_OK;
@@ -197,7 +229,6 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 // count:  Number of sectors to write
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 {
-    uint8_t *align_buffer;
     if (fs_initialized[pdrv] == 0)
         return RES_NOTRDY;
 
@@ -211,16 +242,16 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
             const DISC_INTERFACE *io = fs_io[pdrv];
             // The DSi SD driver supports unaligned buffers; we cannot make
             // the same guarantee for DLDI in practice.
-            if (!IS_MAIN_RAM(buff, count << 9) || (pdrv == DEV_DLDI && !IS_WORD_ALIGNED(buff)))
+#ifndef DISABLE_DIRECT_WRITES
+            if (!IS_MAIN_RAM(buff, count << 9) || !(pdrv == DEV_SD || IS_WORD_ALIGNED(buff)))
+#endif
             {
                 // DLDI drivers expect a 4-byte aligned buffer.
-                align_buffer = malloc(FF_MAX_SS);
-                if (align_buffer == NULL)
-                    return RES_ERROR;
+                uint8_t *align_buffer = cache_sector_borrow();
 
                 while (count > 0)
                 {
-                    memcpy(align_buffer, buff, FF_MAX_SS);
+                    __aeabi_memcpy(align_buffer, buff, FF_MAX_SS);
                     if (!io->writeSectors(sector, 1, align_buffer))
                     {
                         free(align_buffer);
@@ -231,14 +262,14 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
                     sector++;
                     buff += FF_MAX_SS;
                 }
-
-                free(align_buffer);
             }
+#ifndef DISABLE_DIRECT_WRITES
             else
             {
                 if (!io->writeSectors(sector, count, buff))
                     return RES_ERROR;
             }
+#endif
 
             return RES_OK;
         }

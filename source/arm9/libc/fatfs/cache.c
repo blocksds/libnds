@@ -13,7 +13,7 @@ typedef struct
     uint8_t  valid;
     uint8_t  pdrv;
     LBA_t    sector;
-    uint32_t usage_count;
+    uint32_t used_at;
 } cache_entry_t;
 
 #if FF_MAX_SS != FF_MIN_SS
@@ -24,6 +24,7 @@ static cache_entry_t *cache_entries;
 static uint8_t *cache_mem;
 static uint32_t cache_num_sectors;
 static uint32_t dldi_stub_space_sectors;
+static uint32_t usage_counter = 0;
 
 extern uint8_t *dldiGetStubDataEnd(void);
 extern uint8_t *dldiGetStubEnd(void);
@@ -101,8 +102,7 @@ void *cache_sector_get(uint8_t pdrv, uint32_t sector)
         if ((entry->pdrv != pdrv) || (entry->sector != sector))
             continue;
 
-        if (entry->usage_count < cache_num_sectors)
-            entry->usage_count++;
+        entry->used_at = usage_counter++;
 
         return cache_sector_address(i);
     }
@@ -112,69 +112,42 @@ void *cache_sector_get(uint8_t pdrv, uint32_t sector)
 
 void *cache_sector_add(uint8_t pdrv, uint32_t sector)
 {
-    int entry_found = 0;
-    static uint32_t selected_entry = 0;
+    uint32_t used_at_difference = 0;
+    uint32_t selected_entry = 0;
 
+    // Assumption: cache_sector_get() has been called,
+    // and we know the sector is not present
     for (uint32_t i = 0; i < cache_num_sectors; i++)
     {
-        if (cache_entries[selected_entry].valid == 0)
+        if (cache_entries[i].valid == 0)
         {
-            entry_found = 1;
+            // Entry free, use it
+            selected_entry = i;
             break;
         }
 
-        selected_entry++;
-        if (selected_entry >= cache_num_sectors)
-            selected_entry = 0;
-    }
-
-    // Cache full, evict one entry
-    if (entry_found == 0)
-    {
-        selected_entry++;
-        if (selected_entry >= cache_num_sectors)
-            selected_entry = 0;
-
-        uint32_t min_usage_count = cache_entries[selected_entry].usage_count;
-
-        if (min_usage_count > 1)
+        // Check if this entry was least recently used
+        uint32_t i_used_at_difference = usage_counter - cache_entries[i].used_at;
+        if (i_used_at_difference > used_at_difference)
         {
-            cache_entries[selected_entry].usage_count--;
-            selected_entry++;
-            if (selected_entry >= cache_num_sectors)
-                selected_entry = 0;
-
-            uint32_t min_entry = selected_entry;
-
-            for (uint32_t i = 1; i < cache_num_sectors; i++)
-            {
-                cache_entry_t *entry = &(cache_entries[selected_entry]);
-
-                if (entry->usage_count < min_usage_count)
-                {
-                    min_usage_count = entry->usage_count;
-                    min_entry = selected_entry;
-                }
-
-                entry->usage_count--;
-                if (min_usage_count <= 1)
-                    break;
-
-                selected_entry++;
-                if (selected_entry >= cache_num_sectors)
-                    selected_entry = 0;
-            }
-
-            selected_entry = min_entry;
+            used_at_difference = i_used_at_difference;
+            selected_entry = i;
         }
     }
 
     cache_entry_t *entry = &(cache_entries[selected_entry]);
 
-    entry->pdrv = pdrv;
-    entry->valid = 1;
-    entry->sector = sector;
-    entry->usage_count = 1;
+    if (pdrv != 0xFF)
+    {
+        entry->pdrv = pdrv;
+        entry->valid = 1;
+        entry->sector = sector;
+        entry->used_at = usage_counter++;
+    }
+    else
+    {
+        entry->valid = 0;
+    }
 
     return cache_sector_address(selected_entry);
 }
@@ -192,6 +165,5 @@ void cache_sector_invalidate(uint8_t pdrv, uint32_t sector_from, uint32_t sector
             continue;
 
         entry->valid = 0;
-        return;
     }
 }
