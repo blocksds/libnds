@@ -221,14 +221,14 @@ static inline void systemShutDown(void)
 ///     Battery level and external power source status.
 u32 getBatteryLevel(void);
 
-/// Set the arm9 vector base
+/// Set the ARM9 interrupt vector base.
 ///
-/// @param highVector
-///     High vector.
-///
-/// @note
-///     ARM9 only
-void setVectorBase(int highVector);
+/// @param base
+///     Vector base. Setting it to any non-zero value will use the vector base
+//      at 0xFFFF0000 (provided by the BIOS); setting it to zero will use the
+//      vector base at 0x00000000 (provided by the homebrew program,
+//      initialized with BIOS pointers by default - see SystemVectors).
+void setVectorBase(int base);
 
 /// A struct with all the CPU exeption vectors.
 ///
