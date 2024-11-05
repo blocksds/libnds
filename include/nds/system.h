@@ -221,21 +221,34 @@ static inline void systemShutDown(void)
 ///     Battery level and external power source status.
 u32 getBatteryLevel(void);
 
-/// Set the ARM9 interrupt vector base.
+/// Set the ARM9 interrupt vector base to one of two locations:
+///
+/// - 0xFFFF0000 (default; controlled by the BIOS)
+/// - 0x00000000 (alternate; configurable by the homebrew program, initialized
+///   by default with function pointers to BIOS handlers)
+///
+/// To initialize function pointers for the alternate vector base, set the
+/// relevant values in the SystemVectors structure before calling this
+/// function.
+///
+/// Note that it is recommended to call this function with interrupts disabled
+/// (REG_IME = 0).
 ///
 /// @param base
-///     Vector base. Setting it to any non-zero value will use the vector base
-//      at 0xFFFF0000 (provided by the BIOS); setting it to zero will use the
-//      vector base at 0x00000000 (provided by the homebrew program,
-//      initialized with BIOS pointers by default - see SystemVectors).
+///     Vector base. Setting it to any non-zero value will use the default
+///     vector base (0xFFFF0000); setting it to zero will use the alternate
+///     vector base (0x00000000).
+///
+/// @see SystemVectors
 void setVectorBase(int base);
 
-/// A struct with all the CPU exeption vectors.
-///
+/// Structure of function pointers corresponding to ARM CPU interrupts.
 /// Each member contains an ARM instuction that will be executed when an
 /// exeption occurs.
 ///
-/// See gbatek for more information.
+/// See GBATEK for more information on each interrupt.
+///
+/// @see SystemVectors
 typedef struct sysVectors
 {
     VoidFn reset;             ///< CPU reset.
@@ -248,6 +261,10 @@ typedef struct sysVectors
     VoidFn fiq;               ///< Fast interrupt.
 } sysVectors_t;
 
+/// Function pointers to user-provided interrupt handlers, used in the
+/// alternate interrupt vector mode in place of BIOS interrupt handlers.
+///
+/// @see setVectorBase
 extern sysVectors_t SystemVectors;
 
 void setSDcallback(void (*callback)(int));
