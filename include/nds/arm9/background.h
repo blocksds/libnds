@@ -441,9 +441,9 @@ typedef struct BgState
 } BgState;
 
 // ID to register look up tables
-extern vuint16 *bgControl[8];
-extern bg_scroll *bgScrollTable[8];
-extern bg_transform *bgTransform[8];
+extern vu16 *const bgControl[8];
+extern bg_scroll *const bgScrollTable[8];
+extern bg_transform *const bgTransform[8];
 extern BgState bgState[8];
 
 /// Allowed background types, used in bgInit and bgInitSub.

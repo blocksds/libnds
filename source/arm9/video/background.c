@@ -27,7 +27,7 @@
 //"E = Extended Rotation (Bitmap or tiled)\n";
 
 // Look up tables for smoothing register access between the two displays
-vu16 *bgControl[8] =
+vu16 *const bgControl[8] =
 {
     &REG_BG0CNT,
     &REG_BG1CNT,
@@ -39,7 +39,7 @@ vu16 *bgControl[8] =
     &REG_BG3CNT_SUB,
 };
 
-bg_scroll *bgScrollTable[8] =
+bg_scroll *const bgScrollTable[8] =
 {
     &BG_OFFSET[0],
     &BG_OFFSET[1],
@@ -52,7 +52,7 @@ bg_scroll *bgScrollTable[8] =
     &BG_OFFSET_SUB[3]
 };
 
-bg_transform *bgTransform[8] =
+bg_transform *const bgTransform[8] =
 {
     (bg_transform *)0,
     (bg_transform *)0,
