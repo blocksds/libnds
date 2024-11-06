@@ -19,7 +19,7 @@
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   1 | 0xFFFF0000 |  64 KB | All       |  RO    |   Y   | N  | System ROM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   2 | 0x00000000 |   4 KB | All       |  R/W   |   N   | N  | Alternate vector base
+//   2 | 0x00000000 |   4 KB | All       |  RO[3] |   N   | N  | Alternate vector base
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   3 | 0x08000000 | 128 MB | DS, DSd   |  R/W   |   N   | N  | DS Accessory (GBA Cart)
 //     | 0x03000000 |   8 MB | DSI, DSId |        |       |    | DSi switchable IWRAM
@@ -58,6 +58,16 @@
 // the main RAM can only be accessed from their non-cachable mirror. This isn't
 // a problem in a regular retail DSi because it has exactly 16 MB of RAM.
 //
+// [3]: Normally, access to this region is disabled. If the alternate vector
+// base is enabled via setVectorBase(), code and data read access is enabled.
+// This allows us to detect null pointer access attempts. However, writes are
+// always disabled, as the alternate vector base is written to via the ITCM
+// mirror at 0x01000000.
+//
+// In theory, data fetches could be disabled by using a B opcode to jump to
+// (readable) ITCM first, but this would have the side effect of marginally
+// slowing down IRQ performance.
+//
 // Legend:
 //
 //   Access: Data and instruction access permissions (same for privileged and user)
@@ -72,14 +82,7 @@
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
-#define REGION_IO_REGISTERS         0
-#define REGION_SYSTEM_ROM           1
-#define REGION_ALT_VECTORS          2
-#define REGION_SLOT_2_DSI_IWRAM     3 // DS: Slot-2 | DSi: Switchable IWRAM.
-#define REGION_ITCM                 4
-#define REGION_RAM_UNCACHED         5
-#define REGION_RAM_CACHED           6
-#define REGION_DTCM                 7
+#include "mpu_internal.h"
 
     .syntax  unified
     .arch    armv5te
@@ -269,10 +272,11 @@ setregions:
 
     // Instruction access permission. All regions are RW except for:
     // - System ROM. It's read-only.
+    // - Alternate vector base. See note [3].
     // - DTCM. The CPU can´t execute code from here.
     ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_REGISTERS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_SYSTEM_ROM) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ALT_VECTORS) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(REGION_ALT_VECTORS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_SLOT_2_DSI_IWRAM) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ITCM) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_RAM_UNCACHED) | \
@@ -282,9 +286,10 @@ setregions:
 
     // Data access permission. All regions are RW except for:
     // - System ROM. It's read-only.
+    // - Alternate vector base. See note [3].
     ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_REGISTERS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_SYSTEM_ROM) | \
-                  CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ALT_VECTORS) | \
+                  CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(REGION_ALT_VECTORS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_SLOT_2_DSI_IWRAM) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_ITCM) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_RAM_UNCACHED) | \

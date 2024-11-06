@@ -8,6 +8,8 @@
 #include <nds/arm9/cp15_asm.h>
 #include <nds/asminc.h>
 
+#include "mpu_internal.h"
+
     .syntax  unified
     .arch    armv5te
     .cpu     arm946e-s
@@ -45,7 +47,25 @@ vec_fiq:
 
 BEGIN_ASM_FUNC setVectorBase
 
-    // Load the CP15 Control Register
+    // Set eq/ne flags to alternate vector base false/true.
+    cmp     r0, #0
+
+    // Initialize instruction/data access permissions.
+    mrc     CP15_REG5_INSTRUCTION_ACCESS_PERMISSION(r1)
+
+    bic     r1, r1, #CP15_ACCESS_PERMISSIONS_AREA_MASK(REGION_ALT_VECTORS)
+    orreq   r1, r1, #CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_ALT_VECTORS)
+
+    mcr     CP15_REG5_INSTRUCTION_ACCESS_PERMISSION(r1)
+
+    mrc     CP15_REG5_DATA_ACCESS_PERMISSION(r1)
+
+    bic     r1, r1, #CP15_ACCESS_PERMISSIONS_AREA_MASK(REGION_ALT_VECTORS)
+    orreq   r1, r1, #CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_ALT_VECTORS)
+
+    mcr     CP15_REG5_DATA_ACCESS_PERMISSION(r1)
+
+    // Then, set the alternate vector flag.
     mrc     CP15_REG1_CONTROL_REGISTER(r1)
 
     // if (highVector)
@@ -53,11 +73,9 @@ BEGIN_ASM_FUNC setVectorBase
     // else
     //     r1 &= ~CP15_CONTROL_ALTERNATE_VECTOR_SELECT
 
-    cmp     r0, #0
     biceq   r1, r1, #CP15_CONTROL_ALTERNATE_VECTOR_SELECT
     orrne   r1, r1, #CP15_CONTROL_ALTERNATE_VECTOR_SELECT
 
-    // Store the control register
     mcr     CP15_REG1_CONTROL_REGISTER(r1)
 
     bx      lr
