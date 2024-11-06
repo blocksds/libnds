@@ -118,6 +118,7 @@ typedef enum
 ///
 /// @return
 ///     Returns a read-only pointer to the default keyboard.
+WARN_UNUSED_RESULT
 const Keyboard *keyboardGetDefault(void);
 
 /// Initializes the keyboard system with the supplied keyboard.

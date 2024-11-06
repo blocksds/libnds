@@ -35,6 +35,7 @@ typedef struct DynamicArray
 ///
 /// @return
 ///     A pointer to the data, or NULL on error.
+WARN_UNUSED_RESULT
 void *DynamicArrayInit(DynamicArray *v, unsigned int initialSize);
 
 /// Frees memory allocated by the dynamic array.
@@ -52,6 +53,7 @@ void DynamicArrayDelete(DynamicArray *v);
 ///
 /// @return
 ///     The data or NULL if v is NULL or the index is out of range.
+WARN_UNUSED_RESULT
 void *DynamicArrayGet(DynamicArray *v, unsigned int index);
 
 /// Sets the entry to the supplied value.
@@ -65,6 +67,7 @@ void *DynamicArrayGet(DynamicArray *v, unsigned int index);
 ///
 /// @return
 ///     Returns false if v is NULL or there isn't enough memory, true otherwise.
+WARN_UNUSED_RESULT
 bool DynamicArraySet(DynamicArray *v, unsigned int index, void *item);
 
 #ifdef __cplusplus

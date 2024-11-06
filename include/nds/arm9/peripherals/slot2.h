@@ -16,6 +16,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <nds/ndstypes.h>
+
 // TODO: Peripherals marked as "TODO" are not currently detected.
 // In addition, the following are not listed due to insufficient information:
 // - Activity Meters
@@ -72,6 +74,7 @@ bool peripheralSlot2IsDetected(void);
 ///
 /// @return
 ///     Pointer to the string. Don't call free() with this pointer.
+WARN_UNUSED_RESULT
 const char *peripheralSlot2GetName(void);
 
 /// Get the mask of SLOT2_PERIPHERALs supported by this device.
@@ -99,6 +102,7 @@ void peripheralSlot2Close(void);
 ///
 /// @return
 ///     A pointer to the start of the RAM space, or NULL.
+WARN_UNUSED_RESULT
 uint16_t *peripheralSlot2RamStart(void);
 
 /// Return the size, in bytes, of Slot-2 RAM space; 0 if not detected.

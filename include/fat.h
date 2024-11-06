@@ -86,6 +86,7 @@ char *fatGetDefaultCwd(void);
 ///
 /// @return
 ///     Returns a string with the path.
+WARN_UNUSED_RESULT
 const char *fatGetDefaultDrive(void);
 
 /// This function initializes a lookup cache on a given FAT file.

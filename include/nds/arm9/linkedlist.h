@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#include <nds/ndstypes.h>
+
 /// A node of the linked list.
 typedef struct LinkedList
 {
@@ -38,6 +40,7 @@ typedef struct LinkedList
 /// @return
 ///     A pointer to the new node, which is also the new front, or NULL if there
 ///     is not enough memory.
+WARN_UNUSED_RESULT
 LinkedList *linkedlistAdd(LinkedList **front, void *data);
 
 /// Removes a node from a linked list.

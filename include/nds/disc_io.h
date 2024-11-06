@@ -102,6 +102,7 @@ typedef struct DISC_INTERFACE_STRUCT
 } DISC_INTERFACE;
 
 /// Return the internal DSi SD card interface.
+WARN_UNUSED_RESULT
 const DISC_INTERFACE *get_io_dsisd(void);
 
 #ifdef __cplusplus
