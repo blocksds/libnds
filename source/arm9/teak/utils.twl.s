@@ -6,6 +6,9 @@
 
 #include <nds/asminc.h>
 
+    .syntax  unified
+    .arm
+
 BEGIN_ASM_FUNC dspSpinWait itcm
 
     // The jump to here took at least 3 cycles. The jump back took at least 3
