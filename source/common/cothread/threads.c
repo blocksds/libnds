@@ -88,14 +88,14 @@ void init_tls(void *__tls)
     memset(tbss_start, 0, (uintptr_t)__tbss_size);
 }
 
-// This holds the pointer to the TLS of the current thread for __aeabi_read_tp.
-// It doesn't hold the pointer to the start of the TLS data, but to to the
-// beginning of the thread control block.
-void *__tls;
-
 // Size of a thread control block. TLS relocations are generated relative to a
 // location before tdata and tbss.
 #define TCB_SIZE 8
+
+// This holds the pointer to the TLS of the current thread for __aeabi_read_tp.
+// It doesn't hold the pointer to the start of the TLS data, but to to the
+// beginning of the thread control block.
+void *__tls = __tls_start - TCB_SIZE;
 
 static inline void set_tls(void *tls)
 {
@@ -553,8 +553,8 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     (void)argv;
 #endif
 
-    // Thread local storage for the main thread, defined by the linker
-    init_tls(__tls_start);
+    // Thread local storage for the main thread, defined by the linker,
+    // is initialized to __tls_start by the crt0.
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.
