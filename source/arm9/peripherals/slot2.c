@@ -45,7 +45,7 @@ uint16_t slot2_extram_banks = 0;
 #define EZ_CMD_SET_ROM_PAGE   0x9880000
 #define EZ_CMD_SET_NOR_WRITE  0x9C40000
 
-void slot2EzCommand(uint32_t address, uint16_t value)
+static void slot2EzCommand(uint32_t address, uint16_t value)
 {
     *((vu16*)0x9FE0000) = 0xD200;
     *((vu16*)0x8000000) = 0x1500;
@@ -595,8 +595,6 @@ void peripheralSlot2Exit(void)
     slot2_extram_banks = 0;
 }
 
-extern bool slot2DetectTWLDebugRam(void);
-
 bool peripheralSlot2Init(uint32_t peripheral_mask)
 {
     peripheralSlot2Exit();
@@ -605,7 +603,7 @@ bool peripheralSlot2Init(uint32_t peripheral_mask)
     {
         if (peripheral_mask & SLOT2_PERIPHERAL_EXTRAM)
         {
-            if (slot2DetectTWLDebugRam())
+            if (isHwDebugger())
             {
                 slot2_extram_size = 0x1000000;
                 slot2_extram_start = (uint16_t*) 0xD000000;
