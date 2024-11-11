@@ -20,7 +20,7 @@
 
 const char *exceptionMsg = NULL;
 
-uint32_t ARMShift(uint32_t value, uint8_t shift)
+static uint32_t ARMShift(uint32_t value, uint8_t shift)
 {
     // No shift at all
     if (shift == 0x0B)

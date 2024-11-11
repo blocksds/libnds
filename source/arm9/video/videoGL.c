@@ -1145,7 +1145,7 @@ void glResetTextures(void)
         sassert(false, "Failed to allocate vramBlocksPal");
 }
 
-void removePaletteFromTexture(gl_texture_data *tex)
+static void removePaletteFromTexture(gl_texture_data *tex)
 {
     if (tex == NULL)
         return;

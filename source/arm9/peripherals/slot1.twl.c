@@ -6,7 +6,7 @@
 
 #include <nds.h>
 
-void __libnds_twl_cardInit(void)
+void libnds_cardInitTWL(void)
 {
     // DSi homebrew environments do not guarantee initializing the
     // Slot-1 cartridge. Do so manually.

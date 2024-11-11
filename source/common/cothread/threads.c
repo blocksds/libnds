@@ -118,7 +118,7 @@ volatile uint32_t cothread_irq_aux_flags;
 #ifdef ARM9
 ITCM_CODE
 #endif
-bool cothread_scheduler_refresh_irq_flags(void)
+static bool cothread_scheduler_refresh_irq_flags(void)
 {
     bool any_thread_available = false;
 

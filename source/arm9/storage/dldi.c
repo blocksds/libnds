@@ -31,7 +31,7 @@ const DLDI_INTERFACE *io_dldi_data = &_io_dldi_stub;
 
 // -----------------------------------------------------------------------------
 
-bool dldi_arm7_startup(void)
+static bool dldi_arm7_startup(void)
 {
     FifoMessage msg;
     msg.type = DLDI_STARTUP;
@@ -48,7 +48,7 @@ bool dldi_arm7_startup(void)
     return result != 0;
 }
 
-bool dldi_arm7_is_inserted(void)
+static bool dldi_arm7_is_inserted(void)
 {
     fifoMutexAcquire(FIFO_STORAGE);
 
@@ -61,7 +61,7 @@ bool dldi_arm7_is_inserted(void)
     return result != 0;
 }
 
-bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
+static bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
 {
     DC_FlushRange(buffer, numSectors * 512);
 
@@ -85,7 +85,7 @@ bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
     return result != 0;
 }
 
-bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
+static bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
 {
     DC_FlushRange(buffer, numSectors * 512);
 
@@ -109,7 +109,7 @@ bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *buffer)
     return result != 0;
 }
 
-bool dldi_arm7_clear_status(void)
+static bool dldi_arm7_clear_status(void)
 {
     fifoMutexAcquire(FIFO_STORAGE);
 
@@ -122,7 +122,7 @@ bool dldi_arm7_clear_status(void)
     return result != 0;
 }
 
-bool dldi_arm7_shutdown(void)
+static bool dldi_arm7_shutdown(void)
 {
     fifoMutexAcquire(FIFO_STORAGE);
 

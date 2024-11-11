@@ -240,7 +240,7 @@ static int motion_enable(int card_type_)
     }
 }
 
-extern void __libnds_twl_cardInit(void);
+extern void libnds_cardInitTWL(void);
 
 // Initialize the DS Motion Sensor. Determines which DS Motion Sensor is
 // present and turns it on. It does not require knowing which type is present.
@@ -263,7 +263,7 @@ MotionType motion_init(void)
     }
 
     if (isDSiMode())
-        __libnds_twl_cardInit();
+        libnds_cardInitTWL();
 
     // Next, check for DS Motion Card
     if (motion_enable(MOTION_TYPE_CARD) == 1)
