@@ -123,7 +123,8 @@ DSTATUS disk_initialize(BYTE pdrv)
     return STA_NOINIT;
 }
 
-#define IS_MAIN_RAM(buff, len) (((uintptr_t) (buff)) >= 0x02000000 && ((uintptr_t) (buff)) <= (0x02ff0000 - (len)))
+extern uint8_t __dtcm_start;
+#define IS_MAIN_RAM(buff, len) (((uintptr_t) (buff)) >= 0x02000000 && ((uintptr_t) (buff)) <= (((uintptr_t) &__dtcm_start) - (len)))
 #define IS_WORD_ALIGNED(buff) (!(((uintptr_t) (buff)) & 0x03))
 
 //-----------------------------------------------------------------------
