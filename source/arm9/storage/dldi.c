@@ -231,14 +231,14 @@ void *dldiGetStubEnd(void)
     return &__dldi_end;
 }
 
-void dldiFixDriverAddresses(DLDI_INTERFACE *io)
+void dldiRelocate(DLDI_INTERFACE *io, void *targetAddress)
 {
     u32 offset;
     u8 **address;
     u8 *oldStart;
     u8 *oldEnd;
 
-    offset = (char *)io - (char *)(io->dldiStart);
+    offset = ((u32) targetAddress) - ((u32) io->dldiStart);
 
     oldStart = io->dldiStart;
     oldEnd = io->dldiEnd;

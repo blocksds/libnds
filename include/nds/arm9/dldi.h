@@ -97,8 +97,14 @@ const DISC_INTERFACE *dldiGetInternal(void);
 /// Determine if an IO driver is a valid DLDI driver.
 bool dldiIsValid(const DLDI_INTERFACE *io);
 
+/// Relocate DLDI driver to a given target location in memory.
+void dldiRelocate(DLDI_INTERFACE *io, void *targetAddress);
+
 /// Adjust the pointer addresses within a DLDI driver.
-void dldiFixDriverAddresses(DLDI_INTERFACE *io);
+static inline void dldiFixDriverAddresses(DLDI_INTERFACE *io)
+{
+    dldiRelocate(io, io);
+}
 
 /// Load a DLDI driver from a file and set up the bus permissions.
 ///
