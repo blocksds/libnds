@@ -7,8 +7,10 @@
 #include <nds/asminc.h>
 
     .syntax  unified
+#ifdef ARM9
     .arch    armv5te
     .cpu     arm946e-s
+#endif
 
     .arm
 
@@ -23,13 +25,19 @@ BEGIN_ASM_FUNC enterException
     ldr     r13, =exceptionStack
     ldr     r13, [r13]
 
+#ifdef ARM9
     // Re-enable MPU
     mrc     CP15_REG1_CONTROL_REGISTER(r0)
     orr     r0, r0, #CP15_CONTROL_PROTECTION_UNIT_ENABLE
     mcr     CP15_REG1_CONTROL_REGISTER(r0)
+#endif
 
     // BIOS exception stack
+#ifdef ARM9
     ldr     r0, =0x02FFFD90
+#else
+    ldr     r0, =0x0380FFD0
+#endif
 
     // Get r15 from BIOS exception stack
     ldr     r2, [r0, #8]
@@ -56,7 +64,12 @@ BEGIN_ASM_FUNC enterException
     // Get C function and call it
     ldr     r12, =exceptionC
     ldr     r12, [r12, #0]
+#ifdef ARM9
     blxne   r12
+#else
+    mov     lr, pc
+    bxne    r12
+#endif
 
     // Restore registers
     ldr     r12, =exceptionRegisters
@@ -73,7 +86,11 @@ exceptionC:
 
     .global exceptionStack
 exceptionStack:
+#ifdef ARM9
     .word    0x02ff4000
+#else
+    .word    0x03810000
+#endif
 
     .global exceptionRegisters
 exceptionRegisters:

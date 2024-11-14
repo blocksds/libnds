@@ -110,9 +110,9 @@
 ///
 /// @section debug_api Debugging
 /// - @ref nds/arm9/console.h "Debug via printf to DS screen or NO$GBA"
-/// - @ref nds/arm9/exceptions.h "Exception handling"
 /// - @ref nds/arm9/sassert.h "Simple assert"
 /// - @ref nds/debug.h "Send message to NO$GBA"
+/// - @ref nds/exceptions.h "Exception handling"
 
 #ifndef LIBNDS_NDS_H__
 #define LIBNDS_NDS_H__
@@ -135,6 +135,7 @@ extern "C" {
 #include <nds/debug.h>
 #include <nds/decompress.h>
 #include <nds/dma.h>
+#include <nds/exceptions.h>
 #include <nds/fifocommon.h>
 #include <nds/input.h>
 #include <nds/interrupts.h>
@@ -157,7 +158,6 @@ extern "C" {
 #    include <nds/arm9/camera.h>
 #    include <nds/arm9/console.h>
 #    include <nds/arm9/dynamicArray.h>
-#    include <nds/arm9/exceptions.h>
 #    include <nds/arm9/guitarGrip.h>
 #    include <nds/arm9/image.h>
 #    include <nds/arm9/input.h>
