@@ -46,12 +46,12 @@ extern "C" {
 #define DIV_64_64           2
 #define DIV_64_32           1
 #define DIV_32_32           0
-#define DIV_BUSY            (1 << 15)
+#define DIV_BUSY            (1u << 15)
 #define DIV_MODE_MASK       3
 
 #define SQRT_64             1
 #define SQRT_32             0
-#define SQRT_BUSY           (1 << 15)
+#define SQRT_BUSY           (1u << 15)
 #define SQRT_MODE_MASK      1
 
 // Fixed point conversion macros
