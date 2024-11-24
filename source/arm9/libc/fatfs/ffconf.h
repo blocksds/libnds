@@ -18,7 +18,7 @@
 /
 /------------------------------------------------------------------------*/
 
-#define FFCONF_DEF	80286	/* Revision ID */
+#define FFCONF_DEF	5380	/* Revision ID */
 
 /*---------------------------------------------------------------------------/
 / Function Configurations
@@ -73,8 +73,8 @@
 
 
 #define FF_USE_STRFUNC	0
-#define FF_PRINT_LLI	1
-#define FF_PRINT_FLOAT	1
+#define FF_PRINT_LLI	0
+#define FF_PRINT_FLOAT	0
 #define FF_STRF_ENCODE	3
 /* FF_USE_STRFUNC switches string functions, f_gets(), f_putc(), f_puts() and
 /  f_printf().
