@@ -503,8 +503,8 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 /// @param empty3
 ///     Ignored, only here for OpenGL compatibility.
 /// @param table
-///     Pointer to the palette data to load (if NULL, the palette is removed
-///     from currently bound texture).
+///     Pointer to the palette data to load. If this is NULL, the palette will
+///     be allocated but no data will be copied to it.
 ///
 /// @return
 ///     1 on success, 0 on failure.
