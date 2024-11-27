@@ -1450,9 +1450,9 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     if (texture->palIndex) // Remove prior palette if exists
         removePaletteFromTexture(texture);
 
-    // Exit if no color table or color count is 0 (helpful in emptying the
-    // palette for the active texture). This isn't considered an error.
-    if ((width == 0) || (table == NULL))
+    // Exit if color count is 0 (helpful in emptying the palette for the active texture).
+    // This isn't considered an error.
+    if (width == 0)
         return 1;
 
     // Allocate new palette block based on the texture's format
@@ -1534,6 +1534,14 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     palette->connectCount = 1;
     palette->palSize = width << 1;
 
+    GFX_PAL_FORMAT = palette->addr;
+    glGlob.activePalette = texture->palIndex;
+
+    // Exit if table is NULL (helpful to allocate VRAM without filling).
+    // This isn't considered an error.
+    if (table == NULL)
+        return 1;
+
     // Copy straight to VRAM, and assign a palette name
     uint32_t tempVRAM = VRAM_EFG_CR;
     uint16_t *startBank = vramGetBank((uint16_t *)palette->vramAddr);
@@ -1559,9 +1567,6 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
 
     swiCopy(table, palette->vramAddr, width | COPY_MODE_HWORD);
     vramRestoreBanks_EFG(tempVRAM);
-
-    GFX_PAL_FORMAT = palette->addr;
-    glGlob.activePalette = texture->palIndex;
 
     return 1;
 }
