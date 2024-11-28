@@ -273,29 +273,26 @@ BEGIN_ASM_FUNC CP15_SetITCM
     bx      lr
 
 //////////////////////////////////////////////////////////////////////
-// Routine obtained from page 3-11 of ARM DDI 0201D
+// Routine adapted from page 3-11 of ARM DDI 0201D
 //////////////////////////////////////////////////////////////////////
 BEGIN_ASM_FUNC CP15_CleanAndFlushDCache
 
-    // Loop in all 4 segments
-    mov     r1, #0
-outer_loop:
-
-    // Loop in all entries in one segment
+    // Loop in all entries in all 4 segments
     mov     r0, #0
-inner_loop:
-    orr     r2, r1, r0 // Generate segment and line address
-    mcr     CP15_REG7_CLEAN_FLUSH_DCACHE_ENTRY_BY_INDEX(r2) // Clean the line
+    // r1 adjusts r0 to be set to the beginning of the next segment after completed iteration
+    mov     r1, #0x40000000
+    sub     r1, r1, #(DCACHE_SIZE / ENTRIES_PER_SEGMENT)
+.Linner_loop:
+    mcr     CP15_REG7_CLEAN_FLUSH_DCACHE_ENTRY_BY_INDEX(r0) // Clean the line
     add     r0, r0, #CACHE_LINE_SIZE // Increment to next line
-    cmp     r0, #(DCACHE_SIZE / ENTRIES_PER_SEGMENT)
-    bne     inner_loop
+    tst     r0, #(DCACHE_SIZE / ENTRIES_PER_SEGMENT) // Check for end of segment
+    beq     .Linner_loop
 
-    add     r1, r1, #0x40000000 // Increment segment counter
-    cmp     r1, #0x0
-    bne     outer_loop
+    adds    r0, r0, r1 // Increment segment counter
+    bne     .Linner_loop
 
     // Drain write buffer
-    mov     r0, #0
+    // (r0 is already 0 here from the above loop)
     mcr     CP15_REG7_DRAIN_WRITE_BUFFER
 
     bx      lr
