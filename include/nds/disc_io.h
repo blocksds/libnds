@@ -20,6 +20,7 @@ extern "C" {
 #define FEATURE_ARM7_CAPABLE        0x00000100 ///< This driver can be safely used from ARM7 and ARM9. BlocksDS extension.
 
 #define DEVICE_TYPE_DSI_SD          ('_') | ('S' << 8) | ('D' << 16) | ('_' << 24)
+#define DEVICE_TYPE_DSI_NAND        ('N') | ('A' << 8) | ('N' << 16) | ('D' << 24)
 
 typedef bool (*FN_MEDIUM_STARTUP)(void);
 typedef bool (*FN_MEDIUM_ISINSERTED)(void);
@@ -101,6 +102,9 @@ typedef struct DISC_INTERFACE_STRUCT
     ///     True on success.
     FN_MEDIUM_SHUTDOWN      shutdown;
 } DISC_INTERFACE;
+
+/// Return the internal DSi NAND interface.
+const DISC_INTERFACE *get_io_dsinand(void);
 
 /// Return the internal DSi SD card interface.
 const DISC_INTERFACE *get_io_dsisd(void);

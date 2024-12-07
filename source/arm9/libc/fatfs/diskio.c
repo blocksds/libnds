@@ -50,6 +50,7 @@
 // Definitions of physical drive number for each drive
 #define DEV_DLDI    0x00 // DLDI driver (flashcard)
 #define DEV_SD      0x01 // SD slot of the DSi
+#define DEV_NAND    0x02 // NAND of the DSi
 
 // Debugging defines.
 // #define DISABLE_DIRECT_READS
@@ -80,6 +81,7 @@ DSTATUS disk_status(BYTE pdrv)
     switch (pdrv)
     {
         case DEV_SD:
+        case DEV_NAND:
             result = sdmmc_GetDiskStatus();
             // Fall through
         case DEV_DLDI:
@@ -112,8 +114,18 @@ DSTATUS disk_initialize(BYTE pdrv)
     {
         case DEV_DLDI:
         case DEV_SD:
+        case DEV_NAND:
         {
-            const DISC_INTERFACE *io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
+            const DISC_INTERFACE *io;
+
+            if (pdrv == DEV_DLDI)
+                io = dldiGetInternal();
+            else if (pdrv == DEV_SD)
+                io = get_io_dsisd();
+            else if (pdrv == DEV_NAND)
+                io = get_io_dsinand();
+            else
+                return STA_NODISK;
 
             if (!(io->features & FEATURE_MEDIUM_CANREAD))
                 return STA_NOINIT | STA_NODISK;
@@ -161,6 +173,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
     {
         case DEV_DLDI:
         case DEV_SD:
+        case DEV_NAND:
         {
             const DISC_INTERFACE *io = fs_io[pdrv];
 
@@ -246,6 +259,7 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
     {
         case DEV_DLDI:
         case DEV_SD:
+        case DEV_NAND:
         {
             cache_sector_invalidate(pdrv, sector, sector + count - 1);
 
@@ -314,6 +328,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
     switch (pdrv)
     {
         case DEV_SD:
+        case DEV_NAND:
             if (cmd == GET_SECTOR_COUNT)
             {
                 *((LBA_t*) buff) = sdmmc_GetSectors();

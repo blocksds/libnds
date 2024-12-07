@@ -103,11 +103,6 @@ bool sdmmc_Startup(void)
     return sdmmc_fifo_value(SDMMC_SD_START) == 0;
 }
 
-bool nand_IsInserted(void)
-{
-    return true;
-}
-
 bool sdmmc_IsInserted(void)
 {
     return (sdmmc_GetDiskStatus() & SDMMC_STATUS_NODISK) == 0;
@@ -132,17 +127,6 @@ bool sdmmc_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_SD_WRITE_SECTORS, sector, numSectors, (void *) buffer, true) == 0;
 }
-
-/* const DISC_INTERFACE __io_dsinand = {
-    DEVICE_TYPE_DSI_SD,
-    FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,
-    &nand_Startup,
-    &nand_IsInserted,
-    &nand_ReadSectors,
-    &nand_WriteSectors,
-    &sdmmc_ClearStatus,
-    &sdmmc_Shutdown
-}; */
 
 const DISC_INTERFACE __io_dsisd =
 {

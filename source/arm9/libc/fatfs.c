@@ -23,6 +23,7 @@ static FATFS fs_info[FF_VOLUMES] = { 0 };
 
 static const char *fat_drive = "fat:/";
 static const char *sd_drive = "sd:/";
+static const char *nand_drive = "nand:/";
 
 static bool fat_initialized = false;
 
@@ -335,6 +336,10 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
             errno = fatfs_error_to_posix(result);
             goto cleanup;
         }
+
+        result = f_mount(&fs_info[2], nand_drive, 1);
+        errno = fatfs_error_to_posix(result);
+        perror("NAND mount");
     }
     else
     {
