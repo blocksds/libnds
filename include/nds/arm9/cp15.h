@@ -108,6 +108,10 @@ void CP15_CleanAndFlushDCache(void);
 
 void CP15_FlushICacheRange(const void *base, size_t size);
 
+// Disables the MPU by disabling the data cache, then the instruction cache, and
+// then actually disabling the MPU so that it's done safely.
+void CP15_MPUDisable(void);
+
 #ifdef __cplusplus
 }
 #endif

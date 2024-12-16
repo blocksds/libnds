@@ -312,6 +312,41 @@ setregions:
 
     bx      lr
 
+// Disables the MPU being careful to disable the instruction and data caches
+// correctly.
+BEGIN_ASM_FUNC CP15_MPUDisable
+
+    // Preserve LR in a callee-saved register
+    mov     r8, lr
+
+    // Flush data cache
+    bl      CP15_CleanAndFlushDCache
+
+    // Disable data cache
+    mrc     CP15_REG1_CONTROL_REGISTER(r0)
+    bic     r0, r0, CP15_CONTROL_DCACHE_ENABLE
+    mcr     CP15_REG1_CONTROL_REGISTER(r0)
+
+    // Invalidate data cache
+    bl      CP15_FlushDCache
+
+    // Disable instruction cache (after the data cache so that the data cache
+    // disable is faster).
+    mrc     CP15_REG1_CONTROL_REGISTER(r0)
+    bic     r0, r0, CP15_CONTROL_ICACHE_ENABLE
+    mcr     CP15_REG1_CONTROL_REGISTER(r0)
+
+    // Invalidate instruction cache
+    bl      CP15_FlushICache
+
+    // Disable MPU
+    mrc     CP15_REG1_CONTROL_REGISTER(r0)
+    bic     r0, r0, CP15_CONTROL_PROTECTION_UNIT_ENABLE
+    mcr     CP15_REG1_CONTROL_REGISTER(r0)
+
+    mov     lr, r8
+    bx      lr
+
 // Returns a cached mirror of an address.
 BEGIN_ASM_FUNC memCached
 

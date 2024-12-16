@@ -9,6 +9,7 @@
 #include <nds/system.h>
 
 #ifdef ARM9
+#include <nds/arm9/cp15.h>
 #include "arm9/libnds_internal.h"
 #else
 #include "arm7/libnds_internal.h"
@@ -72,6 +73,8 @@ ARM_CODE void _exit(int rc)
         // enough to not receive a FIFO message from the ARM7, there is no way
         // they can sync enough to do a successful exit.
 #ifdef ARM9
+        CP15_MPUDisable();
+
         bootcode->arm9reboot();
 #endif
 #ifdef ARM7
