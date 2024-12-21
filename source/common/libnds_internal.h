@@ -68,4 +68,11 @@ extern time_t *punixTime;
 int nocash_putc_buffered(char c, FILE *file);
 ssize_t nocash_write(const char *ptr, size_t len);
 
+// Exception-related functions
+
+extern const char *exceptionMsg;
+
+uint32_t ARMShift(uint32_t value, uint8_t shift);
+u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState);
+
 #endif // COMMON_LIBNDS_INTERNAL_H__

@@ -18,7 +18,7 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
-#include "common/exceptions_internal.h"
+#include "common/libnds_internal.h"
 
 __attribute__((noreturn))
 void guruMeditationDump(void)
