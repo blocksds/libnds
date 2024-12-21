@@ -54,7 +54,6 @@ void enterException(void);
 ///     Exception handler routine.
 void setExceptionHandler(VoidFn handler);
 
-#ifdef ARM9
 /// Sets the default debug hardware exception handler.
 ///
 /// This handler prints a lot of information, like the state of the CPU
@@ -66,7 +65,6 @@ void defaultExceptionHandler(void);
 /// This is similar to defaultExceptionHandler(), but it only prints a minimal
 /// error message, and it uses a lot less code to do it.
 void releaseExceptionHandler(void);
-#endif
 
 #ifdef __cplusplus
 }

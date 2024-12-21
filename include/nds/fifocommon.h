@@ -70,6 +70,7 @@ typedef enum
     SYS_SET_TIME, // TODO: Unused
     SDMMC_INSERT, // TODO: Unused
     SDMMC_REMOVE, // TODO: Unused
+    SYS_ARM7_CRASH,
 } FifoSystemCommands;
 
 typedef enum

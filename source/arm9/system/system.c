@@ -13,6 +13,7 @@
 #include <nds/system.h>
 
 #include "arm9/libnds_internal.h"
+#include "common/libnds_internal.h"
 
 static void (*SDcallback)(int) = NULL;
 
@@ -39,6 +40,17 @@ void systemValueHandler(u32 value, void *data)
             if (SDcallback)
                 SDcallback(0);
             break;
+        case SYS_ARM7_CRASH:
+        {
+            REG_IME = 0;
+
+            __TransferRegion volatile *ipc = __transferRegion();
+            ExceptionState *ex = (ExceptionState *)&ipc->exceptionState;
+            exceptionStatePrint(ex, "ARM7 Guru Meditation Error");
+
+            while (1)
+                swiWaitForVBlank();
+        }
     }
 }
 

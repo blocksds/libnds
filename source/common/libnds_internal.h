@@ -27,6 +27,7 @@ typedef struct __TransferRegion
 {
     time_t unixTime;
     struct __bootstub *bootcode;
+    ExceptionState exceptionState;
 } __TransferRegion, *__pTransferRegion;
 
 static_assert(sizeof(__TransferRegion) <= 0x1000, "Transfer region is too big");
