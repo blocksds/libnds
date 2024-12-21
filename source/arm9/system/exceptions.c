@@ -106,7 +106,7 @@ void guruMeditationDump(void)
     {
         if (currentMode == CPSR_MODE_ABORT)
         {
-            strcpy(ex.description, "Data abort!");
+            strcpy(ex.description, "Data abort");
 
             // In a data abort, there is an instruction that tried to access an
             // invalid address, and an invalid address.
@@ -140,7 +140,7 @@ void guruMeditationDump(void)
         }
         else if (currentMode == CPSR_MODE_UNDEFINED)
         {
-            strcpy(ex.description, "Undefined instruction!");
+            strcpy(ex.description, "Undefined instruction");
 
             // Get the address where the exception was triggered, which is the
             // one that holds the undefined instruction, so it's the same
@@ -159,7 +159,7 @@ void guruMeditationDump(void)
         }
         else
         {
-            strcpy(ex.description, "Unknown error!");
+            strcpy(ex.description, "Unknown error");
 
             // If we're here because of an unknown error we can't print anything
             print_information = false;
