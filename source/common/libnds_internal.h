@@ -9,6 +9,7 @@
 #ifndef COMMON_LIBNDS_INTERNAL_H__
 #define COMMON_LIBNDS_INTERNAL_H__
 
+#include <assert.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -20,6 +21,8 @@ typedef struct __TransferRegion
     time_t unixTime;
     struct __bootstub *bootcode;
 } __TransferRegion, *__pTransferRegion;
+
+static_assert(sizeof(__TransferRegion) <= 0x1000, "Transfer region is too big");
 
 static inline __TransferRegion volatile *__transferRegion(void)
 {
