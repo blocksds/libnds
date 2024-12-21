@@ -64,12 +64,12 @@ typedef enum
 /// Enum values for the FIFO system commands.
 typedef enum
 {
-    SYS_REQ_TOUCH,
-    SYS_REQ_KEYS,
-    SYS_REQ_TIME,
-    SYS_SET_TIME,
-    SDMMC_INSERT,
-    SDMMC_REMOVE
+    SYS_REQ_TOUCH, // TODO: Unused
+    SYS_REQ_KEYS, // TODO: Unused
+    SYS_REQ_TIME, // TODO: Unused
+    SYS_SET_TIME, // TODO: Unused
+    SDMMC_INSERT, // TODO: Unused
+    SDMMC_REMOVE, // TODO: Unused
 } FifoSystemCommands;
 
 typedef enum
