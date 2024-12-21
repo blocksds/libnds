@@ -16,6 +16,13 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
+typedef struct {
+    uint32_t reg[16]; // State of user CPU registers
+    uint32_t address; // Address that was accessed and caused the exception
+    uint32_t stack[22]; // Dump of the stack at the SP
+    char description[32]; // Reason for the exception
+} ExceptionState;
+
 typedef struct __TransferRegion
 {
     time_t unixTime;
@@ -74,5 +81,7 @@ extern const char *exceptionMsg;
 
 uint32_t ARMShift(uint32_t value, uint8_t shift);
 u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState);
+
+void exceptionStatePrint(ExceptionState *ex, const char *title);
 
 #endif // COMMON_LIBNDS_INTERNAL_H__

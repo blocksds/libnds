@@ -20,19 +20,55 @@
 
 #include "common/libnds_internal.h"
 
-__attribute__((noreturn))
-void guruMeditationDump(void)
+void exceptionStatePrint(ExceptionState *ex, const char *title)
 {
-    REG_IME = 0;
-
     consoleDemoInit();
 
     // White text on a red background
     BG_PALETTE_SUB[0] = RGB15(15, 0, 0);
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
-    consoleSetCursor(NULL, 5, 0);
-    printf("Guru Meditation Error!");
+    consoleSetCursor(NULL, (32 - strlen(title)) / 2, 0);
+    printf(title);
+
+    consoleSetCursor(NULL, (32 - strlen(ex->description)) / 2, 1);
+    printf("%s\n\n", ex->description);
+
+    if (true)
+    {
+        // Finally, print everything to the screen
+
+        printf("  pc: %08" PRIX32 " addr: %08" PRIX32 "\n\n", ex->reg[15], ex->address);
+
+        for (int i = 0; i < 8; i++)
+        {
+            const char *registerNames[] =
+            {
+                "r0",  "r1",  "r2",  "r3",  "r4",  "r5", "r6",  "r7",
+                "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
+            };
+
+            printf("  %s: %08" PRIX32 "   %s: %08" PRIX32 "\n",
+                   registerNames[i], ex->reg[i],
+                   registerNames[i + 8], ex->reg[i + 8]);
+        }
+
+        printf("\n");
+        for (int i = 0; i < 10; i++)
+        {
+            consoleSetCursor(NULL, 2, i + 14);
+            printf("%08" PRIX32 ":  %08" PRIX32 " %08" PRIX32 "",
+                   (u32)(ex->reg[13] + i * 2), ex->stack[i * 2], ex->stack[(i * 2) + 1]);
+        }
+    }
+}
+
+__attribute__((noreturn))
+void guruMeditationDump(void)
+{
+    REG_IME = 0;
+
+    ExceptionState ex = { 0 };
 
     // The current CPU mode specifies whether the exception was caused by a data
     // abort or an undefined instruction.
@@ -54,7 +90,7 @@ void guruMeditationDump(void)
         if (tab > 16)
             tab = 0;
         consoleSetCursor(NULL, tab, 1);
-        printf("%s\n\n", exceptionMsg);
+        strcpy(ex.description, exceptionMsg);
 
         // This should have happened because of an undefined instruction, get
         // information the same way.
@@ -70,8 +106,7 @@ void guruMeditationDump(void)
     {
         if (currentMode == CPSR_MODE_ABORT)
         {
-            consoleSetCursor(NULL, 10, 1);
-            printf("Data abort!\n\n");
+            strcpy(ex.description, "Data abort!");
 
             // In a data abort, there is an instruction that tried to access an
             // invalid address, and an invalid address.
@@ -105,8 +140,7 @@ void guruMeditationDump(void)
         }
         else if (currentMode == CPSR_MODE_UNDEFINED)
         {
-            consoleSetCursor(NULL, 5, 1);
-            printf("Undefined instruction!\n\n");
+            strcpy(ex.description, "Undefined instruction!");
 
             // Get the address where the exception was triggered, which is the
             // one that holds the undefined instruction, so it's the same
@@ -125,8 +159,7 @@ void guruMeditationDump(void)
         }
         else
         {
-            consoleSetCursor(NULL, 8, 1);
-            printf("Unknown error!\n\n");
+            strcpy(ex.description, "Unknown error!");
 
             // If we're here because of an unknown error we can't print anything
             print_information = false;
@@ -135,32 +168,20 @@ void guruMeditationDump(void)
 
     if (print_information)
     {
-        // Finally, print everything to the screen
+        memcpy(&(ex.reg[0]), &(exceptionRegisters[0]), sizeof(ex.reg));
 
-        printf("  pc: %08" PRIX32 " addr: %08" PRIX32 "\n\n", codeAddress, exceptionAddress);
+        ex.reg[15] = codeAddress;
+        ex.address = exceptionAddress;
 
-        for (int i = 0; i < 8; i++)
-        {
-            const char *registerNames[] =
-            {
-                "r0",  "r1",  "r2",  "r3",  "r4",  "r5", "r6",  "r7",
-                "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
-            };
-
-            printf("  %s: %08" PRIX32 "   %s: %08" PRIX32 "\n",
-                   registerNames[i], exceptionRegisters[i],
-                   registerNames[i + 8], exceptionRegisters[i + 8]);
-        }
-
-        printf("\n");
         u32 *stack = (u32 *)exceptionRegisters[13];
         for (int i = 0; i < 10; i++)
         {
-            consoleSetCursor(NULL, 2, i + 14);
-            printf("%08" PRIX32 ":  %08" PRIX32 " %08" PRIX32 "",
-                   (u32)&stack[i * 2], stack[i * 2], stack[(i * 2) + 1]);
+            ex.stack[(i * 2) + 0] = stack[(i * 2) + 0];
+            ex.stack[(i * 2) + 1] = stack[(i * 2) + 1];
         }
     }
+
+    exceptionStatePrint(&ex, "ARM9 Guru Meditation Error");
 
     // We can't make any assumption about what happened before an exception. It
     // may have happened when dereferencing a NULL pointer before doing any
