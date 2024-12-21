@@ -10,10 +10,10 @@
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
-#include <nds/arm9/exceptions.h>
 #include <nds/arm9/video.h>
 #include <nds/cpu_asm.h>
 #include <nds/interrupts.h>
+#include <nds/exceptions.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
@@ -126,7 +126,7 @@ void guruMeditationDump(void)
         else
         {
             consoleSetCursor(NULL, 8, 1);
-            printf("unknown error!\n\n");
+            printf("Unknown error!\n\n");
 
             // If we're here because of an unknown error we can't print anything
             print_information = false;
