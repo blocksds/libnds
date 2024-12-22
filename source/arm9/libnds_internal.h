@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 
 #ifndef ARM9_LIBNDS_INTERNAL_H__
 #define ARM9_LIBNDS_INTERNAL_H__
+
+#include <time.h>
 
 #include <nds/arm9/console.h>
 #include <nds/arm9/input.h>
@@ -15,5 +17,7 @@ void setTransferInputData(touchPosition *touch, u16 buttons);
 // In the ARM9, this function will cause an exception that will print the
 // provided message.
 __attribute__((noreturn)) void libndsCrash(const char *message);
+
+extern time_t *punixTime;
 
 #endif // ARM9_LIBNDS_INTERNAL_H__

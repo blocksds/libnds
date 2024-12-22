@@ -9,7 +9,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../libnds_internal.h"
+#ifdef ARM9
+#include "arm9/libnds_internal.h"
+#endif
+#include "common/libnds_internal.h"
 
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib and picolibc:

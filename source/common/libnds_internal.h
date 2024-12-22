@@ -16,6 +16,8 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
+// ARM7-ARM9 shared memory
+
 typedef struct {
     uint32_t reg[16]; // State of user CPU registers
     uint32_t address; // Address that was accessed and caused the exception
@@ -69,13 +71,6 @@ static inline __TransferRegion volatile *__transferRegion(void)
         return (__TransferRegion volatile *)0x02FFF000;
 }
 
-void __libnds_exit(int rc);
-
-extern time_t *punixTime;
-
-int nocash_putc_buffered(char c, FILE *file);
-ssize_t nocash_write(const char *ptr, size_t len);
-
 // Exception-related functions
 
 extern const char *exceptionMsg;
@@ -84,5 +79,12 @@ uint32_t ARMShift(uint32_t value, uint8_t shift);
 u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState);
 
 void exceptionStatePrint(ExceptionState *ex, const char *title);
+
+// Other functions present in the ARM7 and ARM9
+
+void __libnds_exit(int rc);
+
+int nocash_putc_buffered(char c, FILE *file);
+ssize_t nocash_write(const char *ptr, size_t len);
 
 #endif // COMMON_LIBNDS_INTERNAL_H__
