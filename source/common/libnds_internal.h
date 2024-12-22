@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005-2008 Dave Murphy (WinterMute)
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 
 // Internal variables for libnds
 
@@ -86,5 +86,8 @@ void __libnds_exit(int rc);
 
 int nocash_putc_buffered(char c, FILE *file);
 ssize_t nocash_write(const char *ptr, size_t len);
+
+// This function will cause an exception that will print the provided message.
+__attribute__((noreturn)) void libndsCrash(const char *message);
 
 #endif // COMMON_LIBNDS_INTERNAL_H__

@@ -9,11 +9,7 @@
 
 #include <sys/lock.h>
 
-#ifdef ARM9
-#include "arm9/libnds_internal.h"
-#else
-#include "arm7/libnds_internal.h"
-#endif
+#include "common/libnds_internal.h"
 
 void *__aeabi_read_tp(void);
 
