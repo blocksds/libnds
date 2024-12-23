@@ -51,6 +51,9 @@ void systemValueHandler(u32 value, void *data)
             while (1)
                 swiWaitForVBlank();
         }
+        case SYS_ARM7_CONSOLE_FLUSH:
+            consoleArm7Flush();
+            break;
     }
 }
 

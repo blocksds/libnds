@@ -99,6 +99,7 @@
 ///
 /// @section arm7 ARM7 modules
 /// - @ref nds/arm7/clock.h "RTC utilities"
+/// - @ref nds/arm7/console.h "Console to that sends messages to the ARM9 easily"
 /// - @ref nds/arm7/input.h "Keypad and touch pad ARM7 helpers"
 /// - @ref nds/arm7/audio.h "Audio and microphone helpers"
 /// - @ref nds/arm7/touch.h "Touch screen helpers"
@@ -193,6 +194,7 @@ extern "C" {
 #    include <nds/arm7/camera.h>
 #    include <nds/arm7/clock.h>
 #    include <nds/arm7/codec.h>
+#    include <nds/arm7/console.h>
 #    include <nds/arm7/firmware.h>
 #    include <nds/arm7/gpio.h>
 #    include <nds/arm7/i2c.h>

@@ -71,6 +71,8 @@ typedef enum
     SDMMC_INSERT, // TODO: Unused
     SDMMC_REMOVE, // TODO: Unused
     SYS_ARM7_CRASH,
+    SYS_ARM7_CONSOLE_FLUSH,
+    SYS_SET_ARM7_CONSOLE,
 } FifoSystemCommands;
 
 typedef enum

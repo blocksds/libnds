@@ -468,6 +468,38 @@ void consoleSetCustomStdout(ConsoleOutFn fn);
 ///     Callback where stderr is sent.
 void consoleSetCustomStderr(ConsoleOutFn fn);
 
+/// Initialize the ARM7 console and direct the output to the specified console.
+///
+/// This function allocates a ring buffer in main RAM and shares the pointer
+/// with the ARM7. The ARM7 will start saving text to this buffer and the ARM9
+/// is in charge of reading the buffer and sending it to the desired
+/// PrintConsole.
+///
+/// @param console
+///     Console that will receive the text from the ARM7. This must have been
+///     initialized with consoleInit() or similar functions.
+/// @param buffer_size
+///     Size of the shared buffer.
+///
+/// @return
+///     On success, it returns 0. On failure, a negative number. This can happen
+///     if the buffer is already setup or if there isn't enough space in the
+///     heap. Please, call consoleArm7Disable() first if you want to change the
+///     size of the buffer.
+int consoleArm7Setup(PrintConsole *console, size_t buffer_size);
+
+/// It disables the ARM7 console and frees the shared buffer.
+///
+/// @return
+///     It reutrns 0 on success, an error code otherwise.
+int consoleArm7Disable(void);
+
+/// This function checks the ring buffer and prints all enqueued text.
+///
+/// This function doesn't need to be called normally, this is requested by the
+/// ARM7 whenever it is required.
+void consoleArm7Flush(void);
+
 #ifdef __cplusplus
 }
 #endif

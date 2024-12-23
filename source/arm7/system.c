@@ -4,8 +4,10 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005-2008 Jason Rogers (Dovoto)
 // Copyright (C) 2009-2017 Dave Murphy (WinterMute)
+// Copyright (C) 2024 Antonio Niño Díaz
 
 #include <nds/arm7/clock.h>
+#include <nds/arm7/console.h>
 #include <nds/arm7/i2c.h>
 #include <nds/arm7/sdmmc.h>
 #include <nds/arm7/tmio.h>
@@ -165,10 +167,27 @@ int sleepEnabled(void)
     return sleepIsEnabled;
 }
 
+void systemMsgHandler(int bytes, void *user_data)
+{
+    (void)user_data;
+
+    FifoMessage msg;
+
+    fifoGetDatamsg(FIFO_SYSTEM, bytes, (u8 *)&msg);
+
+    switch (msg.type)
+    {
+        case SYS_SET_ARM7_CONSOLE:
+            consoleSetup(msg.setArm7Console.buffer);
+            break;
+    }
+}
+
 void installSystemFIFO(void)
 {
     fifoSetValue32Handler(FIFO_PM, powerValueHandler, 0);
     fifoSetValue32Handler(FIFO_STORAGE, storageValueHandler, 0);
     fifoSetDatamsgHandler(FIFO_STORAGE, storageMsgHandler, 0);
     fifoSetDatamsgHandler(FIFO_FIRMWARE, firmwareMsgHandler, 0);
+    fifoSetDatamsgHandler(FIFO_SYSTEM, systemMsgHandler, 0);
 }

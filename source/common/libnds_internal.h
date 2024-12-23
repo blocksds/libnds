@@ -80,6 +80,15 @@ u32 getExceptionAddress(u32 opcodeAddress, u32 thumbState);
 
 void exceptionStatePrint(ExceptionState *ex, const char *title);
 
+// ARM7 debug console
+
+typedef struct {
+    uint16_t buffer_size; // This limits the size of the buffer to 64 KiB
+    uint16_t read_index;
+    uint16_t write_index;
+    char buffer[];
+} ConsoleArm7Ipc;
+
 // Other functions present in the ARM7 and ARM9
 
 void __libnds_exit(int rc);

@@ -115,6 +115,10 @@ typedef struct FifoMessage {
             u16 value;
             u8 device;
         } aptRegParams;
+
+        struct {
+            void *buffer;
+        } setArm7Console;
     };
 
 } ALIGN(4) FifoMessage;

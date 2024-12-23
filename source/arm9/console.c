@@ -14,12 +14,15 @@
 // printf(), or sscanf(), or anything like that.
 
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/cache.h>
 #include <nds/arm9/console.h>
 #include <nds/arm9/video.h>
 #include <nds/debug.h>
+#include <nds/fifocommon.h>
+#include <nds/fifomessages.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 
@@ -813,4 +816,92 @@ void consoleSetCustomStderr(ConsoleOutFn fn)
         libnds_stderr_write = fn;
     else
         libnds_stderr_write = con_write;
+}
+
+// ---------------------------------------------------------------------------
+
+static ConsoleArm7Ipc *arm7con = NULL;
+static PrintConsole *arm7console = NULL;
+
+int consoleArm7Setup(PrintConsole *console, size_t buffer_size)
+{
+    if (buffer_size == 0)
+        return -1;
+
+    // Fail if the console has already been initalized
+    if (arm7con != NULL)
+        return -2;
+
+    size_t total_size = sizeof(ConsoleArm7Ipc) + buffer_size;
+
+    ConsoleArm7Ipc *newcon = malloc(total_size);
+    if (newcon == NULL)
+        return -3;
+
+    newcon->buffer_size = buffer_size;
+    newcon->read_index = 0;
+    newcon->write_index = 0;
+
+    // Flush the buffer and store the unchached version of the pointer because
+    // we don't want to manage the cache all the time when reading from here.
+
+    DC_FlushRange(newcon, total_size);
+
+    arm7con = memUncached(newcon);
+
+    // Send the pointer to the ARM7
+
+    FifoMessage msg;
+
+    msg.type = SYS_SET_ARM7_CONSOLE;
+    msg.setArm7Console.buffer = newcon;
+
+    fifoSendDatamsg(FIFO_SYSTEM, sizeof(msg), (u8 *)&msg);
+
+    arm7console = console;
+
+    return 0;
+}
+
+int consoleArm7Disable(void)
+{
+    if (arm7con == NULL)
+        return -1;
+
+    FifoMessage msg;
+
+    msg.type = SYS_SET_ARM7_CONSOLE;
+    msg.setArm7Console.buffer = NULL;
+
+    fifoSendDatamsg(FIFO_SYSTEM, sizeof(msg), (u8 *)&msg);
+
+    free(memCached(arm7con));
+    arm7con = NULL;
+
+    arm7console = NULL;
+
+    return 0;
+}
+
+void consoleArm7Flush(void)
+{
+    if (arm7con == NULL)
+        return;
+
+    // Preserve currently-selected console
+    PrintConsole *old_con = consoleSelect(arm7console);
+
+    while (arm7con->read_index != arm7con->write_index)
+    {
+        char c = arm7con->buffer[arm7con->read_index];
+
+        arm7con->read_index++;
+        if (arm7con->read_index == arm7con->buffer_size)
+            arm7con->read_index = 0;
+
+        consolePrintChar(c);
+    }
+
+    // Restore previous console
+    consoleSelect(old_con);
 }

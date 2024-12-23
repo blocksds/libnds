@@ -8,6 +8,8 @@
 
 #include <nds/ndstypes.h>
 
+#include "common/libnds_internal.h"
+
 void storageMsgHandler(int bytes, void *user_data);
 void storageValueHandler(u32 value, void *user_data);
 void firmwareMsgHandler(int bytes, void *user_data);
@@ -24,5 +26,7 @@ typedef struct {
  * Internal. See touchFilter.c for more information.
  */
 libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5]);
+
+int consoleSetup(ConsoleArm7Ipc *c);
 
 #endif // ARM7_LIBNDS_INTERNAL_H__
