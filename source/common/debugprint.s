@@ -20,7 +20,7 @@ BEGIN_ASM_FUNC nocashWrite
 
 // no$gba debug output function
 // params = { string }
-BEGIN_ASM_FUNC nocashMessage
+BEGIN_ASM_FUNC_NO_SECTION nocashMessage
 
     // copy string into buffer
 

@@ -97,7 +97,7 @@ BEGIN_ASM_FUNC __ndsabi_rmemcpy
     bx      lr
 
 
-BEGIN_ASM_FUNC __ndsabi_rmemcpy1
+BEGIN_ASM_FUNC_NO_SECTION __ndsabi_rmemcpy1
 
     subs    r2, r2, #1
     ldrbge  r3, [r1, r2]

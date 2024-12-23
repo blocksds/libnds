@@ -17,7 +17,9 @@ BEGIN_ASM_FUNC swiWaitForVBlank
     mov     r2, #0
     nop
 
-BEGIN_ASM_FUNC swiIntrWait
+    // Fallthrough
+
+BEGIN_ASM_FUNC_NO_SECTION swiIntrWait
 
     stmfd   sp!, {lr}
     cmp     r0, #0

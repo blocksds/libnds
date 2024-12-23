@@ -18,6 +18,9 @@
 \name:
 .endm
 
+// Remember to use this macro if one function falls through the following one.
+// If not, the linker may choose to remove the second one if it isn't referenced
+// anywhere else.
 .macro BEGIN_ASM_FUNC_NO_SECTION name
     .global \name
     .type \name, %function

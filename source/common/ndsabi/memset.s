@@ -27,7 +27,7 @@ BEGIN_ASM_FUNC __aeabi_memclr
 
 
 BEGIN_ASM_FUNC __aeabi_memclr8
-BEGIN_ASM_FUNC __aeabi_memclr4
+BEGIN_ASM_FUNC_NO_SECTION __aeabi_memclr4
 
     mov     r2, #0
     b       __ndsabi_wordset4
@@ -48,7 +48,6 @@ BEGIN_ASM_FUNC __aeabi_memset
     strbcs  r2, [r0], #1
     subcs   r1, r1, #2
 
-
 BEGIN_ASM_FUNC_NO_SECTION __aeabi_memset8
 BEGIN_ASM_FUNC_NO_SECTION __aeabi_memset4
 
@@ -56,11 +55,9 @@ BEGIN_ASM_FUNC_NO_SECTION __aeabi_memset4
     orr     r2, r2, r2, lsr #8
     orr     r2, r2, r2, lsr #16
 
-
 BEGIN_ASM_FUNC_NO_SECTION __ndsabi_wordset4
 
     mov     r3, r2
-
 
 BEGIN_ASM_FUNC_NO_SECTION __ndsabi_lwordset4
 

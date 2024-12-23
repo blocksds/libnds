@@ -17,7 +17,9 @@ BEGIN_ASM_FUNC swiWaitForVBlank
     mov     r0, #1
     mov     r1, #1
 
-BEGIN_ASM_FUNC swiIntrWait
+    // Fallthrough
+
+BEGIN_ASM_FUNC_NO_SECTION swiIntrWait
 
     push    {lr}
 

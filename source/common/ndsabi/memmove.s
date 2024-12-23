@@ -23,7 +23,7 @@ BEGIN_ASM_FUNC __aeabi_memmove
 
 
 BEGIN_ASM_FUNC __aeabi_memmove8
-BEGIN_ASM_FUNC __aeabi_memmove4
+BEGIN_ASM_FUNC_NO_SECTION __aeabi_memmove4
 
     cmp     r0, r1
     bgt     __ndsabi_rmemcpy
