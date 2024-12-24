@@ -34,6 +34,7 @@ typedef struct __TransferRegion
 
 static_assert(sizeof(__TransferRegion) <= 0x1000, "Transfer region is too big");
 
+WARN_UNUSED_RESULT
 static inline __TransferRegion volatile *__transferRegion(void)
 {
     // The transfer region address needs to be in an uncached mirror of main RAM
