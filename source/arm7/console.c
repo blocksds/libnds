@@ -2,6 +2,11 @@
 //
 // Copyright (c) 2024 Antonio Niño Díaz
 
+// This console is designed to be small, that's why many functions have been
+// marked as "noinline". This will have a small cost in speed, but a big gain in
+// code size.
+
+#include <stdarg.h>
 #include <stdio.h>
 
 #include <nds/arm7/console.h>
@@ -37,7 +42,7 @@ static uint16_t consoleNextWriteIndex(ConsoleArm7Ipc *c)
         return c->write_index + 1;
 }
 
-bool consoleIsFull(void)
+__attribute__((noinline)) bool consoleIsFull(void)
 {
     uint16_t next_write_index = consoleNextWriteIndex(con);
 
@@ -47,7 +52,7 @@ bool consoleIsFull(void)
     return false;
 }
 
-int consolePrintChar(char c)
+__attribute__((noinline)) int consolePrintChar(char c)
 {
     if (con == NULL)
         return -1;
@@ -78,4 +83,135 @@ int consolePrintChar(char c)
 void consoleFlush(void)
 {
     fifoSendValue32(FIFO_SYSTEM, SYS_ARM7_CONSOLE_FLUSH);
+}
+
+__attribute__((noinline)) void consolePuts(const char *str)
+{
+    while (*str != '\0')
+        consolePrintChar(*str++);
+}
+
+__attribute__((noinline)) void consolePrintNumUnsigned(uint32_t num, uint32_t base)
+{
+    // When printing the number we actually get the digits in reverse, so we
+    // need a small buffer to store the number and then print it in reverse from
+    // there. UINT32_MAX (4 294 967 295) fits in this buffer:
+    char tmp[11];
+
+    static const char digits_str[16] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'a', 'b', 'c', 'd', 'e', 'f'
+    };
+
+    int len = 0;
+
+    while (1)
+    {
+        uint32_t digit = num % base;
+        num = num / base;
+
+        tmp[len++] = digits_str[digit];
+
+        // Check this at the end of the first iteration so that the number "0"
+        // can be printed instead of not printing anything.
+        if (num == 0)
+            break;
+    }
+
+    while (len > 0)
+    {
+        len--;
+        consolePrintChar(tmp[len]);
+    }
+}
+
+static int consoleVprintf(const char *fmt, va_list args)
+{
+    while (1)
+    {
+        char c = *fmt++;
+        if (c == '\0')
+            break;
+
+        if (c != '%')
+        {
+            consolePrintChar(c);
+        }
+        else
+        {
+            // We don't support modifiers so we only need to check one more
+            // character.
+
+            c = *fmt++;
+
+            switch (c)
+            {
+                case '%':
+                {
+                    consolePrintChar('%');
+                    break;
+                }
+                case 'c':
+                {
+                    int val = va_arg(args, int);
+                    consolePrintChar(val);
+                    break;
+                }
+                case 's':
+                {
+                    const char *str = va_arg(args, char *);
+                    consolePuts(str);
+                    break;
+                }
+                case 'x':
+                {
+                    unsigned int unum = va_arg(args, unsigned int);
+                    consolePrintNumUnsigned(unum, 16);
+                    break;
+                }
+                case 'u':
+                {
+                    unsigned int unum = va_arg(args, unsigned int);
+                    consolePrintNumUnsigned(unum, 10);
+                    break;
+                }
+                case 'd':
+                {
+                    int num = va_arg(args, int);
+                    unsigned int unum;
+
+                    if (num < 0)
+                    {
+                        consolePrintChar('-');
+                        unum = -num;
+                    }
+                    else
+                    {
+                        unum = num;
+                    }
+
+                    consolePrintNumUnsigned(unum, 10);
+                    break;
+                }
+                default:
+                {
+                    return -1;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int consolePrintf(const char *fmt, ...)
+{
+    int ret;
+    va_list va;
+
+    va_start(va, fmt);
+    ret = consoleVprintf(fmt, va);
+    va_end(va);
+
+    return ret;
 }
