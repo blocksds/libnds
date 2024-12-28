@@ -112,6 +112,9 @@ typedef struct UnpackStruct
     uint32_t dataOffset;
 } PACKED TUnpackStruct, __attribute__((deprecated)) *PUnpackStruct;
 
+#define BIOS_UNPACK_OFFSET_ADD_ALWAYS (1u << 31)
+#define BIOS_UNPACK_OFFSET_ADD_NON_ZERO (0u << 31)
+
 /// Resets the DS.
 #ifdef __clang__
 __attribute__((noreturn))
