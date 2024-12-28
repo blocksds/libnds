@@ -13,6 +13,8 @@
 #include <nds/dma.h>
 #include <nds/ndstypes.h>
 
+#define ALPHA_BIT_ARGB16 (1u << 15)
+
 bool image24to16(sImage *img)
 {
     u16 *temp = malloc(img->height * img->width * sizeof(u16));
@@ -24,7 +26,7 @@ bool image24to16(sImage *img)
         for (int x = 0; x < img->width; x++)
         {
             temp[x + y * img->width] =
-                (1u << 15)
+                ALPHA_BIT_ARGB16
                 | RGB15(img->image.data8[x * 3 + y * img->width * 3] >> 3,
                         img->image.data8[x * 3 + y * img->width * 3 + 1] >> 3,
                         img->image.data8[x * 3 + y * img->width * 3 + 2] >> 3);
@@ -49,7 +51,7 @@ bool image8to16(sImage *img)
         return false;
 
     for (int i = 0; i < img->height * img->width; i++)
-        temp[i] = img->palette[img->image.data8[i]] | (1u << 15);
+        temp[i] = img->palette[img->image.data8[i]] | ALPHA_BIT_ARGB16;
 
     free(img->image.data8);
     free(img->palette);
@@ -76,7 +78,7 @@ bool image8to16trans(sImage *img, u8 transparentColor)
         u8 c = img->image.data8[i];
 
         if (c != transparentColor)
-            temp[i] = img->palette[c] | (1u << 15);
+            temp[i] = img->palette[c] | ALPHA_BIT_ARGB16;
         else
             temp[i] = img->palette[c];
     }
