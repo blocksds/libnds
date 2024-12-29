@@ -35,7 +35,9 @@
 #include <aeabi.h>
 #include <nds/arm9/cache.h>
 #include <nds/arm9/dldi.h>
+#include <nds/arm9/sassert.h>
 #include <nds/arm9/sdmmc.h>
+#include <nds/interrupts.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -101,6 +103,10 @@ DSTATUS disk_initialize(BYTE pdrv)
     if (fs_initialized[pdrv])
         return 0;
 
+    // Under some conditions, the ARM9 code will yield, so interrupts must be
+    // enabled for the yield to be able to finish.
+    sassert(REG_IME != 0, "IRQs must be enabled");
+
     switch (pdrv)
     {
         case DEV_DLDI:
@@ -148,6 +154,8 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
+
+    sassert(REG_IME != 0, "IRQs must be enabled");
 
     switch (pdrv)
     {
@@ -232,6 +240,8 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 {
     if (fs_initialized[pdrv] == 0)
         return RES_NOTRDY;
+
+    sassert(REG_IME != 0, "IRQs must be enabled");
 
     switch (pdrv)
     {

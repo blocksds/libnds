@@ -11,6 +11,10 @@
 #include <sys/errno.h>
 
 #include <ndsabi.h>
+#ifdef ARM9
+#include <nds/arm9/sassert.h>
+#include <nds/arm9/cp15.h>
+#endif
 #include <nds/bios.h>
 #include <nds/cothread.h>
 #include <nds/interrupts.h>
@@ -411,6 +415,10 @@ void cothread_yield(void)
 
 void cothread_yield_irq(uint32_t flags)
 {
+#ifdef ARM9
+    sassert(REG_IME != 0, "IRQs must be enabled");
+#endif
+
     cothread_info_t *ctx = cothread_active_thread;
 
     ctx->wait_irq_flags = flags;

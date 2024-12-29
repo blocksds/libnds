@@ -3,6 +3,7 @@
 // Copyright (c) 2023-2024 Antonio Niño Díaz
 
 #include <nds/arm9/cache.h>
+#include <nds/arm9/sassert.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/memory.h>
@@ -10,6 +11,8 @@
 // Function to ask the ARM7 to read from the slot-1 using card commands
 bool cardReadArm7(void *dest, size_t offset, size_t size, uint32_t flags)
 {
+    sassert(REG_IME != 0, "IRQs must be enabled");
+
     DC_FlushRange(dest, size);
 
     FifoMessage msg;

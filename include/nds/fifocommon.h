@@ -11,6 +11,9 @@
 extern "C" {
 #endif
 
+#ifdef ARM9
+#include <nds/arm9/sassert.h>
+#endif
 #include <nds/cothread.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
@@ -375,6 +378,11 @@ static inline void fifoWaitValue32(u32 channel)
 ///     Channel number.
 static inline void fifoWaitValue32Async(u32 channel)
 {
+#ifdef ARM9
+    sassert(REG_IME != 0, "IRQs must be enabled");
+    // TODO: This assert must also be enabled in the ARM7
+#endif
+
     while (!fifoCheckValue32(channel))
     {
 #ifdef ARM9
@@ -403,6 +411,11 @@ static inline void fifoWaitAddress(u32 channel)
 ///     Channel number.
 static inline void fifoWaitAddressAsync(u32 channel)
 {
+#ifdef ARM9
+    sassert(REG_IME != 0, "IRQs must be enabled");
+    // TODO: This assert must also be enabled in the ARM7
+#endif
+
     while (!fifoCheckAddress(channel))
     {
 #ifdef ARM9
@@ -431,6 +444,11 @@ static inline void fifoWaitDatamsg(u32 channel)
 ///     Channel number.
 static inline void fifoWaitDatamsgAsync(u32 channel)
 {
+#ifdef ARM9
+    sassert(REG_IME != 0, "IRQs must be enabled");
+    // TODO: This assert must also be enabled in the ARM7
+#endif
+
     while (!fifoCheckDatamsg(channel))
     {
 #ifdef ARM9
