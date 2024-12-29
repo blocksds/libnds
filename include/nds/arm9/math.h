@@ -46,12 +46,12 @@ extern "C" {
 #define DIV_64_64           2
 #define DIV_64_32           1
 #define DIV_32_32           0
-#define DIV_BUSY            (1 << 15)
+#define DIV_BUSY            (1u << 15)
 #define DIV_MODE_MASK       3
 
 #define SQRT_64             1
 #define SQRT_32             0
-#define SQRT_BUSY           (1 << 15)
+#define SQRT_BUSY           (1u << 15)
 #define SQRT_MODE_MASK      1
 
 // Fixed point conversion macros
@@ -71,7 +71,7 @@ extern "C" {
 ///     20.12 denominator.
 static inline void divf32_asynch(int32_t num, int32_t den)
 {
-    REG_DIV_NUMER = ((int64_t)num) << 12;
+    REG_DIV_NUMER = (int64_t)((uint64_t)(int64_t)num << 12);
     REG_DIV_DENOM_L = den;
 
     if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
