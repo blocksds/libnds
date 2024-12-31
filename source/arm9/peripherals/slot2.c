@@ -45,7 +45,8 @@ uint16_t slot2_extram_banks = 0;
 #define EZ_CMD_SET_ROM_PAGE   0x9880000
 #define EZ_CMD_SET_NOR_WRITE  0x9C40000
 
-static void slot2EzCommand(uint32_t address, uint16_t value)
+// Also used in rumble.c
+void __libnds_slot2EzCommand(uint32_t address, uint16_t value)
 {
     *((vu16*)0x9FE0000) = 0xD200;
     *((vu16*)0x8000000) = 0x1500;
@@ -137,22 +138,22 @@ static bool __extram_detect(uint32_t max_banks, uint32_t max_address)
     slot2_extram_banks = 1;
     if (max_banks > 1)
     {
-        slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
+        __libnds_slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
         // Currently, only the EZO/EZODE support more than one bank.
         // This will need to be refactored if that changes.
         while (slot2_extram_banks < max_banks)
         {
             u16 old_value_bank0 = *slot2_extram_start;
             *slot2_extram_start = 0x0000;
-            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, slot2_extram_banks << 12);
+            __libnds_slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, slot2_extram_banks << 12);
             u16 old_value_bank1 = *slot2_extram_start;
             *slot2_extram_start = 0xFFFF;
-            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
+            __libnds_slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
             bool result = *slot2_extram_start == 0x0000;
             *slot2_extram_start = old_value_bank0;
-            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, slot2_extram_banks << 12);
+            __libnds_slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, slot2_extram_banks << 12);
             *slot2_extram_start = old_value_bank1;
-            slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
+            __libnds_slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, 0);
             if (result)
                 slot2_extram_banks++;
             else
@@ -289,12 +290,12 @@ static void ezf_unlock(uint32_t type)
 {
     if (type)
     {
-        slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x8000); // Enable OS mode
-        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
+        __libnds_slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x8000); // Enable OS mode
+        __libnds_slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
     }
     else
     {
-        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
+        __libnds_slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
     }
 }
 
@@ -302,12 +303,12 @@ static void ez3in1_unlock(uint32_t type)
 {
     if (type)
     {
-        slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x0160); // Map PSRAM
-        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
+        __libnds_slot2EzCommand(EZ_CMD_SET_ROM_PAGE, 0x0160); // Map PSRAM
+        __libnds_slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0x1500); // Enable writing
     }
     else
     {
-        slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
+        __libnds_slot2EzCommand(EZ_CMD_SET_NOR_WRITE, 0xD200); // Disable writing
     }
 }
 
@@ -688,6 +689,6 @@ void peripheralSlot2RamSetBank(uint32_t bank)
     {
         // Currently, only the EZO/EZODE supports more than one bank.
         // This will need to be refactored if that changes.
-        slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, bank << 12);
+        __libnds_slot2EzCommand(EZ_CMD_SET_PSRAM_PAGE, bank << 12);
     }
 }
