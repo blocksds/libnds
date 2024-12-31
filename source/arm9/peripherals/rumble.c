@@ -31,7 +31,7 @@ bool rumbleIsEdgeActivated(void)
 
 #define RUMBLE_PAK_CTRL (*(vuint16 *)0x08001000)
 #define GPIO_DATA       (*(vuint16 *)0x080000C4)
-extern void slot2EzCommand(uint32_t address, uint16_t value);
+extern void __libnds_slot2EzCommand(uint32_t address, uint16_t value);
 static const uint8_t ez_rumble_table[] = {0x08, 0xF0, 0xF2, 0xF1};
 
 void setRumble(uint8_t strength)
@@ -47,7 +47,7 @@ void setRumble(uint8_t strength)
     {
         if (mask & SLOT2_PERIPHERAL_RUMBLE_EZ)
         {
-            slot2EzCommand(0x9E20000, ez_rumble_table[strength > 3 ? 3 : strength]);
+            __libnds_slot2EzCommand(0x9E20000, ez_rumble_table[strength > 3 ? 3 : strength]);
         }
         RUMBLE_PAK_CTRL = strength ? 0x2 : 0x0;
     }
