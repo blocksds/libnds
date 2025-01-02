@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 
 #include <stddef.h>
 
@@ -10,6 +10,8 @@
 #include <nds/fifomessages.h>
 #include <nds/interrupts.h>
 #include <nds/system.h>
+
+#include "common/libnds_internal.h"
 
 static const DISC_INTERFACE *dldi_io = NULL;
 
@@ -53,6 +55,8 @@ void storageMsgHandler(int bytes, void *user_data)
             dldi_io = msg.dldiStartupParams.io_interface;
             if (dldi_io)
                 retval = dldi_io->startup();
+            else
+                libndsCrash("Startup with no DLDI");
             break;
 
         case DLDI_READ_SECTORS:
@@ -62,6 +66,10 @@ void storageMsgHandler(int bytes, void *user_data)
                                               msg.sdParams.numsectors,
                                               msg.sdParams.buffer);
             }
+            else
+            {
+                libndsCrash("Read with no DLDI");
+            }
             break;
 
         case DLDI_WRITE_SECTORS:
@@ -70,6 +78,10 @@ void storageMsgHandler(int bytes, void *user_data)
                 retval = dldi_io->writeSectors(msg.sdParams.startsector,
                                                msg.sdParams.numsectors,
                                                msg.sdParams.buffer);
+            }
+            else
+            {
+                libndsCrash("Write with no DLDI");
             }
             break;
         case SLOT1_CARD_READ:
