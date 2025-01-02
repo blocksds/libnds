@@ -518,7 +518,7 @@ next_thread:
             // waiting for an interrupt to happen. Use BIOS calls to enter
             // low power mode.
 #ifdef ARM9
-            swiWaitForIRQ();
+            CP15_WaitForInterrupt();
 #elif defined(ARM7)
             swiHalt();
 #endif
