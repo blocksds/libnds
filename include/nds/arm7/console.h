@@ -16,6 +16,7 @@ extern "C" {
 /// You need to setup this console by calling consoleArm7Setup() on the ARM9.
 
 #include <stdbool.h>
+#include <sys/cdefs.h>
 
 /// Checks if the console has been setup by the ARM9 or not.
 ///
