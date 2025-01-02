@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,13 @@ static uint32_t usage_counter = 0;
 
 extern uint8_t *dldiGetStubDataEnd(void);
 extern uint8_t *dldiGetStubEnd(void);
+
+bool cache_initialized(void)
+{
+    if (cache_mem != NULL)
+        return true;
+    return false;
+}
 
 int cache_init(int32_t num_sectors)
 {

@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (c) 2023-2024 Antonio Niño Díaz
 
 #ifndef FATFS_CACHE_H__
 #define FATFS_CACHE_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
+bool cache_initialized(void);
 int cache_init(int32_t num_sectors);
 void *cache_sector_get(uint8_t pdrv, uint32_t sector);
 void *cache_sector_add(uint8_t pdrv, uint32_t sector);
