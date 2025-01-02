@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <aeabi.h>
 #include <fat.h>
 #include <nds/arm9/card.h>
 #include <nds/arm9/sassert.h>
@@ -19,6 +20,8 @@
 #include <nds/card.h>
 #include <nds/memory.h>
 #include <nds/system.h>
+
+#include "fatfs/cache.h"
 
 // "dirent.h" defines DIR, but "ff.h" defines a different non-standard one.
 // Functions in this file need to use their standard prototypes, so it is needed
@@ -74,10 +77,37 @@ static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
     {
         if (dldiGetMode() == DLDI_MODE_ARM7)
         {
-            sassert(!((uintptr_t)ptr >= DTCM_START && (uintptr_t)ptr < DTCM_END),
-                    "The destination can't be in DTCM");
-            cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
-            return len;
+            if ((uintptr_t)ptr >= DTCM_START && (uintptr_t)ptr < DTCM_END)
+            {
+                // The destination is in DTCM
+
+                void *cache = cache_sector_borrow();
+
+#if FF_MAX_SS != FF_MIN_SS
+#error "This code expects a fixed sector size"
+#endif
+                uint8_t *buff = ptr;
+
+                while (len > 0)
+                {
+                    size_t read_size = len > FF_MAX_SS ? FF_MAX_SS : len;
+
+                    cardReadArm7(cache, offset, read_size, __NDSHeader->cardControl13);
+
+                    __aeabi_memcpy(buff, cache, read_size);
+
+                    len -= read_size;
+                    offset += read_size;
+                    buff += read_size;
+                }
+
+                return len;
+            }
+            else
+            {
+                cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
+                return len;
+            }
         }
         else
         {
@@ -636,6 +666,20 @@ bool nitroFSInit(const char *basepath)
     // Use argv[0] if basepath is not provided.
     if (!basepath && __system_argv->argvMagic == ARGV_MAGIC && __system_argv->argc >= 1)
         basepath = __system_argv->argv[0];
+
+    // Initialize cache if it hasn't been initialized already
+    if (!cache_initialized())
+    {
+        // TODO: Should we have a cache_end() if the function fails? It may not be
+        // worth it, most games would just stop booting if the filesystem isn't
+        // available.
+        int ret = cache_init(-1);
+        if (ret != 0)
+        {
+            errno = ENOMEM;
+            return false;
+        }
+    }
 
     // Try to open the basepath file.
     if (basepath)
