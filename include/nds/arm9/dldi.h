@@ -109,6 +109,7 @@ static inline void dldiFixDriverAddresses(DLDI_INTERFACE *io)
 /// Load a DLDI driver from a file and set up the bus permissions.
 ///
 /// This is not directly usable as a filesystem driver.
+WARN_UNUSED_RESULT
 DLDI_INTERFACE *dldiLoadFromFile(const char *path);
 
 /// Free the memory used by the DLDI driver.
