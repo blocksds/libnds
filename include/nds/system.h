@@ -151,6 +151,24 @@ int writeFirmware(u32 address, void *buffer, u32 length);
 ///     Size of the buffer to read.
 void readFirmware(u32 address, void *buffer, u32 length);
 
+/// Gets the DS battery level
+///
+/// This returns a value with two fields. Bits 0 to 3 are the battery level,
+/// and bit 7 is set to 1 if an external power source is connected to the DS.
+///
+/// On DSi the battery level is the one reported by the hardware. On DS, the
+/// battery level is only "high" or "low", and libnds returns 15 or 3
+/// respectively as the equivalent DSi battery level.
+///
+/// @note
+///     When called from the ARM9, this function requests the battery
+///     information to the ARM7 with a FIFO message. When called from the ARM7,
+///     it is read directly.
+///
+/// @return
+///     Battery level and external power source status.
+u32 getBatteryLevel(void);
+
 // ARM9 section
 // ------------
 
@@ -207,19 +225,6 @@ static inline void systemShutDown(void)
 {
     powerOn(PM_SYSTEM_PWR);
 }
-
-/// Gets the DS battery level
-///
-/// This returns a value with two fields. Bits 0 to 3 are the battery level,
-/// and bit 7 is set to 1 if an external power source is connected to the DS.
-///
-/// On DSi the battery level is the one reported by the hardware. On DS, the
-/// battery level is only "high" or "low", and libnds returns 15 or 3
-/// respectively as the equivalent DSi battery level.
-///
-/// @return
-///     Battery level and external power source status.
-u32 getBatteryLevel(void);
 
 /// Set the ARM9 interrupt vector base to one of two locations:
 ///
