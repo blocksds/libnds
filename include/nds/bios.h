@@ -121,17 +121,11 @@ typedef struct UnpackStruct
 #define BIOS_UNPACK_OFFSET_ADD_NON_ZERO (0u << 31)
 
 /// Resets the DS.
-#ifdef __clang__
+///
+/// Note that this function doesn't actually call the BIOS with a SWI
+/// instruction. SWI #0 (SoftReset) isn't available on DSi, only on DS.
 __attribute__((noreturn))
 void swiSoftReset(void);
-#else
-__attribute__((always_inline, noreturn))
-static inline void swiSoftReset(void)
-{
-    asm volatile inline ("swi 0x0 << ((1f - . == 4) * -16); 1:");
-    __builtin_unreachable();
-}
-#endif
 
 /// Delays the code.
 ///
