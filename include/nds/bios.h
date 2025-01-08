@@ -120,10 +120,11 @@ typedef struct UnpackStruct
 /// For TUnpackStruct.dataOffset, this flag signals that only non-zero destination writes should be offset
 #define BIOS_UNPACK_OFFSET_ADD_NON_ZERO (0u << 31)
 
-/// Resets the DS.
+/// Resets the CPU that called this function.
 ///
-/// Note that this function doesn't actually call the BIOS with a SWI
-/// instruction. SWI #0 (SoftReset) isn't available on DSi, only on DS.
+/// @note
+///     This doesn't actually use a software interrupt, it's a custom function
+///     implemented in libnds.
 __attribute__((noreturn))
 void swiSoftReset(void);
 
@@ -332,7 +333,7 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 
 /// Returns 1 if running on a Nintendo hardware debugger.
 ///
-/// @note
+/// @warning
 ///     It only works in DS mode (not DSi mode), and with the cache disabled.
 ///     It's recommended to use isHwDebugger() instead, which works in DSi mode
 ///     too, and it doesn't require the cache to be disabled.
@@ -413,6 +414,10 @@ static inline void swiDecompressLZSSWram(const void *source, void *destination)
 /// @return
 ///     The length of the decompressed data, or a signed errorcode from the
 ///     Open/Close functions.
+///
+/// @note
+///     This doesn't actually use a software interrupt, it's a custom function
+///     implemented in libnds.
 ///
 /// @note
 ///     Writes data a halfword at a time.

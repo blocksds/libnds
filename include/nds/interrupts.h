@@ -248,9 +248,17 @@ void irqDisableAUX(u32 irq);
 ///     interrupt has been set since the call
 /// @param flags
 ///     Interrupt mask to wait for.
+///
+/// @note
+///     This doesn't actually use a software interrupt, it's a custom function
+///     implemented in libnds.
 void swiIntrWait(u32 waitForSet, uint32_t flags);
 
 /// Waits for a vertical blank interrupt
+///
+/// @note
+///     This doesn't actually use a software interrupt, it's a custom function
+///     implemented in libnds.
 ///
 /// @note
 ///     Identical to calling swiIntrWait(1, 1)
