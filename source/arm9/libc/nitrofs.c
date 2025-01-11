@@ -747,6 +747,7 @@ bool nitroFSInit(const char *basepath)
         }
 
         nitrofs_local.fnt_offset = 0;
+        errno = ENODEV;
         return false;
     }
 
