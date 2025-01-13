@@ -5,11 +5,14 @@
 // Copyright (C) 2008-2010 Jason Rogers (Dovoto)
 
 #include <nds/arm7/audio.h>
+#include <nds/arm7/codec.h>
 #include <nds/dma.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/ipc.h>
 #include <nds/system.h>
+
+#include "arm7/libnds_internal.h"
 
 int getFreeChannel(void)
 {
@@ -310,4 +313,15 @@ void installSoundFIFO(void)
 {
     fifoSetDatamsgHandler(FIFO_SOUND, soundDataHandler, 0);
     fifoSetValue32Handler(FIFO_SOUND, soundCommandHandler, 0);
+}
+
+bool soundExtSetFrequencyTWL(unsigned int freq_khz)
+{
+    if (!isDSiMode())
+        return false;
+
+    if (!cdcIsAvailable())
+        return false;
+
+    return twlSoundExtSetFrequency(freq_khz);
 }

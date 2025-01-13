@@ -29,4 +29,6 @@ libnds_touchMeasurementFilterResult libnds_touchMeasurementFilter(u16 values[5])
 
 int consoleSetup(ConsoleArm7Ipc *c);
 
+bool twlSoundExtSetFrequency(unsigned int freq_khz);
+
 #endif // ARM7_LIBNDS_INTERNAL_H__

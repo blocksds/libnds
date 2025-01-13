@@ -18,14 +18,9 @@
 /// TODO: Further testing.
 // #define TSC2117_LOW_POWER_DIVIDERS_ENABLE
 
-bool soundExtSetFrequencyTWL(unsigned int freq_khz)
+bool twlSoundExtSetFrequency(unsigned int freq_khz)
 {
     bool is_high_freq = freq_khz >= 47;
-
-    if (!isDSiMode())
-        return false;
-    if (!cdcIsAvailable())
-        return false;
 
     // Check if frequency already set
     bool is_current_high_freq = (REG_SNDEXTCNT & SNDEXTCNT_FREQ_47KHZ);
