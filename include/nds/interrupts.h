@@ -180,7 +180,9 @@ void irqInit(void);
 /// @param irq
 ///     Mask associated with the interrupt.
 /// @param handler
-///     Address of the function to use as an interrupt service routine
+///     Address of the function to use as an interrupt service routine. If this
+///     is NULL, the current handler will be removed but the interrupt will be
+///     kept enabled.
 ///
 /// @note
 ///     When any handler specifies using IRQ_VBLANK or IRQ_HBLANK, DISP_SR is

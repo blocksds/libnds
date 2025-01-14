@@ -87,6 +87,13 @@ void irqSet(u32 mask, IntFn handler)
 {
     int oldIME = enterCriticalSection();
 
+    // The interrupt dispatcher doesn't check for NULL pointers, so we need to
+    // make sure that users don't set the handler to NULL because the interrupt
+    // dispatcher will jump there. It only checks if the interrupt handler is
+    // equal to irqDummy().
+    if (handler == NULL)
+        handler = irqDummy;
+
     __irqSet(mask, handler, irqTable, MAX_INTERRUPTS);
 
     if (mask & IRQ_VBLANK)
@@ -187,6 +194,13 @@ void irqClear(u32 mask)
 TWL_CODE void irqSetAUX(u32 mask, IntFn handler)
 {
     int oldIME = enterCriticalSection();
+
+    // The interrupt dispatcher doesn't check for NULL pointers, so we need to
+    // make sure that users don't set the handler to NULL because the interrupt
+    // dispatcher will jump there. It only checks if the interrupt handler is
+    // equal to irqDummy().
+    if (handler == NULL)
+        handler = irqDummy;
 
     __irqSet(mask, handler, irqTableAUX, MAX_INTERRUPTS_AUX);
 
