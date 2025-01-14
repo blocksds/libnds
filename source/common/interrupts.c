@@ -23,9 +23,9 @@ void irqDummy(void)
 #define INT_TABLE_SECTION
 #endif
 
-IntFn irqTable[MAX_INTERRUPTS] INT_TABLE_SECTION;
+VoidFn irqTable[MAX_INTERRUPTS] INT_TABLE_SECTION;
 #ifdef ARM7
-IntFn irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
+VoidFn irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
 
 static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
@@ -71,7 +71,7 @@ VoidFn setPowerButtonCB(VoidFn CB)
 }
 #endif
 
-static void __irqSet(u32 mask, IntFn handler, IntFn irqTable_[], u32 max)
+static void __irqSet(u32 mask, VoidFn handler, VoidFn irqTable_[], u32 max)
 {
     // Set every bit in order. Skip bits which are out of bounds.
     while (mask)
@@ -83,7 +83,7 @@ static void __irqSet(u32 mask, IntFn handler, IntFn irqTable_[], u32 max)
     }
 }
 
-void irqSet(u32 mask, IntFn handler)
+void irqSet(u32 mask, VoidFn handler)
 {
     int oldIME = enterCriticalSection();
 
@@ -106,7 +106,7 @@ void irqSet(u32 mask, IntFn handler)
     leaveCriticalSection(oldIME);
 }
 
-void irqInitHandler(IntFn handler)
+void irqInitHandler(VoidFn handler)
 {
     REG_IME = 0;
     REG_IE = 0;
@@ -191,7 +191,7 @@ void irqClear(u32 mask)
 
 #ifdef ARM7
 
-TWL_CODE void irqSetAUX(u32 mask, IntFn handler)
+TWL_CODE void irqSetAUX(u32 mask, VoidFn handler)
 {
     int oldIME = enterCriticalSection();
 
