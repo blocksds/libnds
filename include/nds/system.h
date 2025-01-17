@@ -330,6 +330,7 @@ u8 *getHeapLimit(void);
 ///     ARM7 only.
 typedef enum {
     POWER_SOUND = BIT(0),          ///< Controls the power for the sound controller
+    POWER_WIFI  = BIT(1),          ///< Controls the power for the WiFi controller
 
     PM_CONTROL_REG     = 0,        ///< Selects the PM control register
     PM_BATTERY_REG     = 1,        ///< Selects the PM battery register
