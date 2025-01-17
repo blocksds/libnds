@@ -27,7 +27,7 @@ int writePowerManagement(int reg, int command)
     return value;
 }
 
-void ledBlink(int value)
+void ledBlink(PM_LedStates value)
 {
     u32 temp = readPowerManagement(PM_CONTROL_REG);
     temp &= ~PM_LED_CONTROL_MASK;

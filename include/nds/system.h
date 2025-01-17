@@ -96,11 +96,20 @@ typedef enum
 ///     By default, this is automatically called when closing the lid.
 void systemSleep(void);
 
-/// Set the LED blink mode
+/// Possible states of the DS power LED.
+typedef enum {
+    LED_ALWAYS_ON  = 0, ///< Always ON.
+    LED_BLINK_SLOW = 1, ///< Blinking slowly
+    LED_BLINK_FAST = 3, ///< Blinking fast
+} PM_LedStates;
+
+/// Set the power LED blink mode.
 ///
-/// @param bm
-///     What to power on.
-void ledBlink(int bm);
+/// @note This only works on DS consoles, not DSi consoles (even in DS mode).
+///
+/// @param state
+///     New LED state.
+void ledBlink(PM_LedStates state);
 
 /// Checks whether the application is running in DSi mode.
 ///

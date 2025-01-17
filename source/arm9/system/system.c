@@ -111,9 +111,10 @@ void powerOff(uint32_t bits)
         fifoSendValue32(FIFO_PM, PM_REQ_OFF | (bits & 0xFFFF));
 }
 
-void ledBlink(int bm)
+void ledBlink(PM_LedStates value)
 {
-    fifoSendValue32(FIFO_PM, PM_REQ_LED | bm);
+    if (!isDSiMode())
+        fifoSendValue32(FIFO_PM, PM_REQ_LED | (value & 3));
 }
 
 u32 getBatteryLevel(void)
