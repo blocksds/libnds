@@ -50,6 +50,16 @@ typedef enum
     GRF_TEXFMT_4x4  = 130,
 } GRFTextureTypes;
 
+/// Special values for the MAP attribute field that define background types.
+typedef enum
+{
+    GRF_BGFMT_NO_DATA        = 0, ///< No map data present
+    GRF_BGFMT_REG_16x16      = 1, ///< Regular, 16 palettes of 16 colors
+    GRF_BGFMT_REG_256x1      = 2, ///< Regular, 1 palette of 256 colors
+    GRF_BGFMT_AFF_256x1      = 3, ///< Affine, 1 palette of 256 colors
+    GRF_BGFMT_AFF_EXT_256x16 = 4, ///< Extended affine, 16 palettes of 256 colors
+} GRFMapType;
+
 /// Possible errors that can happen while reading GRF files.
 typedef enum
 {
