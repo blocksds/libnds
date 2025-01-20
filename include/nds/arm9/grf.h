@@ -38,6 +38,7 @@ typedef struct
     uint16_t palAttr;  ///< Number of colors of the palette. 0 if not present.
     uint8_t  tileWidth, tileHeight; ///< Size of tiles in pixels
     uint8_t  metaWidth, metaHeight; ///< Size of metamap in tiles
+    uint16_t unused; ///< Currently unused
     uint32_t gfxWidth, gfxHeight;   ///< Size of graphics in pixels
 } GRFHeader;
 
