@@ -415,6 +415,21 @@ static inline uint32_t sqrt64(uint64_t a)
 ///     32 bit floating point value
 ARM_CODE float hw_sqrtf(float x);
 
+/// 32-bit inverse floating point sqrt
+///
+/// @warning
+///     Subnormal floats are treated as if they were zero.
+///
+/// @warning
+///     Not safe to call inside an interrupt handler.
+///
+/// @param x
+///     Valid 32 bit non-negative floating point value.
+///
+/// @return
+///     32 bit floating point value
+float hw_rsqrtf_asm(float x);
+
 /// 20.12 fixed point cross product.
 ///
 /// Cross product:
