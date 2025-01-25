@@ -15,6 +15,7 @@ extern "C" {
 ///
 /// You need to setup this console by calling consoleArm7Setup() on the ARM9.
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <sys/cdefs.h>
 
@@ -50,6 +51,17 @@ void consolePrintNumUnsigned(uint32_t num, uint32_t base);
 /// @param str
 ///     String to be printed.
 void consolePuts(const char *str);
+
+/// It adds a formatted string to the buffer.
+///
+/// @param fmt
+///     Formatted string.
+/// @param args
+///     va_list object.
+///
+/// @return
+///     It returns 0 on success, -1 if there are unsuported flags.
+int consoleVprintf(const char *fmt, va_list args);
 
 /// It adds a formatted string to the buffer.
 ///

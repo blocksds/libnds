@@ -125,7 +125,7 @@ __attribute__((noinline)) void consolePrintNumUnsigned(uint32_t num, uint32_t ba
     }
 }
 
-static int consoleVprintf(const char *fmt, va_list args)
+int consoleVprintf(const char *fmt, va_list args)
 {
     while (1)
     {
