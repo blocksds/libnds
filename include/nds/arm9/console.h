@@ -344,6 +344,7 @@ void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height
 ///
 /// @return
 ///     A read-only pointer to the console with the default values.
+WARN_UNUSED_RESULT
 const PrintConsole *consoleGetDefault(void);
 
 /// Make the specified console the render target.
