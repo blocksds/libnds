@@ -112,7 +112,7 @@ static int stdin_getc_keyboard(FILE *file)
                 stdin_buf_right = (stdin_buf_right - 1) & INPUT_BUFFER_MASK;
             }
         }
-        else if (kc != -1)
+        else if (kc > 0)
         {
             uint16_t next_right = (stdin_buf_right + 1) & INPUT_BUFFER_MASK;
             // if about to overflow buffer, pop char
@@ -134,8 +134,9 @@ static int stdin_getc_keyboard(FILE *file)
 #else
         c = keyboardUpdate();
 #endif
-        if (c != -1)
+        if (c > 0)
             break;
+
         cothread_yield_irq(IRQ_VBLANK);
     }
 
