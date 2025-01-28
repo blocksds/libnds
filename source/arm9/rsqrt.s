@@ -73,7 +73,7 @@ BEGIN_ASM_FUNC hw_rsqrtf_asm
     bx      lr
 
 .LinputIsInfOrNaN:
-    subs    r0, r0, r1, lsl #23         @ 1 / sqrt(+Inf) = 0
+    subs    r0,  #1<<23         @ 1 / sqrt(+Inf) = 0
     ldrne   r0, =QUIET_NAN              @ 1 / sqrt(NaN) = NaN
     bx      lr
 
