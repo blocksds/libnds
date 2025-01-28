@@ -14,12 +14,20 @@ BEGIN_ASM_FUNC swiWaitForVBlank
 
     mov     r0, #1
     mov     r1, #1
+
+    // Fallthrough
+
+BEGIN_ASM_FUNC_NO_SECTION swiIntrWait
+
+    // This function is only kept so that code shared between ARM9 and ARM7 can
+    // use the same prototype (and so that old code using the old prototype can
+    // still build).
     mov     r2, #0
     nop
 
     // Fallthrough
 
-BEGIN_ASM_FUNC_NO_SECTION swiIntrWait
+BEGIN_ASM_FUNC_NO_SECTION swiIntrWaitAUX
 
     stmfd   sp!, {lr}
     cmp     r0, #0
@@ -38,10 +46,16 @@ testirq:
     strb    r12, [r12, #0x208]
 
     // Acknowledge interrupt in BIOS flags register
-    ldr     r3, [r12, #-8]
+    ldr     r3, [r12, #-8] // 0x0380FFF8
     ands    r0, r1, r3
     eorne   r3, r3, r0
     strne   r3, [r12, #-8]
+
+    // Acknowledge interrupt in BIOS flags register
+    ldr     r3, [r12, #-0x40] // 0x0380FFC0
+    ands    r0, r2, r3
+    eorne   r3, r3, r0
+    strne   r3, [r12, #-0x40]
 
     // REG_IME = 1
     mov     r0, #1

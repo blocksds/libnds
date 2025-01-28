@@ -255,6 +255,9 @@ void irqDisableAUX(u32 irq);
 ///     This doesn't actually use a software interrupt, it's a custom function
 ///     implemented in libnds.
 void swiIntrWait(u32 waitForSet, uint32_t flags);
+#ifdef ARM7
+void swiIntrWaitAUX(u32 waitForSet, uint32_t flags, uint32_t aux_flags);
+#endif
 
 /// Waits for a vertical blank interrupt
 ///
