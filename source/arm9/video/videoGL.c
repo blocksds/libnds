@@ -1155,7 +1155,7 @@ static void removePaletteFromTexture(gl_texture_data *tex)
         return;
 
     palette->connectCount--;
-    if (palette->connectCount > 0)
+    if (palette->connectCount <= 0)
     {
         vramBlock_deallocateBlock(glGlob.vramBlocksPal, palette->palIndex);
 
