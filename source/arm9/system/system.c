@@ -135,3 +135,18 @@ void disableSlot1(void)
     if (isDSiMode())
         fifoSendValue32(FIFO_PM, PM_REQ_SLOT1_DISABLE);
 }
+
+bool memBufferIsInMainRam(const void *buffer, size_t size)
+{
+    extern uint8_t __dtcm_start;
+
+    uintptr_t base = (uintptr_t)buffer;
+
+    if (base < 0x02000000)
+        return false;
+
+    if ((base + size) > (uintptr_t)&__dtcm_start)
+        return false;
+
+    return true;
+}

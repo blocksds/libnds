@@ -583,6 +583,17 @@ void *memCached(void *address);
 ///     A pointer to the uncached mirror of that address.
 void *memUncached(void *address);
 
+/// Checks if a buffer is inside main RAM or not.
+///
+/// @param buffer
+///     Pointer to the buffer to check.
+/// @param size
+///     Size of the buffer.
+///
+/// @return
+///     It returns true if the buffer fits in main RAM, false otherwise.
+bool memBufferIsInMainRam(const void *buffer, size_t size);
+
 /// Enable data cache for the DS slot-2 memory region.
 ///
 /// Note that this is not safe to enable if you're using Slot-2 memory for
