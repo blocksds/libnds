@@ -21,15 +21,22 @@ static int readFirmwareInternal(u32 address, void *buffer, u32 length)
     msg.blockParams.buffer = buffer;
     msg.blockParams.length = length;
 
+    fifoMutexAcquire(FIFO_FIRMWARE);
+
     fifoSendDatamsg(FIFO_FIRMWARE, sizeof(msg), (u8 *)&msg);
 
-    while (!fifoCheckValue32(FIFO_FIRMWARE))
-        ;
+    if (REG_IME == 0)
+        fifoWaitValue32(FIFO_FIRMWARE);
+    else
+        fifoWaitValue32Async(FIFO_FIRMWARE);
 
-    fifoGetValue32(FIFO_FIRMWARE);
+    int ret = fifoGetValue32(FIFO_FIRMWARE);
+
+    fifoMutexRelease(FIFO_FIRMWARE);
+
     DC_InvalidateRange(buffer, length);
 
-    return 0;
+    return ret;
 }
 
 int readFirmware(u32 address, void *buffer, u32 length)
@@ -69,12 +76,20 @@ static int writeFirmwareInternal(u32 address, void *buffer, u32 length)
     msg.blockParams.buffer = buffer;
     msg.blockParams.length = length;
 
+    fifoMutexAcquire(FIFO_FIRMWARE);
+
     fifoSendDatamsg(FIFO_FIRMWARE, sizeof(msg), (u8 *)&msg);
 
-    while (!fifoCheckValue32(FIFO_FIRMWARE))
-        ;
+    if (REG_IME == 0)
+        fifoWaitValue32(FIFO_FIRMWARE);
+    else
+        fifoWaitValue32Async(FIFO_FIRMWARE);
 
-    return (int)fifoGetValue32(FIFO_FIRMWARE);
+    int ret = fifoGetValue32(FIFO_FIRMWARE);
+
+    fifoMutexRelease(FIFO_FIRMWARE);
+
+    return ret;
 }
 
 int writeFirmware(u32 address, void *buffer, u32 length)
