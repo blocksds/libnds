@@ -292,6 +292,15 @@ typedef struct sysVectors
 /// @see setVectorBase
 extern sysVectors_t SystemVectors;
 
+/// Set a callback to detect if an SD card is inserted or removed from a DSi.
+///
+/// @note
+///     The callbacks are only called after the SD card hardware has been
+///     initialized (for example, after calling fatInitDefault()).
+///
+/// @param callback
+///     The callback will be called with 1 as a value if an SD card has been
+///     inserted or 0 if it has been removed.
 void setSDcallback(void (*callback)(int));
 
 /// Sets the ARM9 clock speed, only possible in DSi mode.

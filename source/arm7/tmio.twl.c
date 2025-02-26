@@ -20,6 +20,10 @@
 
 static _Atomic u32 g_status[2] = {0};
 
+// true if the SD card is inserted. Used to detect insertions or removals of the
+// SD card and trigger a callback on the ARM9.
+static bool g_sd_inserted;
+
 
 __attribute__((always_inline)) static inline u8 port2Controller(const u8 portNum)
 {
@@ -32,7 +36,15 @@ static void tmio1Isr(void) // SD/eMMC.
     SET_STATUS(&g_status[0], GET_STATUS(&g_status[0]) | regs->sd_status);
     regs->sd_status = SD_STATUS_CMD_BUSY; // Never acknowledge SD_STATUS_CMD_BUSY.
 
-    // TODO: Some kind of event to notify the main loop for remove/insert.
+    // Check if the card detect status has changed. SD_STATUS_INSERT and
+    // SD_STATUS_REMOVE are never 1 when this interrupt handler is called, so we
+    // need to check the SD_STATUS_DETECT bit manually.
+    bool sd_inserted = regs->sd_status & SD_STATUS_DETECT ? true : false;
+    if (g_sd_inserted != sd_inserted)
+    {
+        g_sd_inserted = sd_inserted;
+        fifoSendValue32(FIFO_SYSTEM, sd_inserted ? SDMMC_INSERT : SDMMC_REMOVE);
+    }
 }
 
 static void tmio2Isr(void) // WiFi SDIO.
@@ -45,6 +57,9 @@ static void tmio2Isr(void) // WiFi SDIO.
 
 void TMIO_init(void)
 {
+    // Save initial state so that no callback is called when IRQs are enabled.
+    g_sd_inserted = TMIO_cardDetected();
+
     // Register ISR and enable IRQs.
     irqSetAUX(IRQ_SDMMC, tmio1Isr);
     irqSetAUX(IRQ_SDIO, tmio2Isr); // Controller 2.
