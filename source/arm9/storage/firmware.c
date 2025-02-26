@@ -2,13 +2,17 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2014 Dave Murphy (WinterMute)
+// Copyright (c) 2025 Antonio Niño Díaz
+
+#include <stdlib.h>
+#include <string.h>
 
 #include <nds/arm9/cache.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/system.h>
 
-void readFirmware(u32 address, void *buffer, u32 length)
+static int readFirmwareInternal(u32 address, void *buffer, u32 length)
 {
     FifoMessage msg;
 
@@ -21,14 +25,41 @@ void readFirmware(u32 address, void *buffer, u32 length)
 
     while (!fifoCheckValue32(FIFO_FIRMWARE))
         ;
+
     fifoGetValue32(FIFO_FIRMWARE);
     DC_InvalidateRange(buffer, length);
+
+    return 0;
 }
 
-int writeFirmware(u32 address, void *buffer, u32 length)
+int readFirmware(u32 address, void *buffer, u32 length)
+{
+    // The ARM7 can only save the results to main RAM
+    if (memBufferIsInMainRam(buffer, length))
+    {
+        return readFirmwareInternal(address, buffer, length);
+    }
+    else
+    {
+        void *temp = malloc(length);
+        if (temp == NULL)
+            return -1;
+
+        int ret = readFirmwareInternal(address, temp, length);
+        // Copy the buffer from main RAM to the destination
+        memcpy(buffer, temp, length);
+
+        free(temp);
+
+        return ret;
+    }
+}
+
+static int writeFirmwareInternal(u32 address, void *buffer, u32 length)
 {
     if (((address & 0xff) != 0) || ((length & 0xff) != 0))
         return -1;
+
     DC_FlushRange(buffer, length);
 
     FifoMessage msg;
@@ -44,4 +75,27 @@ int writeFirmware(u32 address, void *buffer, u32 length)
         ;
 
     return (int)fifoGetValue32(FIFO_FIRMWARE);
+}
+
+int writeFirmware(u32 address, void *buffer, u32 length)
+{
+    // The ARM7 can only read the data from main RAM
+    if (memBufferIsInMainRam(buffer, length))
+    {
+        return writeFirmwareInternal(address, buffer, length);
+    }
+    else
+    {
+        void *temp = malloc(length);
+        if (temp == NULL)
+            return -1;
+
+        // Copy buffer to main RAM from the source
+        memcpy(temp, buffer, length);
+        int ret = writeFirmwareInternal(address, temp, length);
+
+        free(temp);
+
+        return ret;
+    }
 }

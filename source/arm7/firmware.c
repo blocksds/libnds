@@ -12,7 +12,7 @@
 #include <nds/interrupts.h>
 #include <nds/system.h>
 
-void readFirmware(u32 address, void *destination, u32 size)
+int readFirmware(u32 address, void *destination, u32 size)
 {
     int oldIME = enterCriticalSection();
     u8 *buffer = destination;
@@ -32,6 +32,8 @@ void readFirmware(u32 address, void *destination, u32 size)
 
     REG_SPICNT = 0;
     leaveCriticalSection(oldIME);
+
+    return 0;
 }
 
 int readFirmwareJEDEC(u8 *destination, u32 size)

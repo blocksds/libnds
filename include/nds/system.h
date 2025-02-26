@@ -139,6 +139,10 @@ static inline bool isHwDebugger(void)
 
 /// Write bytes at a specified address to firmware flash.
 ///
+/// On the ARM9, if the source buffer isn't in main RAM, the function will
+/// allocate a temporary buffer with malloc() and free it after using it. If
+/// there isn't enough memory, the function will fail.
+///
 /// @param address
 ///     Address in the firmware to write to.
 /// @param buffer
@@ -152,13 +156,20 @@ int writeFirmware(u32 address, void *buffer, u32 length);
 
 /// Read bytes at a specified address from firmware flash.
 ///
+/// On the ARM9, if the destination buffer isn't in main RAM, the function will
+/// allocate a temporary buffer with malloc() and free it after using it. If
+/// there isn't enough memory, the function will fail.
+///
 /// @param address
 ///     Address in the firmware to read from.
 /// @param buffer
 ///     Pointer to the buffer to use as destination.
 /// @param length
 ///     Size of the buffer to read.
-void readFirmware(u32 address, void *buffer, u32 length);
+///
+/// @return
+///     0 on success, else error.
+int readFirmware(u32 address, void *buffer, u32 length);
 
 /// Gets the DS battery level
 ///
