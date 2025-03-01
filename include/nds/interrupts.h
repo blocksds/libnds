@@ -190,9 +190,26 @@ void irqInit(void);
 ///     DISP_HBLANK_IRQ.
 ///
 /// @warning
-///     Only one IRQ_MASK can be specified with this function.
+///     Only one IRQ bit can be specified with this function.
 void irqSet(u32 irq, VoidFn handler);
+
 #ifdef ARM7
+/// Add a handler for the given AUX interrupt mask.
+///
+/// See irqSet().
+///
+/// @param irq
+///     Mask associated with the interrupt.
+/// @param handler
+///     Address of the function to use as an interrupt service routine. If this
+///     is NULL, the current handler will be removed but the interrupt will be
+///     kept enabled.
+///
+/// @note
+///     Only for DSi ARM7.
+///
+/// @warning
+///     Only one IRQ bit can be specified with this function.
 void irqSetAUX(u32 irq, VoidFn handler);
 #endif
 
@@ -201,7 +218,15 @@ void irqSetAUX(u32 irq, VoidFn handler);
 /// @param irq
 ///     Mask associated with the interrupt.
 void irqClear(u32 irq);
+
 #ifdef ARM7
+/// Remove the handler associated with the AUX interrupt mask IRQ.
+///
+/// @note
+///     Only for DSi ARM7.
+///
+/// @param irq
+///     Mask associated with the interrupt.
 void irqClearAUX(u32 irq);
 #endif
 
@@ -227,7 +252,18 @@ void irqInitHandler(VoidFn handler);
 /// @note
 ///     Specify multiple interrupts to enable by ORing several IRQ_MASKS.
 void irqEnable(u32 irq);
+
 #ifdef ARM7
+/// Allow the given AUX interrupt to occur.
+///
+/// @param irq
+///     The set of interrupt masks to enable.
+///
+/// @note
+///     Only for DSi ARM7.
+///
+/// @note
+///     Specify multiple interrupts to enable by ORing several IRQ_MASKS.
 void irqEnableAUX(u32 irq);
 #endif
 
@@ -239,7 +275,18 @@ void irqEnableAUX(u32 irq);
 /// @note
 ///     Specify multiple interrupts to disable by ORing several IRQ_MASKS.
 void irqDisable(u32 irq);
+
 #ifdef ARM7
+/// Prevent the given AUX interrupt from occuring.
+///
+/// @param irq
+///     The set of interrupt masks to disable.
+///
+/// @note
+///     Only for DSi ARM7.
+///
+/// @note
+///     Specify multiple interrupts to disable by ORing several IRQ_MASKS.
 void irqDisableAUX(u32 irq);
 #endif
 
@@ -295,13 +342,13 @@ VoidFn setPowerButtonCB(VoidFn CB);
 /// Disable interrupts by setting IME to 0.
 ///
 /// This is meant to be used with leaveCriticalSection():
-/// ````
+/// ```
 /// int oldIME = enterCriticalSection();
 ///
 /// // Your time-critical code goes here
 ///
 /// leaveCriticalSection(oldIME);
-/// ````
+/// ```
 ///
 /// @return
 ///     Old value of IME.
