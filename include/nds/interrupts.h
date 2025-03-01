@@ -256,6 +256,23 @@ void irqDisableAUX(u32 irq);
 ///     implemented in libnds.
 void swiIntrWait(u32 waitForSet, uint32_t flags);
 
+#ifdef ARM7
+/// Wait for interrupt(s) to occur. DSi ARM7 only.
+///
+/// @param waitForSet
+///     0: Return if the interrupt has already occured; 1: Wait until the
+///     interrupt has been set since the call
+/// @param flags
+///     Interrupt mask to wait for.
+/// @param aux_flags
+///     AUX interrupt mask to wait for.
+///
+/// @note
+///     This doesn't actually use a software interrupt, it's a custom function
+///     implemented in libnds.
+void swiIntrWaitAUX(u32 waitForSet, uint32_t flags, uint32_t aux_flags);
+#endif
+
 /// Waits for a vertical blank interrupt
 ///
 /// @note
