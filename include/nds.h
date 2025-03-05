@@ -85,6 +85,7 @@
 /// - @ref nds/decompress.h "Decompression"
 /// - @ref nds/rsa.h "DSi RSA functions"
 /// - @ref nds/sha1.h "DSi SHA1 functions"
+/// - @ref nds/utf.h "UTF functions"
 ///
 /// @section peripheral_api Custom Peripherals
 /// - @ref nds/arm9/peripherals/slot2.h "Slot-2 peripheral detection, external RAM"
@@ -151,6 +152,7 @@ extern "C" {
 #include <nds/system.h>
 #include <nds/timers.h>
 #include <nds/touch.h>
+#include <nds/utf.h>
 
 #ifdef ARM9
 #    include <nds/arm9/background.h>
