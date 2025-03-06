@@ -443,47 +443,46 @@ typedef enum {
 /// Defines the structure the DS firmware uses for transfer of the user's
 /// settings to the booted program.
 ///
-/// Theme/Color values:
-/// - 0 = Gray
-/// - 1 = Brown
-/// - 2 = Red
-/// - 3 = Pink
-/// - 4 = Orange
-/// - 5 = Yellow
-/// - 6 = Yellow/Green-ish
-/// - 7 = Green
-/// - 8 = Dark Green
-/// - 9 = Green/Blue-ish
-/// - 10 = Light Blue
-/// - 11 = Blue
-/// - 12 = Dark Blue
-/// - 13 = Dark Purple
-/// - 14 = Purple
-/// - 15 = Purple/Red-ish
-///
-/// Language values:
-/// - 0 = Japanese
-/// - 1 = English
-/// - 2 = French
-/// - 3 = German
-/// - 4 = Italian
-/// - 5 = Spanish
-/// - 6 = Chinese(?)
-/// - 7 = Unknown/Reserved
+/// @warning
+///     This struct is initialized by the ARM7 when readUserSettings() is
+///     called. This function is called by default at the beginning of main(),
+///     but this means that the personal data isn't accessible from the ARM9
+///     right at the start of main(). It may take a frame or two to be
+///     actually available.
 typedef struct tPERSONAL_DATA
 {
-    u8 RESERVED0[2];    // ??? (0x05 0x00). (version according to gbatek)
+    u8 RESERVED0[2]; // Version (0x05, 0x00)
 
-    u8 theme;           ///< The user's theme color (0-15).
+    /// The user's theme color (0-15).
+    ///
+    /// Theme/Color values:
+    /// - 0 = Gray
+    /// - 1 = Brown
+    /// - 2 = Red
+    /// - 3 = Pink
+    /// - 4 = Orange
+    /// - 5 = Yellow
+    /// - 6 = Yellow/Green-ish
+    /// - 7 = Green
+    /// - 8 = Dark Green
+    /// - 9 = Green/Blue-ish
+    /// - 10 = Light Blue
+    /// - 11 = Blue
+    /// - 12 = Dark Blue
+    /// - 13 = Dark Purple
+    /// - 14 = Purple
+    /// - 15 = Purple/Red-ish
+    u8 theme;
+
     u8 birthMonth;      ///< The user's birth month (1-12).
     u8 birthDay;        ///< The user's birth day (1-31).
 
-    u8 RESERVED1[1];    // ???
+    u8 RESERVED1[1];    // Not used (zero)
 
-    s16 name[10];       ///< The user's name in UTF-16 format.
+    s16 name[10];       ///< The user's name in UTF-16LE format.
     u16 nameLen;        ///< The length of the user's name in characters.
 
-    s16 message[26];    ///< The user's message.
+    s16 message[26];    ///< The user's message in UTF-16LE format.
     u16 messageLen;     ///< The length of the user's message in characters.
 
     u8 alarmHour;       ///< What hour the alarm clock is set to (0-23).
@@ -502,13 +501,34 @@ typedef struct tPERSONAL_DATA
     u8 calY2px;         ///< Touchscreen calibration: second Y touch pixel
 
     struct {
-        u32 language          : 3; ///< User's language.
-        u32 gbaScreen         : 1; ///< GBA screen selection (lower screen if set, otherwise upper screen).
-        u32 defaultBrightness : 2; ///< Brightness level at power on, dslite.
-        u32 autoMode          : 1; ///< The DS should boot from the DS cart or GBA cart automatically if one is inserted.
-        u32 RESERVED5         : 2; // ???
-        u32 settingsLost      : 1; ///< User Settings Lost (0 = Normal, 1 = Prompt/Settings Lost)
-        u32 RESERVED6         : 6; // ???
+        /// User's language.
+        ///
+        /// Language values:
+        /// - 0 = Japanese
+        /// - 1 = English
+        /// - 2 = French
+        /// - 3 = German
+        /// - 4 = Italian
+        /// - 5 = Spanish
+        /// - 6 = Chinese(?)
+        /// - 7 = Unknown/Reserved
+        u32 language          : 3;
+
+        /// GBA screen selection (lower screen if set, otherwise upper screen).
+        u32 gbaScreen         : 1;
+
+        /// Brightness level at power on, dslite.
+        u32 defaultBrightness : 2;
+
+        /// The DS should boot from the DS cart or GBA cart automatically if one is inserted.
+        u32 autoMode          : 1;
+
+        u32 RESERVED5         : 2;
+
+        /// User Settings Lost (0 = Normal, 1 = Prompt/Settings Lost)
+        u32 settingsLost      : 1;
+
+        u32 RESERVED6         : 6;
     } PACKED;
 
     u8 year;            ///< Year (0 = 2000 .. 255 = 2255)
@@ -522,7 +542,8 @@ typedef struct tPERSONAL_DATA
     /// so any game that relies on this firmware field to detect time/date
     /// modifications won't be able to do it.
     u32 rtcOffset;
-    u32 RESERVED4;      // ???
+
+    u32 RESERVED4; // ???
 } PACKED PERSONAL_DATA;
 
 /// Default location for the user's personal data (see PERSONAL_DATA).
