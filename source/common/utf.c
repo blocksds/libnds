@@ -70,11 +70,7 @@ ssize_t utf16_to_utf8(char *out, size_t out_size, char16_t *in, size_t in_size)
         char utf8[4];
         int utf8_len;
 
-        if (codepoint > 0x10FFFF)
-        {
-            return -1;
-        }
-        else if (codepoint <= 0x7F)
+        if (codepoint <= 0x7F)
         {
             utf8[0] = codepoint & 0x7F;
             utf8_len = 1;
@@ -99,6 +95,10 @@ ssize_t utf16_to_utf8(char *out, size_t out_size, char16_t *in, size_t in_size)
             utf8[2] = 0x80 | ((codepoint >> 6) & 0x3F);
             utf8[3] = 0x80 | (codepoint & 0x3F);
             utf8_len = 4;
+        }
+        else
+        {
+            return -1;
         }
 
         // Save to destination
