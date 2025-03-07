@@ -51,6 +51,18 @@ void systemValueHandler(u32 value, void *data)
             while (1)
                 swiWaitForVBlank();
         }
+        case SYS_ARM7_ASSERTION:
+        {
+            REG_IME = 0;
+
+            __TransferRegion volatile *ipc = __transferRegion();
+            AssertionState *as = (AssertionState *)&ipc->assertionState;
+
+            __sassert(as->file, as->line, as->condition, "ARM7 assertion");
+
+            while (1)
+                swiWaitForVBlank();
+        }
         case SYS_ARM7_CONSOLE_FLUSH:
             consoleArm7Flush();
             break;

@@ -25,11 +25,20 @@ typedef struct {
     char description[32]; // Reason for the exception
 } ExceptionState;
 
+typedef struct {
+    char file[64];
+    uint32_t line;
+    char condition[88];
+} AssertionState;
+
 typedef struct __TransferRegion
 {
     time_t unixTime;
     struct __bootstub *bootcode;
-    ExceptionState exceptionState;
+    union {
+        ExceptionState exceptionState;
+        AssertionState assertionState;
+    };
 } __TransferRegion, *__pTransferRegion;
 
 static_assert(sizeof(__TransferRegion) <= 0x1000, "Transfer region is too big");

@@ -72,6 +72,7 @@ typedef enum
     SDMMC_INSERT,
     SDMMC_REMOVE,
     SYS_ARM7_CRASH,
+    SYS_ARM7_ASSERTION,
     SYS_ARM7_CONSOLE_FLUSH,
     SYS_SET_ARM7_CONSOLE,
 } FifoSystemCommands;
