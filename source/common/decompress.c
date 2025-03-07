@@ -3,11 +3,9 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 
+#include <assert.h>
 #include <stdlib.h>
 
-#ifdef ARM9
-#include <nds/arm9/sassert.h>
-#endif
 #include <nds/bios.h>
 #include <nds/decompress.h>
 
@@ -75,12 +73,11 @@ void decompress(const void *data, void *dst, DecompressType type)
 void decompressStream(const void *data, void *dst, DecompressType type,
                       getByteCallback readCB, getHeaderCallback getHeaderCB)
 {
-#ifdef ARM9
-    sassert(type != LZ77 && type != RLE,
-            "LZ77 and RLE do not support streaming, use Vram versions");
+    // LZ77 and RLE do not support streaming, use VRAM versions
+    assert(type != LZ77 && type != RLE);
 
-    sassert(type != HUFF, "HUFF not supported, use decompresStreamStruct()");
-#endif
+    // HUFF not supported, use decompresStreamStruct()
+    assert(type != HUFF);
 
     TDecompressionStream decompresStream =
     {
@@ -107,13 +104,11 @@ void decompressStream(const void *data, void *dst, DecompressType type,
 void decompressStreamStruct(const void *data, void *dst, DecompressType type,
                             void *param, TDecompressionStream *ds)
 {
-#ifdef ARM9
-    sassert(type != LZ77 && type != RLE,
-            "LZ77 and RLE do not support streaming, use Vram versions");
+    // LZ77 and RLE do not support streaming, use VRAM versions
+    assert(type != LZ77 && type != RLE);
 
-    sassert(ds->getSize != NULL, "getSize() callback is required");
-    sassert(ds->readByte != NULL, "readByte() callback is required");
-#endif
+    // getSize() and readByte() callbacks are required
+    assert((ds->getSize != NULL) && (ds->readByte != NULL));
 
     switch (type)
     {
@@ -122,10 +117,8 @@ void decompressStreamStruct(const void *data, void *dst, DecompressType type,
             break;
         case HUFF:
         {
-#ifdef ARM9
-            sassert(param != NULL, "Temporary buffer required for HUFF");
-            sassert(ds->readWord != NULL, "readWord() callback required for HUFF");
-#endif
+            assert(param != NULL); // Temporary buffer required for HUFF
+            assert(ds->readWord != NULL); // readWord() callback required for HUFF
 
             swiDecompressHuffman(data, dst, (uintptr_t)param, ds);
             break;

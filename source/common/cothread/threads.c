@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2023-2024 Antonio Niño Díaz
 
+#include <assert.h>
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -12,7 +13,6 @@
 
 #include <ndsabi.h>
 #ifdef ARM9
-#include <nds/arm9/sassert.h>
 #include <nds/arm9/cp15.h>
 #endif
 #include <nds/bios.h>
@@ -415,9 +415,7 @@ void cothread_yield(void)
 
 void cothread_yield_irq(uint32_t flags)
 {
-#ifdef ARM9
-    sassert(REG_IME != 0, "IRQs must be enabled");
-#endif
+    assert(REG_IME != 0); // IRQs must be enabled
 
     cothread_info_t *ctx = cothread_active_thread;
 

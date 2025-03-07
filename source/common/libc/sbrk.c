@@ -2,13 +2,10 @@
 //
 // Copyright (c) 2023-2025 Antonio Niño Díaz
 
+#include <assert.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
-
-#ifdef ARM9
-#include <nds/arm9/sassert.h>
-#endif
 
 void *fake_heap_end = NULL;
 void *fake_heap_start = NULL;
@@ -21,15 +18,11 @@ void *sbrk(int incr)
     // Get heap start
     if (heap_start == 0)
     {
-#ifdef ARM9
-        sassert(fake_heap_start != NULL, "Fake heap not initialized");
-#endif
+        assert(fake_heap_start != NULL); // Fake heap not initialized
         heap_start = (uintptr_t)fake_heap_start;
     }
 
-#ifdef ARM9
-    sassert(fake_heap_end != NULL, "Fake heap not initialized");
-#endif
+    assert(fake_heap_end != NULL); // Fake heap not initialized
 
     // Get heap end
     uintptr_t heap_end = (uintptr_t)fake_heap_end;

@@ -5,21 +5,15 @@
 // Copyright (C) 2009 Mukunda Johnson (eKid)
 // Copyright (C) 2010-2011 Dave Murphy (WinterMute)
 
-// Timer API
+#include <assert.h>
 
 #include <nds/interrupts.h>
 #include <nds/timers.h>
 
-#ifdef ARM9
-#include <nds/arm9/sassert.h>
-#endif
-#ifdef ARM7
-#define sassert(v, s)
-#endif
-
 void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback)
 {
-    sassert(timer < 4, "timer must be in range 0 - 3");
+    assert((timer >= 0) && (timer < 4));
+
     TIMER_DATA(timer) = ticks;
 
     if (callback)
@@ -38,7 +32,8 @@ u16 elapsed[4] = {0, 0, 0, 0};
 
 u16 timerElapsed(int timer)
 {
-    sassert(timer < 4, "timer must be in range 0 - 3");
+    assert((timer >= 0) && (timer < 4));
+
     u16 time = TIMER_DATA(timer);
 
     s32 result = (s32)time - (s32)elapsed[timer];
@@ -54,7 +49,8 @@ u16 timerElapsed(int timer)
 
 u16 timerPause(int timer)
 {
-    sassert(timer < 4, "timer must be in range 0 - 3");
+    assert((timer >= 0) && (timer < 4));
+
     TIMER_CR(timer) &= ~TIMER_ENABLE;
     u16 temp = timerElapsed(timer);
     elapsed[timer] = 0;
@@ -63,7 +59,8 @@ u16 timerPause(int timer)
 
 u16 timerStop(int timer)
 {
-    sassert(timer < 4, "timer must be in range 0 - 3");
+    assert((timer >= 0) && (timer < 4));
+
     TIMER_CR(timer) = 0;
     u16 temp = timerElapsed(timer);
     elapsed[timer] = 0;
@@ -80,7 +77,9 @@ static int localTimer = 0;
 
 void cpuStartTiming(int timer)
 {
-    sassert(timer < 3, "timer must be in range 0 - 2");
+    // The limit is timer 2 because we will need to put two timers in cascade.
+    assert((timer >= 0) && (timer < 3));
+
     localTimer = timer;
 
     TIMER_CR(timer) = 0;
