@@ -105,7 +105,4 @@ void __libnds_exit(int rc);
 int nocash_putc_buffered(char c, FILE *file);
 ssize_t nocash_write(const char *ptr, size_t len);
 
-// This function will cause an exception that will print the provided message.
-__attribute__((noreturn)) void libndsCrash(const char *message);
-
 #endif // COMMON_LIBNDS_INTERNAL_H__

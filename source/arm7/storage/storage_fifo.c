@@ -6,12 +6,11 @@
 
 #include <nds/card.h>
 #include <nds/disc_io.h>
+#include <nds/exceptions.h>
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/interrupts.h>
 #include <nds/system.h>
-
-#include "common/libnds_internal.h"
 
 static const DISC_INTERFACE *dldi_io = NULL;
 

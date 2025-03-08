@@ -21,8 +21,7 @@ void setExceptionHandler(VoidFn handler)
 
 const char *exceptionMsg = NULL;
 
-__attribute__((noreturn))
-void libndsCrash(const char *msg)
+__attribute__((noreturn)) void libndsCrash(const char *msg)
 {
     exceptionMsg = msg;
 

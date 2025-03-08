@@ -4,12 +4,10 @@
 
 #include <stdio.h>
 
-#include <nds.h>
+#include <nds/exceptions.h>
 #include <nds/cothread.h>
 
 #include <sys/lock.h>
-
-#include "common/libnds_internal.h"
 
 void *__aeabi_read_tp(void);
 

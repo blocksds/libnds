@@ -5,6 +5,7 @@
 // Copyright (C) 2023 Antonio Niño Díaz
 
 #include <stdlib.h>
+#include <nds/exceptions.h>
 #include <nds/fifocommon.h>
 #include <nds/system.h>
 

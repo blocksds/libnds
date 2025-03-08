@@ -66,6 +66,19 @@ void defaultExceptionHandler(void);
 /// error message, and it uses a lot less code to do it.
 void releaseExceptionHandler(void);
 
+/// Trigger an exception with a custom error message.
+///
+/// This can be used for fatal errors that the code can't recover from. It will
+/// print the state of the CPU when the function was called as well as a custom
+/// user-defined message.
+///
+/// If this function is called on the ARM7 it will send the information to the
+/// ARM9 to be displayed.
+///
+/// @param message
+///     String to be printed in the exception handler.
+__attribute__((noreturn)) void libndsCrash(const char *message);
+
 #ifdef __cplusplus
 }
 #endif
