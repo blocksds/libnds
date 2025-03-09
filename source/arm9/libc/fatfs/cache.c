@@ -21,7 +21,7 @@ typedef struct
 #error "This code expects a fixed sector size"
 #endif
 
-static cache_entry_t *cache_entries;
+static cache_entry_t *cache_entries = NULL;
 static uint8_t *cache_mem;
 static uint32_t cache_num_sectors = 0;
 static uint32_t dldi_stub_space_sectors;
