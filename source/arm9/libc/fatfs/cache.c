@@ -21,9 +21,9 @@ typedef struct
 #error "This code expects a fixed sector size"
 #endif
 
-static cache_entry_t *cache_entries;
+static cache_entry_t *cache_entries = NULL;
 static uint8_t *cache_mem;
-static uint32_t cache_num_sectors;
+static uint32_t cache_num_sectors = 0;
 static uint32_t dldi_stub_space_sectors;
 static uint32_t usage_counter = 0;
 
@@ -32,21 +32,33 @@ extern uint8_t *dldiGetStubEnd(void);
 
 bool cache_initialized(void)
 {
-    if (cache_mem != NULL)
+    if (cache_entries != NULL)
         return true;
     return false;
+}
+
+void cache_deinit(void)
+{
+    if (cache_entries != NULL)
+    {
+        free(cache_entries);
+        cache_entries = NULL;
+    }
+
+    if (cache_mem != NULL)
+    {
+        free(cache_mem);
+        cache_mem = NULL;
+    }
+
+    cache_num_sectors = 0;
 }
 
 int cache_init(int32_t num_sectors)
 {
     // If this function is called after the first time, clear the cache and
     // allocate a new one.
-
-    if (cache_entries != NULL)
-        free(cache_entries);
-
-    if (cache_mem != NULL)
-        free(cache_mem);
+    cache_deinit();
 
     int32_t stub_space_sectors = (dldiGetStubEnd() - dldiGetStubDataEnd()) >> 9;
     dldi_stub_space_sectors = stub_space_sectors < 0 ? 0 : stub_space_sectors;
@@ -122,6 +134,9 @@ void *cache_sector_add(uint8_t pdrv, uint32_t sector)
 {
     uint32_t used_at_difference = 0;
     uint32_t selected_entry = 0;
+
+    if (!cache_num_sectors)
+        return NULL;
 
     // Assumption: cache_sector_get() has been called,
     // and we know the sector is not present
