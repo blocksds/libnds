@@ -258,9 +258,6 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 
     int32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
 
-    // TODO: Should we have a cache_end() if the function fails? It may not be
-    // worth it, most games would just stop booting if the filesystem isn't
-    // available.
     int ret = cache_init(cache_size_sectors);
     if (ret != 0)
     {
@@ -354,6 +351,7 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 
 cleanup:
     free(default_cwd);
+    cache_deinit();
     return false;
 }
 
@@ -364,23 +362,30 @@ bool fatInitDefault(void)
 
 int fatInitLookupCache(int fd, uint32_t max_buffer_size)
 {
-    if (FD_IS_NITRO(fd))
+    if (!FD_IS_FAT(fd))
         return FAT_INIT_LOOKUP_CACHE_NOT_SUPPORTED;
 
     FIL *f = (FIL *) fd;
     if (f->cltbl != NULL)
         return FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED;
 
+    // Allocate initial look-up cache area
+    // -----------------------------------
+
     f->cltbl = malloc(max_buffer_size);
     if (f->cltbl == NULL)
         return FAT_INIT_LOOKUP_CACHE_OUT_OF_MEMORY;
     f->cltbl[0] = max_buffer_size / sizeof(DWORD);
 
+    // Initialize look-up cache area
+    // -----------------------------
+
     FRESULT ret = f_lseek(f, CREATE_LINKMAP);
     if (ret == FR_NOT_ENOUGH_CORE)
-    {
         return f->cltbl[0];
-    }
+    
+    // Reduce allocation to match actual cache area size
+    // -------------------------------------------------
 
     DWORD *new_cltbl = realloc(f->cltbl, f->cltbl[0] * sizeof(DWORD));
     if (new_cltbl != NULL)
