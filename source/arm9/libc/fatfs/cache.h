@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 bool cache_initialized(void);
+void cache_deinit(void);
 int cache_init(int32_t num_sectors);
 void *cache_sector_get(uint8_t pdrv, uint32_t sector);
 void *cache_sector_add(uint8_t pdrv, uint32_t sector);
