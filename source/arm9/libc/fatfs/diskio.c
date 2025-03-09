@@ -74,14 +74,19 @@ static const DISC_INTERFACE *fs_io[FF_VOLUMES];
 // pdrv: Physical drive nmuber to identify the drive
 DSTATUS disk_status(BYTE pdrv)
 {
+    const DISC_INTERFACE *io;
     DSTATUS result = 0;
 
     switch (pdrv)
     {
         case DEV_SD:
             result = sdmmc_GetDiskStatus();
-            // fall through
+            // Fall through
         case DEV_DLDI:
+            io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
+            result |= (io->features & FEATURE_MEDIUM_CANREAD)
+                ? ((io->features & FEATURE_MEDIUM_CANWRITE) ? 0 : STA_PROTECT)
+                : STA_NODISK;
             result |= fs_initialized[pdrv] ? 0 : STA_NOINIT;
             break;
         default:
@@ -113,6 +118,9 @@ DSTATUS disk_initialize(BYTE pdrv)
         case DEV_SD:
         {
             const DISC_INTERFACE *io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
+            
+            if (!(io->features & FEATURE_MEDIUM_CANREAD))
+                return STA_NOINIT | STA_NODISK;
 
             if (!io->startup())
                 return STA_NOINIT;
@@ -123,7 +131,7 @@ DSTATUS disk_initialize(BYTE pdrv)
             fs_io[pdrv] = io;
             fs_initialized[pdrv] = true;
 
-            return 0;
+            return disk_status(pdrv);
         }
     }
     return STA_NOINIT;
@@ -305,7 +313,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
 
-    // Only CTRL_SYNC is needed for now:
+    // - CTRL_SYNC: Used for write flush operations.
     // - GET_SECTOR_COUNT: Used by f_mkfs and f_fdisk.
     // - GET_SECTOR_SIZE: Required only if FF_MAX_SS > FF_MIN_SS.
     // - GET_BLOCK_SIZE: Used by f_mkfs.
@@ -313,9 +321,17 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 
     switch (pdrv)
     {
-        case DEV_DLDI:
         case DEV_SD:
-            // This command flushes the cache, but there is no cache right now
+            if (cmd == GET_SECTOR_COUNT)
+            {
+                *((LBA_t*) buff) = sdmmc_GetSectors();
+                return RES_OK;
+            }
+
+            // Fall through
+
+        case DEV_DLDI:
+            // This command flushes the writeback cache, but there is no such cache right now.
             if (cmd == CTRL_SYNC)
                 return RES_OK;
 
