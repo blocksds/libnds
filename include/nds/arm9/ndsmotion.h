@@ -17,6 +17,8 @@
 
 #include <stdbool.h>
 
+#include <nds/ndstypes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -197,6 +199,7 @@ int motion_rotation(void);
 ///
 /// @return
 ///     The calibration settings.
+WARN_UNUSED_RESULT
 MotionCalibration *motion_get_calibration(void);
 
 /// This sets the calibration settings.

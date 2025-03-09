@@ -318,12 +318,14 @@ bool setCpuClock(bool speed);
 ///
 /// @return
 ///     Returns a pointer to the start of the heap.
+WARN_UNUSED_RESULT
 u8 *getHeapStart(void);
 
 /// Returns current end of heap space.
 ///
 /// @return
 ///     Returns a pointer to the end of the heap.
+WARN_UNUSED_RESULT
 u8 *getHeapEnd(void);
 
 /// Returns current heap limit.
@@ -331,6 +333,7 @@ u8 *getHeapEnd(void);
 /// @return
 ///     Returns a pointer to the limit of the heap. It won't grow past this
 ///     address.
+WARN_UNUSED_RESULT
 u8 *getHeapLimit(void);
 
 #endif // ARM9
