@@ -60,6 +60,9 @@
 /// @section multithreading_api Multithreading
 /// - @ref nds/cothread.h "Cooperative multithreading"
 ///
+/// @section dynamic_library_api Dynamic libraries
+/// - @ref dlfcn.h "Helpers to load dynamic libraries"
+///
 /// @section user_io_api User Input/ouput
 /// - @ref nds/arm9/input.h "Keypad and touch pad"
 /// - @ref nds/arm9/keyboard.h "Keyboard"
