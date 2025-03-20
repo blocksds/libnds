@@ -30,7 +30,8 @@ extern "C" {
 ///
 /// These enums are bits for flipping the sprites.
 ///
-/// You can **"|"** (or) GL_FLIP_V and GL_FLIP_H to flip both ways.
+/// You can or GL_FLIP_V and GL_FLIP_H to flip both ways: `GL_FLIP_V |
+/// GL_FLIP_H`
 ///
 /// <ul>
 ///   <li> Related functions:
@@ -38,13 +39,12 @@ extern "C" {
 ///     <li>glSprite()
 ///     <li>glSpriteScale()
 ///     <li>glSpriteRotate()
-///     <li>glSpriteScaleXY(()
+///     <li>glSpriteScaleXY()
 ///     <li>glSpriteRotateScale()
 ///     <li>glSpriteRotateScaleXY()
 ///     <li>glSpriteOnQuad()
 ///   </ol>
 /// </ul>
-
 typedef enum
 {
     GL_FLIP_NONE = (1 << 0), ///< No flipping
