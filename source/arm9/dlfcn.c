@@ -288,7 +288,9 @@ void *dlopen(const char *file, int mode)
 
                     int32_t jump_value = sym_addr - bl_addr;
 
-                    if (!to_arm)
+                    if (to_arm)
+                        jump_value -= 2;
+                    else
                         jump_value -= 4;
 
                     if ((jump_value > 0x3FFFFF) | (jump_value <= -0x3FFFFF))
@@ -356,10 +358,12 @@ void *dlopen(const char *file, int mode)
                     if ((sym_addr & 1) == 0)
                         to_arm = true;
 
-                    int32_t jump_value = sym_addr - (bl_addr + 4);
+                    int32_t jump_value = sym_addr - bl_addr;
 
-                    if (!to_arm)
-                        jump_value -= 4;
+                    if (to_arm)
+                        jump_value -= 6;
+                    else
+                        jump_value -= 8;
 
                     if ((jump_value > 0x7FFFFF) | (jump_value <= -0x7FFFFF))
                     {
