@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <nds/arm9/cache.h>
 #include <nds/ndstypes.h>
 
 #include "dsl.h"
@@ -411,6 +412,11 @@ void *dlopen(const char *file, int mode)
     }
 
     fclose(f);
+
+    // Now that we have finished loading and handling relocations we need to
+    // flush the data cache. If not, the instruction cache won't see the updated
+    // code in main RAM!
+    DC_FlushRange(loaded_mem, addr_space_size);
 
     return handle;
 
