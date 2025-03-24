@@ -415,8 +415,11 @@ void *dlopen(const char *file, int mode)
 
     // Now that we have finished loading and handling relocations we need to
     // flush the data cache. If not, the instruction cache won't see the updated
-    // code in main RAM!
+    // code in main RAM! Also, we need to clear the instruction cache in case
+    // this range was already in cache because of a previous library, for
+    // example.
     DC_FlushRange(loaded_mem, addr_space_size);
+    IC_InvalidateRange(loaded_mem, addr_space_size);
 
     return handle;
 
