@@ -99,6 +99,9 @@ void init_tls(void *__tls)
 // This holds the pointer to the TLS of the current thread for __aeabi_read_tp.
 // It doesn't hold the pointer to the start of the TLS data, but to to the
 // beginning of the thread control block.
+#ifdef ARM9
+DTCM_DATA
+#endif
 void *__tls = __tls_start - TCB_SIZE;
 
 static inline void set_tls(void *tls)
