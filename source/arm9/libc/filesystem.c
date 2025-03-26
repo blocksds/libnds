@@ -27,6 +27,12 @@ bool current_drive_is_nitrofs = false;
 
 int open(const char *path, int flags, ...)
 {
+    if (path == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     // POSIX | FatFs
     // ------+----------------------------------------
     // "r"   | FA_READ
@@ -272,6 +278,12 @@ int rmdir(const char *name)
 
 int stat(const char *path, struct stat *st)
 {
+    if ((path == NULL) || (st == NULL))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     if (nitrofs_use_for_path(path))
         return nitrofs_stat(path, st);
 
@@ -325,6 +337,12 @@ int stat(const char *path, struct stat *st)
 
 int fstat(int fd, struct stat *st)
 {
+    if (st == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     // This isn't handled here
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
@@ -598,6 +616,12 @@ int fchownat(int dir_fd, const char *path, uid_t owner, gid_t group, int flags)
 
 int access(const char *path, int amode)
 {
+    if (path == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     if (nitrofs_use_for_path(path))
     {
         if ((amode & W_OK) || (nitrofs_path_resolve(path) < 0))
@@ -653,6 +677,12 @@ int symlink(const char *target, const char *path)
 
 int FAT_getAttr(const char *file)
 {
+    if (file == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     if (nitrofs_use_for_path(file))
         return nitrofs_fat_get_attr(file);
 
@@ -670,6 +700,12 @@ int FAT_getAttr(const char *file)
 
 int FAT_setAttr(const char *file, uint8_t attr)
 {
+    if (file == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     if (nitrofs_use_for_path(file))
     {
         errno = EROFS; // Read-only filesystem
