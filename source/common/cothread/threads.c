@@ -542,7 +542,17 @@ int cothread_main(void *arg)
 {
     (void)arg;
 
-    extern int main(int argc, char **argv);
+    extern void __libc_init_array(void); // This is in picolibc
+    extern void initSystem(void); // This is in libnds
+    extern int main(int argc, char **argv); // This is in user code
+
+#ifdef ARM9
+    // Initialize hardware
+    initSystem();
+#endif
+
+    // Initialize global constructors after threads are working
+    __libc_init_array();
 
 #ifdef ARM9
     return main(main_args.argc, main_args.argv);
@@ -562,6 +572,9 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     (void)argv;
 #endif
 
+    // Initialize TLS of the main thread
+    init_tls(__tls_start);
+
     // Thread local storage for the main thread, defined by the linker,
     // is initialized to __tls_start by the crt0.
 
@@ -571,9 +584,9 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
                                              cothread_main, NULL,
                                              main_stack_top, __tls_start, 0);
 
+    // Start scheduler after everything is ready.
     cothread_scheduler_start();
 
     // If the scheduler returns it's because main() has returned.
-
     return cothread_get_exit_code(id);
 }
