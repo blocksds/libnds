@@ -446,6 +446,7 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
                  int sizeY, int empty2, int param, const void *texture);
 
@@ -508,6 +509,7 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
                     int empty3, const void *table);
 
@@ -529,6 +531,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glColorSubTableEXT(int target, int start, int count, int empty1,
                        int empty2, const void *data);
 
@@ -546,6 +549,7 @@ int glColorSubTableEXT(int target, int start, int count, int empty1,
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 
 /// glAssignColorTable sets the active texture with a palette set with another
@@ -562,6 +566,7 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glAssignColorTable(int target, int name);
 
 /// Set parameters for the current texture.
@@ -597,6 +602,7 @@ u32 glGetTexParameter(void);
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glGetColorTableParameterEXT(int target, int pname, int *params);
 
 /// Returns the address allocated to the texure named by name.
@@ -649,6 +655,7 @@ int glBindTexture(int target, int name);
 ///
 /// @return
 ///     1 on success, 0 on failure.
+WARN_UNUSED_RESULT
 int glGenTextures(int n, int *names);
 
 /// Deletes the specified number of textures (and associated palettes).
@@ -1457,6 +1464,7 @@ static inline void glCutoffDepth(fixed12d3 wVal)
 ///
 /// @return
 ///     1 on success, 0 on failure
+WARN_UNUSED_RESULT
 int glInit(void);
 
 /// Sets the color of the rear-plane (a.k.a clear color/plane)
