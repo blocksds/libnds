@@ -45,7 +45,7 @@ typedef enum
     FIFO_SDMMC      = 5,  ///< Deprecated name of FIFO_STORAGE
 } FifoChannels;
 
-/// Enum values for the FIFO sound commands.
+/// Enum values for the FIFO sound commands (FIFO_SOUND).
 typedef enum
 {
     SOUND_SET_PAN           = 0 << 20,
@@ -61,10 +61,10 @@ typedef enum
     MIC_STOP                = 10 << 20,
     SOUND_EXT_SET_FREQ      = 11 << 20,
     SOUND_EXT_SET_RATIO     = 12 << 20,
-    MIC_SET_POWER_ON        = 13 << 20, // To enable it for the DSP
+    MIC_SET_POWER_ON        = 13 << 20, /// Enable microphone for the DSP
 } FifoSoundCommand;
 
-/// Enum values for the FIFO system commands.
+/// Enum values for the FIFO system commands (FIFO_SYSTEM).
 typedef enum
 {
     SYS_REQ_TIME, // TODO: Unused
@@ -77,6 +77,7 @@ typedef enum
     SYS_SET_ARM7_CONSOLE,
 } FifoSystemCommands;
 
+/// SD, NAND and DLDI system commands (FIFO_STORAGE).
 typedef enum
 {
     SDMMC_SD_START,
@@ -96,13 +97,14 @@ typedef enum
     SLOT1_CARD_READ,
 } FifoSdmmcCommands;
 
+/// System commands to access the firmware (FIFO_FIRMWARE).
 typedef enum
 {
     FW_READ,
     FW_WRITE
 } FifoFirmwareCommands;
 
-/// Enum values for the FIFO power management commands.
+/// Enum values for the FIFO power management commands (FIFO_PM).
 typedef enum
 {
     PM_REQ_ON               = 1 << 16,
@@ -116,7 +118,7 @@ typedef enum
     PM_REQ_SLOT1_ENABLE     = 9 << 16,
 } FifoPMCommands;
 
-/// Enum values for the FIFO wifi commands.
+/// Enum values for the FIFO WiFi commands (FIFO_DSWIFI).
 typedef enum
 {
     WIFI_ENABLE,
@@ -124,7 +126,6 @@ typedef enum
     WIFI_SYNC,
     WIFI_STARTUP
 } FifoWifiCommands;
-
 
 /// Power Management LED blink mode control bits.
 typedef enum
