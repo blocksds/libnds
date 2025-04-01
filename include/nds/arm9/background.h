@@ -637,8 +637,8 @@ static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int t
             "Background 0 is currently being used for 3D display");
     sassert(layer > 1 || type == BgType_Text8bpp || type == BgType_Text4bpp,
             "Incorrect background type for mode");
-    //sassert((size != BgSize_B8_512x1024 && size != BgSize_B8_1024x512) ||
-    //        videoGetMode() == 6, "Incorrect background type for mode");
+    sassert((size != BgSize_B8_512x1024 && size != BgSize_B8_1024x512) ||
+            (videoGetMode() & 7) == 6, "Incorrect background type for mode");
     sassert(tileBase == 0 || type < BgType_Bmp8,
             "Tile base is unused for bitmaps. Can be offset using mapBase * 16KB");
     sassert((mapBase == 0 || type != BgType_Bmp8) ||
