@@ -172,9 +172,9 @@ typedef enum
     BG_BMP8_128x128  = ((0 << 14) | BIT(7)), ///< 128x128 pixel 8-bit bitmap
     BG_BMP8_256x256  = ((1 << 14) | BIT(7)), ///< 256x256 pixel 8-bit bitmap
     BG_BMP8_512x256  = ((2 << 14) | BIT(7)), ///< 512x256 pixel 8-bit bitmap
-    BG_BMP8_512x512  = ((3 << 14) | BIT(7)), ///< 512 pixel 8-bit bitma
-    BG_BMP8_1024x512 = BIT(14), ///< 1024x512 pixel 8-bit Large bitmap (Mode 6, main engine)
-    BG_BMP8_512x1024 = 0,       ///< 512x1024 pixel 8-bit Large bitmap (Mode 6, main engine)
+    BG_BMP8_512x512  = ((3 << 14) | BIT(7)), ///< 512 pixel 8-bit bitmap
+    BG_BMP8_1024x512 = (1 << 14), ///< 1024x512 pixel 8-bit Large bitmap (Mode 6, main engine)
+    BG_BMP8_512x1024 = (0 << 14), ///< 512x1024 pixel 8-bit Large bitmap (Mode 6, main engine)
 
     BG_BMP16_128x128  = ((0 << 14) | BIT(7) | BIT(2)), ///< 128x128 pixel 16-bit bitmap
     BG_BMP16_256x256  = ((1 << 14) | BIT(7) | BIT(2)), ///< 256x256 pixel 16-bit bitmap
@@ -485,7 +485,7 @@ typedef enum
     BgSize_B8_512x256 =  ((2 << 14) | BIT(7) | (3 << 16)), ///< 512 x 256 pixel 8 bit bitmap background
     BgSize_B8_512x512 =  ((3 << 14) | BIT(7) | (3 << 16)), ///< 512 x 512 pixel 8 bit bitmap background
     BgSize_B8_1024x512 = (1 << 14) | (3 << 16), ///< 1024 x 512 pixel 8 bit bitmap background
-    BgSize_B8_512x1024 = (0) | (3 << 16),       ///< 512 x 1024 pixel 8 bit bitmap background
+    BgSize_B8_512x1024 = (0 << 14) | (3 << 16), ///< 512 x 1024 pixel 8 bit bitmap background
 
     BgSize_B16_128x128 = ((0 << 14) | BIT(7) | BIT(2) | (4 << 16)), ///< 128 x 128 pixel 16 bit bitmap background
     BgSize_B16_256x256 = ((1 << 14) | BIT(7) | BIT(2) | (4 << 16)), ///< 256 x 256 pixel 16 bit bitmap background
