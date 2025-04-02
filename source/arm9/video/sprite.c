@@ -35,7 +35,6 @@ OamState oamSub =
 
 void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette)
 {
-    int i;
     int extPaletteFlag = extPalette ? DISPLAY_SPR_EXT_PALETTE : 0;
 
     oam->gfxOffsetStep = (mapping & 3) + 5;
@@ -44,10 +43,10 @@ void oamInit(OamState *oam, SpriteMapping mapping, bool extPalette)
 
     dmaFillWords(0, oam->oamMemory, sizeof(OamMemory));
 
-    for (i = 0; i < 128; i++)
+    for (int i = 0; i < 128; i++)
         oam->oamMemory[i].isHidden = true;
 
-    for (i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
         oam->oamRotationMemory[i].hdx = (1 << 8);
         oam->oamRotationMemory[i].vdy = (1 << 8);
