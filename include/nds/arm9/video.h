@@ -288,7 +288,7 @@ typedef enum
 typedef enum
 {
     VRAM_I_LCD                    = 0, ///< LCD
-    VRAM_I_SUB_BG_0x06208000      = 1, ///< Sub engine background thirth part of slot 0
+    VRAM_I_SUB_BG_0x06208000      = 1, ///< Sub engine background third part of slot 0
     VRAM_I_SUB_SPRITE             = 2, ///< Sub engine sprites
     VRAM_I_SUB_SPRITE_0x06600000  = 2, ///< Sub engine sprites
     VRAM_I_SUB_SPRITE_EXT_PALETTE = 3, ///< Sub engine sprites extended palette
