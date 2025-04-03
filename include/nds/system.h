@@ -323,7 +323,7 @@ u8 *getHeapStart(void);
 /// Returns current end of heap space.
 ///
 /// @return
-///     Returns a pointer to the end of the heap.
+///     Returns a pointer to the current end of the heap.
 u8 *getHeapEnd(void);
 
 /// Returns current heap limit.
@@ -332,6 +332,28 @@ u8 *getHeapEnd(void);
 ///     Returns a pointer to the limit of the heap. It won't grow past this
 ///     address.
 u8 *getHeapLimit(void);
+
+/// Reduces the size of the heap from the end.
+///
+/// This can be useful if you need a lot of stack and you're letting the stack
+/// grow so much it leaves DTCM and reaches main RAM. All of main RAM is
+/// available for sbrk() and functions that use it, like malloc(). If you want
+/// to let the stack grow safely you need to remove the end of main RAM from the
+/// heap pool by calling reduceHeapSize().
+///
+/// @warning
+///     You need to call this function before the heap has grown. You can check
+///     getHeapEnd() to see what's the maximum memory that you can take from the
+///     heap. If you free all the allocated chunks after a specific address,
+///     sbrk() is called to reduce the size of the heap, which will let you call
+///     reduceHeapSize() to reduce the heap limit down to that address.
+///
+/// @param size_to_save
+///     The size that the heap needs to shrink. It must be a multiple of 4.
+///
+/// @return
+///     Returns 0 on success, or a negative value on error.
+int reduceHeapSize(size_t size_to_save);
 
 #endif // ARM9
 
