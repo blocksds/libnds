@@ -12,6 +12,48 @@
 // High-level functions
 
 extern u8 cameraActiveDevice;
+struct camera_state {
+    int8_t last_mode = -1;
+    uint8_t  dma_scanlines; //
+    uint16_t dma_wlength; //
+    uint16_t dma_blength; //for future use
+    uint16_t height;//
+    uint16_t width;//
+} __camera_state;
+
+//for future use
+int updateDmaParam(uint16_t width, uint16_t height){
+    //dma can transfer 512 words
+    if (width==0 || height==0)
+        return false;
+    uint8_t bytes_per_pixel=2;
+    uint32_t bytes_per_scanline=(uint32_t)width*bytes_per_pixel;
+    uint32_t words_per_scanline=(bytes_per_scanline+4-1)/4;//ceil division
+    uint32_t wordCount=(uint32_t)height*words_per_scanline;
+    uint8_t scanlines=512/words_per_scanline; //floor division
+    if (scanlines>16)
+        return false;
+    __camera_state.dma_wlength=wordCount; //total number of words per transfer
+    __camera_state.dma_blength=scanlines*words_per_scanline; //total number of words per camera interrupt
+    __camera_state.dma_scanlines=scanlines; //number of scanlines after which camera interrupt happens
+    return true;
+}
+
+
+bool cameraSetCaptureMode(u8 captureMode)
+{
+
+    if (captureMode != MCUREG_APT_SEQ_CMD_PREVIEW && captureMode != MCUREG_APT_SEQ_CMD_CAPTURE)
+        return false;
+
+    fifoMutexAcquire(FIFO_CAMERA);
+    fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SEND_SEQ_CMD, captureMode));
+    fifoWaitValue32(FIFO_CAMERA);
+    fifoGetValue32(FIFO_CAMERA);
+    fifoMutexRelease(FIFO_CAMERA);
+    __camera_state.last_mode=captureMode;
+    return true;
+}
 
 bool cameraDeinitTWL(void)
 {
@@ -34,7 +76,7 @@ bool cameraDeinitTWL(void)
     REG_CAM_MCNT = 0;
     REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_IF;
     swiDelay(30);
-
+    __camera_state.last_mode=-1;
     return true;
 }
 
@@ -68,12 +110,13 @@ bool cameraInitTWL(void)
     REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_EXT;
     REG_SCFG_CLK |= SCFG_CLK_CAMERA_EXT;
     swiDelay(20);
-
+    __camera_state.last_mode=-1;
     return result == I2CREG_APT_CHIP_VERSION_MT9V113;
 }
 
 bool cameraSelectTWL(CameraDevice device)
 {
+    __camera_state.last_mode=-1;
     fifoMutexAcquire(FIFO_CAMERA);
     fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SELECT, device));
     fifoWaitValue32(FIFO_CAMERA);
@@ -91,30 +134,10 @@ bool cameraSelectTWL(CameraDevice device)
     }
 }
 
-bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
+
+void cameraStartDMA(u16 * buffer, u8 captureMode)
 {
-    bool preview = captureMode == MCUREG_APT_SEQ_CMD_PREVIEW;
-    if (!preview && captureMode != MCUREG_APT_SEQ_CMD_CAPTURE)
-        return false;
-
-    if (cameraTransferActive())
-        cameraStopTransfer();
-
-    fifoMutexAcquire(FIFO_CAMERA);
-    fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SEND_SEQ_CMD, captureMode));
-    fifoWaitValue32(FIFO_CAMERA);
-    fifoGetValue32(FIFO_CAMERA);
-    fifoMutexRelease(FIFO_CAMERA);
-
-    REG_CAM_CNT &= ~0x200F;
-    if (preview)
-        REG_CAM_CNT |= CAM_CNT_FORMAT_RGB | CAM_CNT_SCANLINES(4);
-    else
-        REG_CAM_CNT |= CAM_CNT_FORMAT_YUV | CAM_CNT_SCANLINES(1);
-
-    REG_CAM_CNT |= CAM_CNT_TRANSFER_FLUSH;
-    REG_CAM_CNT |= CAM_CNT_TRANSFER_ENABLE;
-
+    bool preview= (captureMode==MCUREG_APT_SEQ_CMD_PREVIEW );
     NDMA_SRC(ndmaId) = (u32)&REG_CAM_DATA;
     NDMA_DEST(ndmaId) = (u32)buffer;
     NDMA_LENGTH(ndmaId) = (preview ? (256 * 192) : (640 * 480)) >> 1;
@@ -122,6 +145,29 @@ bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
     NDMA_BDELAY(ndmaId) = 2;
     NDMA_CR(ndmaId) =
         NDMA_SRC_FIX | NDMA_BLOCK_SCALER(4) | NDMA_START_CAMERA | NDMA_ENABLE;
+    return;
+}
+
+bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
+{
+    if (cameraTransferActive())
+        cameraStopTransfer();
+
+    if (__camera_state.last_mode!=captureMode)
+    {
+        bool ret=cameraSetCaptureMode(camera, captureMode);
+        if(!ret)return ret;
+    }
+    REG_CAM_CNT &= ~0x200F;
+    if (captureMode==MCUREG_APT_SEQ_CMD_PREVIEW)
+        REG_CAM_CNT |= CAM_CNT_FORMAT_RGB | CAM_CNT_SCANLINES(4);
+    else
+        REG_CAM_CNT |= CAM_CNT_FORMAT_YUV | CAM_CNT_SCANLINES(1);
+
+    REG_CAM_CNT |= CAM_CNT_TRANSFER_FLUSH;
+    REG_CAM_CNT |= CAM_CNT_TRANSFER_ENABLE;
+
+    cameraStartDMA(buffer,captureMode);
 
     return true;
 }
