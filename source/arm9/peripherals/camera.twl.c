@@ -13,7 +13,7 @@
 
 extern u8 cameraActiveDevice;
 struct camera_state {
-    int8_t last_mode = -1;
+    int8_t last_mode;
     uint8_t  dma_scanlines; //
     uint16_t dma_wlength; //
     uint16_t dma_blength; //for future use
@@ -135,7 +135,7 @@ bool cameraSelectTWL(CameraDevice device)
 }
 
 
-void cameraStartDMA(u16 * buffer, u8 captureMode)
+void cameraStartDMA(u16 * buffer, u8 captureMode, u8 ndmaId)
 {
     bool preview= (captureMode==MCUREG_APT_SEQ_CMD_PREVIEW );
     NDMA_SRC(ndmaId) = (u32)&REG_CAM_DATA;
@@ -155,7 +155,7 @@ bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
 
     if (__camera_state.last_mode!=captureMode)
     {
-        bool ret=cameraSetCaptureMode(camera, captureMode);
+        bool ret=cameraSetCaptureMode(captureMode);
         if(!ret)return ret;
     }
     REG_CAM_CNT &= ~0x200F;
@@ -167,7 +167,7 @@ bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
     REG_CAM_CNT |= CAM_CNT_TRANSFER_FLUSH;
     REG_CAM_CNT |= CAM_CNT_TRANSFER_ENABLE;
 
-    cameraStartDMA(buffer,captureMode);
+    cameraStartDMA(buffer,captureMode, ndmaId);
 
     return true;
 }
