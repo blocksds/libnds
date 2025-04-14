@@ -32,7 +32,7 @@ bool updateDmaParam(uint16_t width, uint16_t height){
     uint32_t bytes_per_scanline=(uint32_t)width*bytes_per_pixel;
     uint32_t total_bytes=bytes_per_scanline*height;
     uint32_t total_words=(total_bytes+4-1)/4;
-    uint8_t scanlines=(512*4)/(bytes_per_scanline);
+    uint32_t scanlines=(512*4)/(bytes_per_scanline);
     if (scanlines>16){
         printf("too many scanlines!\n");
         return false;
