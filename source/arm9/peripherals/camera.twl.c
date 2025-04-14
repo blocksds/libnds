@@ -12,6 +12,7 @@
 // High-level functions
 
 extern u8 cameraActiveDevice;
+
 struct camera_state {
     int8_t last_mode;
     uint8_t  dma_scanlines; //future use
@@ -20,10 +21,8 @@ struct camera_state {
     uint16_t height;//
     uint16_t width;//
 } __camera_state;
+
 //for future use
-
-
-
 bool updateDmaParam(uint16_t width, uint16_t height){
     //camera buffer is 512 words
     if (width==0 || height==0)
@@ -34,20 +33,13 @@ bool updateDmaParam(uint16_t width, uint16_t height){
     uint32_t total_words=(total_bytes+4-1)/4;
     uint32_t scanlines=(512*4)/(bytes_per_scanline);
     if (scanlines>16){
-        printf("too many scanlines!\n");
         return false;
     }
     __camera_state.dma_wlength=total_words; //total number of words per transfer
     __camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //total number of words per camera interrupt
     __camera_state.dma_scanlines=scanlines; //number of scanlines after which camera interrupt happens
-
-
-    printf(" wlength: %u\n",__camera_state.dma_wlength);
-    printf(" blength: %u\n",__camera_state.dma_blength);
-    printf(" scanlines: %u\n",__camera_state.dma_scanlines);
     return true;
 }
-
 
 bool cameraSetCaptureMode(u8 captureMode)
 {
@@ -143,7 +135,6 @@ bool cameraSelectTWL(CameraDevice device)
     }
 }
 
-
 void cameraStartDMA(u16 * buffer, u8 captureMode, u8 ndmaId)
 {
     bool preview= (captureMode==MCUREG_APT_SEQ_CMD_PREVIEW );
@@ -177,7 +168,6 @@ bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
     REG_CAM_CNT |= CAM_CNT_TRANSFER_ENABLE;
 
     cameraStartDMA(buffer,captureMode, ndmaId);
-
     return true;
 }
 
