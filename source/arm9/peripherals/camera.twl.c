@@ -14,28 +14,37 @@
 extern u8 cameraActiveDevice;
 struct camera_state {
     int8_t last_mode;
-    uint8_t  dma_scanlines; //
-    uint16_t dma_wlength; //
-    uint16_t dma_blength; //for future use
+    uint8_t  dma_scanlines; //future use
+    uint32_t dma_wlength; //
+    uint32_t dma_blength; //might be doable as u16, but better safe than sorry
     uint16_t height;//
     uint16_t width;//
 } __camera_state;
-
 //for future use
-int updateDmaParam(uint16_t width, uint16_t height){
-    //dma can transfer 512 words
+
+
+
+bool updateDmaParam(uint16_t width, uint16_t height){
+    //camera buffer is 512 words
     if (width==0 || height==0)
         return false;
     uint8_t bytes_per_pixel=2;
     uint32_t bytes_per_scanline=(uint32_t)width*bytes_per_pixel;
-    uint32_t words_per_scanline=(bytes_per_scanline+4-1)/4;//ceil division
-    uint32_t wordCount=(uint32_t)height*words_per_scanline;
-    uint8_t scanlines=512/words_per_scanline; //floor division
-    if (scanlines>16)
+    uint32_t total_bytes=bytes_per_scanline*height;
+    uint32_t total_words=(total_bytes+4-1)/4;
+    uint8_t scanlines=(512*4)/(bytes_per_scanline);
+    if (scanlines>16){
+        printf("too many scanlines!\n");
         return false;
-    __camera_state.dma_wlength=wordCount; //total number of words per transfer
-    __camera_state.dma_blength=scanlines*words_per_scanline; //total number of words per camera interrupt
+    }
+    __camera_state.dma_wlength=total_words; //total number of words per transfer
+    __camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //total number of words per camera interrupt
     __camera_state.dma_scanlines=scanlines; //number of scanlines after which camera interrupt happens
+
+
+    printf(" wlength: %u\n",__camera_state.dma_wlength);
+    printf(" blength: %u\n",__camera_state.dma_blength);
+    printf(" scanlines: %u\n",__camera_state.dma_scanlines);
     return true;
 }
 
