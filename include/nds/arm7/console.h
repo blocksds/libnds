@@ -77,7 +77,7 @@ int consoleVprintf(const char *fmt, va_list args);
 ///
 /// @return
 ///     It returns 0 on success, -1 if there are unsuported flags.
-int consolePrintf(const char *fmt, ...) __printflike(1, 2);
+int consolePrintf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /// Sends a message to the ARM9 to print the contents stored in the buffer.
 void consoleFlush(void);
