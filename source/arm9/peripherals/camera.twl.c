@@ -13,17 +13,17 @@
 
 extern u8 cameraActiveDevice;
 
-struct camera_state {
-    int8_t last_mode;
-    uint8_t  dma_scanlines; //future use
-    uint32_t dma_wlength; //
-    uint32_t dma_blength; //might be doable as u16, but better safe than sorry
+static struct camera_state {
+    int8_t last_mode;//<- actually used
+    uint8_t  dma_scanlines; //<-these extra params are for future custom resolutions
+    uint32_t dma_wlength; // after an access to last_mode they should be in cache
+    uint32_t dma_blength; //
     uint16_t height;//
     uint16_t width;//
-} __camera_state;
+} camera_state;
 
-//for future use
-bool updateDmaParam(uint16_t width, uint16_t height){
+//This function is for when support for different resolutions gets added to the camera driver
+static bool updateDmaParam(uint16_t width, uint16_t height){
     //camera buffer is 512 words
     if (width==0 || height==0)
         return false;
@@ -35,9 +35,9 @@ bool updateDmaParam(uint16_t width, uint16_t height){
     if (scanlines>16){
         return false;
     }
-    __camera_state.dma_wlength=total_words; //total number of words per transfer
-    __camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //total number of words per camera interrupt
-    __camera_state.dma_scanlines=scanlines; //number of scanlines after which camera interrupt happens
+    camera_state.dma_wlength=total_words; //total number of words per transfer
+    camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //total number of words per camera interrupt
+    camera_state.dma_scanlines=scanlines; //number of scanlines after which camera interrupt happens
     return true;
 }
 
@@ -52,7 +52,7 @@ bool cameraSetCaptureMode(u8 captureMode)
     fifoWaitValue32(FIFO_CAMERA);
     fifoGetValue32(FIFO_CAMERA);
     fifoMutexRelease(FIFO_CAMERA);
-    __camera_state.last_mode=captureMode;
+    camera_state.last_mode=captureMode;
     return true;
 }
 
@@ -77,7 +77,7 @@ bool cameraDeinitTWL(void)
     REG_CAM_MCNT = 0;
     REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_IF;
     swiDelay(30);
-    __camera_state.last_mode=-1;
+    camera_state.last_mode=-1;
     return true;
 }
 
@@ -111,13 +111,13 @@ bool cameraInitTWL(void)
     REG_SCFG_CLK &= ~SCFG_CLK_CAMERA_EXT;
     REG_SCFG_CLK |= SCFG_CLK_CAMERA_EXT;
     swiDelay(20);
-    __camera_state.last_mode=-1;
+    camera_state.last_mode=-1;
     return result == I2CREG_APT_CHIP_VERSION_MT9V113;
 }
 
 bool cameraSelectTWL(CameraDevice device)
 {
-    __camera_state.last_mode=-1;
+    camera_state.last_mode=-1;
     fifoMutexAcquire(FIFO_CAMERA);
     fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SELECT, device));
     fifoWaitValue32(FIFO_CAMERA);
@@ -153,7 +153,7 @@ bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
     if (cameraTransferActive())
         cameraStopTransfer();
 
-    if (__camera_state.last_mode!=captureMode)
+    if (camera_state.last_mode!=captureMode)
     {
         bool ret=cameraSetCaptureMode(captureMode);
         if(!ret)return ret;
