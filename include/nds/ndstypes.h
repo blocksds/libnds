@@ -26,6 +26,12 @@ extern "C" {
 /// Used to place a function in ITCM
 #define ITCM_CODE __attribute__((section(".itcm.text"), long_call))
 
+/// Used to place initialized data in ITCM
+#define ITCM_DATA __attribute__((section(".itcm.data")))
+
+/// Used to place uninitialized data in ITCM
+#define ITCM_BSS  __attribute__((section(".itcm.bss")))
+
 /// Used to place initialized data in DTCM
 #define DTCM_DATA __attribute__((section(".dtcm")))
 /// Used to place uninitialized data in DTCM
