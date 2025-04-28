@@ -99,8 +99,14 @@ void init_tls(void *__tls)
 // This holds the pointer to the TLS of the current thread for __aeabi_read_tp.
 // It doesn't hold the pointer to the start of the TLS data, but to to the
 // beginning of the thread control block.
+//
+// On the ARM9 it's placed in ITCM because it's closer to the code accessing it.
+// Also, placing it in DTCM would force users to hardcode the size of DTCM in
+// the linker (by setting __dtcm_data_size). If not, this variable would be
+// placed at the start of DTCM, so the stack wouldn't be able to grow to main
+// RAM if it runs out of space in DTCM.
 #ifdef ARM9
-DTCM_DATA
+ITCM_DATA
 #endif
 void *__tls = __tls_start - TCB_SIZE;
 
@@ -112,7 +118,7 @@ static inline void set_tls(void *tls)
 //-------------------------------------------------------------------
 
 #ifdef ARM9
-DTCM_BSS
+ITCM_BSS
 #endif
 volatile uint32_t cothread_irq_flags;
 
