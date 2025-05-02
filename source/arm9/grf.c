@@ -135,7 +135,8 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
             case ID_HDRX:
                 if (size != sizeof(GRFHeader))
                     return GRF_INCONSISTENT_SIZES;
-                memcpy(header, data, size);
+                if (header)
+                    memcpy(header, data, size);
                 break;
             case ID_GFX:
                 if (gfxDst)
@@ -307,8 +308,17 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
             case ID_HDRX:
                 if (size != sizeof(GRFHeader))
                     return GRF_INCONSISTENT_SIZES;
-                if (fread(header, sizeof(GRFHeader), 1, file) != 1)
-                    return GRF_FILE_NOT_READ;
+
+                if (header)
+                {
+                    if (fread(header, sizeof(GRFHeader), 1, file) != 1)
+                        return GRF_FILE_NOT_READ;
+                }
+                else
+                {
+                    if (fseek(file, sizeof(GRFHeader), SEEK_CUR) != 0)
+                        return GRF_FILE_NOT_READ;
+                }
                 break;
 
             case ID_GFX:
