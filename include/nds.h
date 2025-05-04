@@ -25,7 +25,7 @@
 /// - @ref nds/arm9/videoGL.h "OpenGL (ish)"
 /// - @ref nds/arm9/boxtest.h "Box Test"
 /// - @ref nds/arm9/postest.h "Position test"
-/// - @ref gl2d.h "Simple DS 2D rendering using the 3D core"
+/// - @ref gl2d.h "GL2D: 2D graphics using 3D"
 ///
 /// @section audio_api Audio API
 /// - @ref nds/arm9/sound.h "Simple Sound Engine"
