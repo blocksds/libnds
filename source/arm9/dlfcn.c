@@ -42,6 +42,12 @@ typedef struct {
 #define R_ARM_BASE_PREL     25
 #define R_ARM_GOT_BREL      26
 #define R_ARM_CALL          28
+#define R_ARM_TLS_IE32      107
+#define R_ARM_TLS_LE32      108
+
+// Size of a thread control block. TLS relocations are generated relative to a
+// location before tdata and tbss.
+#define TCB_SIZE 8
 
 void *dlopen(const char *file, int mode)
 {
@@ -400,6 +406,13 @@ void *dlopen(const char *file, int mode)
                              | ((jump_value >> 2) & 0x00FFFFFF);
                     }
                 }
+            }
+            else if (rel_type == R_ARM_TLS_LE32)
+            {
+                uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
+                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
+
+                *ptr = sym->value + TCB_SIZE;
             }
             else
             {
