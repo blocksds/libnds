@@ -42,6 +42,8 @@ typedef struct {
 #define R_ARM_BASE_PREL     25
 #define R_ARM_GOT_BREL      26
 #define R_ARM_CALL          28
+#define R_ARM_JUMP24        29
+#define R_ARM_THM_JUMP24    30
 #define R_ARM_TLS_IE32      107
 #define R_ARM_TLS_LE32      108
 
@@ -329,6 +331,65 @@ void *dlopen(const char *file, int mode)
                         // Stay in Thumb, BL
                         ptr[1] = 0xF800 | (0x07FF & (jump_value >> 1));
                     }
+                }
+            }
+            else if (rel_type == R_ARM_JUMP24)
+            {
+                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
+
+                // If the symbol is in the dynamic library, we don't need to do
+                // anything because B instructions are relative, and all the
+                // sources and destinations are in the same section, so moving
+                // the section around doesn't matter. We only need to fix
+                // symbols that are in the main binary.
+
+                if (sym->attributes & DSL_SYMBOL_MAIN_BINARY)
+                {
+                    // We need to adjust the branch to jump to the right symbol
+                    // in the main binary. The range of B is +/-32 MB, so it
+                    // will always work if the source and destination are in
+                    // main RAM.
+
+                    uint32_t b_addr = (uint32_t)(loaded_mem + rel.r_offset);
+                    uint32_t sym_addr = sym->value;
+
+                    // The AAELF32 ABI says that a veneer is required for
+                    // R_ARM_JUMP24 when switching to Thumb mode. This is a bit
+                    // tricky, so let's fail in that case:
+                    //
+                    // https://github.com/ARM-software/abi-aa/blob/4492d1570eb70c8fd146623e0db65b2d241f12e7/aaelf32/aaelf32.rst
+                    //
+                    // This isn't supported in LLVM or the Linux kernel either:
+                    //
+                    // https://elixir.bootlin.com/linux/v6.13.1/source/arch/arm/kernel/module.c#L129-L134
+                    if ((sym_addr & 1) == 1)
+                    {
+                        dl_err_str = "R_ARM_JUMP24 jump to Thumb";
+                        goto cleanup;
+                    }
+
+                    int32_t jump_value = sym_addr - b_addr;
+
+                    jump_value -= 6;
+
+                    if ((jump_value > 0x7FFFFF) | (jump_value <= -0x7FFFFF))
+                    {
+                        dl_err_str = "R_ARM_JUMP24 outside of range";
+                        goto cleanup;
+                    }
+
+                    // B stays in ARM mode, BX forces a switch to Thumb mode.
+                    //
+                    // B:
+                    //     jump address = nnn << 2
+                    //     cccc_1010_nnnn_nnnn_nnnn_nnnn_nnnn_nnnn
+
+                    uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
+
+                    // Stay in ARM, B{cond}
+
+                    *ptr = (*ptr & 0xFF000000)
+                         | ((jump_value >> 2) & 0x00FFFFFF);
                 }
             }
             else if (rel_type == R_ARM_CALL)
