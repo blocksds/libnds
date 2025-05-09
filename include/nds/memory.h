@@ -95,11 +95,6 @@ extern "C" {
 
 #define REG_MBK9                    (*(vu32 *)0x04004060)
 
-// Protection register (write-once sadly)
-#ifdef ARM7
-#define PROTECTION  (*(vu32 *)0x04000308)
-#endif
-
 /// 8 bit pointer to the start of all the RAM.
 #define ALLRAM      ((u8*)0x00000000)
 
@@ -123,8 +118,20 @@ extern "C" {
 #define SRAM        ((u8 *)0x0A000000)
 
 #ifdef ARM7
-#define VRAM        ((u16 *)0x06000000)
-#endif
+
+/// 16 bit pointer to VRAM from ARM7
+#define VRAM            ((u16 *)0x06000000)
+
+/// Read-only register to determine if VRAM C and D are mapped to the ARM7.
+#define REG_VRAMSTAT    (*(vu8 *)0x04000240)
+
+/// Read-only register to determine if WRAM is mapped to the ARM7.
+#define REG_WRAMSTAT    (*(vu8 *)0x04000241)
+
+// Protection register (write-once sadly)
+#define PROTECTION      (*(vu32 *)0x04000308)
+
+#endif // ARM7
 
 /// GBA file header format.
 ///
