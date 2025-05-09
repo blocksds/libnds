@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2024 Adrian "asie" Siekiekra
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #ifndef THREADS_H__
 #define THREADS_H__

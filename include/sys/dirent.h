@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 Adrian "asie" Siekierka
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #ifndef SYS_DIRENT_H__
 #define SYS_DIRENT_H__

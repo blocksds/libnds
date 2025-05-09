@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
-// Copyright (c) 2024 Antonio Niño Díaz
+// Copyright (C) 2024 Antonio Niño Díaz
 
 #include <stdio.h>
 #include <string.h>

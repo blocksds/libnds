@@ -3,7 +3,7 @@
 //
 // Copyright (C) 2009-2017 Dave Murphy (WinterMute)
 // Copyright (C) 2017 fincs
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (C) 2023 Antonio Niño Díaz
 
 // List of MPU regions
 // ===================

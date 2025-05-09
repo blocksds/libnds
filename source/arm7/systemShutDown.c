@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Zlib
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (C) 2005-20111 Michael Noland (joat)
-// Copyright (C) 2005-20111 Jason Rogers (Dovoto)
-// Copyright (C) 2005-20111 Dave Murphy (WinterMute)
+// Copyright (C) 2005-2011 Michael Noland (joat)
+// Copyright (C) 2005-2011 Jason Rogers (dovoto)
+// Copyright (C) 2005-2011 Dave Murphy (WinterMute)
 
 #include <nds/arm7/i2c.h>
 #include <nds/ndstypes.h>

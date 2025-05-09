@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #include <nds/ndstypes.h>
 #include <nds/interrupts.h>

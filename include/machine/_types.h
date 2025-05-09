@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 Adrian "asie" Siekierka
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #ifndef MACHINE__TYPES_H__
 #define MACHINE__TYPES_H__

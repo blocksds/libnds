@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 3 Adrian "asie" Siekierka
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #include <errno.h>
 #include <nds/cothread.h>

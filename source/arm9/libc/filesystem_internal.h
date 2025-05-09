@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #ifndef FILESYSTEM_INTERNAL_H__
 #define FILESYSTEM_INTERNAL_H__

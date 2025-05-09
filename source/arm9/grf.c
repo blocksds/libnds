@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 Antonio Niño Díaz
+// Copyright (C) 2024 Antonio Niño Díaz
 
 #include <stdint.h>
 #include <stdio.h>

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #ifndef LIBNDS_NDS_CAMERA_H__
 #define LIBNDS_NDS_CAMERA_H__

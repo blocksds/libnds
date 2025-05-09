@@ -4,7 +4,7 @@
 // Copyright (C) 2005 Michael Noland (joat)
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (C) 2023 Antonio Niño Díaz
 
 // ARM7 audio control
 

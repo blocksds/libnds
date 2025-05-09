@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005-2010 Michael Noland (joat)
-// Copyright (C) 2005-2010 Jason Rogers (Dovoto)
+// Copyright (C) 2005-2010 Jason Rogers (dovoto)
 // Copyright (C) 2005-2010 Dave Murphy (WinterMute)
 
 #include <nds/card.h>

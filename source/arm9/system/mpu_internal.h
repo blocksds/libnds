@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #ifndef ARM9_SYSTEM_MPU_INTERNAL_H__
 #define ARM9_SYSTEM_MPU_INTERNAL_H__

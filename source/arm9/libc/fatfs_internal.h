@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #ifndef FATFS_INTERNAL_H__
 #define FATFS_INTERNAL_H__

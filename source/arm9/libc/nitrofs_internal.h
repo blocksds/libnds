@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #ifndef NITROFS_INTERNAL_H__
 #define NITROFS_INTERNAL_H__

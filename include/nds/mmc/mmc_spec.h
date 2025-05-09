@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Zlib
 // SPDX-FileNotice: Modified from the original version (https://github.com/profi200/dsi_sdmmc)
 //
-// Copyright (c) 2023 profi200
+// Copyright (C) 2023 profi200
 
 #ifndef LIBNDS_NDS_MMC_MMC_SPEC_H__
 #define LIBNDS_NDS_MMC_MMC_SPEC_H__

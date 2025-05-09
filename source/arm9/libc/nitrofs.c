@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023-2024 Antonio Niño Díaz
-// Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2023-2024 Antonio Niño Díaz
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #include <errno.h>
 #include <limits.h>

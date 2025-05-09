@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
-// Copyright (c) 2024 Adrian "asie" Siekierka
+// Copyright (C) 2023 Antonio Niño Díaz
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #ifndef ARM7_LIBNDS_INTERNAL_H__
 #define ARM7_LIBNDS_INTERNAL_H__

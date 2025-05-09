@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2007 Dave Murphy (WinterMute)
-// Copyright (C) 2007 Jason Rogers (Dovoto)
+// Copyright (C) 2007 Jason Rogers (dovoto)
 
 // DS Background Control
 

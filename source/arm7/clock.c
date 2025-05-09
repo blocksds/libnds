@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Michael Noland (Joat)
-// Copyright (C) 2005 Jason Rogers (Dovoto)
+// Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2023 Antonio Niño Díaz
 

@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Michael Noland (joat)
-// Copyright (C) 2005-2011 Jason Rogers (Dovoto)
+// Copyright (C) 2005-2011 Jason Rogers (dovoto)
 // Copyright (C) 2005-2011 Dave Murphy (WinterMute)
 
 /// @file nds/arm9/video.h

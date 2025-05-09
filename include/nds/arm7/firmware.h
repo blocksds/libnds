@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 Adrian "asie" Siekierka
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 #ifndef LIBNDS_NDS_ARM7_FIRMWARE_H__
 #define LIBNDS_NDS_ARM7_FIRMWARE_H__

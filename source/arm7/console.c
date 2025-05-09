@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 Antonio Niño Díaz
+// Copyright (C) 2024 Antonio Niño Díaz
 
 // This console is designed to be small, that's why many functions have been
 // marked as "noinline". This will have a small cost in speed, but a big gain in

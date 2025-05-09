@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2024 Adrian "asie" Siekierka
+// Copyright (C) 2024 Adrian "asie" Siekierka
 
 // Slot-1 helper routines
 

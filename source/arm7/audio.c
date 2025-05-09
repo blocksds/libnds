@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2008-2010 Dave Murphy (WinterMute)
-// Copyright (C) 2008-2010 Jason Rogers (Dovoto)
+// Copyright (C) 2008-2010 Jason Rogers (dovoto)
 
 #include <nds/arm7/audio.h>
 #include <nds/arm7/codec.h>

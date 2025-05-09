@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2008-2010 Dave Murphy (WinterMute)
-// Copyright (C) 2008 Jason Rogers (Dovoto)
+// Copyright (C) 2008 Jason Rogers (dovoto)
 // Copyright (C) 2024 Adrian "asie" Siekierka
 
 #include "nds/input.h"

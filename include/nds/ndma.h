@@ -3,7 +3,7 @@
 //
 // Copyright (C) 2005 Jason Rogers (dovoto)
 // Copyright (C) 2005 Dave Murphy (WinterMute)
-// Copyright (c) 2023 Adrian "asie" Siekierka
+// Copyright (C) 2023 Adrian "asie" Siekierka
 
 #ifndef LIBNDS_NDS_NDMA_H__
 #define LIBNDS_NDS_NDMA_H__

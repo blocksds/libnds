@@ -3,7 +3,7 @@
 /-------------------------------------------------------------------------/
 /
 / Copyright (C) 2019, ChaN, all right reserved.
-/ Copyright (C) 2023, AntonioND, all right reserved.
+/ Copyright (C) 2023, Antonio Niño Díaz, all right reserved.
 /
 / FatFs module is an open source software. Redistribution and use of FatFs in
 / source and binary forms, with or without modification, are permitted provided

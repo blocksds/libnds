@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Zlib
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (c) 2006 Michael Chisholm (Chishm) and Tim Seidel (Mighty Max).
+// Copyright (C) 2006 Michael Chisholm (Chishm)
+// Copyright (C) 2006 Tim Seidel (Mighty Max)
 
 #include <stdlib.h>
 #include <string.h>

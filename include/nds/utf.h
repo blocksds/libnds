@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2025 Antonio Niño Díaz
+// Copyright (C) 2025 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_UTF_H__
 #define LIBNDS_NDS_UTF_H__

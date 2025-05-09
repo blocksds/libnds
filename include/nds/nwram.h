@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2020 Gericom
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_NWRAM_H__
 #define LIBNDS_NDS_NWRAM_H__

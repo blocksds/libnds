@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Zlib
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
-// Copyright (C) 2008 Jason Rogers (Dovoto)
+// Copyright (C) 2008 Jason Rogers (dovoto)
 
 #ifndef LIBNDS_NDS_FIFOMESSAGES_H__
 #define LIBNDS_NDS_FIFOMESSAGES_H__

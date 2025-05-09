@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023 Antonio Niño Díaz
+// Copyright (C) 2023 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_CPU_ASM_H__
 #define LIBNDS_NDS_CPU_ASM_H__

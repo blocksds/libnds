@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (c) 2023-2024 Antonio Niño Díaz
+// Copyright (C) 2023-2024 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_ARM9_CARD_H__
 #define LIBNDS_NDS_ARM9_CARD_H__
