@@ -15,14 +15,16 @@ extern u8 cameraActiveDevice;
 
 static struct camera_state {
     int8_t last_mode;//<- actually used
-    uint8_t  dma_scanlines; //<-these extra params are for future custom resolutions
+/*  uint8_t  dma_scanlines; //<-these extra params are for future custom resolutions
     uint32_t dma_wlength; // after an access to last_mode they should be in cache
     uint32_t dma_blength; //
     uint16_t height;//
     uint16_t width;//
+*/
 } camera_state;
 
 //This function is for when support for different resolutions gets added to the camera driver
+/*
 static bool updateDmaParam(uint16_t width, uint16_t height){
     //camera buffer is 512 words
     if (width==0 || height==0)
@@ -36,12 +38,13 @@ static bool updateDmaParam(uint16_t width, uint16_t height){
         return false;
     }
     camera_state.dma_wlength=total_words; //total number of words per transfer
-    camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //total number of words per camera interrupt
+    camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //number of words until bdelay pause happens to give arm9 space to execute
     camera_state.dma_scanlines=scanlines; //number of scanlines after which camera interrupt happens
     return true;
 }
+*/
 
-bool cameraSetCaptureMode(u8 captureMode)
+bool cameraSetCaptureModeTWL(u8 captureMode)
 {
 
     if (captureMode != MCUREG_APT_SEQ_CMD_PREVIEW && captureMode != MCUREG_APT_SEQ_CMD_CAPTURE)
@@ -135,7 +138,7 @@ bool cameraSelectTWL(CameraDevice device)
     }
 }
 
-void cameraStartDMA(u16 * buffer, u8 captureMode, u8 ndmaId)
+static void cameraStartDMA(u16 * buffer, u8 captureMode, u8 ndmaId)
 {
     bool preview= (captureMode==MCUREG_APT_SEQ_CMD_PREVIEW );
     NDMA_SRC(ndmaId) = (u32)&REG_CAM_DATA;
@@ -155,7 +158,7 @@ bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
 
     if (camera_state.last_mode!=captureMode)
     {
-        bool ret=cameraSetCaptureMode(captureMode);
+        bool ret=cameraSetCaptureModeTWL(captureMode);
         if(!ret)return ret;
     }
     REG_CAM_CNT &= ~0x200F;

@@ -49,3 +49,12 @@ bool cameraStartTransfer(u16 *buffer, u8 captureMode, u8 ndmaId)
         return false;
     return cameraStartTransferTWL(buffer, captureMode, ndmaId);
 }
+
+
+extern bool cameraSetCaptureModeTWL(u8 captureMode);
+bool cameraSetCaptureMode(u8 captureMode)
+{ 
+    if (!isDSiMode())
+        return false;
+    return cameraSetCaptureModeTWL(buffer, captureMode, ndmaId);
+}
