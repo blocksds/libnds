@@ -3,98 +3,95 @@
 // Copyright (C) 2024 Dominik Kurz
 
 #include <nds/arm9/math.h>
-
+#include <stdint.h>
 #define QUIET_NAN ((255 << 23) | ((1 << 22) | 1))
 #define INF (0xFF << 23)
+#define NEGATIVE_INF (1u<<31)|(0xFF << 23)
+
+#define likely(x) __builtin_expect (!!(x), 1)
+#define unlikely(x) __builtin_expect ((x), 0)
 
 ARM_CODE float hw_sqrtf(float x)
 {
     union
     {
         float f;
-        u32 i;
+        uint32_t i;
     } xu;
-
     xu.f = x;
-    u32 mantissa32 = xu.i & ((1 << 23) - 1); // extracts mantissa via bitmask
-    mantissa32 += 1 << 23; // adds implicit bit to mantissa.
-    // If you were planning to handle subnormal numbers
-    // you would check if the number is subnormal before
-    // adding the implicit bit.
-    // You would also need to do the shift of the mantissa and exponent
-    // differently, probably should use __builtin_clz for this
-    // as the count leading zeroes (clz) instruction is 1 cycle on arm
-    // but this is not my problem
-    // performance-critical code has subnormals turned off
-    // due to -ffast-math
-    u64 mantissa = mantissa32; // cast so that the shift doesnt go wrong
-    mantissa <<= ((xu.i & (1 << 23)) == 0) + 25;
-    // applies additional shift depending on whether exponent is even or odd
-    // 25 is 23+2, the +2 is necessary for rounding
-    REG_SQRT_PARAM = mantissa;
-    if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
-    {
-        REG_SQRTCNT = SQRT_64;
-    }
-    // starts hardware squareroot
-    // It is critical that this happens as early as possible so that
-    // we have time to do other stuff in the meantime
-    u32 raw_exponent = xu.i & (255 << 23);
-    u32 sign = xu.i & (1u << 31);
+    int32_t exponent= (int32_t )xu.i >>23;
     // check if exponent is 0
-    if (raw_exponent != 0)
+    if (likely(exponent>0) )
     {
-        if (sign || (xu.i > (255 << 23))) //check if negative or NaN
+        if (unlikely( exponent==255 ) ) //check if negative or NaN
         {
             // Expected behavior:
             // sqrt(-f)=+qNaN, sqrt(-NaN)=+qNaN,sqrt(-Inf)=+qNaN
-            // The IEEE 754 standard doesnt specify how signalling NaN
-            // is encoded. Hard float arm stuff does it with a 1 in the least
-            // significant bit and zeros in the rest of the mantissa
-            // Quiet NaNs  on ARM are a 1 in
-            // the most and least significant bit of the mantissa.
-            // Example:
-            // Quiet NaN mantissa (100000.....00001)
-            // Signalling NaN mantissa (00000.....00001)
-            xu.i = QUIET_NAN;
+            xu.i = (xu.i == INF) ? INF : QUIET_NAN;
+            return xu.f;
+        } else 
+        {
+            uint32_t mantissa = xu.i &~ ((uint32_t)exponent << 23);
+            exponent = exponent - (127);
+            mantissa += 1 << 23; // adds implicit bit to mantissa.
+            mantissa <<= (exponent & 1);
+            REG_SQRT_PARAM = ((uint64_t)mantissa)<<25;
+            if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
+            {
+                REG_SQRTCNT = SQRT_64;
+            }
+            exponent >>= 1;
+            // This is meant to be a floor division
+            // meaning -1/2= -0.5 should map to -1
+            exponent = (exponent + (126 ));
+            while (REG_SQRTCNT & SQRT_BUSY);
+            // waits for square root operation to complete
+            uint32_t new_mantissa = REG_SQRT_RESULT;
+            new_mantissa+=1;
+            new_mantissa>>=1,
+            xu.i = (exponent<<23) + new_mantissa;
             return xu.f;
         }
-        else if (raw_exponent == (255  << 23)) // check for +Inf
-        {
-            xu.i = INF;
-            return xu.f; // return Inf
-        }
-        s32 exponent = raw_exponent - (127 << 23);
-        // subtract bias from exponent
-        exponent >>= 1;
-        // This is meant to be a floor division
-        // meaning -1/2= -0.5 should map to -1
-        // if your compiler does logical shifts instead of arithmetic
-        // use a division by 2.
-        // arithmetic shift and division have different rounding behavior
-        // but in this case it doesnt matter
-        exponent = (exponent + (127 << 23)) & (0xff << 23);
-        // add bias again and bitmask the exponent
-        while (REG_SQRTCNT & SQRT_BUSY);
-        // waits for square root operation to complete
-        u32 new_mantissa = REG_SQRT_RESULT;
-        new_mantissa += 1; // necessary for rounding
-        new_mantissa >>= 1;// shift down after rounding
-        // construct float from exponent and mantissa
-        xu.i = exponent | (new_mantissa & ((1 << 23) - 1));
-        return xu.f;
     }
     else
     {
-        // numbers in this branch are either 0 or subnormal
-        // if someone wants to add subnormal number handling
-        // this would be the branch to do it
-        // right now it assumes subnormal numbers are 0.
-        // the --fast-math option causes other functions to generate 0
-        // if they would otherwise generate a subnormal number
-        // so maybe make sure subnormal number handling is done with a define
-        // that checks if this option is present
-        xu.i = sign;
-        return xu.f; // returns +0 or -0 as appropriate
+        if (likely(exponent == 0))  
+        {   
+            if (likely (xu.i !=0) )
+            {
+                uint32_t mantissa = xu.i &~ ((uint32_t)exponent << 23);
+                int32_t shift=__builtin_clz(mantissa)- (31-23);
+                mantissa<<=shift; // normalize subnormal
+                int32_t exponent =  - (126)-shift;
+                mantissa <<= (exponent & 1);
+                REG_SQRT_PARAM = ((uint64_t)mantissa)<<25;
+                if ((REG_SQRTCNT & SQRT_MODE_MASK) != SQRT_64)
+                {
+                    REG_SQRTCNT = SQRT_64;
+                }
+                exponent >>= 1;
+                exponent = (exponent + (126));
+                while (REG_SQRTCNT & SQRT_BUSY);
+                // waits for square root operation to complete
+                uint32_t new_mantissa = REG_SQRT_RESULT;
+                new_mantissa+=1;
+                new_mantissa>>=1,
+                xu.i = (exponent<<23) + new_mantissa;
+                return xu.f;            
+            } else //sqrt(+0)=+0
+            {
+                xu.i = 0; 
+                return xu.f;
+            }
+
+        } else if (xu.i == (1u<<31))
+        {
+            xu.i= (1u<<31); //sqrt(-0)=-0
+            return xu.f;             
+        } else {
+            xu.i=QUIET_NAN;  //sqrt(negative)=qNaN
+            return xu.f;        
+        }
+
     }
 }
