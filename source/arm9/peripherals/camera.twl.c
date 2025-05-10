@@ -37,6 +37,7 @@ static bool updateDmaParam(uint16_t width, uint16_t height){
     if (scanlines>16){
         return false;
     }
+    //note: wlength % blength should be 0, i.e. total number of words should be an integer multiple of the words in a logical block
     camera_state.dma_wlength=total_words; //total number of words per transfer
     camera_state.dma_blength=(scanlines*bytes_per_scanline+4-1)/4; //number of words until bdelay pause happens to give arm9 space to execute
     camera_state.dma_scanlines=scanlines; //number of scanlines per logical block
