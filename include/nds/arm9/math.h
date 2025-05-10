@@ -403,9 +403,6 @@ static inline uint32_t sqrt64(uint64_t a)
 /// 32-bit floating point sqrt
 ///
 /// @warning
-///     Subnormal floats are treated as if they were zero.
-///
-/// @warning
 ///     Not safe to call inside an interrupt handler.
 ///
 /// @param x
