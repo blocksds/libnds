@@ -92,7 +92,7 @@ bool cameraSetCaptureMode(u8 captureMode);
 ///
 /// To check if the transfer is finished, use ndmaBusy() and
 /// cameraTransferActive(). If either of them is busy, the transfer is in
-/// progress. 
+/// progress.
 ///
 /// @param buffer
 ///     Buffer where the captured image will be stored.

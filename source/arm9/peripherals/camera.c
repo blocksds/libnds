@@ -50,7 +50,6 @@ bool cameraStartTransfer(u16 *buffer, u8 captureMode, u8 ndmaId)
     return cameraStartTransferTWL(buffer, captureMode, ndmaId);
 }
 
-
 extern bool cameraSetCaptureModeTWL(u8 captureMode);
 bool cameraSetCaptureMode(u8 captureMode)
 { 
