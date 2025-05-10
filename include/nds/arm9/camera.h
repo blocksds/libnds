@@ -80,11 +80,19 @@ bool cameraDeinit(void);
 ///     It returns true on success, false on failure.
 bool cameraSelect(CameraDevice device);
 
-/// Starts a camera transfer using the specified NDMA channel.
+/// Forcibly sets Capture mode.
+///
+/// @param captureMode
+///
+/// @return
+///     It returns true on success, false on failure.
+bool cameraSetCaptureMode(u8 captureMode);
+
+/// Starts a camera transfer using the specified NDMA channel and sets capture mode if the previous mode is unknown.
 ///
 /// To check if the transfer is finished, use ndmaBusy() and
 /// cameraTransferActive(). If either of them is busy, the transfer is in
-/// progress.
+/// progress. 
 ///
 /// @param buffer
 ///     Buffer where the captured image will be stored.

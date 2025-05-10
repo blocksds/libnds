@@ -56,5 +56,5 @@ bool cameraSetCaptureMode(u8 captureMode)
 { 
     if (!isDSiMode())
         return false;
-    return cameraSetCaptureModeTWL(buffer, captureMode, ndmaId);
+    return cameraSetCaptureModeTWL(captureMode);
 }
