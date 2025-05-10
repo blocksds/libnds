@@ -44,6 +44,7 @@ typedef struct {
 #define R_ARM_CALL          28
 #define R_ARM_JUMP24        29
 #define R_ARM_THM_JUMP24    30
+#define R_ARM_TARGET1       38
 #define R_ARM_TLS_IE32      107
 #define R_ARM_TLS_LE32      108
 
@@ -256,8 +257,10 @@ void *dlopen(const char *file, int mode)
             int rel_type = rel.r_info & 0xFF;
             int rel_symbol = rel.r_info >> 8;
 
-            if (rel_type == R_ARM_ABS32)
+            if ((rel_type == R_ARM_ABS32) || (rel_type == R_ARM_TARGET1))
             {
+                // R_ARM_TARGET1 behaves as R_ARM_ABS32 due to the linker option
+                // -Wl,--target1-abs.
                 uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
                 *ptr += (uintptr_t)loaded_mem;
             }
@@ -492,8 +495,27 @@ void *dlopen(const char *file, int mode)
     // code in main RAM! Also, we need to clear the instruction cache in case
     // this range was already in cache because of a previous library, for
     // example.
+
     DC_FlushRange(loaded_mem, addr_space_size);
     IC_InvalidateRange(loaded_mem, addr_space_size);
+
+    // After all the code is loaded check if there are any global constructors
+    // and call them.
+
+    void *__bothinit_array_start = dlsym(handle, "__bothinit_array_start");
+    void *__bothinit_array_end = dlsym(handle, "__bothinit_array_end");
+    dl_err_str = NULL; // Ignore errors
+
+    if ((__bothinit_array_end != NULL) && (__bothinit_array_start != NULL))
+    {
+        size_t num_ctors = ((uintptr_t)__bothinit_array_end -
+                            (uintptr_t)__bothinit_array_start) / 4;
+
+        VoidFn *ctor = __bothinit_array_start;
+
+        for (size_t i = 0; i < num_ctors; i++)
+            ctor[i]();
+    }
 
     return handle;
 
@@ -520,6 +542,26 @@ int dlclose(void *handle)
         dl_err_str = "invalid handle";
         return -1;
     }
+
+    // Before freeing the library check if there are any global destructors to
+    // be and call them.
+
+    void *__fini_array_start = dlsym(handle, "__fini_array_start");
+    void *__fini_array_end = dlsym(handle, "__fini_array_end");
+    dl_err_str = NULL; // Ignore errors
+
+    if ((__fini_array_end != NULL) && (__fini_array_start != NULL))
+    {
+        size_t num_dtors = ((uintptr_t)__fini_array_end -
+                            (uintptr_t)__fini_array_start) / 4;
+
+        VoidFn *dtor = __fini_array_start;
+
+        for (size_t i = 0; i < num_dtors; i++)
+            dtor[i]();
+    }
+
+    // Free memory
 
     free(((dsl_handle *)handle)->loaded_mem);
     free(((dsl_handle *)handle)->sym_table);
