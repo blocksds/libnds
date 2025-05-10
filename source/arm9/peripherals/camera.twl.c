@@ -54,8 +54,9 @@ bool cameraSetCaptureModeTWL(u8 captureMode)
     fifoMutexAcquire(FIFO_CAMERA);
     fifoSendValue32(FIFO_CAMERA, CAMERA_CMD_FIFO(CAMERA_CMD_SEND_SEQ_CMD, captureMode));
     fifoWaitValue32(FIFO_CAMERA);
-    fifoGetValue32(FIFO_CAMERA);
+    bool ret=fifoGetValue32(FIFO_CAMERA);
     fifoMutexRelease(FIFO_CAMERA);
+    if (!ret) return ret;
     camera_state.last_mode=captureMode;
     return true;
 }
