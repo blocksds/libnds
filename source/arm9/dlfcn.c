@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <nds/arm9/cache.h>
+#include <nds/exceptions.h>
 #include <nds/ndstypes.h>
 
 #include "dsl.h"
@@ -16,10 +17,19 @@
 // All threads have their own pointer.
 static __thread char *dl_err_str = NULL;
 
+typedef struct {
+    void (*fn) (void *);
+    void *arg;
+} dsl_dtor;
+
 // This is the internal structure of a handle returned by dlopen().
 typedef struct {
     void *loaded_mem;
     dsl_symbol_table *sym_table;
+
+    dsl_dtor *dtors_list;
+    int dtors_num;
+    int dtors_max;
 } dsl_handle;
 
 // Some ELF-related definitions
@@ -51,6 +61,44 @@ typedef struct {
 // Size of a thread control block. TLS relocations are generated relative to a
 // location before tdata and tbss.
 #define TCB_SIZE 8
+
+// While the constructors of a library are being called, this pointer holds the
+// address of the handle being loaded.
+static __thread dsl_handle *dsl_current = NULL;
+
+// fini_array isn't really used by global destructors. Instead, global
+// constructors call __aeabi_atexit() so that the destructors are called in the
+// opposite order of the constructors. Also, in case a global constructor isn't
+// called, the destructor won't be called either. More information here:
+// https://etherealwake.com/2021/09/crt-startup/#c-abi-extensions
+__attribute__((noinline))
+int __aeabi_atexit(void *arg, void (*func) (void *), void *dso_handle)
+{
+    (void)dso_handle;
+
+    if (func == NULL)
+        return -1;
+
+    if (dsl_current == NULL)
+    {
+        // TODO: Should this just call atexit()?
+        libndsCrash("Unexpected call to __aeabi_atexit()");
+    }
+    else
+    {
+        dsl_handle *handle = dsl_current;
+
+        if (handle->dtors_num == handle->dtors_max)
+            libndsCrash("Too many dtors in dynamic lib");
+
+        handle->dtors_list[handle->dtors_num].fn = func;
+        handle->dtors_list[handle->dtors_num].arg = arg;
+
+        handle->dtors_num++;
+    }
+
+    return 0;
+}
 
 void *dlopen(const char *file, int mode)
 {
@@ -214,7 +262,7 @@ void *dlopen(const char *file, int mode)
     // Start preparing the handle
     // --------------------------
 
-    handle = malloc(sizeof(dsl_handle));
+    handle = calloc(1, sizeof(dsl_handle));
     if (handle == NULL)
     {
         dl_err_str = "no memory to create handle";
@@ -506,15 +554,34 @@ void *dlopen(const char *file, int mode)
     void *__bothinit_array_end = dlsym(handle, "__bothinit_array_end");
     dl_err_str = NULL; // Ignore errors
 
+    handle->dtors_list = NULL;
+    handle->dtors_num = 0;
+    handle->dtors_max = 0;
+
     if ((__bothinit_array_end != NULL) && (__bothinit_array_start != NULL))
     {
         size_t num_ctors = ((uintptr_t)__bothinit_array_end -
                             (uintptr_t)__bothinit_array_start) / 4;
 
-        VoidFn *ctor = __bothinit_array_start;
+        // Allocate memory for destructors
 
+        handle->dtors_list = calloc(num_ctors, sizeof(dsl_dtor));
+        if (handle->dtors_list == NULL)
+        {
+            dl_err_str = "no memory for destructors";
+            goto cleanup;
+        }
+        handle->dtors_max = num_ctors;
+
+        // Call constructors
+
+        dsl_current = handle;
+
+        VoidFn *ctor = __bothinit_array_start;
         for (size_t i = 0; i < num_ctors; i++)
             ctor[i]();
+
+        dsl_current = NULL;
     }
 
     return handle;
@@ -526,8 +593,16 @@ cleanup:
     if (loaded_mem != NULL)
         free(loaded_mem);
 
+    if (sym_table != NULL)
+        free(sym_table);
+
     if (handle != NULL)
         free(handle);
+
+    // This is a hack to make sure that __aeabi_atexit() is always included in
+    // the final binary if dlopen() is used. __aeabi_atexit() is marked as
+    // "noinline", so this will force the linker to include it.
+    __aeabi_atexit(NULL, NULL, NULL);
 
     return NULL;
 }
@@ -544,7 +619,7 @@ int dlclose(void *handle)
     }
 
     // Before freeing the library check if there are any global destructors to
-    // be and call them.
+    // be and call them. They must be called from end to start.
 
     void *__fini_array_start = dlsym(handle, "__fini_array_start");
     void *__fini_array_end = dlsym(handle, "__fini_array_end");
@@ -558,14 +633,23 @@ int dlclose(void *handle)
         VoidFn *dtor = __fini_array_start;
 
         for (size_t i = 0; i < num_dtors; i++)
-            dtor[i]();
+            dtor[num_dtors - i - 1]();
+    }
+
+    dsl_handle *h = handle;
+
+    for (int i = 0; i < h->dtors_num; i++)
+    {
+        dsl_dtor *dtor = &(h->dtors_list[h->dtors_num - i - 1]);
+        dtor->fn(dtor->arg);
     }
 
     // Free memory
 
-    free(((dsl_handle *)handle)->loaded_mem);
-    free(((dsl_handle *)handle)->sym_table);
-    free(handle);
+    free(h->loaded_mem);
+    free(h->sym_table);
+    free(h->dtors_list);
+    free(h);
 
     return 0;
 }
