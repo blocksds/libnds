@@ -703,3 +703,19 @@ void *dlsym(void *handle, const char *name)
     dl_err_str = "symbol not found";
     return NULL;
 }
+
+void *dlmembase(void *handle)
+{
+    // Clear error string
+    dl_err_str = NULL;
+
+    if (handle == NULL)
+    {
+        dl_err_str = "invalid handle";
+        return NULL;
+    }
+
+    dsl_handle *h = handle;
+
+    return h->loaded_mem;
+}

@@ -96,6 +96,27 @@ char *dlerror(void);
 ///     error.
 void *dlsym(void *handle, const char *name);
 
+/// Returns a pointer to the base address of the code loaded with the library.
+///
+/// The purpose of this function is to print this address to be used when
+/// debugging the code with emulators. You must provide this address when
+/// loading the elf file of the library. For example, with the GDB command line:
+///
+/// Note that this is a libnds-specific function.
+///
+/// ```
+/// add-symbol-file path/to/dynamic.elf -s .progbits <load_address>
+/// ```
+///
+/// @param handle
+///     The handle returned by dlopen().
+///
+/// @return
+///     On success, it returns a pointer to the base address of the code loaded
+///     to RAM. On error it returns NULL, and the user is expected to call
+///     dlerror() to get a user-readable string with the reason of the error.
+void *dlmembase(void *handle);
+
 #ifdef __cplusplus
 }
 #endif
