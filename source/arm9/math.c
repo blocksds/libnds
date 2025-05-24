@@ -8,7 +8,6 @@
 
 #define QUIET_NAN       ((255 << 23) | ((1 << 22) | 1))
 #define INF             (0xFF << 23)
-#define NEGATIVE_INF    ((1u << 31) | (0xFF << 23))
 
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect((x), 0)
@@ -49,14 +48,13 @@ ARM_CODE float hw_sqrtf(float x)
             // This is meant to be a floor division
             // meaning -1/2= -0.5 should map to -1
             exponent = exponent + 126;
-
+            exponent <<= 23;
             // Wait for the square root operation to complete
             while (REG_SQRTCNT & SQRT_BUSY);
 
             uint32_t new_mantissa = REG_SQRT_RESULT;
             new_mantissa += 1;
-            new_mantissa >>= 1,
-            xu.i = (exponent << 23) + new_mantissa;
+            xu.i = ((uint32_t)exponent) + (new_mantissa >> 1);
             return xu.f;
         }
     }
@@ -79,14 +77,14 @@ ARM_CODE float hw_sqrtf(float x)
 
                 exponent >>= 1;
                 exponent = exponent + 126;
+                exponent <<= 23;
 
                 // Wait for the square root operation to complete
                 while (REG_SQRTCNT & SQRT_BUSY);
 
                 uint32_t new_mantissa = REG_SQRT_RESULT;
                 new_mantissa += 1;
-                new_mantissa >>= 1,
-                xu.i = (exponent << 23) + new_mantissa;
+                xu.i = ((uint32_t)exponent) + (new_mantissa >> 1);
                 return xu.f;
             }
             else // sqrt(+0) = +0
