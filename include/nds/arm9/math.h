@@ -457,15 +457,7 @@ static inline int32_t dotf32(int32_t *a, int32_t *b)
 ///
 /// @param a
 ///     Pointer to the vector to normalize.
-static inline void normalizef32(int32_t *a)
-{
-    // magnitude = sqrt(Ax^2 + Ay^2 + Az^2)
-    int32_t magnitude = sqrtf32(mulf32(a[0], a[0]) + mulf32(a[1], a[1]) + mulf32(a[2], a[2]));
-
-    a[0] = divf32(a[0], magnitude);
-    a[1] = divf32(a[1], magnitude);
-    a[2] = divf32(a[2], magnitude);
-}
+void normalizef32(int32_t *a);
 
 #ifdef __cplusplus
 }

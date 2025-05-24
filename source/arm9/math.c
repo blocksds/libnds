@@ -105,3 +105,54 @@ ARM_CODE float hw_sqrtf(float x)
         }
     }
 }
+
+__attribute__((noinline)) ARM_CODE void normalizef32(int32_t *a)
+{
+    register int32_t *r0 asm("r0")=a;
+    register int32_t r1 asm("r1");
+    register int32_t r2 asm("r2");
+    register int32_t r3 asm("r3");
+asm (
+    ".syntax unified; \n\t"
+    "ldm r0, {r1,r2,r3} ; \n\t"
+    :[r1]"=r"(r1), [r2]"=r"(r2), [r3]"=r"(r3): [r0]"r"(r0):
+    );
+    uint64_t msquared = (uint64_t)((int64_t)r1*r1) + (uint64_t)((int64_t)r2* r2) + (uint64_t)((int64_t)r3* r3);
+    if (unlikely(msquared == 0))
+        return;
+    int clz =33-__builtin_clzll(msquared);//33=32+(1sign bit)
+    clz +=1;//force shift to be even
+    clz >>=1;
+    clz <<=1;
+    msquared= clz >= 0 ? msquared >> clz : msquared << -clz;
+    REG_DIV_NUMER = 1ull << 62;
+    REG_DIV_DENOM_L = (int32_t)msquared;
+    if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_32)
+        REG_DIVCNT = DIV_64_32;
+    sqrt64_asynch(msquared << 32);
+    int total_shift=(32+8-6+(clz >> 1));
+    uint32_t root=sqrt64_result();
+    while (REG_DIVCNT & DIV_BUSY);
+
+    int64_t reciprocal64=REG_DIV_RESULT; //64-bit result is required
+    int shift=32-__builtin_clz((uint32_t)(reciprocal64>>32));
+    total_shift-=shift;
+    reciprocal64=reciprocal64>>shift;
+    uint32_t reciprocal=(uint32_t)reciprocal64;
+    uint32_t mulHi=((uint64_t)reciprocal*root) >> 32;
+    #ifndef __OPTIMIZE_SIZE__
+    #pragma GCC unroll 3
+    #endif
+    for (int i=0; i<3;i++)
+    {
+        int32_t t=a[i];
+        int32_t st=t;
+        if (t<0)
+            st=-st;
+        int32_t prod=((uint64_t)(uint32_t)st*mulHi)>>(total_shift);
+        if (t<0)
+            prod=-prod;
+        a[i]=prod;
+    }
+    return;
+}
