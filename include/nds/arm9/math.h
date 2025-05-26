@@ -454,6 +454,7 @@ static inline int32_t dotf32(int32_t *a, int32_t *b)
 }
 
 /// 20.12 fixed point normalize (set magnitude to 1.0 and keep the direction).
+///
 /// @warning
 ///     This function uses both div and sqrt accelerators
 /// @param a
