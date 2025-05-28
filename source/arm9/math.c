@@ -109,26 +109,37 @@ ARM_CODE float hw_sqrtf(float x)
 #if 0
 ARM_CODE void normalizef32(int32_t *a)
 {
-    int32_t magnitude = sqrt64((int64_t)a[0]*a[0] + (int64_t)a[1]*a[1] + (int64_t)a[2]*a[2]);
+    uint32_t magnitude = sqrt64((int64_t)a[0]*a[0] + (int64_t)a[1]*a[1] + (int64_t)a[2]*a[2]);
     for (int i=0; i<3; i+=1)
     {
-        a[i] = divf32(a[i], magnitude);
+        //a[i] = divf32(a[i], magnitude);
+        start_div64_64((int64_t)a[i]<<12, (int64_t) magnitude);
+        a[i]=finish_div64_64();
     }
 }
 #endif
 
 #if 1
-ARM_CODE void normalizef32(int32_t *a)
+__attribute__((noinline)) ARM_CODE void normalizef32(int32_t *a)
 {
-    int32_t a1;
-    int32_t a2;
-    int32_t a3;
+    register int32_t a1;
+    register int32_t a2;
+    register int32_t a3;
+    register uint32_t Hi;
+    register uint32_t Lo;
+    //This is assembly statement may give a warning about wrong register order for ldm
+    //ignore it, for the compiler doesn't know addition of squares will commute
 asm (
     ".syntax unified; \n\t"
     "ldm %[r0], {%[r1],%[r2],%[r3]} ; \n\t"
-    :[r1]"=r"(a1), [r2]"=r"(a2), [r3]"=r"(a3): [r0]"r"(a):
+    "smull %[Lo],%[Hi], %[r1], %[r1] ; \n\t"
+    "smlal %[Lo],%[Hi], %[r2], %[r2] ; \n\t"
+    "smlal %[Lo],%[Hi], %[r3], %[r3] ; \n\t"
+    : [Hi]"=r&"(Hi), [Lo]"=r&"(Lo), [r1]"=r&"(a1), [r2]"=r&"(a2), [r3]"=r&"(a3)
+    : [r0]"r"(a)
+    :
     );
-    uint64_t msquared = (uint64_t)((int64_t)a1*a1) + (uint64_t)((int64_t)a2* a2) + (uint64_t)((int64_t)a3* a3);
+    uint64_t msquared=((uint64_t)Hi<<32)+Lo;
     if (unlikely(msquared == 0))
         return;
     int clz =33-__builtin_clzll(msquared);//33=32+(1sign bit)
