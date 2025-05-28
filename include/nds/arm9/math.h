@@ -304,7 +304,6 @@ ARM_CODE void start_div64_64(int64_t x, int64_t y);
 ///     Returns 64 bit integer quotient.
 ARM_CODE int64_t finish_div64_64(void);
 
-
 /// Asynchronous integer 64 bit modulo start.
 ///
 /// @param num
