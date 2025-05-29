@@ -2,6 +2,8 @@
 //
 // Copyright (C) 2024 Dominik Kurz
 
+#include <nds/asminc.h>
+
 .syntax  unified
 .arm
 .text
