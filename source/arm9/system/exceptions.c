@@ -29,7 +29,7 @@ void exceptionStatePrint(ExceptionState *ex, const char *title)
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     consoleSetCursor(NULL, (32 - strlen(title)) / 2, 0);
-    printf(title);
+    printf("%s", title);
 
     consoleSetCursor(NULL, (32 - strlen(ex->description)) / 2, 1);
     printf("%s\n\n", ex->description);
