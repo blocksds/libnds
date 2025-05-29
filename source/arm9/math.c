@@ -127,7 +127,7 @@ __attribute__((noinline)) ARM_CODE void normalizef32(int32_t *a)
     register int32_t a3;
     register uint32_t Hi;
     register uint32_t Lo;
-    //This is assembly statement may give a warning about wrong register order for ldm
+    //This assembly statement may give a warning about wrong register order for ldm
     //ignore it, for the compiler doesn't know addition of squares will commute
 asm (
     ".syntax unified; \n\t"
