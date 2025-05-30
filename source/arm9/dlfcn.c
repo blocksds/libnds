@@ -81,8 +81,13 @@ int __aeabi_atexit(void *arg, void (*func) (void *), void *dso_handle)
 
     if (dsl_current == NULL)
     {
-        // TODO: Should this just call atexit()?
-        libndsCrash("Unexpected call to __aeabi_atexit()");
+        // If no DSL file is being loaded, this is either a global destructor or
+        // some function being added with atexit().
+
+        // This function is in libc:
+        int __cxa_atexit(void (*fn) (void *), void *arg, void *d);
+
+        return __cxa_atexit(func, arg, dso_handle);
     }
     else
     {
