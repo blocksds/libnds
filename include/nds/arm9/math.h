@@ -293,9 +293,6 @@ static inline int32_t div64(int64_t num, int32_t den)
 ///     64 bit numerator.
 /// @param den
 ///     64 bit denominator.
-///
-/// @return
-///     64 bit integer result.
 ARM_CODE void start_div64_64(int64_t x, int64_t y);
 
 /// Asynchronous Integer 64 by 64 bit divide result.
