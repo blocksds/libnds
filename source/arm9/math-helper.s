@@ -13,9 +13,9 @@ BEGIN_ASM_FUNC start_div64_64
     stmia r12, {r0-r3}; @store {r0-r1} to REG_DIV_NUMER, store to{r2,r3} REG_DIV_DENOM
     ldr r0, [r12, #-0x10]; @load REG_DIV_CNT
     mov r1, #2;
-    and r0, r0, #3;
-    cmp r0, #2;
-    strne r1, [r12, #-0x10]; @set REG_DIV_CNT to correct mode
+    and r0, r0, #3; @mask mode with DIV_MODE_MASK
+    cmp r0, #2; @compare mode to DIV_64_64
+    strne r1, [r12, #-0x10]; @set REG_DIV_CNT to DIV_64_64
     bx lr;
 .arm
 .text
