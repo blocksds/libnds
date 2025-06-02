@@ -15,6 +15,7 @@ SOURCEDIRS	:= source/arm9 source/common fatfs/source
 INCLUDEDIRS	:= include source source/common/ndsabi fatfs/source source/arm9/libc/fatfs
 GFXDIRS		:= graphics
 BINDIRS		:= source/arm9
+SYMS		:= source/libnds.syms
 
 # Defines passed to all files
 # ---------------------------
@@ -49,7 +50,8 @@ ARCHIVE		:= lib/$(NAME).a
 PREFIX		:= $(ARM_NONE_EABI_PATH)arm-none-eabi-
 CC		:= $(PREFIX)gcc
 CXX		:= $(PREFIX)g++
-AR		:= ar
+AR		:= $(PREFIX)gcc-ar
+OBJCOPY		:= $(PREFIX)objcopy
 MKDIR		:= mkdir
 RM		:= rm -rf
 
@@ -133,6 +135,7 @@ $(ARCHIVE): $(OBJS)
 	@echo "  AR.9    $@"
 	@$(MKDIR) -p $(@D)
 	$(V)$(AR) rcs $@ $(OBJS)
+	$(V)$(OBJCOPY) --redefine-syms $(SYMS) $@
 
 clean:
 	@echo "  CLEAN.9"
