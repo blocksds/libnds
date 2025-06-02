@@ -13,6 +13,7 @@ ARM_NONE_EABI_PATH	?= $(WONDERFUL_TOOLCHAIN)/toolchain/gcc-arm-none-eabi/bin/
 
 SOURCEDIRS	:= source/arm7 source/common
 INCLUDEDIRS	:= include source source/common/ndsabi/
+SYMS		:= source/libnds.syms
 
 # Defines passed to all files
 # ---------------------------
@@ -47,7 +48,8 @@ ARCHIVE		:= lib/$(NAME).a
 PREFIX		:= $(ARM_NONE_EABI_PATH)arm-none-eabi-
 CC		:= $(PREFIX)gcc
 CXX		:= $(PREFIX)g++
-AR		:= ar
+AR		:= $(PREFIX)gcc-ar
+OBJCOPY		:= $(PREFIX)objcopy
 MKDIR		:= mkdir
 RM		:= rm -rf
 
@@ -114,6 +116,7 @@ $(ARCHIVE): $(OBJS)
 	@echo "  AR.7    $@"
 	@$(MKDIR) -p $(@D)
 	$(V)$(AR) rcs $@ $(OBJS)
+	$(V)$(OBJCOPY) --redefine-syms $(SYMS) $@
 
 clean:
 	@echo "  CLEAN.7"

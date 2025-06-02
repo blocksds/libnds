@@ -1,0 +1,54 @@
+# Hide FatFs symbols to prevent symbol conflicts with any local copies.
+# These are part of the private libnds API and should not be used by API users directly;
+# the wrappers present in <fat.h> are preferred.
+#
+f_open		libnds_f_open
+f_close		libnds_f_close
+f_read		libnds_f_read
+f_write		libnds_f_write
+f_lseek		libnds_f_lseek
+f_truncate	libnds_f_truncate
+f_sync		libnds_f_sync
+f_opendir	libnds_f_opendir
+f_closedir	libnds_f_closedir
+f_readdir	libnds_f_readdir
+f_findfirst	libnds_f_findfirst
+f_findnext	libnds_f_findnext
+f_mkdir		libnds_f_mkdir
+f_unlink	libnds_f_unlink
+f_rename	libnds_f_rename
+f_stat		libnds_f_stat
+f_chmod		libnds_f_chmod
+f_utime		libnds_f_utime
+f_chdir		libnds_f_chdir
+f_chdrive	libnds_f_chdrive
+f_getcwd	libnds_f_getcwd
+f_getfree	libnds_f_getfree
+f_getlabel	libnds_f_getlabel
+f_setlabel	libnds_f_setlabel
+f_forward	libnds_f_forward
+f_expand	libnds_f_expand
+f_mount		libnds_f_mount
+f_mkfs		libnds_f_mkfs
+f_fdisk		libnds_f_fdisk
+f_setcp		libnds_f_setcp
+f_putc		libnds_f_putc
+f_puts		libnds_f_puts
+f_printf	libnds_f_printf
+f_gets		libnds_f_gets
+VolumeStr	libnds_ff_VolumeStr
+get_fattime	libnds_ff_get_fattime
+ff_oem2uni	libnds_ff_oem2uni
+ff_uni2oem	libnds_ff_uni2oem
+ff_wtoupper	libnds_ff_wtoupper
+ff_memalloc	libnds_ff_memalloc
+ff_memfree	libnds_ff_memfree
+ff_mutex_create	libnds_ff_mutex_create
+ff_mutex_delete	libnds_ff_mutex_delete
+ff_mutex_take	libnds_ff_mutex_take
+ff_mutex_give	libnds_ff_mutex_give
+disk_initialize	libnds_disk_initialize
+disk_status	libnds_disk_status
+disk_read	libnds_disk_read
+disk_write	libnds_disk_write
+disk_ioctl	libnds_disk_ioctl
