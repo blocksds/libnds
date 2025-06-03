@@ -287,6 +287,20 @@ static inline int32_t div64(int64_t num, int32_t den)
     return div64_result();
 }
 
+/// Asynchronous Integer 64 by 64 bit divide.
+///
+/// @param num
+///     64 bit numerator.
+/// @param den
+///     64 bit denominator.
+ARM_CODE void start_div64_64(int64_t x, int64_t y);
+
+/// Asynchronous Integer 64 by 64 bit divide result.
+///
+/// @return
+///     Returns 64 bit integer quotient.
+ARM_CODE int64_t finish_div64_64(void);
+
 /// Asynchronous integer 64 bit modulo start.
 ///
 /// @param num
@@ -455,17 +469,11 @@ static inline int32_t dotf32(int32_t *a, int32_t *b)
 
 /// 20.12 fixed point normalize (set magnitude to 1.0 and keep the direction).
 ///
+/// @warning
+///     This function uses both div and sqrt accelerators
 /// @param a
 ///     Pointer to the vector to normalize.
-static inline void normalizef32(int32_t *a)
-{
-    // magnitude = sqrt(Ax^2 + Ay^2 + Az^2)
-    int32_t magnitude = sqrtf32(mulf32(a[0], a[0]) + mulf32(a[1], a[1]) + mulf32(a[2], a[2]));
-
-    a[0] = divf32(a[0], magnitude);
-    a[1] = divf32(a[1], magnitude);
-    a[2] = divf32(a[2], magnitude);
-}
+ARM_CODE void normalizef32(int32_t *a);
 
 #ifdef __cplusplus
 }
