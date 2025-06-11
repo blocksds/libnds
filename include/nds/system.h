@@ -627,6 +627,10 @@ struct __bootstub {
     u32 bootsize;
 };
 
+// This is 0x23F4000 on NDS and 0x2FF4000 on DSi. However, on NDS 0x2FF4000 is a
+// mirror of 0x23F4000.
+#define __system_bootstub ((struct __bootstub *)0x02FF4000)
+
 #ifdef ARM9
 /// Returns a cached mirror of an address.
 ///

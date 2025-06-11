@@ -69,7 +69,6 @@ void __attribute__((weak)) initSystem(void)
 
     punixTime = (time_t *)memUncached((void *)&__transferRegion()->unixTime);
 
-    extern char *fake_heap_end;
-    __transferRegion()->bootcode = (struct __bootstub *)fake_heap_end;
+    __transferRegion()->bootcode = __system_bootstub;
     irqEnable(IRQ_VBLANK);
 }
