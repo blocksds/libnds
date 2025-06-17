@@ -103,19 +103,24 @@ uint32_t keysDown(void)
 
 uint32_t keysDownRepeat(void)
 {
+    int oldIME = enterCriticalSection();
     uint32_t tmp = keysrepeat;
-
     keysrepeat = 0;
+    leaveCriticalSection(oldIME);
 
     return tmp;
 }
 
 void keysSetRepeat(u8 setDelay, u8 setRepeat)
 {
+    int oldIME = enterCriticalSection();
+
     delay = setDelay;
     repeat = setRepeat;
     count = delay;
     keysrepeat = 0;
+
+    leaveCriticalSection(oldIME);
 }
 
 uint32_t keysUp(void)
@@ -125,7 +130,11 @@ uint32_t keysUp(void)
 
 uint32_t keysCurrent(void)
 {
-    return keys_cur();
+    int oldIME = enterCriticalSection();
+    uint32_t result = keys_cur();
+    leaveCriticalSection(oldIME);
+
+    return result;
 }
 
 void touchRead(touchPosition *data)
