@@ -60,19 +60,34 @@ uint32_t keysHeld(void);
 ///     Bitmask of keys that have just been pressed.
 uint32_t keysDown(void);
 
-/// Obtains the keys that have been pressed right now (or repeated press).
+/// Obtains the keys that have been held for long enough to repeat the press.
 ///
+/// keysDownRepeat() doesn't keep track of how long ago each individual key was
+/// pressed or released. It keeps track of the last time any key changed, and it
+/// returns that mask whenever the delay counter reaches the end.
+///
+/// Whenever a key is pressed or released the new mask is saved. While the
+/// pressed buttons match the saved mask, a counter ticks. This counter goes
+/// back to the beginning whenever the mask changes due to a key being pressed
+/// or released.
+///
+/// The first repetition comes after a starting delay set by keysSetRepeat().
+/// After the first delay there is a different repeated delay (usually shorter)
+/// that will retrigger the repeated presses.
+///
+/// @warning
+///     This function clears the state of repeated key presses. Call this
+///     function only once after each call to scanKeys().
 /// @return
-///     Bitmask of keys that have just been pressed or have been held for long
-///     enough to repeat the press.
+///     Bitmask of keys that have been held for long enough to repeat the press.
 uint32_t keysDownRepeat(void);
 
 /// Sets the key repeat parameters.
 ///
 /// @param setDelay
-///     Number of %scanKeys calls before keys start to repeat.
+///     Number of scanKeys() calls before keys start to repeat.
 /// @param setRepeat
-///     Number of %scanKeys calls before keys repeat.
+///     Number of scanKeys() calls before keys repeat.
 void keysSetRepeat(u8 setDelay, u8 setRepeat);
 
 /// Obtains the keys that have just been released.
