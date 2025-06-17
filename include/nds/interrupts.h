@@ -165,6 +165,8 @@ extern vuint32 __irq_flagsaux[];
 /// BIOS register that contains the address of the global interrupt handler.
 #define IRQ_HANDLER         *(__irq_vector)
 
+struct IntTable{IntFn handler; u32 mask;};
+
 /// Initialise the libnds interrupt system.
 ///
 /// This function is called internally (prior to main()) to set up IRQs on the
