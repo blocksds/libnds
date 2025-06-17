@@ -53,7 +53,7 @@ static uint16_t keys_cur(void)
     return keys_arm9 | keys_arm7_xy | keys_arm7_debug | keys_arm7_touch_lid;
 }
 
-static uint16_t keys = 0;
+static uint16_t keys = 0, keysdown = 0, keysup = 0;
 static uint16_t keysold = 0;
 static uint16_t keysrepeat = 0;
 
@@ -85,6 +85,9 @@ void scanKeys(void)
         }
     }
 
+    keysdown = keys & ~keysold;
+    keysup = (keys ^ keysold) & (~keys);
+
     leaveCriticalSection(oldIME);
 }
 
@@ -95,7 +98,7 @@ uint32_t keysHeld(void)
 
 uint32_t keysDown(void)
 {
-    return (keys & ~keysold);
+    return keysdown;
 }
 
 uint32_t keysDownRepeat(void)
@@ -117,7 +120,7 @@ void keysSetRepeat(u8 setDelay, u8 setRepeat)
 
 uint32_t keysUp(void)
 {
-    return (keys ^ keysold) & (~keys);
+    return keysup;
 }
 
 uint32_t keysCurrent(void)
