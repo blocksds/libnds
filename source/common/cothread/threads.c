@@ -17,6 +17,7 @@
 #endif
 #include <nds/bios.h>
 #include <nds/cothread.h>
+#include <nds/exceptions.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 
@@ -209,6 +210,7 @@ static void cothread_list_remove_ctx(cothread_info_t *ctx)
     }
 
     // Reaching this point means that there is a bug somewhere in the code.
+    libndsCrash(__func__);
 }
 
 static bool cothread_list_contains_ctx(cothread_info_t *ctx)
