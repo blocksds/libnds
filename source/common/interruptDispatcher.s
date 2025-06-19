@@ -3,6 +3,7 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2024 Adrian "asie" Siekierka
+// Copyright (C) 2025 Antonio Niño Díaz
 
 #include <nds/asminc.h>
 #include <nds/cpu_asm.h>
@@ -11,92 +12,16 @@
 
     .arm
 
-    .extern irqTable
-
+// Find the highest set IRQ bit
+//
+// Input:
+//     r1 = interrupt mask
+// Output:
+//     r0 = Position of the highest bit set in r1
+.macro do_ctz
 #ifdef ARM9
-BEGIN_ASM_FUNC IntrMain itcm
-#endif
-#ifdef ARM7
-BEGIN_ASM_FUNC IntrMain
-#endif
-
-    mov     r12, #0x4000000         // REG_BASE
-
-    ldr     r1, [r12, #0x208]       // r1 = IME
-    cmp     r1, #0
-    bxeq    lr
-
-    str     r12, [r12, #0x208]      // disable IME
-                                    // (as only bit 0 is used, it's okay to write
-                                    // any value with bit 0 clear)
-    mrs     r0, spsr
-    stmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
-
-    add     r12, r12, #0x210
-    ldmia   r12!, {r1, r2}          // read IE, IF
-    ands    r1, r1, r2
-#ifdef ARM9
-    beq     no_handler
-#else
-    beq     setflagsaux
-#endif
-    ldr     r2, =irqTable
-
-    // Notify the BIOS
-    ldr     r0, =__irq_flags        // defined by linker script
-    ldr     r3, [r0]
-    orr     r3, r3, r1
-    str     r3, [r0]
-
-    // Set the interruption bits to notify the cothread scheduler to run any
-    // yielded thread that was waiting for them.
-    ldr     r0, =cothread_irq_flags
-    ldr     r3, [r0]
-    orr     r3, r3, r1
-    str     r3, [r0]
-#ifdef ARM7
-    b       findIRQ
-
-setflagsaux:
-    // Since the interrupt wasn't a main one, it must be an AUX one.
-    // This way, we don't have to check if we're in DSi mode here.
-
-    ldmia   r12!, {r1, r2}           // read AUX IE, IF
-    ands    r1, r1, r2
-    beq     no_handler
-    ldr     r2, =irqTableAUX
-
-    // Notify the BIOS
-    ldr     r0, =__irq_flagsaux
-    ldr     r3, [r0]
-    orr     r3, r3, r1
-    str     r3, [r0]
-
-    // Set the interruption bits to notify the cothread scheduler to run any
-    // yielded thread that was waiting for them.
-    ldr     r0, =cothread_irq_aux_flags
-    ldr     r3, [r0]
-    orr     r3, r3, r1
-    str     r3, [r0]
-#endif
-
-    // find the highest set IRQ bit and adjust the mask/table address
-    // accordingly
-    //
-    // input:
-    // r1 = interrupt mask
-    // r2 = irq table address
-    //
-    // output:
-    // r1 = target interrupt mask
-    // r2 = target irq table address
-    //
-    // r0, r3 can be used freely
-findIRQ:
-    // set r0 to the position of the highest bit set in r1
-#ifdef ARM9
-    clz     r0, r1
-    eor     r0, r0, #31
+    clz     r0, r1      // This counts leading zeroes, not trailing zeroes
+    rsb     r0, r0, #31 // Flip to convert to trailing zeroes: r0 = 31 - r0
 #else
     mov     r0, #0
     cmp     r1, #0x10000
@@ -112,55 +37,170 @@ findIRQ:
     movne   r1, r1, lsr #2
     addne   r0, r0, #2
     // r1 is now equal to 0, 1, 2 or 3
-    // if it's equal to 2 or 3, add 1 to r0
+    // If it's equal to 2 or 3, add 1 to r0
     add     r0, r0, r1, lsr #1
 #endif
-    // adjust r1 and r2 based on the bit index in r0
+.endm
+
+    .set REG_BASE,      0x04000000
+    .set OFFSET_IME,    0x208
+    .set OFFSET_IE,     0x210
+    .set OFFSET_IF,     0x214
+    .set OFFSET_AUXIE,  0x218
+    .set OFFSET_AUXIF,  0x21C
+
+#ifdef ARM9
+BEGIN_ASM_FUNC IntrMain itcm
+#endif
+#ifdef ARM7
+BEGIN_ASM_FUNC IntrMain
+#endif
+    // Note: The BIOS saves the following registers, so we are free to use them
+    // here without saving them before: {r0-r3, r12, lr}
+
+    mov     r12, #REG_BASE
+
+    // We can assume that if we're here:
+    // - ARM9 and ARM7: IME = 1
+    // - ARM9:          IE & IF != 0
+    // - ARM7:          (IE & IF != 0) || (AUXIE & AUXIF != 0)
+
+    ldr     r1, [r12, #OFFSET_IE]
+    ldr     r2, [r12, #OFFSET_IF]
+    ands    r1, r1, r2              // r1 = IE & IF
+
+#ifdef ARM9
+    moveq   pc, lr                  // if (IE & IF == 0) return
+#endif
+#ifdef ARM7
+    // Check if no main IRQ bits are set. This can only happen in DSi mode, so
+    // there is no need to check the __dsimode flag. If no bits are set, we need
+    // to check AUX IRQs.
+    beq     check_aux_irqs
+#endif
+
+    do_ctz
+
     mov     r1, #1
     mov     r1, r1, lsl r0
+
+    // r0 = Index of IRQ with the highest priority
+    // r1 = Bit of IRQ with the highest priority
+
+    str     r1, [r12, #OFFSET_IF]   // Clear that bit in IF
+
+    // Notify the BIOS
+    ldr     r2, =__irq_flags        // Symbol defined by linker script
+    ldr     r3, [r2]
+    orr     r3, r3, r1
+    str     r3, [r2]
+
+    // Set the interruption bits to notify the cothread scheduler to run any
+    // yielded thread that was waiting for them.
+    ldr     r2, =cothread_irq_flags
+    ldr     r3, [r2]
+    orr     r3, r3, r1
+    str     r3, [r2]
+
+    // Calculate address of the IRQ vector
+    ldr     r2, =irqTable
     add     r2, r2, r0, lsl #2
 
-    // clear the IRQ now being serviced
-    str     r1, [r12, #-4]
+    // r2 = Target IRQ table address
+
+#ifdef ARM7
+    b       main_irq_found
+
+check_aux_irqs:
+
+    ldr     r1, [r12, #OFFSET_AUXIE]
+    ldr     r2, [r12, #OFFSET_AUXIF]
+    ands    r1, r1, r2              // r1 = AUXIE & AUXIF
+
+    moveq   pc, lr                  // if (AUXIE & AUXIF == 0) return
+
+    do_ctz
+
+    mov     r1, #1
+    mov     r1, r1, lsl r0
+
+    // r0 = Index of IRQ with the highest priority
+    // r1 = Bit of IRQ with the highest priority
+
+    str     r1, [r12, #OFFSET_AUXIF] // Clear that bit in AUXIF
+
+    // Notify the BIOS
+    ldr     r2, =__irq_flagsaux     // Symbol defined by linker script
+    ldr     r3, [r2]
+    orr     r3, r3, r1
+    str     r3, [r2]
+
+    // Set the interruption bits to notify the cothread scheduler to run any
+    // yielded thread that was waiting for them.
+    ldr     r2, =cothread_irq_aux_flags
+    ldr     r3, [r2]
+    orr     r3, r3, r1
+    str     r3, [r2]
+
+    // Calculate address of the IRQ vector
+    ldr     r2, =irqTableAUX
+    add     r2, r2, r0, lsl #2
+
+    // r2 = Target IRQ table address
+
+main_irq_found:
+
+#endif
 
     // compare dummy IRQ address with found IRQ address
     // this skips some setup required for jumping to an IRQ handler
-    ldr     r0, =irqDummy
-    ldr     r1, [r2]
-    cmp     r1, r0
-    beq     no_handler
+    ldr     r1, =irqDummy
+    ldr     r3, [r2]
+    cmp     r1, r3
+    moveq   pc, lr                  // return if no handler
 
-got_handler:
+    // r3 = Address of user IRQ handler
 
-    // enable IRQ and FIQ, set mode to System
-    mrs     r2, cpsr
-    bic     r3, r2, #(CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS | CPSR_MODE_MASK)
-    orr     r3, r3, #CPSR_MODE_SYSTEM
-    msr     cpsr, r3
+    // If we've reached this point, we have found an interrupt handler, we have
+    // cleared the IF/AUXIF bit we're going to handle, we've notified the BIOS,
+    // and we've notified the cothread library.
 
-    push    {r2, lr}
+    ldr     r1, [r12, #OFFSET_IME]  // r1 = IME
+
+    // Disable IME because we're going to enable interrupts in CPSR but we want
+    // to let the user decide whether interrupts can be nested or not.
+    str     r12, [r12, #OFFSET_IME] // Only bit 0 is used, it's okay to write
+                                    // any value with bit 0 clear.
+
+    mrs     r0, spsr
+    push    {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+
+    // Enable IRQ and FIQ, set mode to System
+    mrs     r0, cpsr
+    bic     r1, r0, #(CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS | CPSR_MODE_MASK)
+    orr     r1, r1, #CPSR_MODE_SYSTEM
+    msr     cpsr, r1
+
+    push    {r0, lr}                // {old cpsr, lr_sys}
+
 #ifdef ARM9
-    blx     r1
-#else
-    adr     lr, IntrRet
-    bx      r1
+    blx     r3
 #endif
 
-IntrRet:
+#ifdef ARM7
+    adr     lr, interrupt_return
+    bx      r3
+interrupt_return:
+#endif
 
-    mov     r12, #0x4000000         // REG_BASE
-    str     r12, [r12, #0x208]      // disable IME
-                                    // (as only bit 0 is used, it's okay to write
-                                    // any value with bit 0 clear)
-    pop     {r2, lr}
+    pop     {r0, lr}                // {old cpsr, lr_sys}
 
-    msr     cpsr, r2
+    msr     cpsr, r0                // Return to IRQ mode with IRQs and FIQs disabled
 
-no_handler:
-
-    ldmfd   sp!, {r0-r1, r12, lr}   // {spsr, IME, REG_BASE, lr_irq}
+    pop     {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
     msr     spsr, r0                // Restore SPSR
-    str     r1, [r12, #0x208]       // Restore REG_IME
+    str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
+
     mov     pc, lr
 
     .pool
