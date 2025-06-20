@@ -152,12 +152,10 @@ main_irq_found:
 
 #endif
 
-    // compare dummy IRQ address with found IRQ address
-    // this skips some setup required for jumping to an IRQ handler
-    ldr     r1, =irqDummy
+    // Check if there is no user IRQ handler
     ldr     r3, [r2]
-    cmp     r1, r3
-    moveq   pc, lr                  // return if no handler
+    cmp     r3, #0
+    moveq   pc, lr
 
     // r3 = Address of user IRQ handler
 

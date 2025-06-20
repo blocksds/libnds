@@ -2,6 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
+// Copyright (C) 2025 Antonio Niño Díaz
 
 #ifdef ARM7
 #include <nds/arm7/i2c.h>
@@ -12,10 +13,6 @@
 #include <nds/system.h>
 
 void IntrMain(void); // Prototype for assembly interrupt dispatcher
-
-void irqDummy(void)
-{
-}
 
 #ifdef ARM9
 #define INT_TABLE_SECTION __attribute__((section(".itcm.data")))
@@ -57,7 +54,7 @@ TWL_CODE void irqInitAUX(void)
 {
     // Set all interrupts to dummy functions.
     for (int i = 0; i < MAX_INTERRUPTS_AUX; i++)
-        irqTableAUX[i] = irqDummy;
+        irqTableAUX[i] = NULL;
 }
 
 VoidFn setPowerButtonCB(VoidFn CB)
@@ -86,13 +83,6 @@ static void __irqSet(u32 mask, VoidFn handler, VoidFn irqTable_[], u32 max)
 void irqSet(u32 mask, VoidFn handler)
 {
     int oldIME = enterCriticalSection();
-
-    // The interrupt dispatcher doesn't check for NULL pointers, so we need to
-    // make sure that users don't set the handler to NULL because the interrupt
-    // dispatcher will jump there. It only checks if the interrupt handler is
-    // equal to irqDummy().
-    if (handler == NULL)
-        handler = irqDummy;
 
     __irqSet(mask, handler, irqTable, MAX_INTERRUPTS);
 
@@ -128,7 +118,7 @@ void irqInit(void)
 
     // Set all interrupts to dummy functions.
     for (int i = 0; i < MAX_INTERRUPTS; i++)
-        irqTable[i] = irqDummy;
+        irqTable[i] = NULL;
 
 #ifdef ARM7
     if (isDSiMode())
@@ -183,7 +173,7 @@ void irqClear(u32 mask)
 {
     int oldIME = enterCriticalSection();
 
-    __irqSet(mask, irqDummy, irqTable, MAX_INTERRUPTS);
+    __irqSet(mask, NULL, irqTable, MAX_INTERRUPTS);
     irqDisable(mask);
 
     leaveCriticalSection(oldIME);
@@ -195,13 +185,6 @@ TWL_CODE void irqSetAUX(u32 mask, VoidFn handler)
 {
     int oldIME = enterCriticalSection();
 
-    // The interrupt dispatcher doesn't check for NULL pointers, so we need to
-    // make sure that users don't set the handler to NULL because the interrupt
-    // dispatcher will jump there. It only checks if the interrupt handler is
-    // equal to irqDummy().
-    if (handler == NULL)
-        handler = irqDummy;
-
     __irqSet(mask, handler, irqTableAUX, MAX_INTERRUPTS_AUX);
 
     leaveCriticalSection(oldIME);
@@ -211,7 +194,7 @@ TWL_CODE void irqClearAUX(u32 mask)
 {
     int oldIME = enterCriticalSection();
 
-    __irqSet(mask, irqDummy, irqTableAUX, MAX_INTERRUPTS_AUX);
+    __irqSet(mask, NULL, irqTableAUX, MAX_INTERRUPTS_AUX);
     irqDisableAUX(mask);
 
     leaveCriticalSection(oldIME);
