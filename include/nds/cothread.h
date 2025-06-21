@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023 Antonio Niño Díaz
+// Copyright (C) 2023-2025 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_COTHREAD_H__
 #define LIBNDS_NDS_COTHREAD_H__
@@ -15,9 +15,12 @@ extern "C" {
 ///
 /// Only enabled in the ARM9 at the moment.
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+
+#include <nds/cothread_asm.h>
 
 /// Thread ID
 typedef int cothread_t;
@@ -25,12 +28,6 @@ typedef int cothread_t;
 typedef int comutex_t;
 /// Thread entrypoint
 typedef int (*cothread_entrypoint_t)(void *);
-
-/// Flags a thread as detached.
-///
-/// A detached thread deallocates all memory used by it when it ends. Calling
-/// cothread_has_joined() or cothread_get_exit_code() isn't allowed.
-#define COTHREAD_DETACHED   (1 << 0)
 
 /// Creates a thread and allocate the stack for it.
 ///
@@ -140,20 +137,20 @@ void cothread_yield(void);
 /// Tells the scheduler to switch to a different thread until the specified IRQ
 /// has happened.
 ///
-/// @param flags
-///     IRQ flags to wait for.
-void cothread_yield_irq(uint32_t flags);
+/// @param flag
+///     IRQ flag to wait for (only one).
+void cothread_yield_irq(uint32_t flag);
 
 #ifdef ARM7
 /// Tells the scheduler to switch to a different thread until the specified ARM7
 /// AUX IRQ has happened.
 ///
-/// @param flags
-///     AUX IRQ flags to wait for.
+/// @param flas
+///     AUX IRQ flag to wait for (only one).
 ///
 /// @note
 ///     ARM7 only.
-void cothread_yield_irq_aux(uint32_t flags);
+void cothread_yield_irq_aux(uint32_t flag);
 #endif
 
 /// Returns ID of the thread that is running currently.
@@ -225,13 +222,13 @@ typedef struct
     // Specific to cothread
     void *stack_base; // If not NULL, it has to be freed by the scheduler
     void *tls;
-    void *next;
-    uint32_t wait_irq_flags;
-#ifdef ARM7
-    uint32_t wait_irq_aux_flags;
-#endif
-    uint32_t flags;
+    void *next; // Next thread in the global list of threads
+    void *next_irq; // Next thread in the list of threads waiting for the same IRQ
+    uint32_t flags; // COTHREAD_DETACHED, COTHREAD_WAIT_IRQ, etc
 } cothread_info_t;
+
+static_assert(offsetof(cothread_info_t, next_irq) == COTHREAD_INFO_NEXT_IRQ_OFFSET);
+static_assert(offsetof(cothread_info_t, flags) == COTHREAD_INFO_FLAGS_OFFSET);
 
 #ifdef __cplusplus
 }

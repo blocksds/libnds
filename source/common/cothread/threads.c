@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023-2024 Antonio Niño Díaz
+// Copyright (C) 2023-2025 Antonio Niño Díaz
 
 #include <assert.h>
 #include <malloc.h>
@@ -65,6 +65,28 @@ static cothread_info_t *cothread_active_thread = NULL;
 // This context is the start of the linked list that contains the contexts of
 // all threads. It is also used for the main() thread, which can never be freed.
 static cothread_info_t cothread_list;
+// TODO: When a non-detached thread ends, remove it from this list and add it to
+// a list of finished-but-not-deleted threads.
+
+#ifdef ARM9
+ITCM_BSS
+#endif
+cothread_info_t *cothread_list_irq[32];
+#ifdef ARM7
+cothread_info_t *cothread_list_irq_aux[32];
+#endif
+
+// Total number of threads
+#ifdef ARM9
+ITCM_BSS
+#endif
+uint32_t cothread_threads_count;
+
+// Total number of threads waiting for interrupts
+#ifdef ARM9
+ITCM_BSS
+#endif
+uint32_t cothread_threads_wait_irq_count;
 
 //-------------------------------------------------------------------
 
@@ -118,63 +140,6 @@ static inline void set_tls(void *tls)
 
 //-------------------------------------------------------------------
 
-#ifdef ARM9
-ITCM_BSS
-#endif
-volatile uint32_t cothread_irq_flags;
-
-#ifdef ARM7
-volatile uint32_t cothread_irq_aux_flags;
-#endif
-
-// This function returns true if there is any thread that isn't waiting for an
-// interrupt to happen, false otherwise.
-#ifdef ARM9
-ITCM_CODE
-#endif
-static bool cothread_scheduler_refresh_irq_flags(void)
-{
-    bool any_thread_available = false;
-
-    // We need to fetch and clear the current flags in a critical section in
-    // case there is an interrupt right when we are reading and clearing the
-    // variable.
-
-    int oldIME = enterCriticalSection();
-
-    uint32_t flags = cothread_irq_flags;
-    cothread_irq_flags = 0;
-#ifdef ARM7
-    uint32_t flags_aux = cothread_irq_aux_flags;
-    cothread_irq_aux_flags = 0;
-#endif
-
-    leaveCriticalSection(oldIME);
-
-    cothread_info_t *p = &cothread_list;
-
-    for (; p != NULL; p = p->next)
-    {
-        if (p->wait_irq_flags)
-            p->wait_irq_flags &= ~flags;
-#ifdef ARM7
-        if (p->wait_irq_aux_flags)
-            p->wait_irq_aux_flags &= ~flags_aux;
-#endif
-
-        if (p->wait_irq_flags == 0)
-            any_thread_available = true;
-#ifdef ARM7
-        if (p->wait_irq_aux_flags == 0)
-            any_thread_available = true;
-#endif
-    }
-
-    return any_thread_available;
-}
-
-//-------------------------------------------------------------------
-
 static void cothread_list_add_ctx(cothread_info_t *ctx)
 {
     // Find last node of the list
@@ -192,10 +157,63 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
 #ifdef ARM9
 ITCM_CODE
 #endif
+static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ctx)
+{
+    // Look for this thread context in all the list of interrupts and remove it
+    // from there.
+
+    for (int i = 0; i < 32; i++)
+    {
+        int oldIME = enterCriticalSection();
+
+        cothread_info_t **list = &cothread_list_irq[i];
+
+        while (*list != NULL)
+        {
+            if (*list == ctx)
+            {
+                // Remove from list
+                *list = (*list)->next_irq;
+                cothread_threads_wait_irq_count--;
+                leaveCriticalSection(oldIME);
+                return;
+            }
+
+            list = (cothread_info_t **)&((*list)->next_irq);
+        }
+
+#ifdef ARM7
+        list = &cothread_list_irq_aux[i];
+
+        while (*list != NULL)
+        {
+            if (*list == ctx)
+            {
+                // Remove from list
+                *list = (*list)->next_irq;
+                cothread_threads_wait_irq_count--;
+                leaveCriticalSection(oldIME);
+                return;
+            }
+
+            list = (cothread_info_t **)&((*list)->next_irq);
+        }
+#endif
+        leaveCriticalSection(oldIME);
+    }
+}
+
+#ifdef ARM9
+ITCM_CODE
+#endif
 static void cothread_list_remove_ctx(cothread_info_t *ctx)
 {
-    // The first element of cothread_list is statically allocated. It is the
-    // main() thread, which can never be deleted.
+    // Remove context from lists of interrupts
+    cothread_list_remove_ctx_from_irq_list(ctx);
+
+    // Now, remove the context from the global list of threads. The first
+    // element of cothread_list is statically allocated. It is the main()
+    // thread, which can never be deleted.
 
     cothread_info_t *p = &cothread_list;
 
@@ -241,6 +259,8 @@ static void cothread_delete_internal(cothread_info_t *ctx)
     free(ctx->tls);
 
     free_fn(ctx);
+
+    cothread_threads_count--;
 }
 
 int cothread_delete(cothread_t thread)
@@ -274,6 +294,8 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
 
     // Initialize context
     __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
+
+    cothread_threads_count++;
 
     return (cothread_t)ctx;
 }
@@ -369,7 +391,6 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
     return id;
 }
 
-
 int cothread_detach(cothread_t thread)
 {
     cothread_info_t *ctx = (cothread_info_t *)thread;
@@ -424,23 +445,67 @@ void cothread_yield(void)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
-void cothread_yield_irq(uint32_t flags)
+ARM_CODE void cothread_yield_irq(uint32_t flag)
 {
     assert(REG_IME != 0); // IRQs must be enabled
+    assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
 
     cothread_info_t *ctx = cothread_active_thread;
 
-    ctx->wait_irq_flags = flags;
+    unsigned int index = __builtin_ctz(flag);
+
+    int oldIME = enterCriticalSection();
+
+    if (cothread_list_irq[index] != NULL)
+    {
+        ctx->next_irq = cothread_list_irq[index];
+        cothread_list_irq[index] = ctx;
+    }
+    else
+    {
+        cothread_list_irq[index] = ctx;
+    }
+
+    ctx->flags |= COTHREAD_WAIT_IRQ;
+
+    // It isn't needed to check if the interrupt is in the list twice. This
+    // should never happen because a thread waiting for an interrupt should
+    // never be scheduled again until that interrupt has happened.
+
+    cothread_threads_wait_irq_count++;
+
+    leaveCriticalSection(oldIME);
 
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
 #ifdef ARM7
-void cothread_yield_irq_aux(uint32_t flags)
+ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
 {
+    assert(REG_IME != 0); // IRQs must be enabled
+    assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
+
     cothread_info_t *ctx = cothread_active_thread;
 
-    ctx->wait_irq_aux_flags = flags;
+    unsigned int index = __builtin_ctz(flag);
+
+    int oldIME = enterCriticalSection();
+
+    if (cothread_list_irq_aux[index] != NULL)
+    {
+        ctx->next_irq = cothread_list_irq_aux[index];
+        cothread_list_irq_aux[index] = ctx;
+    }
+    else
+    {
+        cothread_list_irq_aux[index] = ctx;
+    }
+
+    ctx->flags |= COTHREAD_WAIT_IRQ;
+
+    cothread_threads_wait_irq_count++;
+
+    leaveCriticalSection(oldIME);
 
     __ndsabi_coro_yield((void *)ctx, 0);
 }
@@ -456,81 +521,86 @@ cothread_t cothread_get_current(void)
 #ifdef ARM9
 ITCM_CODE
 #endif
-static int cothread_scheduler_start(void)
+ARM_CODE static int cothread_scheduler_start(void)
 {
     cothread_info_t *ctx = &cothread_list;
 
     while (1)
     {
-        bool delete_current_thread = false;
-        cothread_info_t *ctx_to_delete = NULL;
+        // Next context we need to switch to. We may need to delete this context
+        // after returning from it, so we need to preserve the pointer to the
+        // next thread.
+        cothread_info_t *next_ctx = ctx->next;
 
         // If the thread has finished, skip it
-        if (ctx->joined)
-            goto next_thread;
-
-        // If this thread is waiting for any interrupt to happen, skip it
-#ifdef ARM9
-        if (ctx->wait_irq_flags)
-            goto next_thread;
-#elif defined(ARM7)
-        if (ctx->wait_irq_flags || ctx->wait_irq_aux_flags)
-            goto next_thread;
-#endif
-
-        // Set this thread as the active one and resume it.
-        cothread_active_thread = ctx;
-
-        set_tls(ctx->tls);
-
-        int ret = __ndsabi_coro_resume((void *)ctx);
-
-        // Check if the thread has just ended
-        if (ctx->joined)
+        if (ctx->joined == 0)
         {
-            // If this is the main() thread, exit the whole program with the
-            // exit code returned by main().
-            if (ctx == &cothread_list)
-                return ctx->arg;
+            // If this thread is waiting for any interrupt to happen, skip it
+            if ((ctx->flags & COTHREAD_WAIT_IRQ) == 0)
+            {
+                // Set this thread as the active one and resume it.
+                cothread_active_thread = ctx;
 
-            // This is a regular thread.
+                set_tls(ctx->tls);
 
-            // If it is detached, delete it. If not, save the exit code so that
-            // the user can check it later.
-            if (ctx->flags & COTHREAD_DETACHED)
-                delete_current_thread = true;
-            else
-                ctx->arg = ret;
+                int ret = __ndsabi_coro_resume((void *)ctx);
+
+                // Check if the thread has just ended
+                if (ctx->joined)
+                {
+                    // If this is the main() thread, exit the whole program with
+                    // the exit code returned by main().
+                    if (ctx == &cothread_list)
+                        return ctx->arg;
+
+                    // This is a regular thread.
+
+                    // If it is detached, delete it. If not, save the exit code
+                    // so that the user can check it later.
+                    if (ctx->flags & COTHREAD_DETACHED)
+                        cothread_delete_internal(ctx);
+                    else
+                        ctx->arg = ret;
+                }
+            }
         }
-
-next_thread:
-
-        if (delete_current_thread)
-            ctx_to_delete = ctx;
-
-        bool any_thread_active = true;
 
         // Get the next thread
-        ctx = ctx->next;
+        ctx = next_ctx;
         if (ctx == NULL)
         {
+            // The end of the list has been reached. Go back to the start
             ctx = &cothread_list;
-            any_thread_active = cothread_scheduler_refresh_irq_flags();
-        }
 
-        if (delete_current_thread)
-            cothread_delete_internal(ctx_to_delete);
+            // Whenever we reach the end of the list, check if there are threads
+            // that aren't waiting for interrupts. If all threads are waiting
+            // for interrupts, halt the CPU.
 
-        if (any_thread_active == false)
-        {
-            // If no thread is active that means that all threads are
-            // waiting for an interrupt to happen. Use BIOS calls to enter
-            // low power mode.
+            // Block interrupts by setting IME to 0. This lets both the ARM7 and
+            // ARM9 exit halt state if "(IE & IF) != 0". The interrupt will be
+            // handled as soon as we leave the critical section.
+            int oldIME = enterCriticalSection();
+
+            // We need to check the number of active threads and enter halt
+            // state atomically or it's possible that an interrupt happens right
+            // before entering halt state and then there is nothing else that
+            // takes us out of halt state.
+            if (cothread_threads_count == cothread_threads_wait_irq_count)
+            {
+                // If no thread is active that means that all threads are
+                // waiting for an interrupt to happen. Use BIOS calls to enter
+                // low power mode.
 #ifdef ARM9
-            CP15_WaitForInterrupt();
+                // TODO: We should be able to use CP15_WaitForInterrupt(), but
+                // it hangs the CPU for some reason. swiIntrWait() sets REG_IME
+                // to 1 internally so it can exit halt state.
+                swiIntrWait(0, REG_IE); // Wait for all IRQs enabled by the user.
 #elif defined(ARM7)
-            swiHalt();
+                swiHalt();
 #endif
+            }
+
+            leaveCriticalSection(oldIME);
         }
     }
 }

@@ -6,6 +6,7 @@
 // Copyright (C) 2025 Antonio Niño Díaz
 
 #include <nds/asminc.h>
+#include <nds/cothread_asm.h>
 #include <nds/cpu_asm.h>
 
     .syntax  unified
@@ -95,18 +96,16 @@ BEGIN_ASM_FUNC IntrMain
     orr     r3, r3, r1
     str     r3, [r2]
 
-    // Set the interruption bits to notify the cothread scheduler to run any
-    // yielded thread that was waiting for them.
-    ldr     r2, =cothread_irq_flags
-    ldr     r3, [r2]
-    orr     r3, r3, r1
-    str     r3, [r2]
-
-    // Calculate address of the IRQ vector
-    ldr     r2, =irqTable
+    // Get pointer to array of pointers of cothread threads waiting for IRQs.
+    ldr     r2, =cothread_list_irq
     add     r2, r2, r0, lsl #2
 
-    // r2 = Target IRQ table address
+    // Calculate address of the IRQ vector
+    ldr     r3, =irqTable
+    add     r3, r3, r0, lsl #2
+
+    // r2 = Pointer to list of threads waiting for this interrupt
+    // r3 = Target IRQ table address
 
 #ifdef ARM7
     b       main_irq_found
@@ -135,28 +134,27 @@ check_aux_irqs:
     orr     r3, r3, r1
     str     r3, [r2]
 
-    // Set the interruption bits to notify the cothread scheduler to run any
-    // yielded thread that was waiting for them.
-    ldr     r2, =cothread_irq_aux_flags
-    ldr     r3, [r2]
-    orr     r3, r3, r1
-    str     r3, [r2]
-
-    // Calculate address of the IRQ vector
-    ldr     r2, =irqTableAUX
+    // Get pointer to array of pointers of cothread threads waiting for IRQs.
+    ldr     r2, =cothread_list_irq_aux
     add     r2, r2, r0, lsl #2
 
-    // r2 = Target IRQ table address
+    // Calculate address of the IRQ vector
+    ldr     r3, =irqTableAUX
+    add     r3, r3, r0, lsl #2
+
+    // r2 = Pointer to list of threads waiting for this interrupt
+    // r3 = Target IRQ table address
 
 main_irq_found:
 
 #endif
 
     // Check if there is no user IRQ handler
-    ldr     r3, [r2]
+    ldr     r3, [r3]
     cmp     r3, #0
-    moveq   pc, lr
+    beq     clear_threads_and_exit
 
+    // r2 = Pointer to list of threads waiting for this interrupt
     // r3 = Address of user IRQ handler
 
     // If we've reached this point, we have found an interrupt handler, we have
@@ -171,7 +169,7 @@ main_irq_found:
                                     // any value with bit 0 clear.
 
     mrs     r0, spsr
-    push    {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+    push    {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
 
     // Enable IRQ and FIQ, set mode to System
     mrs     r0, cpsr
@@ -195,9 +193,48 @@ interrupt_return:
 
     msr     cpsr, r0                // Return to IRQ mode with IRQs and FIQs disabled
 
-    pop     {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+    pop     {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
     msr     spsr, r0                // Restore SPSR
     str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
+
+    // After handling all high priority things, unblock any threads that were
+    // waiting for this interrupt.
+
+clear_threads_and_exit:
+
+    // r2 = Pointer to list of threads waiting for this interrupt
+
+    mov     r1, #0 // Counter of how many threads are resumed
+    mov     r12, #0 // This will be used to clear pointers
+clear_next_thread:
+    ldr     r0, [r2]
+    cmp     r0, #0
+    beq     exit // Exit if we have reached the end of the list
+
+    str     r12, [r2] // Clear this pointer
+
+    // Clear the "waiting for IRQ" flag
+    ldr     r3, [r0, #COTHREAD_INFO_FLAGS_OFFSET]
+    bic     r3, r3, #COTHREAD_WAIT_IRQ
+    str     r3, [r0, #COTHREAD_INFO_FLAGS_OFFSET]
+
+    add     r2, r0, COTHREAD_INFO_NEXT_IRQ_OFFSET
+
+    add     r1, r1, #1
+
+    b       clear_next_thread
+
+exit:
+
+    // If we haven't resumed any thread, there's nothing to do
+    cmp     r1, #0
+    moveq   pc, lr
+
+    // Decrease number of threads waiting for interrupts
+    ldr     r0, =cothread_threads_wait_irq_count
+    ldr     r2, [r0]
+    sub     r2, r2, r1
+    str     r2, [r0]
 
     mov     pc, lr
 
