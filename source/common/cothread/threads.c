@@ -68,25 +68,16 @@ static cothread_info_t cothread_list;
 // TODO: When a non-detached thread ends, remove it from this list and add it to
 // a list of finished-but-not-deleted threads.
 
-#ifdef ARM9
-ITCM_BSS
-#endif
-cothread_info_t *cothread_list_irq[32];
+ITCM_BSS cothread_info_t *cothread_list_irq[32];
 #ifdef ARM7
 cothread_info_t *cothread_list_irq_aux[32];
 #endif
 
 // Total number of threads
-#ifdef ARM9
-ITCM_BSS
-#endif
-uint32_t cothread_threads_count;
+ITCM_BSS uint32_t cothread_threads_count;
 
 // Total number of threads waiting for interrupts
-#ifdef ARM9
-ITCM_BSS
-#endif
-uint32_t cothread_threads_wait_irq_count;
+ITCM_BSS uint32_t cothread_threads_wait_irq_count;
 
 //-------------------------------------------------------------------
 
@@ -128,10 +119,7 @@ void init_tls(void *__tls)
 // the linker (by setting __dtcm_data_size). If not, this variable would be
 // placed at the start of DTCM, so the stack wouldn't be able to grow to main
 // RAM if it runs out of space in DTCM.
-#ifdef ARM9
-ITCM_DATA
-#endif
-void *__tls = __tls_start - TCB_SIZE;
+ITCM_DATA void *__tls = __tls_start - TCB_SIZE;
 
 static inline void set_tls(void *tls)
 {
@@ -154,10 +142,7 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
     p->next = ctx;
 }
 
-#ifdef ARM9
-ITCM_CODE
-#endif
-static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ctx)
+ITCM_CODE static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ctx)
 {
     // Look for this thread context in all the list of interrupts and remove it
     // from there.
@@ -203,10 +188,7 @@ static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ctx)
     }
 }
 
-#ifdef ARM9
-ITCM_CODE
-#endif
-static void cothread_list_remove_ctx(cothread_info_t *ctx)
+ITCM_CODE static void cothread_list_remove_ctx(cothread_info_t *ctx)
 {
     // Remove context from lists of interrupts
     cothread_list_remove_ctx_from_irq_list(ctx);
@@ -518,10 +500,7 @@ cothread_t cothread_get_current(void)
     return (cothread_t)cothread_active_thread;
 }
 
-#ifdef ARM9
-ITCM_CODE
-#endif
-ARM_CODE static int cothread_scheduler_start(void)
+ITCM_CODE ARM_CODE static int cothread_scheduler_start(void)
 {
     cothread_info_t *ctx = &cothread_list;
 
