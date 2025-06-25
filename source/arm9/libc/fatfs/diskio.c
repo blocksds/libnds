@@ -118,7 +118,7 @@ DSTATUS disk_initialize(BYTE pdrv)
         case DEV_SD:
         {
             const DISC_INTERFACE *io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
-            
+
             if (!(io->features & FEATURE_MEDIUM_CANREAD))
                 return STA_NOINIT | STA_NODISK;
 

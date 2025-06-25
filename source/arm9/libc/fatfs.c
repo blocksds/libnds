@@ -383,7 +383,7 @@ int fatInitLookupCache(int fd, uint32_t max_buffer_size)
     FRESULT ret = f_lseek(f, CREATE_LINKMAP);
     if (ret == FR_NOT_ENOUGH_CORE)
         return f->cltbl[0];
-    
+
     // Reduce allocation to match actual cache area size
     // -------------------------------------------------
 
