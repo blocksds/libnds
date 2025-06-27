@@ -119,22 +119,18 @@ static u32 fifo_buffer_alloc_block(void)
 // Allocate a new block, blocking until there is an available slot.
 static u32 fifo_buffer_wait_block(void)
 {
-    u32 block;
-
-    do
+    while (1)
     {
-        block = fifo_buffer_alloc_block();
+        u32 block = fifo_buffer_alloc_block();
 
-        if (block == FIFO_BUFFER_TERMINATE)
-        {
-            REG_IPC_FIFO_CR |= IPC_FIFO_SEND_IRQ;
-            REG_IME = 1;
-            swiIntrWait(0, IRQ_FIFO_EMPTY);
-            REG_IME = 0;
-        }
-    } while (block == FIFO_BUFFER_TERMINATE);
+        if (block != FIFO_BUFFER_TERMINATE)
+            return block;
 
-    return block;
+        REG_IPC_FIFO_CR |= IPC_FIFO_SEND_IRQ;
+        REG_IME = 1;
+        swiIntrWait(0, IRQ_FIFO_EMPTY);
+        REG_IME = 0;
+    }
 }
 
 // Frees the specified block.
