@@ -492,7 +492,7 @@ bool fifoCheckValue32(u32 channel)
     return fifo_value32_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
 
-static int processing = 0;
+static volatile int processing = 0;
 
 static void fifoInternalRecvInterrupt(void)
 {
