@@ -258,14 +258,18 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     if (extrawordcount > 0 && wordlist == NULL)
         return false;
 
-    if (fifo_freewords < extrawordcount + 1)
-        return false;
-
     if (extrawordcount > (FIFO_MAX_DATA_BYTES / 4))
         return false;
 
-    u32 count = 0;
     int oldIME = enterCriticalSection();
+
+    // Check value of fifo_freewords inside the critical section because it
+    // could change in an interrupt handler if it sends FIFO messages.
+    if (fifo_freewords < extrawordcount + 1)
+    {
+        leaveCriticalSection(oldIME);
+        return false;
+    }
 
     u32 head = fifo_buffer_wait_block();
     if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
@@ -278,6 +282,8 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     }
     FIFO_BUFFER_DATA(head) = firstword;
     fifo_send_queue.tail = head;
+
+    u32 count = 0;
 
     while (count < extrawordcount)
     {
