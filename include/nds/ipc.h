@@ -43,15 +43,19 @@ static inline int IPC_GetSync(void)
 
 enum IPC_CONTROL_BITS
 {
-    IPC_FIFO_SEND_EMPTY = (1 << 0),
-    IPC_FIFO_SEND_FULL  = (1 << 1),
-    IPC_FIFO_SEND_IRQ   = (1 << 2),
-    IPC_FIFO_SEND_CLEAR = (1 << 3),
-    IPC_FIFO_RECV_EMPTY = (1 << 8),
-    IPC_FIFO_RECV_FULL  = (1 << 9),
-    IPC_FIFO_RECV_IRQ   = (1 << 10),
-    IPC_FIFO_ERROR      = (1 << 14),
-    IPC_FIFO_ENABLE     = (1 << 15)
+    IPC_FIFO_SEND_EMPTY         = (1 << 0),
+    IPC_FIFO_SEND_FULL          = (1 << 1),
+    IPC_FIFO_SEND_EMPTY_IRQ     = (1 << 2),
+    IPC_FIFO_SEND_IRQ           = IPC_FIFO_SEND_EMPTY_IRQ, // Deprecated name
+    IPC_FIFO_SEND_CLEAR         = (1 << 3),
+
+    IPC_FIFO_RECV_EMPTY         = (1 << 8),
+    IPC_FIFO_RECV_FULL          = (1 << 9),
+    IPC_FIFO_RECV_NOT_EMPTY_IRQ = (1 << 10),
+    IPC_FIFO_RECV_IRQ           = IPC_FIFO_RECV_NOT_EMPTY_IRQ, // Deprecated name
+
+    IPC_FIFO_ERROR              = (1 << 14),
+    IPC_FIFO_ENABLE             = (1 << 15)
 };
 
 #ifdef __cplusplus

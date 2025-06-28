@@ -126,9 +126,9 @@ static u32 fifo_buffer_wait_block(void)
         if (block != FIFO_BUFFER_TERMINATE)
             return block;
 
-        REG_IPC_FIFO_CR |= IPC_FIFO_SEND_IRQ;
+        REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
         REG_IME = 1;
-        swiIntrWait(0, IRQ_FIFO_EMPTY);
+        swiIntrWait(0, IRQ_SEND_FIFO);
         REG_IME = 0;
     }
 }
@@ -301,7 +301,7 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         fifo_send_queue.tail = next;
     }
 
-    REG_IPC_FIFO_CR |= IPC_FIFO_SEND_IRQ;
+    REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
 
     leaveCriticalSection(oldIME);
 
@@ -679,7 +679,7 @@ static void fifoInternalSendInterrupt(void)
     if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
     {
         // Disable send irq until there are messages to be sent
-        REG_IPC_FIFO_CR &= ~IPC_FIFO_SEND_IRQ;
+        REG_IPC_FIFO_CR &= ~IPC_FIFO_SEND_EMPTY_IRQ;
     }
     else
     {
@@ -734,10 +734,10 @@ bool fifoInit(void)
     FIFO_BUFFER_SETCONTROL(FIFO_BUFFER_ENTRIES - 1, FIFO_BUFFER_TERMINATE,
                            FIFO_BUFFERCONTROL_UNUSED, 0);
 
-    irqSet(IRQ_FIFO_EMPTY, fifoInternalSendInterrupt);
-    irqSet(IRQ_FIFO_NOT_EMPTY, fifoInternalRecvInterrupt);
-    REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_RECV_IRQ;
-    irqEnable(IRQ_FIFO_NOT_EMPTY | IRQ_FIFO_EMPTY);
+    irqSet(IRQ_SEND_FIFO, fifoInternalSendInterrupt);
+    irqSet(IRQ_RECV_FIFO, fifoInternalRecvInterrupt);
+    REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
+    irqEnable(IRQ_RECV_FIFO | IRQ_SEND_FIFO);
 
     return true;
 }

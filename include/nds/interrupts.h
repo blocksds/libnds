@@ -28,8 +28,8 @@ extern "C" {
 #define IRQ_TIMER2          BIT(5)  ///< Timer 2 interrupt mask
 #define IRQ_TIMER3          BIT(6)  ///< Timer 3 interrupt mask
 #ifdef ARM7
-#define IRQ_NETWORK         BIT(7)  ///< Serial/RTC interrupt mask (ARM7) (deprecated name)
 #define IRQ_RTC             BIT(7)  ///< Serial/RTC interrupt mask (ARM7)
+#define IRQ_NETWORK         IRQ_RTC ///< Deprecated name
 #endif
 #define IRQ_DMA0            BIT(8)  ///< DMA 0 interrupt mask
 #define IRQ_DMA1            BIT(9)  ///< DMA 1 interrupt mask
@@ -38,8 +38,10 @@ extern "C" {
 #define IRQ_KEYS            BIT(12) ///< Keypad interrupt mask
 #define IRQ_CART            BIT(13) ///< GBA cartridge interrupt mask
 #define IRQ_IPC_SYNC        BIT(16) ///< IPC sync interrupt mask
-#define IRQ_FIFO_EMPTY      BIT(17) ///< Send FIFO empty interrupt mask
-#define IRQ_FIFO_NOT_EMPTY  BIT(18) ///< Receive FIFO not empty interrupt mask
+#define IRQ_SEND_FIFO       BIT(17) ///< Send FIFO empty interrupt mask
+#define IRQ_FIFO_EMPTY      IRQ_SEND_FIFO ///< Deprecated name
+#define IRQ_RECV_FIFO       BIT(18) ///< Receive FIFO not empty interrupt mask
+#define IRQ_FIFO_NOT_EMPTY  IRQ_RECV_FIFO ///< Deprecated name
 #define IRQ_CARD            BIT(19) ///< interrupt mask DS Card Slot
 #define IRQ_CARD_LINE       BIT(20) ///< interrupt mask
 #ifdef ARM9
