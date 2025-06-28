@@ -111,14 +111,14 @@ ARM_CODE void normalizef32(int32_t *a)
     register uint32_t Lo;
     register uint32_t Hi;
 
-    asm volatile (
+    asm (
         ".syntax unified \n\t"
-        "ldm %[r0], {r1,r2,r3} \n\t"
+        "ldm %[a], {r1,r2,r3} \n\t"
         "smull %[Lo],%[Hi], r1, r1 \n\t"
         "smlal %[Lo],%[Hi], r2, r2 \n\t"
         "smlal %[Lo],%[Hi], r3, r3 \n\t" :
-        [Lo]"=r&"(Lo), [Hi]"=r&"(Hi) :
-        [r0]"r"(a) :
+        [Lo]"=r"(Lo), [Hi]"=r"(Hi) :
+        [a]"r"(a), "m"(*(int32_t (*)[3]) a) :
         "r1", "r2", "r3"
     );
 
