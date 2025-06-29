@@ -253,6 +253,44 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
     return true;
 }
 
+// Fills the send FIFO with as many words as we can.
+//
+// If there are too many words to be sent and some remain pending, enable an
+// interrupt that will be triggered when all the words in the TX hardware
+// registers are received by the other CPU.
+//
+// If all words fit in the hardware TX registers, disable that IRQ.
+static void fifoFillTxFifoFromBuffer(void)
+{
+    u32 head = fifo_send_queue.head;
+
+    while (1)
+    {
+        // We have reached the end of the words to send. Disable the IRQ.
+        if (head == FIFO_BUFFER_TERMINATE)
+        {
+            REG_IPC_FIFO_CR &= ~IPC_FIFO_SEND_EMPTY_IRQ;
+            break;
+        }
+
+        // The TX FIFO is full, enable the IRQ.
+        if (REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL)
+        {
+            REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
+            break;
+        }
+
+        u32 next = FIFO_BUFFER_GETNEXT(head);
+
+        REG_IPC_FIFO_TX = FIFO_BUFFER_DATA(head);
+
+        fifo_buffer_free_block(head);
+        head = next;
+    }
+
+    fifo_send_queue.head = head;
+}
+
 static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
 {
     if (extrawordcount > 0 && wordlist == NULL)
@@ -263,12 +301,18 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
 
     int oldIME = enterCriticalSection();
 
-    // Check value of fifo_freewords inside the critical section because it
-    // could change in an interrupt handler if it sends FIFO messages.
+    // Check if there's enough space to send the whole message. If not, try to
+    // flush some words pending from the software queue into the hardware TX
+    // queue. If that doesn't free up enough space, give up.
     if (fifo_freewords < extrawordcount + 1)
     {
-        leaveCriticalSection(oldIME);
-        return false;
+        fifoFillTxFifoFromBuffer();
+
+        if (fifo_freewords < extrawordcount + 1)
+        {
+            leaveCriticalSection(oldIME);
+            return false;
+        }
     }
 
     u32 head = fifo_buffer_wait_block();
@@ -283,10 +327,15 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     FIFO_BUFFER_DATA(head) = firstword;
     fifo_send_queue.tail = head;
 
-    u32 count = 0;
+    // Add the words we're trying to send to the software queue.
 
+    u32 count = 0;
     while (count < extrawordcount)
     {
+        // TODO: Try to write words directly in the hardware TX queue instead of
+        // adding them to the software queue and from there to the hardware
+        // queue.
+
         u32 next = fifo_buffer_wait_block();
         if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
         {
@@ -301,7 +350,9 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         fifo_send_queue.tail = next;
     }
 
-    REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
+    // Start the transfer by adding some words from the software queue to the
+    // hardware queue.
+    fifoFillTxFifoFromBuffer();
 
     leaveCriticalSection(oldIME);
 
@@ -674,33 +725,12 @@ static void fifoInternalRecvInterrupt(void)
     processing = 0;
 }
 
+// This interrupt handler is called when the TX FIFO hardware registers become
+// empty. This means that the user has enqueued too many words to be sent and
+// they didn't fill in the hardware TX registers the first time.
 static void fifoInternalSendInterrupt(void)
 {
-    if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
-    {
-        // Disable send irq until there are messages to be sent
-        REG_IPC_FIFO_CR &= ~IPC_FIFO_SEND_EMPTY_IRQ;
-    }
-    else
-    {
-        u32 head, next;
-
-        head = fifo_send_queue.head;
-
-        while (!(REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL))
-        {
-            next = FIFO_BUFFER_GETNEXT(head);
-            REG_IPC_FIFO_TX = FIFO_BUFFER_DATA(head);
-            fifo_buffer_free_block(head);
-            head = next;
-
-            // Check if there is nothing else to send
-            if (head == FIFO_BUFFER_TERMINATE)
-                break;
-        }
-
-        fifo_send_queue.head = head;
-    }
+    fifoFillTxFifoFromBuffer();
 }
 
 bool fifoInit(void)
