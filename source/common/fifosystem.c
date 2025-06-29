@@ -101,7 +101,7 @@ static fifo_queue fifo_buffer_free = {0, FIFO_BUFFER_ENTRIES - 1};
 static fifo_queue fifo_send_queue = {FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
 static fifo_queue fifo_receive_queue = {FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
 
-static vu32 fifo_freewords = FIFO_BUFFER_ENTRIES;
+static vu32 fifo_freewords = FIFO_BUFFER_ENTRIES - 1;
 
 // Try to allocate a new block. If it fails, it returns FIFO_BUFFER_TERMINATE.
 // If not, it returns the index of the block it has just allocated.
