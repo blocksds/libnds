@@ -90,7 +90,8 @@ typedef struct fifo_queue
 {
     vu16 head;
     vu16 tail;
-} fifo_queue;
+}
+fifo_queue;
 
 static fifo_queue fifo_address_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_data_queue[FIFO_NUM_CHANNELS];
@@ -291,293 +292,27 @@ static void fifoFillTxFifoFromBuffer(void)
     fifo_send_queue.head = head;
 }
 
-static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
+// Get all available entries from the FIFO and save them in fifo_receive_queue
+// for processing.
+static void fifoFillBufferFromRxFifo(void)
 {
-    if (extrawordcount > 0 && wordlist == NULL)
-        return false;
-
-    if (extrawordcount > (FIFO_MAX_DATA_BYTES / 4))
-        return false;
-
-    int oldIME = enterCriticalSection();
-
-    // Check if there's enough space to send the whole message. If not, try to
-    // flush some words pending from the software queue into the hardware TX
-    // queue. If that doesn't free up enough space, give up.
-    if (fifo_freewords < extrawordcount + 1)
-    {
-        fifoFillTxFifoFromBuffer();
-
-        if (fifo_freewords < extrawordcount + 1)
-        {
-            leaveCriticalSection(oldIME);
-            return false;
-        }
-    }
-
-    u32 head = fifo_buffer_wait_block();
-    if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
-    {
-        fifo_send_queue.head = head;
-    }
-    else
-    {
-        FIFO_BUFFER_SETNEXT(fifo_send_queue.tail, head);
-    }
-    FIFO_BUFFER_DATA(head) = firstword;
-    fifo_send_queue.tail = head;
-
-    // Add the words we're trying to send to the software queue.
-
-    u32 count = 0;
-    while (count < extrawordcount)
-    {
-        // TODO: Try to write words directly in the hardware TX queue instead of
-        // adding them to the software queue and from there to the hardware
-        // queue.
-
-        u32 next = fifo_buffer_wait_block();
-        if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
-        {
-            fifo_send_queue.head = next;
-        }
-        else
-        {
-            FIFO_BUFFER_SETNEXT(fifo_send_queue.tail, next);
-        }
-        FIFO_BUFFER_DATA(next) = wordlist[count];
-        count++;
-        fifo_send_queue.tail = next;
-    }
-
-    // Start the transfer by adding some words from the software queue to the
-    // hardware queue.
-    fifoFillTxFifoFromBuffer();
-
-    leaveCriticalSection(oldIME);
-
-    return true;
-}
-
-// Send a special command to the other CPU
-bool fifoSendSpecialCommand(u32 cmd)
-{
-    return fifoInternalSend(fifo_ipc_pack_special_command_header(cmd), 0, 0);
-}
-
-// Send an address (from mainram only) to the other cpu (on a specific channel)
-// Addresses can be in the range of 0x02000000-0x02FFFFFF
-bool fifoSendAddress(u32 channel, void *address)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return false;
-
-    if (!fifo_ipc_is_address_compatible(address))
-        return false;
-
-    return fifoInternalSend(fifo_ipc_pack_address(channel, address), 0, 0);
-}
-
-bool fifoSendValue32(u32 channel, u32 value32)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return false;
-
-    u32 send_first, send_extra[1];
-
-    if (fifo_ipc_value32_needextra(value32))
-    {
-        // The value doesn't fit in just one 32-bit message
-        send_first = fifo_ipc_pack_value32_extra(channel);
-        send_extra[0] = value32;
-        return fifoInternalSend(send_first, 1, send_extra);
-    }
-    else
-    {
-        // The value fits in a 32-bit message
-        send_first = fifo_ipc_pack_value32(channel, value32);
-        return fifoInternalSend(send_first, 0, 0);
-    }
-}
-
-bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return false;
-
-    if (num_bytes == 0)
-    {
-        u32 send_first = fifo_ipc_pack_datamsg_header(channel, 0);
-        return fifoInternalSend(send_first, 0, NULL);
-    }
-
-    if (data_array == NULL)
-        return false;
-
-    if (num_bytes >= FIFO_MAX_DATA_BYTES) // TODO: Should this be ">"?
-        return false;
-
-    u32 num_words = (num_bytes + 3) >> 2;
-
-    u32 buffer_array[num_words]; // TODO: This is a VLA, remove?
-
-    if (fifo_freewords < num_words + 1)
-        return false;
-
-    buffer_array[num_words - 1] = 0; // Clear the last few bytes before the copy
-    memcpy(buffer_array, data_array, num_bytes);
-    u32 send_first = fifo_ipc_pack_datamsg_header(channel, num_bytes);
-    return fifoInternalSend(send_first, num_words, buffer_array);
-}
-
-void *fifoGetAddress(u32 channel)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return NULL;
-
-    int block = fifo_address_queue[channel].head;
-    if (block == FIFO_BUFFER_TERMINATE)
-        return NULL;
-
-    int oldIME = enterCriticalSection();
-    void *address = (void *)FIFO_BUFFER_DATA(block);
-    fifo_address_queue[channel].head = FIFO_BUFFER_GETNEXT(block);
-    fifo_buffer_free_block(block);
-    leaveCriticalSection(oldIME);
-    return address;
-}
-
-u32 fifoGetValue32(u32 channel)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return 0;
-
-    int block = fifo_value32_queue[channel].head;
-    if (block == FIFO_BUFFER_TERMINATE)
-        return 0;
-
-    int oldIME = enterCriticalSection();
-    u32 value32 = FIFO_BUFFER_DATA(block);
-    fifo_value32_queue[channel].head = FIFO_BUFFER_GETNEXT(block);
-    fifo_buffer_free_block(block);
-    leaveCriticalSection(oldIME);
-    return value32;
-}
-
-// This function gets a data message from the queue of a channel and saves it to
-// the buffer provided by the user. If the buffer size is smaller than the
-// message, the function copies as much data as possible and deletes the message
-// from the queue. It is also possible to pass 0 as size to delete the message
-// from the queue. Use fifoCheckDatamsgLength() to determine the size before
-// calling fifoGetDatamsg().
-int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return -1;
-
-    int block = fifo_data_queue[channel].head;
-    if (block == FIFO_BUFFER_TERMINATE)
-        return -1;
-
-    int oldIME = enterCriticalSection();
-
-    int num_bytes = FIFO_BUFFER_GETEXTRA(block);
-    int num_words = (num_bytes + 3) >> 2;
-
-    int copied_bytes = 0;
-
-    for (int i = 0; i < num_words; i++)
-    {
-        u32 data = FIFO_BUFFER_DATA(block);
-
-        for (int j = 0; j < 4; j++)
-        {
-            if (copied_bytes < buffersize)
-            {
-                *destbuffer++ = data & 0xFF;
-                data = data >> 8;
-                copied_bytes++;
-            }
-        }
-
-        int next = FIFO_BUFFER_GETNEXT(block);
-        fifo_buffer_free_block(block);
-        block = next;
-        if (block == FIFO_BUFFER_TERMINATE)
-            break;
-    }
-    fifo_data_queue[channel].head = block;
-
-    leaveCriticalSection(oldIME);
-
-    return copied_bytes;
-}
-
-bool fifoCheckAddress(u32 channel)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return false;
-
-    return fifo_address_queue[channel].head != FIFO_BUFFER_TERMINATE;
-}
-
-bool fifoCheckDatamsg(u32 channel)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return false;
-
-    return fifo_data_queue[channel].head != FIFO_BUFFER_TERMINATE;
-}
-
-int fifoCheckDatamsgLength(u32 channel)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return -1;
-
-    if (!fifoCheckDatamsg(channel))
-        return -1;
-
-    int block = fifo_data_queue[channel].head;
-    return FIFO_BUFFER_GETEXTRA(block);
-}
-
-bool fifoCheckValue32(u32 channel)
-{
-    if (channel >= FIFO_NUM_CHANNELS)
-        return false;
-
-    return fifo_value32_queue[channel].head != FIFO_BUFFER_TERMINATE;
-}
-
-static volatile int processing = 0;
-
-static void fifoInternalRecvInterrupt(void)
-{
-    // Get all available entries from the FIFO and save them in
-    // fifo_receive_queue for processing.
     while (!(REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY))
     {
         u32 block = fifo_buffer_alloc_block();
 
-        // If there is no more space in fifo_buffer, stop saving blocks and
-        // start processing them.
+        // There is no more space in fifo_buffer, stop saving blocks until some
+        // of them get processed.
         if (block == FIFO_BUFFER_TERMINATE)
             break;
 
         FIFO_BUFFER_DATA(block) = REG_IPC_FIFO_RX;
+
         fifo_buffer_enqueue_block(&fifo_receive_queue, block, block);
     }
+}
 
-    // This interrupt handler can be nested. This check makes sure that there is
-    // only one level of nesting, and that the nested handler can only read data
-    // from the IPC registers and save it to the FIFO receive queue. The
-    // processing will happen in the non-nested handler when the nested handler
-    // finishes.
-    if (processing)
-        return;
-
-    processing = 1;
-
+static void fifoProcessRxBuffer(void)
+{
     while (fifo_receive_queue.head != FIFO_BUFFER_TERMINATE)
     {
         u32 block = fifo_receive_queue.head;
@@ -721,8 +456,331 @@ static void fifoInternalRecvInterrupt(void)
             fifo_buffer_free_block(block);
         }
     }
+}
 
-    processing = 0;
+static volatile bool fifo_rx_processing = false;
+
+static void fifoReadRxFifoAndProcessBuffer(void)
+{
+    fifoFillBufferFromRxFifo();
+
+    // This handler can be nested. This check makes sure that there is
+    // only one level of nesting, and that the nested handler can only read data
+    // from the IPC registers and save it to the FIFO receive queue. The
+    // processing will happen in the non-nested handler when the nested handler
+    // finishes.
+    if (fifo_rx_processing)
+        return;
+
+    fifo_rx_processing = true;
+
+    fifoProcessRxBuffer();
+
+    fifo_rx_processing = false;
+}
+
+static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
+{
+    if (extrawordcount > 0 && wordlist == NULL)
+        return false;
+
+    if (extrawordcount > (FIFO_MAX_DATA_BYTES / 4))
+        return false;
+
+    int oldIME = enterCriticalSection();
+
+    // Check if there's enough space to send the whole message. If not, try to
+    // flush some words pending from the software queue into the hardware TX
+    // queue. If that doesn't free up enough space, give up.
+    if (fifo_freewords < extrawordcount + 1)
+    {
+        fifoFillTxFifoFromBuffer();
+
+        if (fifo_freewords < extrawordcount + 1)
+        {
+            leaveCriticalSection(oldIME);
+            return false;
+        }
+    }
+
+    u32 head = fifo_buffer_wait_block();
+    if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
+    {
+        fifo_send_queue.head = head;
+    }
+    else
+    {
+        FIFO_BUFFER_SETNEXT(fifo_send_queue.tail, head);
+    }
+    FIFO_BUFFER_DATA(head) = firstword;
+    fifo_send_queue.tail = head;
+
+    // Add the words we're trying to send to the software queue.
+
+    u32 count = 0;
+    while (count < extrawordcount)
+    {
+        // TODO: Try to write words directly in the hardware TX queue instead of
+        // adding them to the software queue and from there to the hardware
+        // queue.
+
+        u32 next = fifo_buffer_wait_block();
+        if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
+        {
+            fifo_send_queue.head = next;
+        }
+        else
+        {
+            FIFO_BUFFER_SETNEXT(fifo_send_queue.tail, next);
+        }
+        FIFO_BUFFER_DATA(next) = wordlist[count];
+        count++;
+        fifo_send_queue.tail = next;
+    }
+
+    // Start the transfer by adding some words from the software queue to the
+    // hardware queue.
+    fifoFillTxFifoFromBuffer();
+
+    leaveCriticalSection(oldIME);
+
+    return true;
+}
+
+// Send a special command to the other CPU
+bool fifoSendSpecialCommand(u32 cmd)
+{
+    return fifoInternalSend(fifo_ipc_pack_special_command_header(cmd), 0, 0);
+}
+
+// Send an address (from mainram only) to the other cpu (on a specific channel)
+// Addresses can be in the range of 0x02000000-0x02FFFFFF
+bool fifoSendAddress(u32 channel, void *address)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    if (!fifo_ipc_is_address_compatible(address))
+        return false;
+
+    return fifoInternalSend(fifo_ipc_pack_address(channel, address), 0, 0);
+}
+
+bool fifoSendValue32(u32 channel, u32 value32)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    u32 send_first, send_extra[1];
+
+    if (fifo_ipc_value32_needextra(value32))
+    {
+        // The value doesn't fit in just one 32-bit message
+        send_first = fifo_ipc_pack_value32_extra(channel);
+        send_extra[0] = value32;
+        return fifoInternalSend(send_first, 1, send_extra);
+    }
+    else
+    {
+        // The value fits in a 32-bit message
+        send_first = fifo_ipc_pack_value32(channel, value32);
+        return fifoInternalSend(send_first, 0, 0);
+    }
+}
+
+bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    if (num_bytes == 0)
+    {
+        u32 send_first = fifo_ipc_pack_datamsg_header(channel, 0);
+        return fifoInternalSend(send_first, 0, NULL);
+    }
+
+    if (data_array == NULL)
+        return false;
+
+    if (num_bytes >= FIFO_MAX_DATA_BYTES) // TODO: Should this be ">"?
+        return false;
+
+    u32 num_words = (num_bytes + 3) >> 2;
+
+    // Early check. fifoInternalSend() will do another check, but this one will
+    // save us time from preparing buffer_array[].
+    if (fifo_freewords < num_words + 1)
+        return false;
+
+    u32 buffer_array[num_words]; // TODO: This is a VLA, remove?
+    // Clear the last few bytes before the copy. The rest of the array will be
+    // overwritten by memcpy().
+    buffer_array[num_words - 1] = 0;
+    memcpy(buffer_array, data_array, num_bytes);
+
+    u32 send_first = fifo_ipc_pack_datamsg_header(channel, num_bytes);
+
+    return fifoInternalSend(send_first, num_words, buffer_array);
+}
+
+void *fifoGetAddress(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return NULL;
+
+    void *address = NULL;
+
+    int oldIME = enterCriticalSection();
+
+    int block = fifo_address_queue[channel].head;
+    if (block == FIFO_BUFFER_TERMINATE)
+    {
+        fifoReadRxFifoAndProcessBuffer();
+
+        if (block == FIFO_BUFFER_TERMINATE)
+            goto exit;
+    }
+
+    address = (void *)FIFO_BUFFER_DATA(block);
+    fifo_address_queue[channel].head = FIFO_BUFFER_GETNEXT(block);
+    fifo_buffer_free_block(block);
+
+    fifoReadRxFifoAndProcessBuffer();
+
+exit:
+    leaveCriticalSection(oldIME);
+    return address;
+}
+
+u32 fifoGetValue32(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return 0;
+
+    u32 value32 = 0;
+
+    int oldIME = enterCriticalSection();
+
+    int block = fifo_value32_queue[channel].head;
+    if (block == FIFO_BUFFER_TERMINATE)
+    {
+        fifoReadRxFifoAndProcessBuffer();
+
+        if (block == FIFO_BUFFER_TERMINATE)
+            goto exit;
+    }
+
+    value32 = FIFO_BUFFER_DATA(block);
+    fifo_value32_queue[channel].head = FIFO_BUFFER_GETNEXT(block);
+    fifo_buffer_free_block(block);
+
+    fifoReadRxFifoAndProcessBuffer();
+
+exit:
+    leaveCriticalSection(oldIME);
+    return value32;
+}
+
+// This function gets a data message from the queue of a channel and saves it to
+// the buffer provided by the user. If the buffer size is smaller than the
+// message, the function copies as much data as possible and deletes the message
+// from the queue. It is also possible to pass 0 as size to delete the message
+// from the queue. Use fifoCheckDatamsgLength() to determine the size before
+// calling fifoGetDatamsg().
+int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return -1;
+
+    int oldIME = enterCriticalSection();
+
+    int block = fifo_data_queue[channel].head;
+    if (block == FIFO_BUFFER_TERMINATE)
+    {
+        fifoReadRxFifoAndProcessBuffer();
+
+        if (block == FIFO_BUFFER_TERMINATE)
+        {
+            leaveCriticalSection(oldIME);
+            return -1;
+        }
+    }
+
+    int num_bytes = FIFO_BUFFER_GETEXTRA(block);
+    int num_words = (num_bytes + 3) >> 2;
+
+    int copied_bytes = 0;
+
+    for (int i = 0; i < num_words; i++)
+    {
+        u32 data = FIFO_BUFFER_DATA(block);
+
+        for (int j = 0; j < 4; j++)
+        {
+            if (copied_bytes < buffersize)
+            {
+                *destbuffer++ = data & 0xFF;
+                data = data >> 8;
+                copied_bytes++;
+            }
+        }
+
+        int next = FIFO_BUFFER_GETNEXT(block);
+        fifo_buffer_free_block(block);
+        block = next;
+        if (block == FIFO_BUFFER_TERMINATE)
+            break;
+    }
+    fifo_data_queue[channel].head = block;
+
+    fifoReadRxFifoAndProcessBuffer();
+
+    leaveCriticalSection(oldIME);
+
+    return copied_bytes;
+}
+
+bool fifoCheckAddress(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    return fifo_address_queue[channel].head != FIFO_BUFFER_TERMINATE;
+}
+
+bool fifoCheckDatamsg(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    return fifo_data_queue[channel].head != FIFO_BUFFER_TERMINATE;
+}
+
+int fifoCheckDatamsgLength(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return -1;
+
+    if (!fifoCheckDatamsg(channel))
+        return -1;
+
+    int block = fifo_data_queue[channel].head;
+    return FIFO_BUFFER_GETEXTRA(block);
+}
+
+bool fifoCheckValue32(u32 channel)
+{
+    if (channel >= FIFO_NUM_CHANNELS)
+        return false;
+
+    return fifo_value32_queue[channel].head != FIFO_BUFFER_TERMINATE;
+}
+
+// This interrupt is called whenever the RX FIFO hardware registers have words
+// ready to be read.
+static void fifoInternalRecvInterrupt(void)
+{
+    fifoReadRxFifoAndProcessBuffer();
 }
 
 // This interrupt handler is called when the TX FIFO hardware registers become
