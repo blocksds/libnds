@@ -2,7 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2008-2015 Dave Murphy (WinterMute)
-// Copyright (C) 2023 Antonio Niño Díaz
+// Copyright (C) 2023-2025 Antonio Niño Díaz
 
 #include <stdlib.h>
 #include <string.h>
@@ -628,26 +628,21 @@ void *fifoGetAddress(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return NULL;
 
-    void *address = NULL;
-
     int oldIME = enterCriticalSection();
 
     int block = fifo_address_queue[channel].head;
     if (block == FIFO_BUFFER_TERMINATE)
     {
-        fifoReadRxFifoAndProcessBuffer();
-
-        if (block == FIFO_BUFFER_TERMINATE)
-            goto exit;
+        leaveCriticalSection(oldIME);
+        return NULL;
     }
 
-    address = (void *)FIFO_BUFFER_DATA(block);
+    void *address = (void *)FIFO_BUFFER_DATA(block);
     fifo_address_queue[channel].head = FIFO_BUFFER_GETNEXT(block);
     fifo_buffer_free_block(block);
 
     fifoReadRxFifoAndProcessBuffer();
 
-exit:
     leaveCriticalSection(oldIME);
     return address;
 }
@@ -657,26 +652,21 @@ u32 fifoGetValue32(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return 0;
 
-    u32 value32 = 0;
-
     int oldIME = enterCriticalSection();
 
     int block = fifo_value32_queue[channel].head;
     if (block == FIFO_BUFFER_TERMINATE)
     {
-        fifoReadRxFifoAndProcessBuffer();
-
-        if (block == FIFO_BUFFER_TERMINATE)
-            goto exit;
+        leaveCriticalSection(oldIME);
+        return 0;
     }
 
-    value32 = FIFO_BUFFER_DATA(block);
+    u32 value32 = FIFO_BUFFER_DATA(block);
     fifo_value32_queue[channel].head = FIFO_BUFFER_GETNEXT(block);
     fifo_buffer_free_block(block);
 
     fifoReadRxFifoAndProcessBuffer();
 
-exit:
     leaveCriticalSection(oldIME);
     return value32;
 }
@@ -697,13 +687,8 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
     int block = fifo_data_queue[channel].head;
     if (block == FIFO_BUFFER_TERMINATE)
     {
-        fifoReadRxFifoAndProcessBuffer();
-
-        if (block == FIFO_BUFFER_TERMINATE)
-        {
-            leaveCriticalSection(oldIME);
-            return -1;
-        }
+        leaveCriticalSection(oldIME);
+        return -1;
     }
 
     int num_bytes = FIFO_BUFFER_GETEXTRA(block);
@@ -745,6 +730,10 @@ bool fifoCheckAddress(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
+    int oldIME = enterCriticalSection();
+    fifoReadRxFifoAndProcessBuffer();
+    leaveCriticalSection(oldIME);
+
     return fifo_address_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
 
@@ -753,6 +742,10 @@ bool fifoCheckDatamsg(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
+    int oldIME = enterCriticalSection();
+    fifoReadRxFifoAndProcessBuffer();
+    leaveCriticalSection(oldIME);
+
     return fifo_data_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
 
@@ -760,6 +753,10 @@ int fifoCheckDatamsgLength(u32 channel)
 {
     if (channel >= FIFO_NUM_CHANNELS)
         return -1;
+
+    int oldIME = enterCriticalSection();
+    fifoReadRxFifoAndProcessBuffer();
+    leaveCriticalSection(oldIME);
 
     if (!fifoCheckDatamsg(channel))
         return -1;
@@ -772,6 +769,10 @@ bool fifoCheckValue32(u32 channel)
 {
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
+
+    int oldIME = enterCriticalSection();
+    fifoReadRxFifoAndProcessBuffer();
+    leaveCriticalSection(oldIME);
 
     return fifo_value32_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
