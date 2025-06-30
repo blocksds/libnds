@@ -9,6 +9,7 @@
 
 #include <nds/bios.h>
 #include <nds/cothread.h>
+#include <nds/exceptions.h>
 #include <nds/fifocommon.h>
 #include <nds/interrupts.h>
 #include <nds/ipc.h>
@@ -351,6 +352,10 @@ static void fifoProcessRxBuffer(void)
                 swiSoftReset();
             }
 #endif
+
+            // Special commands are supposed to be used internally by libnds.
+            // Receiving an unknown command is a fatal error.
+            libndsCrash("Unknown FIFO command");
         }
         else if (fifo_msg_type_is_address(data))
         {
