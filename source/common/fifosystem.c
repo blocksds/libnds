@@ -55,6 +55,8 @@
 // FIFO_BUFFER_ENTRIES * 8 bytes of global buffer space
 static vu32 fifo_buffer[FIFO_BUFFER_ENTRIES * 2];
 
+static vu32 fifo_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
+
 #define FIFO_BUFFERCONTROL_UNUSED       0
 #define FIFO_BUFFERCONTROL_DATASTART    5
 
@@ -101,19 +103,18 @@ static fifo_queue fifo_buffer_free = {0, FIFO_BUFFER_ENTRIES - 1};
 static fifo_queue fifo_send_queue = {FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
 static fifo_queue fifo_receive_queue = {FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
 
-static vu32 fifo_freewords = FIFO_BUFFER_ENTRIES - 1;
 
 // Try to allocate a new block. If it fails, it returns FIFO_BUFFER_TERMINATE.
 // If not, it returns the index of the block it has just allocated.
 static u32 fifo_buffer_alloc_block(void)
 {
-    if (fifo_freewords == 0)
+    if (fifo_buffer_free_words == 0)
         return FIFO_BUFFER_TERMINATE;
 
     u32 entry = fifo_buffer_free.head;
     fifo_buffer_free.head = FIFO_BUFFER_GETNEXT(fifo_buffer_free.head);
     FIFO_BUFFER_SETCONTROL(entry, FIFO_BUFFER_TERMINATE, FIFO_BUFFERCONTROL_UNUSED, 0);
-    fifo_freewords--;
+    fifo_buffer_free_words--;
     return entry;
 }
 
@@ -140,7 +141,7 @@ static void fifo_buffer_free_block(u32 index)
     FIFO_BUFFER_SETCONTROL(index, FIFO_BUFFER_TERMINATE, FIFO_BUFFERCONTROL_UNUSED, 0);
     FIFO_BUFFER_SETCONTROL(fifo_buffer_free.tail, index, FIFO_BUFFERCONTROL_UNUSED, 0);
     fifo_buffer_free.tail = index;
-    fifo_freewords++;
+    fifo_buffer_free_words++;
 }
 
 // Adds a list of blocks from the FIFO buffer to a queue.
@@ -495,11 +496,11 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     // Check if there's enough space to send the whole message. If not, try to
     // flush some words pending from the software queue into the hardware TX
     // queue. If that doesn't free up enough space, give up.
-    if (fifo_freewords < extrawordcount + 1)
+    if (fifo_buffer_free_words < extrawordcount + 1)
     {
         fifoFillTxFifoFromBuffer();
 
-        if (fifo_freewords < extrawordcount + 1)
+        if (fifo_buffer_free_words < extrawordcount + 1)
         {
             leaveCriticalSection(oldIME);
             return false;
@@ -612,7 +613,7 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
 
     // Early check. fifoInternalSend() will do another check, but this one will
     // save us time from preparing buffer_array[].
-    if (fifo_freewords < num_words + 1)
+    if (fifo_buffer_free_words < num_words + 1)
         return false;
 
     u32 buffer_array[num_words]; // TODO: This is a VLA, remove?
