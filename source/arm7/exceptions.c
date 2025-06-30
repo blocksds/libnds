@@ -17,7 +17,7 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
-#include "common/fifo_ipc_messages.h"
+#include "common/fifo_messages_helpers.h"
 #include "common/libnds_internal.h"
 
 __attribute__((noreturn))
@@ -125,7 +125,7 @@ void guruMeditationDump(void)
     while (REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL)
         ;
 
-    REG_IPC_FIFO_TX = fifo_ipc_pack_value32(FIFO_SYSTEM, SYS_ARM7_CRASH);
+    REG_IPC_FIFO_TX = fifo_msg_value32_pack(FIFO_SYSTEM, SYS_ARM7_CRASH);
 
     // We can't make any assumption about what happened before an exception. It
     // may have happened when dereferencing a NULL pointer before doing any
@@ -184,7 +184,7 @@ static void releaseCrashHandler(void)
     while (REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL)
         ;
 
-    REG_IPC_FIFO_TX = fifo_ipc_pack_value32(FIFO_SYSTEM, SYS_ARM7_CRASH);
+    REG_IPC_FIFO_TX = fifo_msg_value32_pack(FIFO_SYSTEM, SYS_ARM7_CRASH);
 
     while (1)
         swiWaitForVBlank();

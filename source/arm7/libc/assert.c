@@ -8,7 +8,7 @@
 #include <nds/interrupts.h>
 #include <nds/ipc.h>
 
-#include "common/fifo_ipc_messages.h"
+#include "common/fifo_messages_helpers.h"
 #include "common/libnds_internal.h"
 
 // This is called by assert() from picolibc
@@ -45,7 +45,7 @@ void __assert_func(const char *file, int line, const char *func,
     while (REG_IPC_FIFO_CR & IPC_FIFO_SEND_FULL)
         ;
 
-    REG_IPC_FIFO_TX = fifo_ipc_pack_value32(FIFO_SYSTEM, SYS_ARM7_ASSERTION);
+    REG_IPC_FIFO_TX = fifo_msg_value32_pack(FIFO_SYSTEM, SYS_ARM7_ASSERTION);
 
     // We can't make any assumption about what happened before an assertion, so
     // it's better to just hang.

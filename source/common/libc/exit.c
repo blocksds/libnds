@@ -15,7 +15,7 @@
 #else
 #include "arm7/libnds_internal.h"
 #endif
-#include "common/fifo_ipc_messages.h"
+#include "common/fifo_messages_helpers.h"
 #include "common/libnds_internal.h"
 
 extern char *fake_heap_end;

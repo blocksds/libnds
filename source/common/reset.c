@@ -8,7 +8,7 @@
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
-#include "fifo_ipc_messages.h"
+#include "fifo_messages_helpers.h"
 
 static void resetSync(void)
 {
