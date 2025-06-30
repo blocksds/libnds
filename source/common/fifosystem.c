@@ -296,8 +296,11 @@ static void fifoFillTxFifoFromBuffer(void)
 // for processing.
 static void fifoFillBufferFromRxFifo(void)
 {
-    while (!(REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY))
+    while (1)
     {
+        if (REG_IPC_FIFO_CR & IPC_FIFO_RECV_EMPTY)
+            break;
+
         u32 block = fifo_buffer_alloc_block();
 
         // There is no more space in fifo_buffer, stop saving blocks until some
@@ -808,10 +811,13 @@ bool fifoInit(void)
         fifo_value32_queue[i].head = FIFO_BUFFER_TERMINATE;
         fifo_value32_queue[i].tail = FIFO_BUFFER_TERMINATE;
 
-        fifo_address_data[i] = fifo_value32_data[i] = fifo_datamsg_data[i] = 0;
-        fifo_address_func[i] = 0;
-        fifo_value32_func[i] = 0;
-        fifo_datamsg_func[i] = 0;
+        fifo_address_data[i] = NULL;
+        fifo_value32_data[i] = NULL;
+        fifo_datamsg_data[i] = NULL;
+
+        fifo_address_func[i] = NULL;
+        fifo_value32_func[i] = NULL;
+        fifo_datamsg_func[i] = NULL;
     }
 
     for (int i = 0; i < FIFO_BUFFER_ENTRIES - 1; i++)
