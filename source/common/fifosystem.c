@@ -108,7 +108,6 @@ static u32 fifo_buffer_alloc_block(void)
     u32 entry = fifo_buffer_free.head;
     fifo_buffer_free.head = FIFO_BUFFER_GETNEXT(fifo_buffer_free.head);
     FIFO_BUFFER_SETNEXT(entry, FIFO_BUFFER_TERMINATE);
-    FIFO_BUFFER_SETEXTRA(entry, 0);
     global_buffer_free_words--;
     return entry;
 }
@@ -137,7 +136,6 @@ static void fifo_buffer_free_block(u32 index)
     FIFO_BUFFER_SETEXTRA(index, 0);
 
     FIFO_BUFFER_SETNEXT(fifo_buffer_free.tail, index);
-    FIFO_BUFFER_SETEXTRA(fifo_buffer_free.tail, 0);
 
     fifo_buffer_free.tail = index;
     global_buffer_free_words++;
