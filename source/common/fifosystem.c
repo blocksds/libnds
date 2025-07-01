@@ -42,18 +42,16 @@
 // Global FIFO buffer
 // ------------------
 
-#define FIFO_BUFFERCONTROL_UNUSED       0
-#define FIFO_BUFFERCONTROL_DATASTART    5
-
 typedef struct
 {
-    u16 extra : 12;  // Used for data messages. Size in bytes of data.
-    u16 control : 4; // FIFO_BUFFERCONTROL_UNUSED/DATASTART
-
-    // Index of next block in the list. If "Next == FIFO_BUFFER_TERMINATE" it
-    // means that is the end of the list.
+    // Index of next block in the list. If it's equal to FIFO_BUFFER_TERMINATE"
+    // it means that this is the end of the list.
     u16 next;
 
+    // Used for data messages. Size of the message in bytes.
+    u16 extra;
+
+    // Useful data kept in this entry.
     u32 data;
 }
 PACKED global_fifo_buffer;
@@ -65,12 +63,14 @@ static vu32 global_buffer_free_words;
 #define FIFO_BUFFER_DATA(index) \
     global_buffer[index].data
 
-// Mask used to extract the index in global_buffer[] of the next block
-#define FIFO_BUFFER_NEXTMASK    0xFFFF
-
 static inline u32 FIFO_BUFFER_GETNEXT(u32 index)
 {
     return global_buffer[index].next;
+}
+
+static inline void FIFO_BUFFER_SETNEXT(u32 index, u32 next)
+{
+    global_buffer[index].next = next;
 }
 
 static inline u32 FIFO_BUFFER_GETEXTRA(u32 index)
@@ -78,16 +78,9 @@ static inline u32 FIFO_BUFFER_GETEXTRA(u32 index)
     return global_buffer[index].extra;
 }
 
-static inline void FIFO_BUFFER_SETCONTROL(u32 index, u32 next, u32 control, u32 extra)
+static inline void FIFO_BUFFER_SETEXTRA(u32 index, u32 extra)
 {
-    global_buffer[index].next = next;
-    global_buffer[index].control = control;
     global_buffer[index].extra = extra;
-}
-
-static inline void FIFO_BUFFER_SETNEXT(u32 index, u32 next)
-{
-    global_buffer[index].next = next;
 }
 
 typedef struct fifo_queue
@@ -114,7 +107,8 @@ static u32 fifo_buffer_alloc_block(void)
 
     u32 entry = fifo_buffer_free.head;
     fifo_buffer_free.head = FIFO_BUFFER_GETNEXT(fifo_buffer_free.head);
-    FIFO_BUFFER_SETCONTROL(entry, FIFO_BUFFER_TERMINATE, FIFO_BUFFERCONTROL_UNUSED, 0);
+    FIFO_BUFFER_SETNEXT(entry, FIFO_BUFFER_TERMINATE);
+    FIFO_BUFFER_SETEXTRA(entry, 0);
     global_buffer_free_words--;
     return entry;
 }
@@ -139,8 +133,12 @@ static u32 fifo_buffer_wait_block(void)
 // Frees the specified block.
 static void fifo_buffer_free_block(u32 index)
 {
-    FIFO_BUFFER_SETCONTROL(index, FIFO_BUFFER_TERMINATE, FIFO_BUFFERCONTROL_UNUSED, 0);
-    FIFO_BUFFER_SETCONTROL(fifo_buffer_free.tail, index, FIFO_BUFFERCONTROL_UNUSED, 0);
+    FIFO_BUFFER_SETNEXT(index, FIFO_BUFFER_TERMINATE);
+    FIFO_BUFFER_SETEXTRA(index, 0);
+
+    FIFO_BUFFER_SETNEXT(fifo_buffer_free.tail, index);
+    FIFO_BUFFER_SETEXTRA(fifo_buffer_free.tail, 0);
+
     fifo_buffer_free.tail = index;
     global_buffer_free_words++;
 }
@@ -437,8 +435,7 @@ static void fifoProcessRxBuffer(void)
             int tmp = FIFO_BUFFER_GETNEXT(block);
             fifo_buffer_free_block(block);
 
-            FIFO_BUFFER_SETCONTROL(tmp, FIFO_BUFFER_GETNEXT(tmp),
-                                   FIFO_BUFFERCONTROL_DATASTART, n_bytes);
+            FIFO_BUFFER_SETEXTRA(tmp, n_bytes);
 
             fifo_buffer_enqueue_block(&fifo_data_queue[channel], tmp, end);
             if (fifo_datamsg_func[channel])
@@ -833,12 +830,13 @@ bool fifoInit(void)
     for (int i = 0; i < FIFO_BUFFER_ENTRIES - 1; i++)
     {
         FIFO_BUFFER_DATA(i) = 0;
-        FIFO_BUFFER_SETCONTROL(i, i + 1, FIFO_BUFFERCONTROL_UNUSED, 0);
+        FIFO_BUFFER_SETNEXT(i, i + 1);
+        FIFO_BUFFER_SETEXTRA(i, 0);
     }
 
     FIFO_BUFFER_DATA(FIFO_BUFFER_ENTRIES - 1) = 0;
-    FIFO_BUFFER_SETCONTROL(FIFO_BUFFER_ENTRIES - 1, FIFO_BUFFER_TERMINATE,
-                           FIFO_BUFFERCONTROL_UNUSED, 0);
+    FIFO_BUFFER_SETNEXT(FIFO_BUFFER_ENTRIES - 1, FIFO_BUFFER_TERMINATE);
+    FIFO_BUFFER_SETEXTRA(FIFO_BUFFER_ENTRIES - 1, 0);
 
     global_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
 
