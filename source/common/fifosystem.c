@@ -60,7 +60,7 @@ PACKED global_fifo_buffer;
 
 static global_fifo_buffer global_buffer[FIFO_BUFFER_ENTRIES];
 
-static vu32 global_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
+static vu32 global_buffer_free_words;
 
 #define FIFO_BUFFER_DATA(index) \
     global_buffer[index].data
@@ -101,9 +101,9 @@ static fifo_queue fifo_address_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_data_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_value32_queue[FIFO_NUM_CHANNELS];
 
-static fifo_queue fifo_buffer_free = {0, FIFO_BUFFER_ENTRIES - 1};
-static fifo_queue fifo_send_queue = {FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
-static fifo_queue fifo_receive_queue = {FIFO_BUFFER_TERMINATE, FIFO_BUFFER_TERMINATE};
+static fifo_queue fifo_buffer_free;
+static fifo_queue fifo_send_queue;
+static fifo_queue fifo_receive_queue;
 
 // Try to allocate a new block. If it fails, it returns FIFO_BUFFER_TERMINATE.
 // If not, it returns the index of the block it has just allocated.
@@ -806,6 +806,7 @@ bool fifoInit(void)
     // Clear all the words that were being sent to the other CPU
     REG_IPC_FIFO_CR = IPC_FIFO_SEND_CLEAR;
 
+    // Configure individual queues for each FIFO channel. Mark them as empty.
     for (int i = 0; i < FIFO_NUM_CHANNELS; i++)
     {
         fifo_address_queue[i].head = FIFO_BUFFER_TERMINATE;
@@ -826,15 +827,33 @@ bool fifoInit(void)
         fifo_datamsg_func[i] = NULL;
     }
 
+    // Configure all the global buffer as empty. All entries are unused. Also,
+    // all of them point to the next entry except for the last one, which
+    // terminates the queue.
     for (int i = 0; i < FIFO_BUFFER_ENTRIES - 1; i++)
     {
         FIFO_BUFFER_DATA(i) = 0;
-        FIFO_BUFFER_SETCONTROL(i, i + 1, 0, 0);
+        FIFO_BUFFER_SETCONTROL(i, i + 1, FIFO_BUFFERCONTROL_UNUSED, 0);
     }
 
+    FIFO_BUFFER_DATA(FIFO_BUFFER_ENTRIES - 1) = 0;
     FIFO_BUFFER_SETCONTROL(FIFO_BUFFER_ENTRIES - 1, FIFO_BUFFER_TERMINATE,
                            FIFO_BUFFERCONTROL_UNUSED, 0);
 
+    global_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
+
+    // Setup the queue of free entries to span the whole queue
+    fifo_buffer_free.head = 0;
+    fifo_buffer_free.tail = FIFO_BUFFER_ENTRIES - 1;
+
+    // Set the send and receive queues as empty
+    fifo_send_queue.head = FIFO_BUFFER_TERMINATE;
+    fifo_send_queue.tail = FIFO_BUFFER_TERMINATE;
+
+    fifo_receive_queue.head = FIFO_BUFFER_TERMINATE;
+    fifo_receive_queue.tail = FIFO_BUFFER_TERMINATE;
+
+    // Setup interrupt handlers
     irqSet(IRQ_SEND_FIFO, fifoInternalSendInterrupt);
     irqSet(IRQ_RECV_FIFO, fifoInternalRecvInterrupt);
     REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
