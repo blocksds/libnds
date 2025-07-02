@@ -88,10 +88,24 @@ static u32 fifo_buffer_alloc_block(void)
     if (global_buffer_free_words == 0)
         return FIFO_BUFFER_TERMINATE;
 
-    u32 entry = fifo_buffer_free.head;
-    fifo_buffer_free.head = FIFO_BUFFER_NEXT(fifo_buffer_free.head);
-    FIFO_BUFFER_NEXT(entry) = FIFO_BUFFER_TERMINATE;
     global_buffer_free_words--;
+
+    // Return the first entry in the free blocks queue
+    u32 entry = fifo_buffer_free.head;
+
+    // We're going to use the first entry in the queue for the new block, so
+    // move the head of the free blocks queue to the next entry in the queue.
+    fifo_buffer_free.head = FIFO_BUFFER_NEXT(entry);
+
+    // This function can't recreate the queue from scratch if its last entry
+    // disappears. global_buffer_free_words should ensure that this never
+    // happens, but this assert() is here to double-check that in debug builds.
+    assert(entry != FIFO_BUFFER_TERMINATE);
+
+    // The newly allocated block will be added to the end of some other queue,
+    // so mark it as the end of a queue.
+    FIFO_BUFFER_NEXT(entry) = FIFO_BUFFER_TERMINATE;
+
     return entry;
 }
 
@@ -115,27 +129,38 @@ static u32 fifo_buffer_wait_block(void)
 // Frees the specified block.
 static void fifo_buffer_free_block(u32 index)
 {
+    // Mark this block as the end of the queue
     FIFO_BUFFER_NEXT(index) = FIFO_BUFFER_TERMINATE;
     FIFO_BUFFER_EXTRA(index) = 0;
 
+    // Make the previous end of the queue point to the new end of the queue
     FIFO_BUFFER_NEXT(fifo_buffer_free.tail) = index;
 
+    // Update pointer to the end of the queue
     fifo_buffer_free.tail = index;
+
     global_buffer_free_words++;
 }
 
 // Adds a list of blocks from the FIFO buffer to a queue.
 static void fifo_queue_append_list(fifo_queue *queue, int head, int tail)
 {
+    // Mark the end of the provided list as the end of the queue
     FIFO_BUFFER_NEXT(tail) = FIFO_BUFFER_TERMINATE;
+
     if (queue->head == FIFO_BUFFER_TERMINATE)
     {
+        // If the FIFO queue is empty, create it from scratch
         queue->head = head;
         queue->tail = tail;
     }
     else
     {
+        // If the FIFO queue wasn't empty, make the old tail point to the
+        // user-provided head.
         FIFO_BUFFER_NEXT(queue->tail) = head;
+
+        // Update pointer to the end of the user-provided queue
         queue->tail = tail;
     }
 }
