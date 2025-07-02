@@ -819,6 +819,11 @@ bool fifoInit(void)
     FIFO_BUFFER_NEXT(FIFO_BUFFER_ENTRIES - 1) = FIFO_BUFFER_TERMINATE;
     FIFO_BUFFER_EXTRA(FIFO_BUFFER_ENTRIES - 1) = 0;
 
+    // Functions fifo_buffer_alloc_block() and fifo_buffer_free_block() can't
+    // setup fifo_buffer_free.head and fifo_buffer_free.tail once the last entry
+    // in the queue disappears. It's important to pretend that the buffer has
+    // one fewer entry than it really has so that the queue never disappears,
+    // simplifying the allocation/free code.
     global_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
 
     // Setup the queue of free entries to span the whole queue
