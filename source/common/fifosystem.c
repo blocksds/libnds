@@ -77,6 +77,9 @@ static vu32 global_pool_free_words;
 // FIFO queues
 // -----------
 
+// This represents a queue of blocks inside the global FIFO pool. The head
+// points to a block that will point to another block, and so on, until it
+// reaches the tail specified in this struct.
 typedef struct fifo_queue
 {
     vu16 head;
@@ -291,7 +294,11 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
     return true;
 }
 
-// Fills the TX FIFO with as many words as we can.
+// Hardware TX and RX queues handlers
+// ----------------------------------
+
+// Fills the hardware TX FIFO with as many words from the software TX queue as
+// we can fit.
 //
 // If there are too many words to be sent and some remain pending, enable an
 // interrupt that will be triggered when all the words in the TX hardware
@@ -329,8 +336,8 @@ static void fifoFillTxFifoFromBuffer(void)
     fifo_tx_queue.head = head;
 }
 
-// Get all available entries from the FIFO and save them in fifo_rx_queue
-// for processing.
+// Get all available entries from the hardware RX FIFO and save them in the
+// software RX queue for processing.
 static void fifoFillBufferFromRxFifo(void)
 {
     while (1)
@@ -521,6 +528,9 @@ static void fifoReadRxFifoAndProcessBuffer(void)
     fifo_rx_processing = false;
 }
 
+// Helpers add messages to the software TX queue
+// ---------------------------------------------
+
 static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
 {
     if (extrawordcount > 0 && wordlist == NULL)
@@ -664,6 +674,9 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
 
     return fifoInternalSend(send_first, num_words, buffer_array);
 }
+
+// Helpers to get messages from the software RX queues
+// ---------------------------------------------------
 
 void *fifoGetAddress(u32 channel)
 {
@@ -819,6 +832,9 @@ bool fifoCheckValue32(u32 channel)
     return fifo_value32_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
 
+// Interrupt handlers
+// ------------------
+
 // This interrupt is called whenever the RX FIFO hardware registers have words
 // ready to be read.
 static void fifoInternalRecvInterrupt(void)
@@ -833,6 +849,9 @@ static void fifoInternalSendInterrupt(void)
 {
     fifoFillTxFifoFromBuffer();
 }
+
+// Initialization code
+// -------------------
 
 bool fifoInit(void)
 {
@@ -902,6 +921,9 @@ bool fifoInit(void)
 }
 
 #ifdef ARM9
+
+// Helpers to prevent multiple threads from using the same FIFO channel
+// --------------------------------------------------------------------
 
 static comutex_t fifo_mutex[FIFO_NUM_CHANNELS];
 
