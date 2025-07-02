@@ -125,7 +125,7 @@ static void fifo_buffer_free_block(u32 index)
 }
 
 // Adds a list of blocks from the FIFO buffer to a queue.
-static void fifo_buffer_enqueue_block(fifo_queue *queue, int head, int tail)
+static void fifo_queue_append_list(fifo_queue *queue, int head, int tail)
 {
     FIFO_BUFFER_NEXT(tail) = FIFO_BUFFER_TERMINATE;
     if (queue->head == FIFO_BUFFER_TERMINATE)
@@ -138,6 +138,12 @@ static void fifo_buffer_enqueue_block(fifo_queue *queue, int head, int tail)
         FIFO_BUFFER_NEXT(queue->tail) = head;
         queue->tail = tail;
     }
+}
+
+// Adds a block from the FIFO buffer to a queue.
+static void fifo_queue_append_block(fifo_queue *queue, int block)
+{
+    fifo_queue_append_list(queue, block, block);
 }
 
 // Callbacks to be called whenever there is a new message
@@ -291,7 +297,7 @@ static void fifoFillBufferFromRxFifo(void)
 
         FIFO_BUFFER_DATA(block) = REG_IPC_FIFO_RX;
 
-        fifo_buffer_enqueue_block(&fifo_receive_queue, block, block);
+        fifo_queue_append_block(&fifo_receive_queue, block);
     }
 }
 
@@ -351,7 +357,7 @@ static void fifoProcessRxBuffer(void)
             else
             {
                 FIFO_BUFFER_DATA(block) = (u32)address;
-                fifo_buffer_enqueue_block(&fifo_address_queue[channel], block, block);
+                fifo_queue_append_block(&fifo_address_queue[channel], block);
             }
         }
         else if (fifo_msg_type_is_value32(data))
@@ -388,7 +394,7 @@ static void fifoProcessRxBuffer(void)
             else
             {
                 FIFO_BUFFER_DATA(block) = value32;
-                fifo_buffer_enqueue_block(&fifo_value32_queue[channel], block, block);
+                fifo_queue_append_block(&fifo_value32_queue[channel], block);
             }
         }
         else if (fifo_msg_type_is_data(data))
@@ -418,7 +424,7 @@ static void fifoProcessRxBuffer(void)
 
             FIFO_BUFFER_EXTRA(tmp) = n_bytes;
 
-            fifo_buffer_enqueue_block(&fifo_data_queue[channel], tmp, end);
+            fifo_queue_append_list(&fifo_data_queue[channel], tmp, end);
             if (fifo_datamsg_func[channel])
             {
                 block = fifo_data_queue[channel].head;
