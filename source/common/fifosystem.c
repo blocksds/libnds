@@ -17,7 +17,10 @@
 
 #include "fifo_messages_helpers.h"
 
-// Maximum number of bytes that can be sent in a fifo message
+// Arbitrary maximum number of bytes that can be sent in a fifo data message.
+// In practice, the maximum number of bytes that could fit is around
+// FIFO_BUFFER_ENTRIES * 4 bytes per entry, but that would fill all the FIFO
+// buffer with only one message.
 #define FIFO_MAX_DATA_BYTES     128
 
 // Number of words that can be stored temporarily while waiting to deque them
@@ -119,6 +122,10 @@ static u32 fifo_buffer_wait_block(void)
         if (block != FIFO_BUFFER_TERMINATE)
             return block;
 
+        // There are no free blocks. We need to wait until the other CPU
+        // receives some words and we can free up some space in our TX buffer.
+        // TODO: This waits until all of the hardware TX FIFO has been emptied.
+        // It may be better to wait until it isn't full.
         REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
         REG_IME = 1;
         swiIntrWait(0, IRQ_SEND_FIFO);
