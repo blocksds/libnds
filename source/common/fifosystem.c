@@ -76,13 +76,17 @@ typedef struct fifo_queue
 }
 fifo_queue;
 
+// Queues that hold address, data and value32 messages for each channel.
 static fifo_queue fifo_address_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_data_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_value32_queue[FIFO_NUM_CHANNELS];
 
-static fifo_queue fifo_buffer_free;
-static fifo_queue fifo_send_queue;
-static fifo_queue fifo_receive_queue;
+// Queue that holds all free blocks.
+static fifo_queue fifo_free_queue;
+
+// Queues that hold the blocks to be sent and received.
+static fifo_queue fifo_tx_queue;
+static fifo_queue fifo_rx_queue;
 
 // Try to allocate a new block. If it fails, it returns FIFO_BUFFER_TERMINATE.
 // If not, it returns the index of the block it has just allocated.
@@ -94,11 +98,11 @@ static u32 fifo_buffer_alloc_block(void)
     global_buffer_free_words--;
 
     // Return the first entry in the free blocks queue
-    u32 entry = fifo_buffer_free.head;
+    u32 entry = fifo_free_queue.head;
 
     // We're going to use the first entry in the queue for the new block, so
     // move the head of the free blocks queue to the next entry in the queue.
-    fifo_buffer_free.head = FIFO_BUFFER_NEXT(entry);
+    fifo_free_queue.head = FIFO_BUFFER_NEXT(entry);
 
     // This function can't recreate the queue from scratch if its last entry
     // disappears. global_buffer_free_words should ensure that this never
@@ -141,10 +145,10 @@ static void fifo_buffer_free_block(u32 index)
     FIFO_BUFFER_EXTRA(index) = 0;
 
     // Make the previous end of the queue point to the new end of the queue
-    FIFO_BUFFER_NEXT(fifo_buffer_free.tail) = index;
+    FIFO_BUFFER_NEXT(fifo_free_queue.tail) = index;
 
     // Update pointer to the end of the queue
-    fifo_buffer_free.tail = index;
+    fifo_free_queue.tail = index;
 
     global_buffer_free_words++;
 }
@@ -273,7 +277,7 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
     return true;
 }
 
-// Fills the send FIFO with as many words as we can.
+// Fills the TX FIFO with as many words as we can.
 //
 // If there are too many words to be sent and some remain pending, enable an
 // interrupt that will be triggered when all the words in the TX hardware
@@ -282,7 +286,7 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
 // If all words fit in the hardware TX registers, disable that IRQ.
 static void fifoFillTxFifoFromBuffer(void)
 {
-    u32 head = fifo_send_queue.head;
+    u32 head = fifo_tx_queue.head;
 
     while (1)
     {
@@ -308,10 +312,10 @@ static void fifoFillTxFifoFromBuffer(void)
         head = next;
     }
 
-    fifo_send_queue.head = head;
+    fifo_tx_queue.head = head;
 }
 
-// Get all available entries from the FIFO and save them in fifo_receive_queue
+// Get all available entries from the FIFO and save them in fifo_rx_queue
 // for processing.
 static void fifoFillBufferFromRxFifo(void)
 {
@@ -329,15 +333,15 @@ static void fifoFillBufferFromRxFifo(void)
 
         FIFO_BUFFER_DATA(block) = REG_IPC_FIFO_RX;
 
-        fifo_queue_append_block(&fifo_receive_queue, block);
+        fifo_queue_append_block(&fifo_rx_queue, block);
     }
 }
 
 static void fifoProcessRxBuffer(void)
 {
-    while (fifo_receive_queue.head != FIFO_BUFFER_TERMINATE)
+    while (fifo_rx_queue.head != FIFO_BUFFER_TERMINATE)
     {
-        u32 block = fifo_receive_queue.head;
+        u32 block = fifo_rx_queue.head;
         u32 data = FIFO_BUFFER_DATA(block);
 
         u32 channel = fifo_msg_unpack_channel(data);
@@ -378,7 +382,7 @@ static void fifoProcessRxBuffer(void)
         {
             void *address = fifo_msg_address_unpack(data);
 
-            fifo_receive_queue.head = FIFO_BUFFER_NEXT(block);
+            fifo_rx_queue.head = FIFO_BUFFER_NEXT(block);
             if (fifo_address_func[channel])
             {
                 fifo_buffer_free_block(block);
@@ -414,7 +418,7 @@ static void fifoProcessRxBuffer(void)
             }
 
             // Increase read pointer
-            fifo_receive_queue.head = FIFO_BUFFER_NEXT(block);
+            fifo_rx_queue.head = FIFO_BUFFER_NEXT(block);
 
             if (fifo_value32_func[channel])
             {
@@ -448,9 +452,9 @@ static void fifoProcessRxBuffer(void)
             if (count != n_words)
                 break;
 
-            fifo_receive_queue.head = FIFO_BUFFER_NEXT(end);
+            fifo_rx_queue.head = FIFO_BUFFER_NEXT(end);
 
-            // Add messages from the FIFO buffer to the receive queue.
+            // Add messages from the FIFO buffer to the RX queue.
             int tmp = FIFO_BUFFER_NEXT(block);
             fifo_buffer_free_block(block);
 
@@ -477,7 +481,7 @@ static void fifoProcessRxBuffer(void)
         }
         else
         {
-            fifo_receive_queue.head = FIFO_BUFFER_NEXT(block);
+            fifo_rx_queue.head = FIFO_BUFFER_NEXT(block);
             fifo_buffer_free_block(block);
         }
     }
@@ -491,9 +495,8 @@ static void fifoReadRxFifoAndProcessBuffer(void)
 
     // This handler can be nested. This check makes sure that there is
     // only one level of nesting, and that the nested handler can only read data
-    // from the IPC registers and save it to the FIFO receive queue. The
-    // processing will happen in the non-nested handler when the nested handler
-    // finishes.
+    // from the IPC registers and save it to the FIFO RX queue. The processing
+    // will happen in the non-nested handler when the nested handler finishes.
     if (fifo_rx_processing)
         return;
 
@@ -529,16 +532,16 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     }
 
     u32 head = fifo_buffer_wait_block();
-    if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
+    if (fifo_tx_queue.head == FIFO_BUFFER_TERMINATE)
     {
-        fifo_send_queue.head = head;
+        fifo_tx_queue.head = head;
     }
     else
     {
-        FIFO_BUFFER_NEXT(fifo_send_queue.tail) = head;
+        FIFO_BUFFER_NEXT(fifo_tx_queue.tail) = head;
     }
     FIFO_BUFFER_DATA(head) = firstword;
-    fifo_send_queue.tail = head;
+    fifo_tx_queue.tail = head;
 
     // Add the words we're trying to send to the software queue.
 
@@ -550,17 +553,17 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         // queue.
 
         u32 next = fifo_buffer_wait_block();
-        if (fifo_send_queue.head == FIFO_BUFFER_TERMINATE)
+        if (fifo_tx_queue.head == FIFO_BUFFER_TERMINATE)
         {
-            fifo_send_queue.head = next;
+            fifo_tx_queue.head = next;
         }
         else
         {
-            FIFO_BUFFER_NEXT(fifo_send_queue.tail) = next;
+            FIFO_BUFFER_NEXT(fifo_tx_queue.tail) = next;
         }
         FIFO_BUFFER_DATA(next) = wordlist[count];
         count++;
-        fifo_send_queue.tail = next;
+        fifo_tx_queue.tail = next;
     }
 
     // Start the transfer by adding some words from the software queue to the
@@ -858,22 +861,22 @@ bool fifoInit(void)
     FIFO_BUFFER_EXTRA(FIFO_BUFFER_ENTRIES - 1) = 0;
 
     // Functions fifo_buffer_alloc_block() and fifo_buffer_free_block() can't
-    // setup fifo_buffer_free.head and fifo_buffer_free.tail once the last entry
+    // setup fifo_free_queue.head and fifo_free_queue.tail once the last entry
     // in the queue disappears. It's important to pretend that the buffer has
     // one fewer entry than it really has so that the queue never disappears,
     // simplifying the allocation/free code.
     global_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
 
     // Setup the queue of free entries to span the whole queue
-    fifo_buffer_free.head = 0;
-    fifo_buffer_free.tail = FIFO_BUFFER_ENTRIES - 1;
+    fifo_free_queue.head = 0;
+    fifo_free_queue.tail = FIFO_BUFFER_ENTRIES - 1;
 
-    // Set the send and receive queues as empty
-    fifo_send_queue.head = FIFO_BUFFER_TERMINATE;
-    fifo_send_queue.tail = FIFO_BUFFER_TERMINATE;
+    // Set the TX and RX queues as empty
+    fifo_tx_queue.head = FIFO_BUFFER_TERMINATE;
+    fifo_tx_queue.tail = FIFO_BUFFER_TERMINATE;
 
-    fifo_receive_queue.head = FIFO_BUFFER_TERMINATE;
-    fifo_receive_queue.tail = FIFO_BUFFER_TERMINATE;
+    fifo_rx_queue.head = FIFO_BUFFER_TERMINATE;
+    fifo_rx_queue.tail = FIFO_BUFFER_TERMINATE;
 
     // Setup interrupt handlers
     irqSet(IRQ_SEND_FIFO, fifoInternalSendInterrupt);
