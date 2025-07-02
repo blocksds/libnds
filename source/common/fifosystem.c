@@ -589,7 +589,7 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
     if (data_array == NULL)
         return false;
 
-    if (num_bytes >= FIFO_MAX_DATA_BYTES) // TODO: Should this be ">"?
+    if (num_bytes > FIFO_MAX_DATA_BYTES)
         return false;
 
     u32 num_words = (num_bytes + 3) >> 2;
