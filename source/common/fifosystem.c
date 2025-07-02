@@ -38,12 +38,12 @@
 //
 // Some padding may be added by the compiler, though.
 
-// In the global_buffer[] array, this value means that there are no more values
-// left to handle.
+// This value is used in the "next" field of a block to mean that there are no
+// more entries in the queue.
 #define FIFO_BUFFER_TERMINATE   0xFFFF
 
-// Global FIFO buffer
-// ------------------
+// Global FIFO pool
+// ----------------
 
 typedef struct
 {
@@ -57,17 +57,25 @@ typedef struct
     // Useful data kept in this entry.
     u32 data;
 }
-PACKED global_fifo_buffer;
+PACKED global_fifo_pool_entry;
 
-static global_fifo_buffer global_buffer[FIFO_BUFFER_ENTRIES];
+// This pool of blocks stores all information regarding FIFO packets. It
+// allocates a fixed amount of space that holds all packets waiting to be sent
+// to the other CPU as well as packets that have been received but not handled.
+static global_fifo_pool_entry global_fifo_pool[FIFO_BUFFER_ENTRIES];
 
-static vu32 global_buffer_free_words;
+// This variable is used as a shortcut to check if a message fits in the FIFO
+// pool or not (rather than having to iterate through the queue of free blocks,
+// which would take far longer).
+static vu32 global_pool_free_words;
 
-#define FIFO_BUFFER_DATA(index) global_buffer[index].data
+// Helpers to access fields of global_fifo_pool
+#define POOL_DATA(index) global_fifo_pool[index].data
+#define POOL_NEXT(index) global_fifo_pool[index].next
+#define POOL_EXTRA(index) global_fifo_pool[index].extra
 
-#define FIFO_BUFFER_NEXT(index) global_buffer[index].next
-
-#define FIFO_BUFFER_EXTRA(index) global_buffer[index].extra
+// FIFO queues
+// -----------
 
 typedef struct fifo_queue
 {
@@ -76,7 +84,7 @@ typedef struct fifo_queue
 }
 fifo_queue;
 
-// Queues that hold address, data and value32 messages for each channel.
+// Queues that hold received address, data and value32 messages for each channel
 static fifo_queue fifo_address_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_data_queue[FIFO_NUM_CHANNELS];
 static fifo_queue fifo_value32_queue[FIFO_NUM_CHANNELS];
@@ -88,30 +96,33 @@ static fifo_queue fifo_free_queue;
 static fifo_queue fifo_tx_queue;
 static fifo_queue fifo_rx_queue;
 
+// Helpers to allocate and free blocks in the global pool
+// ------------------------------------------------------
+
 // Try to allocate a new block. If it fails, it returns FIFO_BUFFER_TERMINATE.
 // If not, it returns the index of the block it has just allocated.
 static u32 fifo_buffer_alloc_block(void)
 {
-    if (global_buffer_free_words == 0)
+    if (global_pool_free_words == 0)
         return FIFO_BUFFER_TERMINATE;
 
-    global_buffer_free_words--;
+    global_pool_free_words--;
 
     // Return the first entry in the free blocks queue
     u32 entry = fifo_free_queue.head;
 
     // We're going to use the first entry in the queue for the new block, so
     // move the head of the free blocks queue to the next entry in the queue.
-    fifo_free_queue.head = FIFO_BUFFER_NEXT(entry);
+    fifo_free_queue.head = POOL_NEXT(entry);
 
     // This function can't recreate the queue from scratch if its last entry
-    // disappears. global_buffer_free_words should ensure that this never
+    // disappears. global_pool_free_words should ensure that this never
     // happens, but this assert() is here to double-check that in debug builds.
     assert(entry != FIFO_BUFFER_TERMINATE);
 
     // The newly allocated block will be added to the end of some other queue,
     // so mark it as the end of a queue.
-    FIFO_BUFFER_NEXT(entry) = FIFO_BUFFER_TERMINATE;
+    POOL_NEXT(entry) = FIFO_BUFFER_TERMINATE;
 
     return entry;
 }
@@ -141,23 +152,23 @@ static u32 fifo_buffer_wait_block(void)
 static void fifo_buffer_free_block(u32 index)
 {
     // Mark this block as the end of the queue
-    FIFO_BUFFER_NEXT(index) = FIFO_BUFFER_TERMINATE;
-    FIFO_BUFFER_EXTRA(index) = 0;
+    POOL_NEXT(index) = FIFO_BUFFER_TERMINATE;
+    POOL_EXTRA(index) = 0;
 
     // Make the previous end of the queue point to the new end of the queue
-    FIFO_BUFFER_NEXT(fifo_free_queue.tail) = index;
+    POOL_NEXT(fifo_free_queue.tail) = index;
 
     // Update pointer to the end of the queue
     fifo_free_queue.tail = index;
 
-    global_buffer_free_words++;
+    global_pool_free_words++;
 }
 
 // Adds a list of blocks from the FIFO buffer to a queue.
 static void fifo_queue_append_list(fifo_queue *queue, int head, int tail)
 {
     // Mark the end of the provided list as the end of the queue
-    FIFO_BUFFER_NEXT(tail) = FIFO_BUFFER_TERMINATE;
+    POOL_NEXT(tail) = FIFO_BUFFER_TERMINATE;
 
     if (queue->head == FIFO_BUFFER_TERMINATE)
     {
@@ -169,7 +180,7 @@ static void fifo_queue_append_list(fifo_queue *queue, int head, int tail)
     {
         // If the FIFO queue wasn't empty, make the old tail point to the
         // user-provided head.
-        FIFO_BUFFER_NEXT(queue->tail) = head;
+        POOL_NEXT(queue->tail) = head;
 
         // Update pointer to the end of the user-provided queue
         queue->tail = tail;
@@ -181,6 +192,9 @@ static void fifo_queue_append_block(fifo_queue *queue, int block)
 {
     fifo_queue_append_list(queue, block, block);
 }
+
+// Per-channel callbacks to handle received messages
+// -------------------------------------------------
 
 // Callbacks to be called whenever there is a new message
 static FifoAddressHandlerFunc fifo_address_func[FIFO_NUM_CHANNELS];
@@ -262,7 +276,7 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
         while (fifoCheckDatamsg(channel))
         {
             int block = fifo_data_queue[channel].head;
-            int n_bytes = fifo_msg_data_unpack_length(FIFO_BUFFER_DATA(block));
+            int n_bytes = fifo_msg_data_unpack_length(POOL_DATA(block));
             newhandler(n_bytes, userdata);
 
             // If the user hasn't fetched the message from the queue by calling
@@ -304,9 +318,9 @@ static void fifoFillTxFifoFromBuffer(void)
             break;
         }
 
-        u32 next = FIFO_BUFFER_NEXT(head);
+        u32 next = POOL_NEXT(head);
 
-        REG_IPC_FIFO_TX = FIFO_BUFFER_DATA(head);
+        REG_IPC_FIFO_TX = POOL_DATA(head);
 
         fifo_buffer_free_block(head);
         head = next;
@@ -326,12 +340,12 @@ static void fifoFillBufferFromRxFifo(void)
 
         u32 block = fifo_buffer_alloc_block();
 
-        // There is no more space in global_buffer, stop saving blocks until
+        // There is no more space in global_fifo_pool, stop saving blocks until
         // some of them get processed.
         if (block == FIFO_BUFFER_TERMINATE)
             break;
 
-        FIFO_BUFFER_DATA(block) = REG_IPC_FIFO_RX;
+        POOL_DATA(block) = REG_IPC_FIFO_RX;
 
         fifo_queue_append_block(&fifo_rx_queue, block);
     }
@@ -342,7 +356,7 @@ static void fifoProcessRxBuffer(void)
     while (fifo_rx_queue.head != FIFO_BUFFER_TERMINATE)
     {
         u32 block = fifo_rx_queue.head;
-        u32 data = FIFO_BUFFER_DATA(block);
+        u32 data = POOL_DATA(block);
 
         u32 channel = fifo_msg_unpack_channel(data);
 
@@ -382,7 +396,7 @@ static void fifoProcessRxBuffer(void)
         {
             void *address = fifo_msg_address_unpack(data);
 
-            fifo_rx_queue.head = FIFO_BUFFER_NEXT(block);
+            fifo_rx_queue.head = POOL_NEXT(block);
             if (fifo_address_func[channel])
             {
                 fifo_buffer_free_block(block);
@@ -392,7 +406,7 @@ static void fifoProcessRxBuffer(void)
             }
             else
             {
-                FIFO_BUFFER_DATA(block) = (u32)address;
+                POOL_DATA(block) = (u32)address;
                 fifo_queue_append_block(&fifo_address_queue[channel], block);
             }
         }
@@ -402,7 +416,7 @@ static void fifoProcessRxBuffer(void)
 
             if (fifo_msg_value32_has_extra(data))
             {
-                int next = FIFO_BUFFER_NEXT(block);
+                int next = POOL_NEXT(block);
 
                 // If the extra word hasn't been received, try later
                 if (next == FIFO_BUFFER_TERMINATE)
@@ -410,7 +424,7 @@ static void fifoProcessRxBuffer(void)
 
                 fifo_buffer_free_block(block);
                 block = next;
-                value32 = FIFO_BUFFER_DATA(block);
+                value32 = POOL_DATA(block);
             }
             else
             {
@@ -418,7 +432,7 @@ static void fifoProcessRxBuffer(void)
             }
 
             // Increase read pointer
-            fifo_rx_queue.head = FIFO_BUFFER_NEXT(block);
+            fifo_rx_queue.head = POOL_NEXT(block);
 
             if (fifo_value32_func[channel])
             {
@@ -429,7 +443,7 @@ static void fifoProcessRxBuffer(void)
             }
             else
             {
-                FIFO_BUFFER_DATA(block) = value32;
+                POOL_DATA(block) = value32;
                 fifo_queue_append_block(&fifo_value32_queue[channel], block);
             }
         }
@@ -442,9 +456,9 @@ static void fifoProcessRxBuffer(void)
             // Count the number of available blocks
             int count = 0;
             int end = block;
-            while (count < n_words && FIFO_BUFFER_NEXT(end) != FIFO_BUFFER_TERMINATE)
+            while (count < n_words && POOL_NEXT(end) != FIFO_BUFFER_TERMINATE)
             {
-                end = FIFO_BUFFER_NEXT(end);
+                end = POOL_NEXT(end);
                 count++;
             }
 
@@ -452,13 +466,13 @@ static void fifoProcessRxBuffer(void)
             if (count != n_words)
                 break;
 
-            fifo_rx_queue.head = FIFO_BUFFER_NEXT(end);
+            fifo_rx_queue.head = POOL_NEXT(end);
 
             // Add messages from the FIFO buffer to the RX queue.
-            int tmp = FIFO_BUFFER_NEXT(block);
+            int tmp = POOL_NEXT(block);
             fifo_buffer_free_block(block);
 
-            FIFO_BUFFER_EXTRA(tmp) = n_bytes;
+            POOL_EXTRA(tmp) = n_bytes;
 
             fifo_queue_append_list(&fifo_data_queue[channel], tmp, end);
             if (fifo_datamsg_func[channel])
@@ -481,7 +495,7 @@ static void fifoProcessRxBuffer(void)
         }
         else
         {
-            fifo_rx_queue.head = FIFO_BUFFER_NEXT(block);
+            fifo_rx_queue.head = POOL_NEXT(block);
             fifo_buffer_free_block(block);
         }
     }
@@ -520,11 +534,11 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     // Check if there's enough space to send the whole message. If not, try to
     // flush some words pending from the software queue into the hardware TX
     // queue. If that doesn't free up enough space, give up.
-    if (global_buffer_free_words < extrawordcount + 1)
+    if (global_pool_free_words < extrawordcount + 1)
     {
         fifoFillTxFifoFromBuffer();
 
-        if (global_buffer_free_words < extrawordcount + 1)
+        if (global_pool_free_words < extrawordcount + 1)
         {
             leaveCriticalSection(oldIME);
             return false;
@@ -538,9 +552,9 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     }
     else
     {
-        FIFO_BUFFER_NEXT(fifo_tx_queue.tail) = head;
+        POOL_NEXT(fifo_tx_queue.tail) = head;
     }
-    FIFO_BUFFER_DATA(head) = firstword;
+    POOL_DATA(head) = firstword;
     fifo_tx_queue.tail = head;
 
     // Add the words we're trying to send to the software queue.
@@ -559,9 +573,9 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         }
         else
         {
-            FIFO_BUFFER_NEXT(fifo_tx_queue.tail) = next;
+            POOL_NEXT(fifo_tx_queue.tail) = next;
         }
-        FIFO_BUFFER_DATA(next) = wordlist[count];
+        POOL_DATA(next) = wordlist[count];
         count++;
         fifo_tx_queue.tail = next;
     }
@@ -637,7 +651,7 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
 
     // Early check. fifoInternalSend() will do another check, but this one will
     // save us time from preparing buffer_array[].
-    if (global_buffer_free_words < num_words + 1)
+    if (global_pool_free_words < num_words + 1)
         return false;
 
     u32 buffer_array[num_words]; // TODO: This is a VLA, remove?
@@ -665,8 +679,8 @@ void *fifoGetAddress(u32 channel)
         return NULL;
     }
 
-    void *address = (void *)FIFO_BUFFER_DATA(block);
-    fifo_address_queue[channel].head = FIFO_BUFFER_NEXT(block);
+    void *address = (void *)POOL_DATA(block);
+    fifo_address_queue[channel].head = POOL_NEXT(block);
     fifo_buffer_free_block(block);
 
     fifoReadRxFifoAndProcessBuffer();
@@ -689,8 +703,8 @@ u32 fifoGetValue32(u32 channel)
         return 0;
     }
 
-    u32 value32 = FIFO_BUFFER_DATA(block);
-    fifo_value32_queue[channel].head = FIFO_BUFFER_NEXT(block);
+    u32 value32 = POOL_DATA(block);
+    fifo_value32_queue[channel].head = POOL_NEXT(block);
     fifo_buffer_free_block(block);
 
     fifoReadRxFifoAndProcessBuffer();
@@ -719,14 +733,14 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
         return -1;
     }
 
-    int num_bytes = FIFO_BUFFER_EXTRA(block);
+    int num_bytes = POOL_EXTRA(block);
     int num_words = (num_bytes + 3) >> 2;
 
     int copied_bytes = 0;
 
     for (int i = 0; i < num_words; i++)
     {
-        u32 data = FIFO_BUFFER_DATA(block);
+        u32 data = POOL_DATA(block);
 
         for (int j = 0; j < 4; j++)
         {
@@ -738,7 +752,7 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer)
             }
         }
 
-        int next = FIFO_BUFFER_NEXT(block);
+        int next = POOL_NEXT(block);
         fifo_buffer_free_block(block);
         block = next;
         if (block == FIFO_BUFFER_TERMINATE)
@@ -790,7 +804,7 @@ int fifoCheckDatamsgLength(u32 channel)
         return -1;
 
     int block = fifo_data_queue[channel].head;
-    return FIFO_BUFFER_EXTRA(block);
+    return POOL_EXTRA(block);
 }
 
 bool fifoCheckValue32(u32 channel)
@@ -851,21 +865,21 @@ bool fifoInit(void)
     // terminates the queue.
     for (int i = 0; i < FIFO_BUFFER_ENTRIES - 1; i++)
     {
-        FIFO_BUFFER_DATA(i) = 0;
-        FIFO_BUFFER_NEXT(i) = i + 1;
-        FIFO_BUFFER_EXTRA(i) = 0;
+        POOL_DATA(i) = 0;
+        POOL_NEXT(i) = i + 1;
+        POOL_EXTRA(i) = 0;
     }
 
-    FIFO_BUFFER_DATA(FIFO_BUFFER_ENTRIES - 1) = 0;
-    FIFO_BUFFER_NEXT(FIFO_BUFFER_ENTRIES - 1) = FIFO_BUFFER_TERMINATE;
-    FIFO_BUFFER_EXTRA(FIFO_BUFFER_ENTRIES - 1) = 0;
+    POOL_DATA(FIFO_BUFFER_ENTRIES - 1) = 0;
+    POOL_NEXT(FIFO_BUFFER_ENTRIES - 1) = FIFO_BUFFER_TERMINATE;
+    POOL_EXTRA(FIFO_BUFFER_ENTRIES - 1) = 0;
 
     // Functions fifo_buffer_alloc_block() and fifo_buffer_free_block() can't
     // setup fifo_free_queue.head and fifo_free_queue.tail once the last entry
     // in the queue disappears. It's important to pretend that the buffer has
     // one fewer entry than it really has so that the queue never disappears,
     // simplifying the allocation/free code.
-    global_buffer_free_words = FIFO_BUFFER_ENTRIES - 1;
+    global_pool_free_words = FIFO_BUFFER_ENTRIES - 1;
 
     // Setup the queue of free entries to span the whole queue
     fifo_free_queue.head = 0;
