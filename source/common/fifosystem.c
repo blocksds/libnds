@@ -533,7 +533,9 @@ static void fifoReadRxFifoAndProcessBuffer(void)
 
 static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
 {
-    if (extrawordcount > 0 && wordlist == NULL)
+    // If the caller has provided at least one extra word, check that the
+    // pointer with data isn't NULL. If not, ignore both values.
+    if ((extrawordcount > 0) && (wordlist == NULL))
         return false;
 
     if (extrawordcount > (FIFO_MAX_DATA_BYTES / 4))
