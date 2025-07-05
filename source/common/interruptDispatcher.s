@@ -50,6 +50,7 @@
     .set OFFSET_AUXIE,  0x218
     .set OFFSET_AUXIF,  0x21C
 
+// Global interrupt dispatcher of libnds
 #ifdef ARM9
 BEGIN_ASM_FUNC IntrMain itcm
 #endif
@@ -171,6 +172,12 @@ main_irq_found:
     mrs     r0, spsr
     push    {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
 
+    // Increment counter of nested interrupts being handled
+    adr     r0, irq_nesting_level
+    ldrh    r1, [r0]
+    add     r1, r1, #1
+    strh    r1, [r0]
+
     // Enable IRQ and FIQ, set mode to System
     mrs     r0, cpsr
     bic     r1, r0, #(CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS | CPSR_MODE_MASK)
@@ -196,6 +203,12 @@ interrupt_return:
     pop     {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
     msr     spsr, r0                // Restore SPSR
     str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
+
+    // Decrement counter of nested interrupts being handled
+    adr     r0, irq_nesting_level
+    ldrh    r1, [r0]
+    sub     r1, r1, #1
+    strh    r1, [r0]
 
     // After handling all high priority things, unblock any threads that were
     // waiting for this interrupt.
@@ -239,4 +252,11 @@ exit:
     mov     pc, lr
 
     .pool
+
+// This variable holds the current number of user interrupt handlers that have
+// been nested. If 0, no interrupt is currently being handled.
+    .global irq_nesting_level
+irq_nesting_level:
+    .space  2
+
     .end

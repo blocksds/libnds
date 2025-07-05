@@ -420,8 +420,14 @@ int cothread_get_exit_code(cothread_t thread)
     return ctx->arg;
 }
 
+extern uint16_t irq_nesting_level;
+
 void cothread_yield(void)
 {
+    // We can't yield from inside an interrupt handler
+    if (irq_nesting_level > 0)
+        return;
+
     cothread_info_t *ctx = cothread_active_thread;
 
     __ndsabi_coro_yield((void *)ctx, 0);
@@ -429,6 +435,10 @@ void cothread_yield(void)
 
 ARM_CODE void cothread_yield_irq(uint32_t flag)
 {
+    // We can't yield from inside an interrupt handler
+    if (irq_nesting_level > 0)
+        return;
+
     assert(REG_IME != 0); // IRQs must be enabled
     assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
 
