@@ -437,7 +437,10 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
+    {
+        swiIntrWait(0, flag); // Don't discard old flags
         return;
+    }
 
     assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
 
@@ -476,7 +479,10 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
+    {
+        swiIntrWaitAUX(0, 0, flag); // Don't discard old flags
         return;
+    }
 
     assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
 
