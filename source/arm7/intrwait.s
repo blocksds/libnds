@@ -14,8 +14,6 @@ BEGIN_ASM_FUNC swiWaitForVBlank
 
     mov     r0, #1
     mov     r1, #1
-    mov     r2, #0
-    nop
 
     // Fallthrough
 
