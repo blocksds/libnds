@@ -24,12 +24,7 @@ static int readFirmwareInternal(u32 address, void *buffer, u32 length)
     fifoMutexAcquire(FIFO_FIRMWARE);
 
     fifoSendDatamsg(FIFO_FIRMWARE, sizeof(msg), (u8 *)&msg);
-
-    if (REG_IME == 0)
-        fifoWaitValue32(FIFO_FIRMWARE);
-    else
-        fifoWaitValue32Async(FIFO_FIRMWARE);
-
+    fifoWaitValue32Async(FIFO_FIRMWARE);
     int ret = fifoGetValue32(FIFO_FIRMWARE);
 
     fifoMutexRelease(FIFO_FIRMWARE);
@@ -79,12 +74,7 @@ static int writeFirmwareInternal(u32 address, void *buffer, u32 length)
     fifoMutexAcquire(FIFO_FIRMWARE);
 
     fifoSendDatamsg(FIFO_FIRMWARE, sizeof(msg), (u8 *)&msg);
-
-    if (REG_IME == 0)
-        fifoWaitValue32(FIFO_FIRMWARE);
-    else
-        fifoWaitValue32Async(FIFO_FIRMWARE);
-
+    fifoWaitValue32Async(FIFO_FIRMWARE);
     int ret = fifoGetValue32(FIFO_FIRMWARE);
 
     fifoMutexRelease(FIFO_FIRMWARE);

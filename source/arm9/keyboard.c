@@ -385,8 +385,6 @@ void keyboardShow(void)
     if (!keyboardLoaded)
         return;
 
-    sassert(REG_IME != 0, "IRQs must be enabled");
-
     cothread_yield_irq(IRQ_VBLANK);
 
     // Make sure that the keyboard state is the right one
@@ -428,8 +426,6 @@ void keyboardHide(void)
     if (!keyboardLoaded)
         return;
 
-    sassert(REG_IME != 0, "IRQs must be enabled");
-
     curKeyboard.visible = false;
 
     if (curKeyboard.scrollSpeed)
@@ -452,8 +448,6 @@ s16 keyboardGetChar(void)
 
     if (!curKeyboard.visible)
         return -1;
-
-    sassert(REG_IME != 0, "IRQs must be enabled");
 
     while (1)
     {

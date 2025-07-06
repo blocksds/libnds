@@ -439,14 +439,13 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
     if (irq_nesting_level > 0)
         return;
 
-    assert(REG_IME != 0); // IRQs must be enabled
     assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
 
     cothread_info_t *ctx = cothread_active_thread;
 
     unsigned int index = __builtin_ctz(flag);
 
-    int oldIME = enterCriticalSection();
+    REG_IME = 0;
 
     if (cothread_list_irq[index] != NULL)
     {
@@ -466,7 +465,8 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
 
     cothread_threads_wait_irq_count++;
 
-    leaveCriticalSection(oldIME);
+    // We're going to wait for an IRQ. Make sure that IRQs are enabled.
+    REG_IME = 1;
 
     __ndsabi_coro_yield((void *)ctx, 0);
 }
@@ -474,14 +474,17 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
 #ifdef ARM7
 ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
 {
-    assert(REG_IME != 0); // IRQs must be enabled
+    // We can't yield from inside an interrupt handler
+    if (irq_nesting_level > 0)
+        return;
+
     assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
 
     cothread_info_t *ctx = cothread_active_thread;
 
     unsigned int index = __builtin_ctz(flag);
 
-    int oldIME = enterCriticalSection();
+    REG_IME = 0;
 
     if (cothread_list_irq_aux[index] != NULL)
     {
@@ -497,7 +500,8 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
 
     cothread_threads_wait_irq_count++;
 
-    leaveCriticalSection(oldIME);
+    // We're going to wait for an IRQ. Make sure that IRQs are enabled.
+    REG_IME = 1;
 
     __ndsabi_coro_yield((void *)ctx, 0);
 }

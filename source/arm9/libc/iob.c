@@ -78,8 +78,6 @@ static int stdin_getc_keyboard(FILE *file)
 {
     (void)file;
 
-    sassert(REG_IME != 0, "IRQs must be enabled");
-
     static int shown = 0;
     int c = -1;
 
