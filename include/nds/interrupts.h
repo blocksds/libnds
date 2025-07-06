@@ -154,6 +154,7 @@ enum IME_VALUE
     IME_ENABLE = 1,  ///< Enable all interrupts not masked out in REG_IE
 };
 
+// Symbols defined by the linker script
 extern VoidFn  __irq_vector[];
 extern vuint32 __irq_flags[];
 extern vuint32 __irq_flagsaux[];
@@ -161,7 +162,7 @@ extern vuint32 __irq_flagsaux[];
 /// BIOS register used by swiIntrWait() and swiWaitForVBlank().
 #define INTR_WAIT_FLAGS     *(__irq_flags)
 
-/// BIOS register used by swiIntrWait() in the ARM7 in DSi mode.
+/// BIOS register used by swiIntrWaitAUX() in the ARM7 in DSi mode.
 #define INTR_WAIT_FLAGSAUX  *(__irq_flagsaux)
 
 /// BIOS register that contains the address of the global interrupt handler.
@@ -292,25 +293,34 @@ void irqDisable(u32 irq);
 void irqDisableAUX(u32 irq);
 #endif
 
+/// Return if the interrupt has happened. For swiIntrWait() and swiIntrWaitAUX()
+#define INTRWAIT_KEEP_FLAGS     0
+/// Wait for a new interrupt to happen. For swiIntrWait() and swiIntrWaitAUX()
+#define INTRWAIT_CLEAR_FLAGS    1
+
 /// Wait for interrupt(s) to occur.
 ///
-/// @param waitForSet
-///     0: Return if the interrupt has already occured; 1: Wait until the
-///     interrupt has been set since the call
+/// @param clearOldFlags
+///     0: Return if the interrupt has already occured and the interrupt flag is
+///     already set. 1: Clear flags of interrupts that have already happened and
+///     wait for a new interrupt. You can use the defines INTRWAIT_KEEP_FLAGS
+///     and INTRWAIT_CLEAR_FLAGS for clarity.
 /// @param flags
 ///     Interrupt mask to wait for.
 ///
 /// @note
 ///     This doesn't actually use a software interrupt, it's a custom function
 ///     implemented in libnds.
-void swiIntrWait(u32 waitForSet, uint32_t flags);
+void swiIntrWait(u32 clearOldFlags, uint32_t flags);
 
 #ifdef ARM7
 /// Wait for interrupt(s) to occur. DSi ARM7 only.
 ///
-/// @param waitForSet
-///     0: Return if the interrupt has already occured; 1: Wait until the
-///     interrupt has been set since the call
+/// @param clearOldFlags
+///     0: Return if the interrupt has already occured and the interrupt flag is
+///     already set. 1: Clear flags of interrupts that have already happened and
+///     wait for a new interrupt. You can use the defines INTRWAIT_KEEP_FLAGS
+///     and INTRWAIT_CLEAR_FLAGS for clarity.
 /// @param flags
 ///     Interrupt mask to wait for.
 /// @param aux_flags
@@ -319,7 +329,7 @@ void swiIntrWait(u32 waitForSet, uint32_t flags);
 /// @note
 ///     This doesn't actually use a software interrupt, it's a custom function
 ///     implemented in libnds.
-void swiIntrWaitAUX(u32 waitForSet, uint32_t flags, uint32_t aux_flags);
+void swiIntrWaitAUX(u32 clearOldFlags, uint32_t flags, uint32_t aux_flags);
 #endif
 
 /// Waits for a vertical blank interrupt
@@ -329,7 +339,7 @@ void swiIntrWaitAUX(u32 waitForSet, uint32_t flags, uint32_t aux_flags);
 ///     implemented in libnds.
 ///
 /// @note
-///     Identical to calling swiIntrWait(1, 1)
+///     Identical to calling swiIntrWait(INTRWAIT_CLEAR_FLAGS, IRQ_VBLANK)
 void swiWaitForVBlank(void);
 
 /// Set callback for DSi Powerbutton press

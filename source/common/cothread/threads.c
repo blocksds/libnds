@@ -438,7 +438,7 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
     {
-        swiIntrWait(0, flag); // Don't discard old flags
+        swiIntrWait(INTRWAIT_KEEP_FLAGS, flag);
         return;
     }
 
@@ -480,7 +480,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
     {
-        swiIntrWaitAUX(0, 0, flag); // Don't discard old flags
+        swiIntrWaitAUX(INTRWAIT_KEEP_FLAGS, 0, flag);
         return;
     }
 
@@ -593,7 +593,9 @@ ITCM_CODE ARM_CODE static int cothread_scheduler_start(void)
                 // TODO: We should be able to use CP15_WaitForInterrupt(), but
                 // it hangs the CPU for some reason. swiIntrWait() sets REG_IME
                 // to 1 internally so it can exit halt state.
-                swiIntrWait(0, REG_IE); // Wait for all IRQs enabled by the user.
+
+                // Wait for all IRQs enabled by the user.
+                swiIntrWait(INTRWAIT_KEEP_FLAGS, REG_IE);
 #elif defined(ARM7)
                 swiHalt();
 #endif

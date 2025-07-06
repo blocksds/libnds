@@ -146,7 +146,7 @@ static u32 fifo_buffer_wait_block(void)
         // It may be better to wait until it isn't full.
         REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
         REG_IME = 1;
-        swiIntrWait(0, IRQ_SEND_FIFO);
+        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_SEND_FIFO);
         REG_IME = 0;
     }
 }
