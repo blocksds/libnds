@@ -100,6 +100,10 @@ static inline int32_t divf32_result(void)
 ///     Returns 20.12 result.
 static inline int32_t divf32(int32_t num, int32_t den)
 {
+#if 0 //should be gated behind some optimization define
+    if (__builtin_constant_p(den))
+        return (int32_t)(num*((0x1.0p12/(double)den));
+#endif
     divf32_asynch(num, den);
     return divf32_result();
 }
@@ -158,6 +162,9 @@ static inline uint32_t sqrtf32_result(void)
 ///     20.12 result.
 static inline uint32_t sqrtf32(uint32_t a)
 {
+    if (__builtin_constant_p(a))
+        return __builtin_sqrt((uint64_t)a<<12);
+
     sqrtf32_asynch(a);
     return sqrtf32_result();
 }
@@ -201,6 +208,9 @@ static inline int32_t div32_result(void)
 ///     32 bit integer result.
 static inline int32_t div32(int32_t num, int32_t den)
 {
+    if (__builtin_constant_p(den))
+        return num/den;
+
     div32_asynch(num, den);
     return div32_result();
 }
@@ -283,6 +293,10 @@ static inline int32_t div64_result(void)
 ///     32 bit integer result.
 static inline int32_t div64(int64_t num, int32_t den)
 {
+#if 0 //should be gated behind some optimization define
+    if (__builtin_constant_p(den))
+        return (int32_t)(num*(1.0/(double)den));
+#endif
     div64_asynch(num, den);
     return div64_result();
 }
@@ -324,6 +338,11 @@ static inline int32_t mod64_result(void)
 ///     Returns 32 bit integer remainder.
 static inline int32_t mod64(int64_t num, int32_t den)
 {
+#if 0
+    if (__builtin_constant_p(den))
+        return num%den;
+#endif
+
     mod64_asynch(num, den);
     return mod64_result();
 }
@@ -360,6 +379,9 @@ static inline uint32_t sqrt32_result(void)
 ///     32 bit integer result.
 static inline uint32_t sqrt32(uint32_t a)
 {
+    if (__builtin_constant_p(a))
+        return (uint32_t)__builtin_sqrt((double)a);
+
     sqrt32_asynch(a);
     return sqrt32_result();
 }
@@ -396,6 +418,28 @@ static inline uint32_t sqrt64_result(void)
 ///     32 bit integer result.
 static inline uint32_t sqrt64(uint64_t a)
 {
+#if 0 //should be gated behind some optimization define
+    if (__builtin_constant_p(a))
+    {
+        if (a==0)
+            return 0;
+        uint64_t c = 0;
+        for (uint64_t d=1ull<<(((63-__builtin_clzll(a))>>1) <<1); d!=0; d>>=2 )
+        {
+            if ((int64_t )a >= c + d)
+            {
+                a -= c + d;
+                c = (c >> 1) + d;
+            }
+            else
+            {
+                c >>= 1;
+            }
+        }
+        return c;
+    }
+#endif
+
     sqrt64_asynch(a);
     return sqrt64_result();
 }
