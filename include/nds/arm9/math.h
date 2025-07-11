@@ -209,7 +209,7 @@ static inline int32_t div32_result(void)
 static inline int32_t div32(int32_t num, int32_t den)
 {
     if (__builtin_constant_p(den))
-        return num/den;
+        return num / den;
 
     div32_asynch(num, den);
     return div32_result();
@@ -252,6 +252,8 @@ static inline int32_t mod32_result(void)
 ///     32 bit integer remainder.
 static inline int32_t mod32(int32_t num, int32_t den)
 {
+    if (__builtin_constant_p(den))
+        return num % den;
     mod32_asynch(num, den);
     return mod32_result();
 }
@@ -340,7 +342,7 @@ static inline int32_t mod64(int64_t num, int32_t den)
 {
 #if 0
     if (__builtin_constant_p(den))
-        return num%den;
+        return num % den;
 #endif
 
     mod64_asynch(num, den);
