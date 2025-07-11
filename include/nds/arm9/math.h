@@ -254,6 +254,7 @@ static inline int32_t mod32(int32_t num, int32_t den)
 {
     if (__builtin_constant_p(den))
         return num % den;
+
     mod32_asynch(num, den);
     return mod32_result();
 }
