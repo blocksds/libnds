@@ -368,7 +368,10 @@ int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer);
 static inline void fifoWaitValue32(u32 channel)
 {
     while (!fifoCheckValue32(channel))
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+    {
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+    }
 }
 
 /// Waits for any value32 message in a FIFO channel and yields until there isn't
@@ -383,7 +386,8 @@ static inline void fifoWaitValue32Async(u32 channel)
 #ifdef ARM9
         cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
 #else
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
 #endif
     }
 }
@@ -396,7 +400,10 @@ static inline void fifoWaitValue32Async(u32 channel)
 static inline void fifoWaitAddress(u32 channel)
 {
     while (!fifoCheckAddress(channel))
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+    {
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+    }
 }
 
 /// Waits for any address message in a FIFO channel and yields until there isn't
@@ -411,7 +418,8 @@ static inline void fifoWaitAddressAsync(u32 channel)
 #ifdef ARM9
         cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
 #else
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
 #endif
     }
 }
@@ -424,7 +432,10 @@ static inline void fifoWaitAddressAsync(u32 channel)
 static inline void fifoWaitDatamsg(u32 channel)
 {
     while (!fifoCheckDatamsg(channel))
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+    {
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+    }
 }
 
 /// Waits for any data message in a FIFO channel and yields until there isn't
@@ -439,7 +450,8 @@ static inline void fifoWaitDatamsgAsync(u32 channel)
 #ifdef ARM9
         cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
 #else
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
 #endif
     }
 }

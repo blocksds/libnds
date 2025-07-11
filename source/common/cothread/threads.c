@@ -438,7 +438,9 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
     {
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, flag);
+        if (REG_IME == 1)
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, flag);
+
         return;
     }
 
@@ -480,7 +482,9 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
     {
-        swiIntrWaitAUX(INTRWAIT_KEEP_FLAGS, 0, flag);
+        if (REG_IME == 1)
+            swiIntrWaitAUX(INTRWAIT_KEEP_FLAGS, 0, flag);
+
         return;
     }
 

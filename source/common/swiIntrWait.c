@@ -46,7 +46,7 @@ void swiIntrWait(u32 clearOldFlags, uint32_t flags)
             "mcr p15, 0, %0, c7, c0, 4\n\t" // CP15_REG7_WAIT_FOR_INTERRUPT
             :           // Outputs
             : "r"(0)    // Inputs
-            : "memory"  // Clobber list. The values of the BIOS registers may change
+            :           // Clobber list
         );
 #else
         swiHalt();
