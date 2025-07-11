@@ -100,6 +100,9 @@ static inline int32_t divf32_result(void)
 ///     Returns 20.12 result.
 static inline int32_t divf32(int32_t num, int32_t den)
 {
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return ((int64_t)((uint64_t)(int64_t)num << 12)) / den;
+
     divf32_asynch(num, den);
     return divf32_result();
 }
@@ -158,6 +161,9 @@ static inline uint32_t sqrtf32_result(void)
 ///     20.12 result.
 static inline uint32_t sqrtf32(uint32_t a)
 {
+    if (__builtin_constant_p(a))
+        return (uint32_t)__builtin_sqrt((double)((uint64_t)a << 12));
+
     sqrtf32_asynch(a);
     return sqrtf32_result();
 }
@@ -201,6 +207,9 @@ static inline int32_t div32_result(void)
 ///     32 bit integer result.
 static inline int32_t div32(int32_t num, int32_t den)
 {
+    if (__builtin_constant_p(den))
+        return num / den;
+
     div32_asynch(num, den);
     return div32_result();
 }
@@ -242,6 +251,9 @@ static inline int32_t mod32_result(void)
 ///     32 bit integer remainder.
 static inline int32_t mod32(int32_t num, int32_t den)
 {
+    if (__builtin_constant_p(den))
+        return num % den;
+
     mod32_asynch(num, den);
     return mod32_result();
 }
@@ -283,6 +295,9 @@ static inline int32_t div64_result(void)
 ///     32 bit integer result.
 static inline int32_t div64(int64_t num, int32_t den)
 {
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return num / den;
+
     div64_asynch(num, den);
     return div64_result();
 }
@@ -324,6 +339,9 @@ static inline int32_t mod64_result(void)
 ///     Returns 32 bit integer remainder.
 static inline int32_t mod64(int64_t num, int32_t den)
 {
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return num % den;
+
     mod64_asynch(num, den);
     return mod64_result();
 }
@@ -360,6 +378,9 @@ static inline uint32_t sqrt32_result(void)
 ///     32 bit integer result.
 static inline uint32_t sqrt32(uint32_t a)
 {
+    if (__builtin_constant_p(a))
+        return (uint32_t)__builtin_sqrt((double)a);
+
     sqrt32_asynch(a);
     return sqrt32_result();
 }
