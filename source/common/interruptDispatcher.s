@@ -9,6 +9,11 @@
 #include <nds/cothread_asm.h>
 #include <nds/cpu_asm.h>
 
+// TODO: Enable this code in the ARM7 if threads are enabled in the ARM7
+#ifdef ARM9
+#define THREADS_ENABLED
+#endif
+
     .syntax  unified
 
     .arm
@@ -97,9 +102,11 @@ BEGIN_ASM_FUNC IntrMain
     orr     r3, r3, r1
     str     r3, [r2]
 
+#ifdef THREADS_ENABLED
     // Get pointer to array of pointers of cothread threads waiting for IRQs.
     ldr     r2, =cothread_list_irq
     add     r2, r2, r0, lsl #2
+#endif
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTable
@@ -135,9 +142,11 @@ check_aux_irqs:
     orr     r3, r3, r1
     str     r3, [r2]
 
+#ifdef THREADS_ENABLED
     // Get pointer to array of pointers of cothread threads waiting for IRQs.
     ldr     r2, =cothread_list_irq_aux
     add     r2, r2, r0, lsl #2
+#endif
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTableAUX
@@ -170,7 +179,11 @@ main_irq_found:
                                     // any value with bit 0 clear.
 
     mrs     r0, spsr
+#ifdef THREADS_ENABLED
     push    {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
+#else
+    push    {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+#endif
 
     // Increment counter of nested interrupts being handled
     adr     r0, irq_nesting_level
@@ -200,7 +213,11 @@ interrupt_return:
 
     msr     cpsr, r0                // Return to IRQ mode with IRQs and FIQs disabled
 
+#ifdef THREADS_ENABLED
     pop     {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
+#else
+    pop     {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+#endif
     msr     spsr, r0                // Restore SPSR
     str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
 
@@ -214,6 +231,8 @@ interrupt_return:
     // waiting for this interrupt.
 
 clear_threads_and_exit:
+
+#ifdef THREADS_ENABLED
 
     // r2 = Pointer to list of threads waiting for this interrupt
 
@@ -248,6 +267,8 @@ exit:
     ldr     r2, [r0]
     sub     r2, r2, r1
     str     r2, [r0]
+
+#endif // ARM9
 
     mov     pc, lr
 
