@@ -14,6 +14,9 @@
 
 ARM_CODE float hw_sqrtf(float x)
 {
+    if (__builtin_constant_p(x))
+        return __builtin_sqrtf(x);
+
     union
     {
         float f;
