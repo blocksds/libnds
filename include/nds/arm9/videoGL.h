@@ -976,13 +976,13 @@ static inline void glMatrixMode(GL_MATRIX_MODE_ENUM mode)
 /// It can be set several times per frame.
 ///
 /// @param x1
-///     The left of the viewport.
+///     The left of the viewport. Usually 0.
 /// @param y1
-///     The bottom of the viewport.
+///     The bottom of the viewport. Usually 0.
 /// @param x2
-///     The right of the viewport.
+///     The right of the viewport. Usually 255.
 /// @param y2
-///     The top of the viewport.
+///     The top of the viewport. Usually 191.
 static inline void glViewport(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
     GFX_VIEWPORT = (uint32_t)x1 + ((uint32_t)y1 << 8u) + ((uint32_t)x2 << 16u) + ((uint32_t)y2 << 24u);
