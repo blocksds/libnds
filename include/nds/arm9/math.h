@@ -163,7 +163,7 @@ static inline uint32_t sqrtf32_result(void)
 static inline uint32_t sqrtf32(uint32_t a)
 {
     if (__builtin_constant_p(a))
-        return __builtin_sqrt((uint64_t)a<<12);
+        return __builtin_sqrt((double)((uint64_t)a<<12));
 
     sqrtf32_asynch(a);
     return sqrtf32_result();
