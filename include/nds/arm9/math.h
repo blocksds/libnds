@@ -296,10 +296,6 @@ static inline int32_t div64_result(void)
 ///     32 bit integer result.
 static inline int32_t div64(int64_t num, int32_t den)
 {
-#if 0 //should be gated behind some optimization define
-    if (__builtin_constant_p(den))
-        return (int32_t)(num*(1.0/(double)den));
-#endif
     div64_asynch(num, den);
     return div64_result();
 }
@@ -341,11 +337,6 @@ static inline int32_t mod64_result(void)
 ///     Returns 32 bit integer remainder.
 static inline int32_t mod64(int64_t num, int32_t den)
 {
-#if 0
-    if (__builtin_constant_p(den))
-        return num % den;
-#endif
-
     mod64_asynch(num, den);
     return mod64_result();
 }
