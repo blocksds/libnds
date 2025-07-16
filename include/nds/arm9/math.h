@@ -340,7 +340,7 @@ static inline int32_t mod64_result(void)
 static inline int32_t mod64(int64_t num, int32_t den)
 {
     if (__builtin_constant_p(num) && __builtin_constant_p(den))
-        return num/den;
+        return num % den;
 
     mod64_asynch(num, den);
     return mod64_result();
