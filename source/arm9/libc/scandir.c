@@ -29,6 +29,10 @@ int scandir(const char *path, struct dirent ***names,
     bool error = false;
     int count = 0;
     struct dirent *ent;
+    int errno_prev;
+
+    // store original errno, to be restored if we are successful
+    errno_prev = errno;
 
     DIR *dir = opendir(path);
     if (dir == NULL)
@@ -85,5 +89,11 @@ int scandir(const char *path, struct dirent ***names,
     }
 
     closedir(dir);
+
+    // restore previous errno if no new errnos
+    if (!errno) {
+        errno = errno_prev;
+    }
+
     return error ? -1 : count;
 }
