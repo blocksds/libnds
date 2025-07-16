@@ -34,6 +34,9 @@ int scandir(const char *path, struct dirent ***names,
     if (dir == NULL)
         return -1;
 
+    // ensure errno is reset so readdir loop doesn't break early
+    errno = 0;
+
     *names = NULL;
     while ((ent = readdir(dir)) != NULL)
     {
