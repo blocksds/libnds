@@ -100,10 +100,9 @@ static inline int32_t divf32_result(void)
 ///     Returns 20.12 result.
 static inline int32_t divf32(int32_t num, int32_t den)
 {
-#if 0 //should be gated behind some optimization define
-    if (__builtin_constant_p(den))
-        return (int32_t)(num*((0x1.0p12/(double)den));
-#endif
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return ((int64_t)((uint64_t)(int64_t)num << 12)) / den;
+    
     divf32_asynch(num, den);
     return divf32_result();
 }
@@ -163,7 +162,7 @@ static inline uint32_t sqrtf32_result(void)
 static inline uint32_t sqrtf32(uint32_t a)
 {
     if (__builtin_constant_p(a))
-        return __builtin_sqrt((double)((uint64_t)a<<12));
+        return (uint32_t)__builtin_sqrt((double)((uint64_t)a<<12));
 
     sqrtf32_asynch(a);
     return sqrtf32_result();
@@ -296,6 +295,9 @@ static inline int32_t div64_result(void)
 ///     32 bit integer result.
 static inline int32_t div64(int64_t num, int32_t den)
 {
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return num/den;
+
     div64_asynch(num, den);
     return div64_result();
 }
@@ -337,6 +339,9 @@ static inline int32_t mod64_result(void)
 ///     Returns 32 bit integer remainder.
 static inline int32_t mod64(int64_t num, int32_t den)
 {
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return num/den;
+
     mod64_asynch(num, den);
     return mod64_result();
 }
