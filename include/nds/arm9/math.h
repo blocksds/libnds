@@ -102,7 +102,7 @@ static inline int32_t divf32(int32_t num, int32_t den)
 {
     if (__builtin_constant_p(num) && __builtin_constant_p(den))
         return ((int64_t)((uint64_t)(int64_t)num << 12)) / den;
-    
+ 
     divf32_asynch(num, den);
     return divf32_result();
 }
