@@ -572,6 +572,10 @@ static int nitrofs_stat_file_internal(nitrofs_file_t *f, struct stat *st)
     st->st_blocks = (st->st_size + 0x200 - 1) / 0x200;
     st->st_mode = S_IFREG;
 
+    st->st_atim.tv_sec = 0; // Time of last access
+    st->st_mtim.tv_sec = 0; // Time of last modification
+    st->st_ctim.tv_sec = 0; // Time of last status change
+
     return 0;
 }
 
@@ -616,6 +620,9 @@ int nitrofs_stat(const char *name, struct stat *st)
         st->st_ino = res;
         st->st_size = 0;
         st->st_mode = S_IFDIR;
+        st->st_atim.tv_sec = 0; // Time of last access
+        st->st_mtim.tv_sec = 0; // Time of last modification
+        st->st_ctim.tv_sec = 0; // Time of last status change
         return 0;
     }
     res = nitrofs_open_by_id(&f, res);
