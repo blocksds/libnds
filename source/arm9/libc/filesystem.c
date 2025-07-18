@@ -134,6 +134,7 @@ int open(const char *path, int flags, ...)
     if (result == FR_OK)
         return (int)fp;
 
+    free(fp);
     errno = fatfs_error_to_posix(result);
     return -1;
 }
