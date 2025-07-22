@@ -145,7 +145,7 @@ void cothread_yield_irq(uint32_t flag);
 /// Tells the scheduler to switch to a different thread until the specified ARM7
 /// AUX IRQ has happened.
 ///
-/// @param flas
+/// @param flag
 ///     AUX IRQ flag to wait for (only one).
 ///
 /// @note

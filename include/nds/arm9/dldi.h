@@ -84,23 +84,49 @@ extern const DLDI_INTERFACE *io_dldi_data;
 
 /// Set the DLDI runtime mode.
 ///
-/// This controls which CPU runs the DLDI driver's code.
+/// This controls which CPU runs the DLDI driver's code. Don't change this while
+/// the filesystem is in use.
+///
+/// @param
+///     mode New DLDI mode.
 void dldiSetMode(DLDI_MODE mode);
 
 /// Get the DLDI runtime mode.
+///
+/// @return
+///     The current DLDI mode (or DLDI_MODE_AUTODETECT if DLDI hasn't been
+///     initialized yet).
 DLDI_MODE dldiGetMode(void);
 
 /// Return a pointer to the internal IO interface and set up the bus
 /// permissions.
+///
+/// @return
+///     A pointer to the disk interface.
 const DISC_INTERFACE *dldiGetInternal(void);
 
 /// Determine if an IO driver is a valid DLDI driver.
+///
+/// @param io
+///     Driver to validate.
+///
+/// @return
+///     If it's valid it returns true. If not, false.
 bool dldiIsValid(const DLDI_INTERFACE *io);
 
 /// Relocate DLDI driver to a given target location in memory.
+///
+/// @param io
+///     DLDI driver to relocate.
+///
+/// @param targetAddress
+///     Address where the driver is placed.
 void dldiRelocate(DLDI_INTERFACE *io, void *targetAddress);
 
 /// Adjust the pointer addresses within a DLDI driver.
+///
+/// @param io
+///     DLDI driver to fix.
 static inline void dldiFixDriverAddresses(DLDI_INTERFACE *io)
 {
     dldiRelocate(io, io);
@@ -109,6 +135,12 @@ static inline void dldiFixDriverAddresses(DLDI_INTERFACE *io)
 /// Load a DLDI driver from a file and set up the bus permissions.
 ///
 /// This is not directly usable as a filesystem driver.
+///
+/// @param path
+///     Path of the driver.
+///
+/// @return
+///     A DLDI driver interface.
 DLDI_INTERFACE *dldiLoadFromFile(const char *path);
 
 /// Free the memory used by the DLDI driver.
@@ -119,6 +151,9 @@ DLDI_INTERFACE *dldiLoadFromFile(const char *path);
 /// loadedDldi->ioInterface.shutdown();
 /// dldiFree(loadedDldi);
 /// ```
+///
+/// @param dldi
+///     DLDI driver interface.
 void dldiFree(DLDI_INTERFACE *dldi);
 
 #ifdef __cplusplus

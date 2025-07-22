@@ -32,7 +32,7 @@ extern "C" {
 ///     Size of the destination buffer in bytes.
 /// @param in
 ///     Source buffer of the UTF-16LE encoded string.
-/// @param in
+/// @param in_size
 ///     Size of the source buffer in bytes.
 ///
 /// @result
