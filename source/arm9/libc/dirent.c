@@ -137,7 +137,6 @@ struct dirent *readdir(DIR *dirp)
         if (nitrofs_readdir(dp, ent))
         {
             dirp->index = INDEX_END_OF_DIRECTORY;
-            errno = 0;
             return NULL;
         }
         else
@@ -162,7 +161,6 @@ struct dirent *readdir(DIR *dirp)
     {
         // End of directory reached
         dirp->index = INDEX_END_OF_DIRECTORY;
-        errno = 0;
         return NULL;
     }
 
