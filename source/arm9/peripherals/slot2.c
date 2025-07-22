@@ -69,58 +69,72 @@ static bool none_detect(void)
     return true;
 }
 
+// The smallest chunk of external RAM.
+#define EXTRAM_DETECTION_STEP 32768
+
 static bool __extram_detect(uint32_t max_banks, uint32_t max_address)
 {
     slot2_extram_size = 0;
     slot2_extram_banks = 0;
 
-    uint32_t previous_size = 2048;
-    uint32_t proposed_size = 4096;
+    uint32_t previous_size = 0;
+    uint32_t proposed_size = EXTRAM_DETECTION_STEP;
     bool searching = true;
     while ((((uintptr_t) slot2_extram_start) + proposed_size) <= 0xA000000)
     {
-        // ptr1 = new size first memory cell
+        // ptr1 = next block's first memory chunk
         vu16 *ptr1 = ((vu16 *)(((uintptr_t) slot2_extram_start) + previous_size));
-        // ptr2 = new size final memory cell
-        vu16 *ptr2 = ((vu16 *)(((uintptr_t) slot2_extram_start) + proposed_size - 2));
-
-        // Check if RAM has up to proposed_size bytes
-        u16 ptr2v = *ptr2;
-        // Check if ptr2 can be written to
-        ptr2v ^= 0xFFFF;
-        *ptr2 = ptr2v;
-        if (*ptr2 != ptr2v)
-            searching = false;
-        // Restore ptr2 value
-        ptr2v ^= 0xFFFF;
-        *ptr2 = ptr2v;
-        // Check if end of memory found
-        if (!searching)
-            break;
-
-        // Check if RAM has up to proposed_size bytes
         u16 ptr1v = *ptr1;
-        // Check if ptr1 can be written to
-        ptr1v ^= 0xFFFF;
-        *ptr1 = ptr1v;
-        if (*ptr1 != ptr1v)
+        // ptr2 = new block's final memory chunk
+        vu16 *ptr2 = ((vu16 *)(((uintptr_t) slot2_extram_start) + proposed_size - 2));
+        u16 ptr2v = *ptr2;
+
+        // Check if ptr1 and ptr2 can be written to and affect each other.
+        *ptr1 = ptr1v ^ 0xFFFF;
+        *ptr2 = ptr2v ^ 0xFFFF;
+        if (*ptr1 != (ptr1v ^ 0xFFFF))
+        {
             searching = false;
-        // Check if ptr1 affects first memory cell
-        if (*slot2_extram_start != 0x0000)
-        {
-            *ptr1 = 0x0000;
-            if (*slot2_extram_start == 0x0000)
-                searching = false;
+            goto search_complete;
         }
-        else if (*slot2_extram_start != 0xFFFF)
+        if (*ptr2 != (ptr2v ^ 0xFFFF))
         {
-            *ptr1 = 0xFFFF;
-            if (*slot2_extram_start == 0xFFFF)
-                searching = false;
+            searching = false;
+            goto search_complete;
         }
-        // Restore ptr1 value
-        ptr1v ^= 0xFFFF;
+        // Check if ptr1 != ptr2.
+        // This rules out some open bus scenarios.
+        *ptr1 = 0xA55A;
+        *ptr2 = 0x5AA5;
+        if (*ptr1 != 0xA55A)
+        {
+            searching = false;
+            goto search_complete;
+        }
+        if (*ptr2 != 0x5AA5)
+        {
+            searching = false;
+            goto search_complete;
+        }
+        // Only apply this step after checking the first memory chunk.
+        if (previous_size)
+        {
+            // Check if ptr1 affects first memory chunk.
+            // This detects mirroring.
+            if (*slot2_extram_start == 0xA55A)
+            {
+                *ptr1 = 0x5AA5;
+                if (*slot2_extram_start == 0x5AA5)
+                {
+                    searching = false;
+                    goto search_complete;
+                }
+            }
+        }
+search_complete:
+        // Restore ptr1, ptr2 values
         *ptr1 = ptr1v;
+        *ptr2 = ptr2v;
         // Check if end of memory found
         if (!searching)
             break;
@@ -129,7 +143,7 @@ static bool __extram_detect(uint32_t max_banks, uint32_t max_address)
         slot2_extram_size = proposed_size;
         previous_size = proposed_size;
         // Next size to check
-        proposed_size += 2048;
+        proposed_size += EXTRAM_DETECTION_STEP;
     }
     if (!slot2_extram_size)
         return false;
