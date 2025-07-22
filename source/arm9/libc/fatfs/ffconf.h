@@ -267,6 +267,11 @@
 /  These options have no effect in read-only configuration (FF_FS_READONLY = 1). */
 
 
+#define FF_FS_CRTIME	1
+/* This option enables(1)/disables(0) the timestamp of the file created. When
+/  set 1, the file created time is available in FILINFO structure. */
+
+
 #define FF_FS_NOFSINFO	0
 /* If you need to know correct free space on the FAT32 volume, set bit 0 of this
 /  option, and f_getfree() function at the first time after volume mount will force

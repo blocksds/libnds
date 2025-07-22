@@ -313,24 +313,12 @@ int stat(const char *path, struct stat *st)
                    S_IFDIR : // Directory
                    S_IFREG;  // Regular file
 
-    struct tm timeinfo = { 0 };
-    timeinfo.tm_year   = ((fno.fdate >> 9) + 1980) - 1900;
-    timeinfo.tm_mon    = ((fno.fdate >> 5) & 15) - 1;
-    timeinfo.tm_mday   = fno.fdate & 31;
-    timeinfo.tm_hour   = fno.ftime >> 11;
-    timeinfo.tm_min    = (fno.ftime >> 5) & 63;
-    timeinfo.tm_sec    = (fno.ftime & 31) * 2;
-
-    time_t time = mktime(&timeinfo);
-
-    // If there is any problem determining the modification timestamp, just leave
-    // it empty.
-    if (time == (time_t)-1)
-        time = 0;
+    time_t time = fatfs_fattime_to_timestamp(fno.fdate, fno.ftime);
+    time_t crtime = fatfs_fattime_to_timestamp(fno.crdate, fno.crtime);
 
     st->st_atim.tv_sec = time; // Time of last access
     st->st_mtim.tv_sec = time; // Time of last modification
-    st->st_ctim.tv_sec = time; // Time of last status change
+    st->st_ctim.tv_sec = crtime; // Time of last file entry change (~= creation)
 
     return 0;
 }
