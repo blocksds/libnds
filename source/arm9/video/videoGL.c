@@ -1574,7 +1574,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     }
     while (startBank <= endBank);
 
-    swiCopy(table, palette->vramAddr, width | COPY_MODE_HWORD);
+    memcpy(palette->vramAddr, table, width * 2);
     vramRestoreBanks_EFG(tempVRAM);
 
     return 1;
@@ -1600,8 +1600,7 @@ int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
     if (start >= 0 && (start + count) <= (palette->palSize >> 1))
     {
         uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
-        swiCopy(data, (char *)palette->vramAddr + (start << 1),
-                count | COPY_MODE_HWORD);
+        memcpy((char *)palette->vramAddr + (start * 2), data, count * 2);
         vramRestoreBanks_EFG(tempVRAM);
 
         return 1;
@@ -1624,7 +1623,7 @@ int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
     gl_palette_data *palette = DynamicArrayGet(&glGlob.palettePtrs, glGlob.activePalette);
 
     uint32_t tempVRAM = vramSetBanks_EFG(VRAM_E_LCD, VRAM_F_LCD, VRAM_G_LCD);
-    swiCopy(palette->vramAddr, table, palette->palSize >> 1 | COPY_MODE_HWORD);
+    memcpy(table, palette->vramAddr, palette->palSize);
     vramRestoreBanks_EFG(tempVRAM);
 
     return 1;
@@ -2023,7 +2022,7 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
             // by hardware interrupts. The minumum texture size is 8x8 pixels,
             // which is 16 bytes in total for a GL_RGB4 or GL_COMPRESSED
             // texture. This is a multiple of a word.
-            swiCopy(texture, tex->vramAddr, (size >> 2) | COPY_MODE_WORD);
+            memcpy(tex->vramAddr, texture, size);
 
             if (type == GL_COMPRESSED)
             {
@@ -2033,9 +2032,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 // The size of the ext data is half the size of the regular
                 // texture data. The minimum size is 16/2, which is a multiple
                 // of a word.
-                swiCopy((const char *)texture + tex->texSize,
-                        vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt),
-                        (size >> 3) | COPY_MODE_WORD);
+                memcpy(vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt),
+                       (const char *)texture + tex->texSize, size / 2);
             }
         }
         vramRestorePrimaryBanks(vramTemp);
