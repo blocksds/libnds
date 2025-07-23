@@ -2014,15 +2014,23 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         }
         else
         {
-            DC_FlushRange(texture, size);
-            dmaCopyWords(0, texture, tex->vramAddr, size);
+            // Use the CPU to copy data so that this process can be interrupted
+            // by hardware interrupts. The minumum texture size is 8x8 pixels,
+            // which is 16 bytes in total for a GL_RGB4 or GL_COMPRESSED
+            // texture. This is a multiple of a word.
+            swiCopy(texture, tex->vramAddr, (size >> 2) | COPY_MODE_WORD);
+
             if (type == GL_COMPRESSED)
             {
-                DC_FlushRange((const char *)texture + tex->texSize, size >> 1);
+                // Extra texture data is always placed in VRAM bank B
                 vramSetBankB(VRAM_B_LCD);
-                dmaCopyWords(0, (const char *)texture + tex->texSize,
-                             vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt),
-                             size >> 1);
+
+                // The size of the ext data is half the size of the regular
+                // texture data. The minimum size is 16/2, which is a multiple
+                // of a word.
+                swiCopy((const char *)texture + tex->texSize,
+                        vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt),
+                        (size >> 3) | COPY_MODE_WORD);
             }
         }
         vramRestorePrimaryBanks(vramTemp);
