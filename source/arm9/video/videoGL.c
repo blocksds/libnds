@@ -1312,8 +1312,10 @@ int glDeleteTextures(int n, int *names)
     return 1;
 }
 
-uint16_t *vramGetBank(uint16_t *addr)
+static uint16_t *vramGetBank(uint16_t *addr)
 {
+    const uint16_t *vram_i_end = VRAM_I + ((16 * 1024) / sizeof(u16));
+
     if (addr >= VRAM_A && addr < VRAM_B)
         return VRAM_A;
     else if (addr >= VRAM_B && addr < VRAM_C)
@@ -1330,8 +1332,11 @@ uint16_t *vramGetBank(uint16_t *addr)
         return VRAM_G;
     else if (addr >= VRAM_H && addr < VRAM_I)
         return VRAM_H;
-    else
+    else if (addr >= VRAM_I && addr < vram_i_end)
         return VRAM_I;
+
+    sassert(0, "Address not in VRAM");
+    return NULL;
 }
 
 // Lock a designated vram bank to prevent consideration of the bank when
