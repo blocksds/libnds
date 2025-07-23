@@ -1978,8 +1978,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
 
     glTexParameter(target, param);
 
-    // Copy the texture data into either VRAM or main memory
-    if (type != GL_NOTEXTURE && texture)
+    // If a texture has been provided, copy the texture data into VRAM.
+    if ((type != GL_NOTEXTURE) && (texture != NULL))
     {
         uint32_t vramTemp = VRAM_CR;
         uint16_t *startBank = vramGetBank((uint16_t *)tex->vramAddr);
