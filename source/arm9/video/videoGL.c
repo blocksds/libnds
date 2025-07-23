@@ -1546,6 +1546,9 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     uint32_t tempVRAM = VRAM_EFG_CR;
     uint16_t *startBank = vramGetBank((uint16_t *)palette->vramAddr);
     uint16_t *endBank = vramGetBank((uint16_t *)((char *)palette->vramAddr + (width << 1) - 1));
+
+    // Only set to LCD mode the banks that we need to modify, not all of them.
+    // Some of them may be used for purposes other than texture palettes.
     do
     {
         if (startBank == VRAM_E)
@@ -1563,7 +1566,8 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
             vramSetBankG(VRAM_G_LCD);
             startBank += 0x2000;
         }
-    } while (startBank <= endBank);
+    }
+    while (startBank <= endBank);
 
     swiCopy(table, palette->vramAddr, width | COPY_MODE_HWORD);
     vramRestoreBanks_EFG(tempVRAM);
@@ -1981,6 +1985,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
         uint16_t *startBank = vramGetBank((uint16_t *)tex->vramAddr);
         uint16_t *endBank = vramGetBank((uint16_t *)((char *)tex->vramAddr + size - 1));
 
+        // Only set to LCD mode the banks that we need to modify, not all of
+        // them. Some of them may be used for purposes other than textures.
         do
         {
             if (startBank == VRAM_A)
@@ -1992,7 +1998,8 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
             else if (startBank == VRAM_D)
                 vramSetBankD(VRAM_D_LCD);
             startBank += 0x10000;
-        } while (startBank <= endBank);
+        }
+        while (startBank <= endBank);
 
         if (type == GL_RGB)
         {
