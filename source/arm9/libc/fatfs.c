@@ -82,6 +82,26 @@ int fatfs_error_to_posix(FRESULT error)
     return codes[error];
 }
 
+time_t fatfs_fattime_to_timestamp(uint16_t ftime, uint16_t fdate)
+{
+    struct tm timeinfo = { 0 };
+    timeinfo.tm_year   = ((fdate >> 9) + 1980) - 1900;
+    timeinfo.tm_mon    = ((fdate >> 5) & 15) - 1;
+    timeinfo.tm_mday   = fdate & 31;
+    timeinfo.tm_hour   = ftime >> 11;
+    timeinfo.tm_min    = (ftime >> 5) & 63;
+    timeinfo.tm_sec    = (ftime & 31) * 2;
+
+    time_t time = mktime(&timeinfo);
+
+    // If there is any problem determining the modification timestamp, just leave
+    // it empty.
+    if (time == (time_t)-1)
+        time = 0;
+
+    return time;
+}
+
 DWORD fatfs_timestamp_to_fattime(struct tm *stm)
 {
     return (DWORD)(stm->tm_year - 80) << 25 |
