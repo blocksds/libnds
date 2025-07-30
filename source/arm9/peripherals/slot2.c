@@ -85,42 +85,63 @@ static bool __extram_detect(uint32_t max_banks, uint32_t max_address)
         vu16 *ptr2 = ((vu16 *)(((uintptr_t) slot2_extram_start) + proposed_size - 2));
 
         // Check if RAM has up to proposed_size bytes
-        u16 ptr2v = *ptr2;
-        // Check if ptr2 can be written to
-        ptr2v ^= 0xFFFF;
-        *ptr2 = ptr2v;
-        if (*ptr2 != ptr2v)
-            searching = false;
-        // Restore ptr2 value
-        ptr2v ^= 0xFFFF;
-        *ptr2 = ptr2v;
-        // Check if end of memory found
-        if (!searching)
-            break;
-
-        // Check if RAM has up to proposed_size bytes
         u16 ptr1v = *ptr1;
-        // Check if ptr1 can be written to
+        u16 ptr2v = *ptr2;
+        // Check if ptr1 and ptr2 can be written to
         ptr1v ^= 0xFFFF;
         *ptr1 = ptr1v;
+        ptr2v ^= 0xFFFF;
+        *ptr2 = ptr2v;
+        // Check if ptr1 and ptr2 affect each other
         if (*ptr1 != ptr1v)
+        {
             searching = false;
+            goto search_complete;
+        }
+        if (*ptr2 != ptr2v)
+        {
+            searching = false;
+            goto search_complete;
+        }
+        // Check if ptr1 != ptr2 (open bus, etc.)
+        *ptr1 = 0xA55A;
+        *ptr2 = 0x5AA5;
+        if (*ptr1 != 0xA55A)
+        {
+            searching = false;
+            goto search_complete;
+        }
+        if (*ptr2 != 0x5AA5)
+        {
+            searching = false;
+            goto search_complete;
+        }
         // Check if ptr1 affects first memory cell
         if (*slot2_extram_start != 0x0000)
         {
             *ptr1 = 0x0000;
             if (*slot2_extram_start == 0x0000)
+            {
                 searching = false;
+                goto search_complete;
+            }
         }
         else if (*slot2_extram_start != 0xFFFF)
         {
             *ptr1 = 0xFFFF;
             if (*slot2_extram_start == 0xFFFF)
+            {
                 searching = false;
+                goto search_complete;
+            }
         }
         // Restore ptr1 value
+search_complete:
         ptr1v ^= 0xFFFF;
         *ptr1 = ptr1v;
+        // Restore ptr2 value
+        ptr2v ^= 0xFFFF;
+        *ptr2 = ptr2v;
         // Check if end of memory found
         if (!searching)
             break;
