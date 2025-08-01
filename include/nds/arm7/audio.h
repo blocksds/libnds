@@ -27,37 +27,78 @@ extern "C" {
 #include <nds/system.h>
 #include <nds/timers.h>
 
-#define SOUND_VOL(n)        (n)
-#define SOUND_FREQ(n)       TIMER_FREQ_SHIFT(n, 1, 1)
-#define SOUND_ENABLE        BIT(15)
+// Control registers
+// -----------------
 
-#define SOUND_REPEAT        BIT(27)
-#define SOUND_ONE_SHOT      BIT(28)
-
-#define SOUND_FORMAT_16BIT  (1 << 29)
-#define SOUND_FORMAT_8BIT   (0 << 29)
-#define SOUND_FORMAT_PSG    (3 << 29)
-#define SOUND_FORMAT_ADPCM  (2 << 29)
-
-#define SOUND_PAN(n)        ((n) << 16)
-
-#define SCHANNEL_ENABLE     BIT(31)
-
-// Registers
-
-#define REG_MASTER_VOLUME           (*(vu8 *)0x4000500)
 #define REG_SOUNDCNT                (*(vu16 *)0x4000500)
+
+#define SOUND_VOL(n)                (n) // 0 (mute) to 127 (max)
+#define SOUND_ENABLE                BIT(15)
+
+#define REG_MASTER_VOLUME           (*(vu8 *)0x4000500) // Low byte of REG_SOUNDCNT
+
 #define REG_SOUNDBIAS               (*(vu32 *)0x4000504)
 
+// Sound channel registers
+// -----------------------
+
 #define SCHANNEL_CR(n)              (*(vu32 *)(0x04000400 + ((n) << 4)))
+
+#define SCHANNEL_CR_VOL_MUL(v)      (v) // 0 (mute) to 127 (max)
+
+#define SCHANNEL_CR_VOL_DIV(v)      ((v) << 8)
+
+#define SCHANNEL_CR_VOL_DIV_1       SCHANNEL_VOL_DIV(0)
+#define SCHANNEL_CR_VOL_DIV_2       SCHANNEL_VOL_DIV(1)
+#define SCHANNEL_CR_VOL_DIV_4       SCHANNEL_VOL_DIV(2)
+#define SCHANNEL_CR_VOL_DIV_16      SCHANNEL_VOL_DIV(3)
+
+#define SCHANNEL_CR_PAN(n)          ((n) << 16) // 0 (left) to 64 (center) to 127 (right)
+
+#define SCHANNEL_CR_DONT_HOLD       0
+#define SCHANNEL_CR_HOLD            BIT(15) // Hold last sample of one-shot sound
+
+#define SCHANNEL_CR_DUTY(v)         ((v) << 24) // HIGH % = (v + 1) * 12.5% (PSG only)
+
+#define SCHANNEL_CR_MANUAL          0
+#define SCHANNEL_CR_REPEAT          BIT(27)
+#define SCHANNEL_CR_ONE_SHOT        BIT(28)
+
+#define SCHANNEL_CR_FORMAT_16BIT    (1 << 29)
+#define SCHANNEL_CR_FORMAT_8BIT     (0 << 29)
+#define SCHANNEL_CR_FORMAT_PSG      (3 << 29)
+#define SCHANNEL_CR_FORMAT_ADPCM    (2 << 29)
+
+#define SCHANNEL_CR_ENABLE          BIT(31)
+
+// Parts of SCHANNEL_CR(n)
 #define SCHANNEL_VOL(n)             (*(vu8 *)(0x04000400 + ((n) << 4)))
 #define SCHANNEL_PAN(n)             (*(vu8 *)(0x04000402 + ((n) << 4)))
+
 #define SCHANNEL_SOURCE(n)          (*(vu32 *)(0x04000404 + ((n) << 4)))
+
 #define SCHANNEL_TIMER(n)           (*(vu16 *)(0x04000408 + ((n) << 4)))
+
+#define SCHANNEL_FREQ(n)            TIMER_FREQ_SHIFT(n, 1, 1)
+
 #define SCHANNEL_REPEAT_POINT(n)    (*(vu16 *)(0x0400040A + ((n) << 4)))
+
 #define SCHANNEL_LENGTH(n)          (*(vu32 *)(0x0400040C + ((n) << 4)))
 
+// Old names
+#define SOUND_PAN(n)                SCHANNEL_CR_PAN(n)
+#define SOUND_MANUAL                SCHANNEL_CR_MANUAL
+#define SOUND_REPEAT                SCHANNEL_CR_REPEAT
+#define SOUND_ONE_SHOT              SCHANNEL_CR_ONE_SHOT
+#define SOUND_FORMAT_16BIT          SCHANNEL_CR_FORMAT_16BIT
+#define SOUND_FORMAT_8BIT           SCHANNEL_CR_FORMAT_8BIT
+#define SOUND_FORMAT_PSG            SCHANNEL_CR_FORMAT_PSG
+#define SOUND_FORMAT_ADPCM          SCHANNEL_CR_FORMAT_ADPCM
+#define SCHANNEL_ENABLE             SCHANNEL_CR_ENABLE
+#define SOUND_FREQ(f)               SCHANNEL_FREQ(f)
+
 // Sound Capture Registers
+// -----------------------
 
 #define REG_SNDCAP0CNT      (*(vu8 *)0x04000508)
 #define REG_SNDCAP1CNT      (*(vu8 *)0x04000509)
@@ -94,6 +135,7 @@ extern "C" {
 typedef void (*MIC_BUF_SWAP_CB)(u8 *completedBuffer, int length);
 
 // DSi Registers
+// -------------
 
 #define REG_SNDEXTCNT           (*(vu16 *)0x04004700)
 
