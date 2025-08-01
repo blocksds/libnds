@@ -18,7 +18,7 @@ int getFreeChannel(void)
 {
     for (int i = 0; i < 16; i++)
     {
-        if (!(SCHANNEL_CR(i) & SCHANNEL_ENABLE))
+        if (!(SCHANNEL_CR(i) & SCHANNEL_CR_ENABLE))
             return i;
     }
 
@@ -29,7 +29,7 @@ int getFreePSGChannel(void)
 {
     for (int i = 8; i < 14; i++)
     {
-        if (!(SCHANNEL_CR(i) & SCHANNEL_ENABLE))
+        if (!(SCHANNEL_CR(i) & SCHANNEL_CR_ENABLE))
             return i;
     }
 
@@ -40,7 +40,7 @@ int getFreeNoiseChannel(void)
 {
     for (int i = 14; i < 16; i++)
     {
-        if (!(SCHANNEL_CR(i) & SCHANNEL_ENABLE))
+        if (!(SCHANNEL_CR(i) & SCHANNEL_CR_ENABLE))
             return i;
     }
 
@@ -84,11 +84,12 @@ void soundDataHandler(int bytes, void *user_data)
             SCHANNEL_SOURCE(channel) = (u32)msg.SoundPlay.data;
             SCHANNEL_REPEAT_POINT(channel) = msg.SoundPlay.loopPoint;
             SCHANNEL_LENGTH(channel) = msg.SoundPlay.dataSize;
-            SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPlay.freq);
-            SCHANNEL_CR(channel) = SCHANNEL_ENABLE | SOUND_VOL(msg.SoundPlay.volume)
-                                   | SOUND_PAN(msg.SoundPlay.pan)
-                                   | (msg.SoundPlay.format << 29)
-                                   | (msg.SoundPlay.loop ?  SOUND_REPEAT : SOUND_ONE_SHOT);
+            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(msg.SoundPlay.freq);
+            SCHANNEL_CR(channel) = SCHANNEL_CR_ENABLE
+                        | SCHANNEL_CR_VOL_MUL(msg.SoundPlay.volume)
+                        | SCHANNEL_CR_PAN(msg.SoundPlay.pan)
+                        | (msg.SoundPlay.format << 29)
+                        | (msg.SoundPlay.loop ? SCHANNEL_CR_REPEAT : SCHANNEL_CR_ONE_SHOT);
         }
     }
     else if (msg.type == SOUND_PSG_MESSAGE)
@@ -105,10 +106,11 @@ void soundDataHandler(int bytes, void *user_data)
 
         if (channel >= 0)
         {
-            SCHANNEL_CR(channel) = SCHANNEL_ENABLE | msg.SoundPsg.volume
-                                   | SOUND_PAN(msg.SoundPsg.pan) | SOUND_FORMAT_PSG
+            SCHANNEL_CR(channel) = SCHANNEL_CR_ENABLE | msg.SoundPsg.volume
+                                   | SCHANNEL_CR_PAN(msg.SoundPsg.pan)
+                                   | SCHANNEL_CR_FORMAT_PSG
                                    | (msg.SoundPsg.dutyCycle << 24);
-            SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPsg.freq);
+            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(msg.SoundPsg.freq);
         }
     }
     else if (msg.type == SOUND_NOISE_MESSAGE)
@@ -125,9 +127,10 @@ void soundDataHandler(int bytes, void *user_data)
 
         if (channel >= 0)
         {
-            SCHANNEL_CR(channel) = SCHANNEL_ENABLE | msg.SoundPsg.volume
-                                   | SOUND_PAN(msg.SoundPsg.pan) | SOUND_FORMAT_PSG;
-            SCHANNEL_TIMER(channel) = SOUND_FREQ(msg.SoundPsg.freq);
+            SCHANNEL_CR(channel) = SCHANNEL_CR_ENABLE | msg.SoundPsg.volume
+                                   | SCHANNEL_CR_PAN(msg.SoundPsg.pan)
+                                   | SCHANNEL_CR_FORMAT_PSG;
+            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(msg.SoundPsg.freq);
         }
     }
     else if (msg.type == SOUND_CAPTURE_START)
@@ -239,29 +242,29 @@ void soundCommandHandler(u32 command, void *userdata)
             break;
 
         case SOUND_SET_PAN:
-            SCHANNEL_CR(channel) &= ~SOUND_PAN(0xFF);
-            SCHANNEL_CR(channel) |= SOUND_PAN(data);
+            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_PAN(0xFF);
+            SCHANNEL_CR(channel) |= SCHANNEL_CR_PAN(data);
             break;
 
         case SOUND_SET_FREQ:
-            SCHANNEL_TIMER(channel) = SOUND_FREQ(data);
+            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(data);
             break;
 
         case SOUND_SET_WAVEDUTY:
-            SCHANNEL_CR(channel) &= ~(7 << 24);
-            SCHANNEL_CR(channel) |= (data) << 24;
+            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_DUTY(7);
+            SCHANNEL_CR(channel) |= SCHANNEL_CR_DUTY(data);
             break;
 
         case SOUND_KILL:
-            SCHANNEL_CR(channel) &= ~SCHANNEL_ENABLE;
+            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_ENABLE;
             break;
 
         case SOUND_PAUSE:
-            SCHANNEL_CR(channel) &= ~SCHANNEL_ENABLE;
+            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_ENABLE;
             break;
 
         case SOUND_RESUME:
-            SCHANNEL_CR(channel) |= SCHANNEL_ENABLE;
+            SCHANNEL_CR(channel) |= SCHANNEL_CR_ENABLE;
             break;
 
         case SOUND_CAPTURE_STOP:
