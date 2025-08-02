@@ -156,9 +156,7 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     ldr     r1, =(CP15_CONTROL_ALTERNATE_VECTOR_SELECT | CP15_CONTROL_RESERVED_SBO_MASK)
     mcr     CP15_REG1_CONTROL_REGISTER(r1)
 
-    // Protection Unit Setup added by Sasq
-
-    // Disable cache
+    // Clear all cache entries
     mov     r0, #0
     mcr     CP15_REG7_FLUSH_ICACHE
     mcr     CP15_REG7_FLUSH_DCACHE
