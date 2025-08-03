@@ -17,6 +17,7 @@ extern "C" {
 
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <sys/cdefs.h>
 
 /// Checks if the console has been setup by the ARM9 or not.
