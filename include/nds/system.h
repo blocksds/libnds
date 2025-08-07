@@ -171,6 +171,51 @@ int writeFirmware(u32 address, void *buffer, u32 length);
 ///     0 on success, else error.
 int readFirmware(u32 address, void *buffer, u32 length);
 
+/// Turn the screen off (DS and DS-Lite only). See systemSetBacklightLevel().
+#define PM_BACKLIGHT_OFF 0
+/// Set minimum brightness. See systemSetBacklightLevel().
+#define PM_BACKLIGHT_MIN 1
+/// Turn maximum brighness. See systemSetBacklightLevel().
+#define PM_BACKLIGHT_MAX 5
+
+/// Sets the brighness level of the screens.
+///
+/// This function behaves differently depending on the model of your console:
+/// Some brightness levels don't work on all consoles, and this function does
+/// the next best thing.
+///
+/// Level 0 turns the backlight off (not supported on DSi). Levels 1-5 provide
+/// different levels of brightness depending on the console model. Level 5 is
+/// the maximum level of brightness.
+///
+/// - DSi: 5 levels of brightness (1 to 5). The backlight can't be turned off,
+///   level 0 behaves like level 1.
+/// - DS Lite: 4 levels of brightness (2 to 5). The backlight can be turned off
+///   or on. Level 1 is internally set to level 2.
+/// - DS: The screen can be turned off or on. Levels 1 to 5 are internally set
+///   to level 5 (full brightness). Some models of the DS support the same
+///   levels of brightness of the DS Lite. In them, the function behaves the
+///   same way as on DS Lite.
+///
+/// You can also use the defines PM_BACKLIGHT_OFF (0), PM_BACKLIGHT_MIN (1) and
+/// PM_BACKLIGHT_MAX (5).
+///
+/// @note
+///     DS and DS Lite consoles support turning on and off individual screens,
+///     but systemSetBacklightLevel() doesn't support controlling the two
+///     screens independently.
+///
+/// @note
+///     On DSi this setting is persistent and it will be the setting used the
+///     next time the console is turned on.
+///
+/// @param level
+///     Brightness level. It goes from 0 (backlight off) to 5 (max brightness).
+///
+/// @return
+///     The new real brightness setting.
+u32 systemSetBacklightLevel(u32 level);
+
 /// Gets the DS battery level
 ///
 /// This returns a value with two fields. Bits 0 to 3 are the battery level,
@@ -447,9 +492,9 @@ void systemShutDown(void);
 
 #endif // ARM7
 
-/// Backlight level settings.
+/// DS-Lite firmware backlight level settings.
 ///
-/// @note
+/// @warning
 ///     Only available on DS Lite.
 typedef enum {
     BACKLIGHT_LOW,  ///< Low backlight setting.
@@ -539,7 +584,7 @@ typedef struct tPERSONAL_DATA
         /// GBA screen selection (lower screen if set, otherwise upper screen).
         u32 gbaScreen         : 1;
 
-        /// Brightness level at power on, dslite.
+        /// Brightness level at power on, DS Lite. See BACKLIGHT_LEVELS.
         u32 defaultBrightness : 2;
 
         /// The DS should boot from the DS cart or GBA cart automatically if one is inserted.
