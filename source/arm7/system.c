@@ -78,27 +78,8 @@ u32 getBatteryLevel(void)
 
 u32 systemSetBacklightLevel(u32 level)
 {
-    if (isDSiMode())
-    {
-        // DSi
-        // ---
-
-        if (level > PM_BACKLIGHT_MAX)
-            level = PM_BACKLIGHT_MAX;
-
-        // The screens of the DSi can't be fully turned off
-        if (level < PM_BACKLIGHT_MIN)
-            level = PM_BACKLIGHT_MIN;
-
-        // The DSi internally expects levels 0 to 4
-        i2cWriteRegister(I2C_PM, I2CREGPM_BACKLIGHT, level - PM_BACKLIGHT_MIN);
-        return level;
-    }
-
-    // DS or DS Lite
-    // -------------
-
     // First, check if the screen has to be turned off or on
+
     if (level == PM_BACKLIGHT_OFF)
     {
         u8 reg = readPowerManagement(PM_CONTROL_REG);
@@ -110,6 +91,25 @@ u32 systemSetBacklightLevel(u32 level)
         u8 reg = readPowerManagement(PM_CONTROL_REG);
         writePowerManagement(PM_CONTROL_REG, reg | 0x0C);
     }
+
+    if (isDSiMode())
+    {
+        // DSi
+        // ---
+
+        if (level > PM_BACKLIGHT_MAX)
+            level = PM_BACKLIGHT_MAX;
+
+        if (level < PM_BACKLIGHT_MIN)
+            level = PM_BACKLIGHT_MIN;
+
+        // The DSi internally expects levels 0 to 4
+        i2cWriteRegister(I2C_PM, I2CREGPM_BACKLIGHT, level - PM_BACKLIGHT_MIN);
+        return level;
+    }
+
+    // DS or DS Lite
+    // -------------
 
     // On DS Lite set the brightness level
 

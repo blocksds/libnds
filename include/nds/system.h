@@ -171,7 +171,7 @@ int writeFirmware(u32 address, void *buffer, u32 length);
 ///     0 on success, else error.
 int readFirmware(u32 address, void *buffer, u32 length);
 
-/// Turn the screen off (DS and DS-Lite only). See systemSetBacklightLevel().
+/// Turn the screen off. See systemSetBacklightLevel().
 #define PM_BACKLIGHT_OFF 0
 /// Set minimum brightness. See systemSetBacklightLevel().
 #define PM_BACKLIGHT_MIN 1
@@ -184,14 +184,13 @@ int readFirmware(u32 address, void *buffer, u32 length);
 /// Some brightness levels don't work on all consoles, and this function does
 /// the next best thing.
 ///
-/// Level 0 turns the backlight off (not supported on DSi). Levels 1-5 provide
-/// different levels of brightness depending on the console model. Level 5 is
-/// the maximum level of brightness.
+/// Level 0 turns the backlight off. Levels 1-5 provide different levels of
+/// brightness depending on the console model. Level 5 is the maximum level of
+/// brightness.
 ///
-/// - DSi: 5 levels of brightness (1 to 5). The backlight can't be turned off,
-///   level 0 behaves like level 1.
-/// - DS Lite: 4 levels of brightness (2 to 5). The backlight can be turned off
-///   or on. Level 1 is internally set to level 2.
+/// - DSi: 5 levels of brightness (1 to 5).
+/// - DS Lite: 4 levels of brightness (2 to 5). Level 1 is internally set to
+///   level 2.
 /// - DS: The screen can be turned off or on. Levels 1 to 5 are internally set
 ///   to level 5 (full brightness). Some models of the DS support the same
 ///   levels of brightness of the DS Lite. In them, the function behaves the
@@ -206,8 +205,8 @@ int readFirmware(u32 address, void *buffer, u32 length);
 ///     screens independently.
 ///
 /// @note
-///     On DSi this setting is persistent and it will be the setting used the
-///     next time the console is turned on.
+///     On DSi the brightness setting is persistent and it will be the setting
+///     used the next time the console is turned on.
 ///
 /// @param level
 ///     Brightness level. It goes from 0 (backlight off) to 5 (max brightness).
