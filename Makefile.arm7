@@ -86,12 +86,12 @@ ASFLAGS		+= -g -x assembler-with-cpp $(DEFINES) $(ARCH) \
 		   -ffunction-sections -fdata-sections
 
 CFLAGS		+= -g -std=gnu17 $(WARNFLAGS) $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -O2 \
+		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -Os \
 		   -ffunction-sections -fdata-sections \
 		   -fomit-frame-pointer
 
 CXXFLAGS	+= -g -std=gnu++14 $(WARNFLAGS) $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -O2 \
+		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -Os \
 		   -ffunction-sections -fdata-sections \
 		   -fno-exceptions -fno-rtti \
 		   -fomit-frame-pointer
