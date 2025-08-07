@@ -60,11 +60,18 @@ typedef enum
 
 /// Enables Sound on the DS.
 ///
-/// It should be called prior to attempting sound playback.
+/// It should be called prior to attempting sound playback. It sets the master
+/// volume to the maximum possible value (127).
 void soundEnable(void);
 
 /// Disables Sound on the DS.
 void soundDisable(void);
+
+/// Sets the master volume.
+///
+/// @param volume
+///     The new volume from 0 to 127.
+void soundSetMasterVolume(u32 volume);
 
 /// Plays a sound in the specified format at the specified frequency.
 ///

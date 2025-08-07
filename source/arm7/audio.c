@@ -236,6 +236,10 @@ void soundCommandHandler(u32 command, void *userdata)
             disableSound();
             break;
 
+        case SOUND_SET_MASTER_VOL:
+            REG_MASTER_VOLUME = data & 0x7F;
+            break;
+
         case SOUND_SET_VOLUME:
             SCHANNEL_CR(channel) &= ~0xFF;
             SCHANNEL_CR(channel) |= data;

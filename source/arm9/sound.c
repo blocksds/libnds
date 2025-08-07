@@ -25,6 +25,14 @@ void soundDisable(void)
     fifoSendValue32(FIFO_SOUND, SOUND_MASTER_DISABLE);
 }
 
+void soundSetMasterVolume(u32 volume)
+{
+    if (volume > 127)
+        volume = 127;
+
+    fifoSendValue32(FIFO_SOUND, SOUND_SET_MASTER_VOL | volume);
+}
+
 int soundPlayPSGChannel(int channel, DutyCycle cycle, u16 freq, u8 volume, u8 pan)
 {
     FifoMessage msg;
