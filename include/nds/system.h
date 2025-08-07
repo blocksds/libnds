@@ -171,6 +171,36 @@ int writeFirmware(u32 address, void *buffer, u32 length);
 ///     0 on success, else error.
 int readFirmware(u32 address, void *buffer, u32 length);
 
+/// Sets the brighness level of the screens.
+///
+/// This function behaves differently depending on the model of your console:
+/// Some brightness levels don't work on all consoles, and this function does
+/// the next best thing.
+///
+/// Level 0 turns the backlight off (not supported on DSi). Levels 1-5 provide
+/// different levels of brightness depending on the console model. Level 5 is
+/// the maximum level of brightness.
+///
+/// - DSi: 5 levels of brightness (1 to 5). The backlight can't be turned off,
+///   level 0 behaves like level 1.
+/// - DS Lite: 4 levels of brightness (2 to 5). The backlight can't be turned
+///   off. Level 1 is internally set to level 2.
+/// - DS: The screen can be turned off or on. Levels 1 to 5 are internally set
+///   to level 5 (full brightness). Some models of the DS support the same
+///   levels of brightness of the DS Lite. In them, the function behaves the
+///   same way as on DS Lite.
+///
+/// @note
+///     On DSi this setting is persistent and it will be the setting used the
+///     next time the console is turned on.
+///
+/// @param level
+///     Brightness level. It goes from 0 (backlight off) to 5 (max brightness).
+///
+/// @return
+///     The new real brightness setting.
+u32 systemSetBacklightLevel(u32 level);
+
 /// Gets the DS battery level
 ///
 /// This returns a value with two fields. Bits 0 to 3 are the battery level,

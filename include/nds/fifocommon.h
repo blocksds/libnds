@@ -116,6 +116,7 @@ typedef enum
     PM_REQ_BATTERY          = 7 << 16,
     PM_REQ_SLOT1_DISABLE    = 8 << 16,
     PM_REQ_SLOT1_ENABLE     = 9 << 16,
+    PM_REQ_BACKLIGHT_LEVEL  = 10 << 16,
 } FifoPMCommands;
 
 /// Enum values for the FIFO WiFi commands (FIFO_DSWIFI).

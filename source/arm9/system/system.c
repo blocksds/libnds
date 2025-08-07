@@ -85,6 +85,16 @@ void systemMsgHandler(int bytes, void *user_data)
     }
 }
 
+u32 systemSetBacklightLevel(u32 level)
+{
+    if (level > 5)
+        level = 5;
+
+    fifoSendValue32(FIFO_PM, PM_REQ_BACKLIGHT_LEVEL | level);
+    fifoWaitValue32(FIFO_PM);
+    return fifoGetValue32(FIFO_PM);
+}
+
 void systemSleep(void)
 {
     fifoSendValue32(FIFO_PM, PM_REQ_SLEEP);

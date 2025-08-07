@@ -76,6 +76,76 @@ u32 getBatteryLevel(void)
     return battery;
 }
 
+u32 systemSetBacklightLevel(u32 level)
+{
+    if (isDSiMode())
+    {
+        // DSi
+        // ---
+
+        if (level > 5)
+            level = 5;
+
+        // The screens of the DSi can't be fully turned off
+        if (level < 1)
+            level = 1;
+
+consolePrintf("DSi level %u\n", level - 1);
+consoleFlush();
+
+        i2cWriteRegister(I2C_PM, I2CREGPM_BACKLIGHT, level - 1); // 0 to 4
+        return level;
+    }
+
+    // DS or DS Lite
+    // -------------
+
+    // First, check if the screen has to be turned off or on
+consolePrintf("%u\n", level);
+    if (level == 0)
+    {
+        u8 reg = readPowerManagement(PM_CONTROL_REG);
+        writePowerManagement(PM_CONTROL_REG, reg & ~0x0C);
+consolePuts("DS/Lite OFF\n");
+consoleFlush();
+
+        return 0;
+    }
+    else
+    {
+        u8 reg = readPowerManagement(PM_CONTROL_REG);
+        writePowerManagement(PM_CONTROL_REG, reg | 0x0C);
+consolePuts("DS/Lite ON\n");
+consoleFlush();
+    }
+
+    // On DS Lite set the brightness level
+
+    u8 backlight_level = readPowerManagement(PM_BACKLIGHT_LEVEL);
+    if (backlight_level & 0xF0)
+    {
+        // DS Lite
+
+        if (level > 5)
+            level = 5;
+
+        if (level < 2)
+            level = 2;
+
+consolePrintf("DS Lite %u\n", level - 2);
+consoleFlush();
+
+        u8 reg = readPowerManagement(PM_BACKLIGHT_LEVEL);
+        reg = (reg & ~0x03) | (level - 2);
+        writePowerManagement(PM_BACKLIGHT_LEVEL, reg); // 0 to 3
+        return level;
+    }
+    else
+    {
+        return 5;
+    }
+}
+
 void powerValueHandler(u32 value, void *user_data)
 {
     (void)user_data;
@@ -86,6 +156,12 @@ void powerValueHandler(u32 value, void *user_data)
             ledBlink(value);
             break;
 
+        case PM_REQ_BACKLIGHT_LEVEL:
+        {
+            u32 level = systemSetBacklightLevel(value & 0xFFFF);
+            fifoSendValue32(FIFO_PM, level);
+            break;
+        }
         case PM_REQ_ON:
         {
             u32 temp = readPowerManagement(PM_CONTROL_REG);
