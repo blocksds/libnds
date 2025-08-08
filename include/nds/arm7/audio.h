@@ -30,9 +30,39 @@ extern "C" {
 // Control registers
 // -----------------
 
+// There are two mixers (left and right), and they both add all hardware
+// channels (from channel 0 to 15). Optionally, channel 1 and channel 3 can be
+// disconnected from both left and right mixers (at the same time).
+//
+// Then, the actual left/right output can be selected to be the output of the
+// mixer, or bypass the mixer to output channel 1, channel 3, or the sum of
+// channel 1 and channel 3.
+//
+// Channels 1 and 3 are treated in a special way because they interact with the
+// audio capture hardware.
+
 #define REG_SOUNDCNT                (*(vu16 *)0x4000500)
 
 #define SOUNDCNT_VOL(n)             (n) // 0 (mute) to 127 (max)
+
+#define SOUNDCNT_LEFT_OUTPUT_MIXER          (0 << 8) // Mixer = All channels
+#define SOUNDCNT_LEFT_OUTPUT_CH1            (1 << 8) // Bypasses mixer
+#define SOUNDCNT_LEFT_OUTPUT_CH3            (2 << 8) // Bypasses mixer
+#define SOUNDCNT_LEFT_OUTPUT_CH1_AND_CH3    (3 << 8) // Bypasses mixer
+#define SOUNDCNT_LEFT_OUTPUT_MASK           (3 << 8)
+
+#define SOUNDCNT_RIGHT_OUTPUT_MIXER         (0 << 10) // Mixer = All channels
+#define SOUNDCNT_RIGHT_OUTPUT_CH1           (1 << 10) // Bypasses mixer
+#define SOUNDCNT_RIGHT_OUTPUT_CH3           (2 << 10) // Bypasses mixer
+#define SOUNDCNT_RIGHT_OUTPUT_CH1_AND_CH3   (3 << 10) // Bypasses mixer
+#define SOUNDCNT_RIGHT_OUTPUT_MASK          (3 << 10)
+
+#define SOUNDCNT_MIXER_CH1_ENABLED          (0 << 12) // Left and right mixers receive Ch1
+#define SOUNDCNT_MIXER_CH1_DISABLED         (1 << 12) // Left and right mixers don't receive Ch1
+
+#define SOUNDCNT_MIXER_CH3_ENABLED          (0 << 13) // Left and right mixers receive Ch3
+#define SOUNDCNT_MIXER_CH3_DISABLED         (1 << 13) // Left and right mixers don't receive Ch3
+
 #define SOUNDCNT_ENABLE             BIT(15)
 
 #define REG_MASTER_VOLUME           (*(vu8 *)0x4000500) // Low byte of REG_SOUNDCNT
