@@ -32,8 +32,8 @@ extern "C" {
 
 #define REG_SOUNDCNT                (*(vu16 *)0x4000500)
 
-#define SOUND_VOL(n)                (n) // 0 (mute) to 127 (max)
-#define SOUND_ENABLE                BIT(15)
+#define SOUNDCNT_VOL(n)             (n) // 0 (mute) to 127 (max)
+#define SOUNDCNT_ENABLE             BIT(15)
 
 #define REG_MASTER_VOLUME           (*(vu8 *)0x4000500) // Low byte of REG_SOUNDCNT
 
@@ -42,60 +42,69 @@ extern "C" {
 // Sound channel registers
 // -----------------------
 
-#define SCHANNEL_CR(n)              (*(vu32 *)(0x04000400 + ((n) << 4)))
+#define REG_SOUNDXCNT(n)            (*(vu32 *)(0x04000400 + ((n) << 4)))
 
-#define SCHANNEL_CR_VOL_MUL(v)      (v) // 0 (mute) to 127 (max)
+#define SOUNDXCNT_VOL_MUL(v)        (v) // 0 (mute) to 127 (max)
 
-#define SCHANNEL_CR_VOL_DIV(v)      ((v) << 8)
+#define SOUNDXCNT_VOL_DIV(v)        ((v) << 8)
 
-#define SCHANNEL_CR_VOL_DIV_1       SCHANNEL_VOL_DIV(0)
-#define SCHANNEL_CR_VOL_DIV_2       SCHANNEL_VOL_DIV(1)
-#define SCHANNEL_CR_VOL_DIV_4       SCHANNEL_VOL_DIV(2)
-#define SCHANNEL_CR_VOL_DIV_16      SCHANNEL_VOL_DIV(3)
+#define SOUNDXCNT_VOL_DIV_1         SCHANNEL_VOL_DIV(0)
+#define SOUNDXCNT_VOL_DIV_2         SCHANNEL_VOL_DIV(1)
+#define SOUNDXCNT_VOL_DIV_4         SCHANNEL_VOL_DIV(2)
+#define SOUNDXCNT_VOL_DIV_16        SCHANNEL_VOL_DIV(3)
 
-#define SCHANNEL_CR_PAN(n)          ((n) << 16) // 0 (left) to 64 (center) to 127 (right)
+#define SOUNDXCNT_PAN(n)            ((n) << 16) // 0 (left) to 64 (center) to 127 (right)
 
-#define SCHANNEL_CR_DONT_HOLD       0
-#define SCHANNEL_CR_HOLD            BIT(15) // Hold last sample of one-shot sound
+#define SOUNDXCNT_DONT_HOLD         0
+#define SOUNDXCNT_HOLD              BIT(15) // Hold last sample of one-shot sound
 
-#define SCHANNEL_CR_DUTY(v)         ((v) << 24) // HIGH % = (v + 1) * 12.5% (PSG only)
+#define SOUNDXCNT_DUTY(v)           ((v) << 24) // HIGH % = (v + 1) * 12.5% (PSG only)
 
-#define SCHANNEL_CR_MANUAL          0
-#define SCHANNEL_CR_REPEAT          BIT(27)
-#define SCHANNEL_CR_ONE_SHOT        BIT(28)
+#define SOUNDXCNT_MANUAL            0
+#define SOUNDXCNT_REPEAT            BIT(27)
+#define SOUNDXCNT_ONE_SHOT          BIT(28)
 
-#define SCHANNEL_CR_FORMAT_16BIT    (1 << 29)
-#define SCHANNEL_CR_FORMAT_8BIT     (0 << 29)
-#define SCHANNEL_CR_FORMAT_PSG      (3 << 29)
-#define SCHANNEL_CR_FORMAT_ADPCM    (2 << 29)
+#define SOUNDXCNT_FORMAT_16BIT      (1 << 29)
+#define SOUNDXCNT_FORMAT_8BIT       (0 << 29)
+#define SOUNDXCNT_FORMAT_PSG        (3 << 29)
+#define SOUNDXCNT_FORMAT_ADPCM      (2 << 29)
 
-#define SCHANNEL_CR_ENABLE          BIT(31)
+#define SOUNDXCNT_ENABLE            BIT(31)
 
-// Parts of SCHANNEL_CR(n)
-#define SCHANNEL_VOL(n)             (*(vu8 *)(0x04000400 + ((n) << 4)))
-#define SCHANNEL_PAN(n)             (*(vu8 *)(0x04000402 + ((n) << 4)))
+// Parts of REG_SOUNDXCNT(n)
+#define REG_SOUNDXVOL(n)            (*(vu8 *)(0x04000400 + ((n) << 4)))
+#define REG_SOUNDXPAN(n)            (*(vu8 *)(0x04000402 + ((n) << 4)))
 
-#define SCHANNEL_SOURCE(n)          (*(vu32 *)(0x04000404 + ((n) << 4)))
+#define REG_SOUNDXSAD(n)            (*(vu32 *)(0x04000404 + ((n) << 4)))
 
-#define SCHANNEL_TIMER(n)           (*(vu16 *)(0x04000408 + ((n) << 4)))
+#define REG_SOUNDXTMR(n)            (*(vu16 *)(0x04000408 + ((n) << 4)))
 
-#define SCHANNEL_FREQ(n)            TIMER_FREQ_SHIFT(n, 1, 1)
+#define SOUNDXTMR_FREQ(n)            TIMER_FREQ_SHIFT(n, 1, 1)
 
-#define SCHANNEL_REPEAT_POINT(n)    (*(vu16 *)(0x0400040A + ((n) << 4)))
+#define REG_SOUNDXPNT(n)            (*(vu16 *)(0x0400040A + ((n) << 4)))
 
-#define SCHANNEL_LENGTH(n)          (*(vu32 *)(0x0400040C + ((n) << 4)))
+#define REG_SOUNDXLEN(n)            (*(vu32 *)(0x0400040C + ((n) << 4)))
 
 // Old names
-#define SOUND_PAN(n)                SCHANNEL_CR_PAN(n)
-#define SOUND_MANUAL                SCHANNEL_CR_MANUAL
-#define SOUND_REPEAT                SCHANNEL_CR_REPEAT
-#define SOUND_ONE_SHOT              SCHANNEL_CR_ONE_SHOT
-#define SOUND_FORMAT_16BIT          SCHANNEL_CR_FORMAT_16BIT
-#define SOUND_FORMAT_8BIT           SCHANNEL_CR_FORMAT_8BIT
-#define SOUND_FORMAT_PSG            SCHANNEL_CR_FORMAT_PSG
-#define SOUND_FORMAT_ADPCM          SCHANNEL_CR_FORMAT_ADPCM
-#define SCHANNEL_ENABLE             SCHANNEL_CR_ENABLE
-#define SOUND_FREQ(f)               SCHANNEL_FREQ(f)
+#define SOUND_PAN(n)                SOUNDXCNT_PAN(n)
+#define SOUND_MANUAL                SOUNDXCNT_MANUAL
+#define SOUND_REPEAT                SOUNDXCNT_REPEAT
+#define SOUND_ONE_SHOT              SOUNDXCNT_ONE_SHOT
+#define SOUND_FORMAT_16BIT          SOUNDXCNT_FORMAT_16BIT
+#define SOUND_FORMAT_8BIT           SOUNDXCNT_FORMAT_8BIT
+#define SOUND_FORMAT_PSG            SOUNDXCNT_FORMAT_PSG
+#define SOUND_FORMAT_ADPCM          SOUNDXCNT_FORMAT_ADPCM
+#define SCHANNEL_ENABLE             SOUNDXCNT_ENABLE
+#define SOUND_FREQ(n)               SOUNDXTMR_FREQ(n)
+#define SCHANNEL_CR(n)              REG_SOUNDXCNT(n)
+#define SCHANNEL_VOL(n)             REG_SOUNDXVOL(n)
+#define SCHANNEL_PAN(n)             REG_SOUNDXPAN(n)
+#define SCHANNEL_SOURCE(n)          REG_SOUNDXSAD(n)
+#define SCHANNEL_TIMER(n)           REG_SOUNDXTMR(n)
+#define SCHANNEL_REPEAT_POINT(n)    REG_SOUNDXPNT(n)
+#define SCHANNEL_LENGTH(n)          REG_SOUNDXLEN(n)
+#define SOUND_VOL(n)                SOUNDCNT_VOL(n)
+#define SOUND_ENABLE                SOUNDCNT_ENABLE
 
 // Sound Capture Registers
 // -----------------------

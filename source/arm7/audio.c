@@ -18,7 +18,7 @@ int getFreeChannel(void)
 {
     for (int i = 0; i < 16; i++)
     {
-        if (!(SCHANNEL_CR(i) & SCHANNEL_CR_ENABLE))
+        if (!(REG_SOUNDXCNT(i) & SOUNDCNT_ENABLE))
             return i;
     }
 
@@ -29,7 +29,7 @@ int getFreePSGChannel(void)
 {
     for (int i = 8; i < 14; i++)
     {
-        if (!(SCHANNEL_CR(i) & SCHANNEL_CR_ENABLE))
+        if (!(REG_SOUNDXCNT(i) & SOUNDCNT_ENABLE))
             return i;
     }
 
@@ -40,7 +40,7 @@ int getFreeNoiseChannel(void)
 {
     for (int i = 14; i < 16; i++)
     {
-        if (!(SCHANNEL_CR(i) & SCHANNEL_CR_ENABLE))
+        if (!(REG_SOUNDXCNT(i) & SOUNDCNT_ENABLE))
             return i;
     }
 
@@ -81,15 +81,15 @@ void soundDataHandler(int bytes, void *user_data)
 
         if (channel >= 0)
         {
-            SCHANNEL_SOURCE(channel) = (u32)msg.SoundPlay.data;
-            SCHANNEL_REPEAT_POINT(channel) = msg.SoundPlay.loopPoint;
-            SCHANNEL_LENGTH(channel) = msg.SoundPlay.dataSize;
-            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(msg.SoundPlay.freq);
-            SCHANNEL_CR(channel) = SCHANNEL_CR_ENABLE
-                        | SCHANNEL_CR_VOL_MUL(msg.SoundPlay.volume)
-                        | SCHANNEL_CR_PAN(msg.SoundPlay.pan)
+            REG_SOUNDXSAD(channel) = (u32)msg.SoundPlay.data;
+            REG_SOUNDXPNT(channel) = msg.SoundPlay.loopPoint;
+            REG_SOUNDXLEN(channel) = msg.SoundPlay.dataSize;
+            REG_SOUNDXTMR(channel) = SOUNDXTMR_FREQ(msg.SoundPlay.freq);
+            REG_SOUNDXCNT(channel) = SOUNDXCNT_ENABLE
+                        | SOUNDXCNT_VOL_MUL(msg.SoundPlay.volume)
+                        | SOUNDXCNT_PAN(msg.SoundPlay.pan)
                         | (msg.SoundPlay.format << 29)
-                        | (msg.SoundPlay.loop ? SCHANNEL_CR_REPEAT : SCHANNEL_CR_ONE_SHOT);
+                        | (msg.SoundPlay.loop ? SOUNDXCNT_REPEAT : SOUNDXCNT_ONE_SHOT);
         }
     }
     else if (msg.type == SOUND_PSG_MESSAGE)
@@ -106,11 +106,11 @@ void soundDataHandler(int bytes, void *user_data)
 
         if (channel >= 0)
         {
-            SCHANNEL_CR(channel) = SCHANNEL_CR_ENABLE | msg.SoundPsg.volume
-                                   | SCHANNEL_CR_PAN(msg.SoundPsg.pan)
-                                   | SCHANNEL_CR_FORMAT_PSG
+            REG_SOUNDXCNT(channel) = SOUNDXCNT_ENABLE | msg.SoundPsg.volume
+                                   | SOUNDXCNT_PAN(msg.SoundPsg.pan)
+                                   | SOUNDXCNT_FORMAT_PSG
                                    | (msg.SoundPsg.dutyCycle << 24);
-            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(msg.SoundPsg.freq);
+            REG_SOUNDXTMR(channel) = SOUNDXTMR_FREQ(msg.SoundPsg.freq);
         }
     }
     else if (msg.type == SOUND_NOISE_MESSAGE)
@@ -127,10 +127,10 @@ void soundDataHandler(int bytes, void *user_data)
 
         if (channel >= 0)
         {
-            SCHANNEL_CR(channel) = SCHANNEL_CR_ENABLE | msg.SoundPsg.volume
-                                   | SCHANNEL_CR_PAN(msg.SoundPsg.pan)
-                                   | SCHANNEL_CR_FORMAT_PSG;
-            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(msg.SoundPsg.freq);
+            REG_SOUNDXCNT(channel) = SOUNDCNT_ENABLE | msg.SoundPsg.volume
+                                   | SOUNDXCNT_PAN(msg.SoundPsg.pan)
+                                   | SOUNDXCNT_FORMAT_PSG;
+            REG_SOUNDXTMR(channel) = SOUNDXTMR_FREQ(msg.SoundPsg.freq);
         }
     }
     else if (msg.type == SOUND_CAPTURE_START)
@@ -190,7 +190,7 @@ void enableSound(void)
     writePowerManagement(PM_CONTROL_REG,
             (readPowerManagement(PM_CONTROL_REG) & ~PM_SOUND_MUTE) | PM_SOUND_AMP);
 
-    REG_SOUNDCNT = SOUND_ENABLE;
+    REG_SOUNDCNT = SOUNDCNT_ENABLE;
 
     if (isDSiMode())
     {
@@ -208,7 +208,7 @@ void enableSound(void)
 
 void disableSound(void)
 {
-    REG_SOUNDCNT &= ~SOUND_ENABLE;
+    REG_SOUNDCNT &= ~SOUNDCNT_ENABLE;
 
     if (isDSiMode())
         REG_SNDEXTCNT &= ~SNDEXTCNT_ENABLE;
@@ -241,34 +241,34 @@ void soundCommandHandler(u32 command, void *userdata)
             break;
 
         case SOUND_SET_VOLUME:
-            SCHANNEL_CR(channel) &= ~0xFF;
-            SCHANNEL_CR(channel) |= data;
+            REG_SOUNDXCNT(channel) &= ~0xFF;
+            REG_SOUNDXCNT(channel) |= data;
             break;
 
         case SOUND_SET_PAN:
-            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_PAN(0xFF);
-            SCHANNEL_CR(channel) |= SCHANNEL_CR_PAN(data);
+            REG_SOUNDXCNT(channel) &= ~SOUNDXCNT_PAN(0xFF);
+            REG_SOUNDXCNT(channel) |= SOUNDXCNT_PAN(data);
             break;
 
         case SOUND_SET_FREQ:
-            SCHANNEL_TIMER(channel) = SCHANNEL_FREQ(data);
+            REG_SOUNDXTMR(channel) = SOUNDXTMR_FREQ(data);
             break;
 
         case SOUND_SET_WAVEDUTY:
-            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_DUTY(7);
-            SCHANNEL_CR(channel) |= SCHANNEL_CR_DUTY(data);
+            REG_SOUNDXCNT(channel) &= ~SOUNDXCNT_DUTY(7);
+            REG_SOUNDXCNT(channel) |= SOUNDXCNT_DUTY(data);
             break;
 
         case SOUND_KILL:
-            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_ENABLE;
+            REG_SOUNDXCNT(channel) &= ~SOUNDCNT_ENABLE;
             break;
 
         case SOUND_PAUSE:
-            SCHANNEL_CR(channel) &= ~SCHANNEL_CR_ENABLE;
+            REG_SOUNDXCNT(channel) &= ~SOUNDCNT_ENABLE;
             break;
 
         case SOUND_RESUME:
-            SCHANNEL_CR(channel) |= SCHANNEL_CR_ENABLE;
+            REG_SOUNDXCNT(channel) |= SOUNDCNT_ENABLE;
             break;
 
         case SOUND_CAPTURE_STOP:
