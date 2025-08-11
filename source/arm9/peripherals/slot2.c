@@ -16,6 +16,9 @@
 #define SLOT2_EXMEMCNT_3_1 (EXMEMCNT_ROM_TIME1_8_CYCLES | EXMEMCNT_ROM_TIME2_4_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
 #define SLOT2_EXMEMCNT_2_1 (EXMEMCNT_ROM_TIME1_6_CYCLES | EXMEMCNT_ROM_TIME2_4_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
 
+// 'PASS'
+#define SLOT2_GAMECODE_PASSME 0x53534150
+
 typedef struct
 {
     uint32_t gamecode;
@@ -197,10 +200,10 @@ static bool pak_rumble_detect(void)
 #define SC_REG_ENABLE       (*(vu16 *)0x9FFFFFE)
 #define SC_ENABLE_MAGIC     0xA55A
 
-#define SC_ENABLE_RAM       (1 << 0)
-#define SC_ENABLE_CARD      (1 << 1)
-#define SC_ENABLE_WRITE     (1 << 2) // To be used with SC_ENABLE_RAM
-#define SC_ENABLE_RUMBLE    (1 << 3)
+#define SC_ENABLE_RAM       BIT(0)
+#define SC_ENABLE_CARD      BIT(1)
+#define SC_ENABLE_WRITE     BIT(2) // To be used with SC_ENABLE_RAM
+#define SC_ENABLE_RUMBLE    BIT(3)
 
 static void supercard_unlock(uint32_t type)
 {
@@ -209,7 +212,7 @@ static void supercard_unlock(uint32_t type)
 
     uint32_t mode;
     if (!type)
-        mode = 0;
+        mode = SC_ENABLE_CARD;
     else if (type & SLOT2_PERIPHERAL_RUMBLE_ANY)
         mode = SC_ENABLE_RUMBLE;
     else
@@ -222,12 +225,19 @@ static void supercard_unlock(uint32_t type)
 static bool supercard_detect(void)
 {
     supercard_unlock(SLOT2_PERIPHERAL_EXTRAM);
-    if (__extram_detect(1, 0x9FFFFFE))
-        return true;
-    supercard_unlock(SLOT2_PERIPHERAL_RUMBLE_ANY);
-    if (pak_rumble_detect())
-        return true;
-    return false;
+    return __extram_detect(1, 0x9FFFFFE);
+}
+
+static bool supercard_rumble_detect(void)
+{
+    // Check the card's game code and magic number
+    supercard_unlock(0);
+    if (*((uint32_t*) GBA_HEADER.gamecode) != SLOT2_GAMECODE_PASSME)
+        return false;
+    if ((*((uint16_t*) 0x09800000) & 0xE300) != 0xC000)
+        return false;
+    // TODO: Are there better ways to narrow this down?
+    return true;
 }
 
 // M3
@@ -373,7 +383,7 @@ static slot2_definition_t definitions[] =
     // SuperCard
     {
         0,
-        SLOT2_PERIPHERAL_EXTRAM | SLOT2_PERIPHERAL_RUMBLE_GPIO,
+        SLOT2_PERIPHERAL_EXTRAM,
         SLOT2_EXMEMCNT_4_2,
         0,
         supercard_detect,
@@ -532,6 +542,15 @@ static slot2_definition_t definitions[] =
         none_detect,
         none_unlock
     },
+    // SuperCard Rumble
+    {
+        0,
+        SLOT2_PERIPHERAL_RUMBLE_PAK,
+        SLOT2_EXMEMCNT_4_2,
+        0,
+        supercard_rumble_detect,
+        supercard_unlock
+    }
 };
 #define DEFINITIONS_COUNT (sizeof(definitions) / sizeof(slot2_definition_t))
 
@@ -554,7 +573,8 @@ static const char *definition_names[] =
     "GBA Solar",
     "GBA Solar",
     "GBA Tilt",
-    "GBA Tilt"
+    "GBA Tilt",
+    "SuperCard Rumble"
 };
 
 // Public methods
