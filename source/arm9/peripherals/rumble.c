@@ -26,7 +26,7 @@ uint8_t rumbleGetMaxRawStrength(void)
 
 bool rumbleIsEdgeActivated(void)
 {
-    return peripheralSlot2GetSupportMask() & SLOT2_PERIPHERAL_RUMBLE_PAK;
+    return peripheralSlot2GetSupportMask() & SLOT2_PERIPHERAL_RUMBLE_EDGE;
 }
 
 #define RUMBLE_PAK_CTRL (*(vuint16 *)0x08001000)

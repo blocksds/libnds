@@ -410,7 +410,7 @@ static slot2_definition_t definitions[] =
     // EZ3, EZ4, EZO, EZODE
     {
         0,
-        SLOT2_PERIPHERAL_EXTRAM | SLOT2_PERIPHERAL_RUMBLE_PAK | SLOT2_PERIPHERAL_RUMBLE_EZ,
+        SLOT2_PERIPHERAL_EXTRAM | SLOT2_PERIPHERAL_RUMBLE_PAK | SLOT2_PERIPHERAL_RUMBLE_EDGE | SLOT2_PERIPHERAL_RUMBLE_EZ,
         SLOT2_EXMEMCNT_2_1,
         0,
         ezf_detect,
@@ -419,7 +419,7 @@ static slot2_definition_t definitions[] =
     // EZF 3in1
     {
         0,
-        SLOT2_PERIPHERAL_EXTRAM | SLOT2_PERIPHERAL_RUMBLE_PAK | SLOT2_PERIPHERAL_RUMBLE_EZ,
+        SLOT2_PERIPHERAL_EXTRAM | SLOT2_PERIPHERAL_RUMBLE_PAK | SLOT2_PERIPHERAL_RUMBLE_EDGE | SLOT2_PERIPHERAL_RUMBLE_EZ,
         SLOT2_EXMEMCNT_2_1,
         0,
         ezf_detect,
@@ -464,7 +464,7 @@ static slot2_definition_t definitions[] =
     // Rumble Pak
     {
         0,
-        SLOT2_PERIPHERAL_RUMBLE_PAK,
+        SLOT2_PERIPHERAL_RUMBLE_PAK | SLOT2_PERIPHERAL_RUMBLE_EDGE,
         SLOT2_EXMEMCNT_4_2,
         0,
         pak_rumble_detect,
