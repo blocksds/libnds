@@ -32,10 +32,12 @@ extern "C" {
 #define SLOT2_PERIPHERAL_GYRO_GPIO       0x00000100 ///< Gyro sensor (GPIO; WarioWare)
 #define SLOT2_PERIPHERAL_TILT            0x00000200 ///< Tilt sensor (Yoshi)
 #define SLOT2_PERIPHERAL_SOLAR_GPIO      0x00000400 ///< Solar sensor (GPIO; Boktai)
-#define SLOT2_PERIPHERAL_FACE_SCAN       0x00008000 ///< TODO: Facening Scan
+#define SLOT2_PERIPHERAL_FACE_SCAN       0x00000800 ///< TODO: Facening Scan
 #define SLOT2_PERIPHERAL_GPS_RANGER      0x00001000 ///< TODO: Ranger GPS
 #define SLOT2_PERIPHERAL_ANY             0x00001FFF
 #define SLOT2_PERIPHERAL_RUMBLE_ANY      (SLOT2_PERIPHERAL_RUMBLE_GPIO | SLOT2_PERIPHERAL_RUMBLE_PAK | SLOT2_PERIPHERAL_SLIDE_MAGKID | SLOT2_PERIPHERAL_RUMBLE_EZ)
+
+#define SLOT2_PERIPHERAL_RUMBLE_EDGE     0x00008000 ///< Rumble is edge-activated
 
 /// Initialize a Slot-2 peripheral.
 ///
