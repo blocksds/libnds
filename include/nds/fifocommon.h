@@ -119,15 +119,6 @@ typedef enum
     PM_REQ_BACKLIGHT_LEVEL  = 10 << 16,
 } FifoPMCommands;
 
-/// Enum values for the FIFO WiFi commands (FIFO_DSWIFI).
-typedef enum
-{
-    WIFI_ENABLE,
-    WIFI_DISABLE,
-    WIFI_SYNC,
-    WIFI_STARTUP
-} FifoWifiCommands;
-
 /// Power Management LED blink mode control bits.
 typedef enum
 {
