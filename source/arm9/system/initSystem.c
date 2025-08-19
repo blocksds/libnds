@@ -40,9 +40,18 @@ void __attribute__((weak)) initSystem(void)
         TIMER_DATA(i) = 0;
     }
 
-    if (!__debugger_unit)
+    if (__debugger_unit)
     {
-        // Setup an exception handler by default except on debugger units.
+        // Debugger units come with a system monitor in the last 512 KB of RAM.
+        // If the developer wants to use them it's required to call
+        // reduceHeapSize(0) in the application code.
+        reduceHeapSize(512 * 1024);
+        // TODO: This size is confirmed for DS units, but we need to check DSi
+        // debugger units, it may be different.
+    }
+    else
+    {
+        // Setup an exception handler by default but not in debugger units.
         // Debugger units are very rare, they are used to develop applications,
         // and they come with their own exception handler. That means that users
         // of debugger units will know how to handle exceptions.
