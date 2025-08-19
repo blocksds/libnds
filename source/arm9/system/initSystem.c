@@ -40,12 +40,27 @@ void __attribute__((weak)) initSystem(void)
         TIMER_DATA(i) = 0;
     }
 
-    // Setup exception handler
+    if (!__debugger_unit)
+    {
+        // Setup an exception handler by default except on debugger units.
+        // Debugger units are very rare, they are used to develop applications,
+        // and they come with their own exception handler. That means that users
+        // of debugger units will know how to handle exceptions.
+        //
+        // For non-debugger models it's a good idea to setup an exception
+        // handler by default because many developers will forget to do it by
+        // themselves. The release exception handler only prints an error
+        // message to reduce the code footprint of libnds. The debug exception
+        // handler prints a lot more information.
+        //
+        // Release builds can also use the debug exception handler if
+        // defaultExceptionHandler() is called from the application code.
 #ifdef NDEBUG
-    releaseExceptionHandler();
+        releaseExceptionHandler();
 #else
-    defaultExceptionHandler();
+        defaultExceptionHandler();
 #endif
+    }
 
     // Clear video display registers
     dmaFillWords(0, (void *)0x04000000, 0x58);
