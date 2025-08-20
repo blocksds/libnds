@@ -42,12 +42,18 @@ void __attribute__((weak)) initSystem(void)
 
     if (__debugger_unit)
     {
-        // Debugger units come with a system monitor in the last 512 KB of RAM.
-        // If the developer wants to use them it's required to call
-        // reduceHeapSize(0) in the application code.
-        reduceHeapSize(512 * 1024);
-        // TODO: This size is confirmed for DS units, but we need to check DSi
-        // debugger units, it may be different.
+        if (isDSiMode())
+        {
+            // TODO: We need someone with a TWL debugger to confirm what memory
+            // regions are reserved by the software monitor.
+        }
+        else
+        {
+            // DS debugger units come with a system monitor in the last 512 KB
+            // of RAM. If the developer wants to use them it's required to call
+            // reduceHeapSize(0) in the application code.
+            reduceHeapSize(512 * 1024);
+        }
     }
     else
     {
