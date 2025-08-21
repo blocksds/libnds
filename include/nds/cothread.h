@@ -25,7 +25,7 @@ extern "C" {
 /// Thread ID
 typedef int cothread_t;
 /// Mutex
-typedef int comutex_t;
+typedef volatile uint8_t comutex_t;
 /// Thread entrypoint
 typedef int (*cothread_entrypoint_t)(void *);
 
