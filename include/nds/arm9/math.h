@@ -451,9 +451,9 @@ ARM_CODE float hw_sqrtf(float x);
 ///     Result pointer to fixed 3x3 matrix
 static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 {
-    result[0] = mulf32(a[1], b[2]) - mulf32(b[1], a[2]);
-    result[1] = mulf32(a[2], b[0]) - mulf32(b[2], a[0]);
-    result[2] = mulf32(a[0], b[1]) - mulf32(b[0], a[1]);
+    result[0] = ((int64_t)a[1] * b[2] + (int64_t)-b[1] * a[2]) >> 12;
+    result[1] = ((int64_t)a[2] * b[0] + (int64_t)-b[2] * a[0]) >> 12;
+    result[2] = ((int64_t)a[0] * b[1] + (int64_t)-b[0] * a[1]) >> 12;
 }
 
 /// 20.12 fixed point dot product.
@@ -471,7 +471,7 @@ static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
 ///     32 bit integer result
 static inline int32_t dotf32(int32_t *a, int32_t *b)
 {
-    return mulf32(a[0], b[0]) + mulf32(a[1], b[1]) + mulf32(a[2], b[2]);
+    return ((int64_t)a[0] * b[0] + (int64_t)a[1] * b[1] + (int64_t)a[2] * b[2]) >> 12;
 }
 
 /// 20.12 fixed point normalize (set magnitude to 1.0 and keep the direction).
