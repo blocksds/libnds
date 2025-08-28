@@ -449,7 +449,7 @@ ARM_CODE float hw_sqrtf(float x);
 ///     Pointer to fixed 3 dimensions vector.
 /// @param result
 ///     Pointer to fixed 3 dimensions vector that will contain the result.
-void crossf32(int32_t *a, int32_t *b, int32_t *result);
+void crossf32(const int32_t *a, const int32_t *b, int32_t *result);
 
 /// 20.12 fixed point dot product.
 ///

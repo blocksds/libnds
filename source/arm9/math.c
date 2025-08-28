@@ -172,7 +172,7 @@ ARM_CODE void normalizef32(int32_t *a)
     }
 }
 
-ARM_CODE void crossf32(int32_t *a, int32_t *b, int32_t *result)
+ARM_CODE void crossf32(const int32_t *a,const int32_t *b, int32_t *result)
 {
     int32_t ta[3]={a[0],a[1],a[2]};
     int32_t tb[3]={b[0],b[1],b[2]};
