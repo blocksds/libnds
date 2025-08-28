@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/fcntl.h>
 #include <sys/stat.h>
 #include <sys/times.h>
@@ -662,6 +663,39 @@ int symlink(const char *target, const char *path)
 
     errno = ENOSYS;
     return -1;
+}
+
+bool fatGetVolumeLabel(const char *name, char *label)
+{
+    if (name == NULL || label == NULL)
+        return false;
+
+    return f_getlabel(name, label, NULL) == FR_OK;
+}
+
+bool fatSetVolumeLabel(const char *name, const char *label)
+{
+    if (name == NULL || label == NULL)
+        return false;
+
+    size_t name_length = strlen(name);
+    size_t label_length = strlen(label);
+
+    char *buffer = malloc(name_length + label_length + 2);
+    if (buffer == NULL)
+        return false;
+
+    // Copy volume name, strip slash if necessary
+    strcpy(buffer, name);
+    if (buffer[name_length - 1] == '/')
+        buffer[name_length - 1] = 0;
+
+    // Append destination volume label
+    strcat(buffer, label);
+
+    FRESULT result = f_setlabel(buffer);
+    free(buffer);
+    return result == FR_OK;
 }
 
 int FAT_getAttr(const char *file)

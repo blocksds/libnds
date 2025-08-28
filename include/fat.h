@@ -123,6 +123,31 @@ static inline int fatInitLookupCacheFile(FILE *file, uint32_t max_buffer_size)
 #define ATTR_HIDDEN     0x02 ///< Hidden
 #define ATTR_READONLY   0x01 ///< Read only
 
+#define FAT_VOLUME_LABEL_MAX 33 ///< Maximum length of a volume label string.
+
+/// Get the FAT volume label.
+///
+/// @param name
+///    Volume name, such as "fat:" or "sd:".
+/// @param label
+///    Buffer to store the volume label. This buffer should be at least
+///    FAT_VOLUME_LABEL_MAX+1 bytes in size.
+///
+/// @return
+///    True on success, false on error.
+bool fatGetVolumeLabel(const char *name, char *label);
+
+/// Set the FAT volume label.
+///
+/// @param name
+///    Volume name, such as "fat:" or "sd:".
+/// @param label
+///    Buffer to store the volume label.
+///
+/// @return
+///    True on success, false on error.
+bool fatSetVolumeLabel(const char *name, const char *label);
+
 /// Get FAT attributes of a file.
 ///
 /// This function works when used on NitroFS.
