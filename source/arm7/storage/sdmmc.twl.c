@@ -649,6 +649,24 @@ u32 SDMMC_getCid(const u8 devNum, u32 cidOut[4])
     return SDMMC_ERR_NONE;
 }
 
+u32 SDMMC_getCidRaw(const u8 devNum, u32 cidOut[4])
+{
+	u32 cidFixed[4];
+	u32 err = SDMMC_getCid(devNum, cidFixed);
+    if (err != SDMMC_ERR_NONE)
+		return err;
+
+	if (cidOut != NULL)
+	{
+		cidOut[0] = (cidFixed[3] >> 8) | (cidFixed[2] << 24);
+		cidOut[1] = (cidFixed[2] >> 8) | (cidFixed[1] << 24);
+		cidOut[2] = (cidFixed[1] >> 8) | (cidFixed[0] << 24);
+		cidOut[3] = (cidFixed[0] >> 8);
+	}
+
+    return SDMMC_ERR_NONE;
+}
+
 u8 SDMMC_getDiskStatus(const u8 devNum)
 {
     if (devNum > SDMMC_MAX_DEV_NUM)
