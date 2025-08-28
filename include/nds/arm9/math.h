@@ -449,7 +449,7 @@ ARM_CODE float hw_sqrtf(float x);
 ///     Pointer to fixed 3 dimensions vector.
 /// @param result
 ///     Pointer to fixed 3 dimensions vector that will contain the result.
-static inline void crossf32(int32_t *a, int32_t *b, int32_t *result)
+static inline void crossf32(int32_t *a, int32_t *b, int32_t *restrict result)
 {
     result[0] = ((int64_t)a[1] * b[2] + (int64_t)-b[1] * a[2]) >> 12;
     result[1] = ((int64_t)a[2] * b[0] + (int64_t)-b[2] * a[0]) >> 12;
