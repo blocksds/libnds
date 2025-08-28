@@ -189,7 +189,7 @@ u32 SDMMC_importDevState(const u8 devNum, const u8 devIn[64]);
 ///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on failure.
 u32 SDMMC_getDevInfo(const u8 devNum, SdmmcInfo *const infoOut);
 
-/// Outputs the CID of a (e)MMC/SD card device.
+/// Outputs the parsed CID of a (e)MMC/SD card device, in the format used by other OSes and drivers.
 ///
 /// @param devNum
 ///     The device.
@@ -199,6 +199,18 @@ u32 SDMMC_getDevInfo(const u8 devNum, SdmmcInfo *const infoOut);
 /// @return
 ///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on failure.
 u32 SDMMC_getCid(const u8 devNum, u32 cidOut[4]);
+
+/// Outputs the raw CID of a (e)MMC/SD card device, as it is returned from the sdmmc controller.
+/// This is the format used for the DSi NAND crypto.
+///
+/// @param devNum
+///     The device.
+/// @param cidOut
+///     A u32[4] pointer for storing the raw CID.
+///
+/// @return
+///     Returns SDMMC_ERR_NONE on success or SDMMC_ERR_INVAL_PARAM on failure.
+u32 SDMMC_getCidRaw(const u8 devNum, u32 cidOut[4]);
 
 /// Returns the SDMMC_STATUS bits of a (e)MMC/SD card device.
 ///
