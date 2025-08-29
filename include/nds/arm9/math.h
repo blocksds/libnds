@@ -449,7 +449,7 @@ ARM_CODE float hw_sqrtf(float x);
 ///     Pointer to fixed 3 dimensions vector.
 /// @param result
 ///     Pointer to fixed 3 dimensions vector that will contain the result.
-static inline void crossf32(const int32_t *a, const int32_t *b, int32_t *result)
+__attribute__((always_inline)) static inline void crossf32(const int32_t *a, const int32_t *b, int32_t *result)
 {
     if(__builtin_constant_p(a[0]) && __builtin_constant_p(b[0]) &&
        __builtin_constant_p(a[1]) && __builtin_constant_p(b[1]) &&
