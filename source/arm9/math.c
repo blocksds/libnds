@@ -172,7 +172,7 @@ ARM_CODE void normalizef32(int32_t *a)
     }
 }
 
-ARM_CODE void asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result)
+ARM_CODE void libnds_asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result)
 {
     register const int32_t *r0 asm("r0")=a;
     asm (

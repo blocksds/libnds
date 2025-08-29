@@ -466,8 +466,8 @@ static inline void crossf32(const int32_t *a, const int32_t *b, int32_t *result)
         //the weird minus signs are to keep it fully identical to the asm code
         return;
     }
-    ARM_CODE void asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result);
-    asm_crossf32(a,b,result);
+    ARM_CODE void libnds_asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result);
+    libnds_asm_crossf32(a,b,result);
     return;
 }
 
