@@ -449,27 +449,7 @@ ARM_CODE float hw_sqrtf(float x);
 ///     Pointer to fixed 3 dimensions vector.
 /// @param result
 ///     Pointer to fixed 3 dimensions vector that will contain the result.
-__attribute__((always_inline)) static inline void crossf32(const int32_t *a, const int32_t *b, int32_t *result)
-{
-    if(__builtin_constant_p(a[0]) && __builtin_constant_p(b[0]) &&
-       __builtin_constant_p(a[1]) && __builtin_constant_p(b[1]) &&
-       __builtin_constant_p(a[2]) && __builtin_constant_p(b[2]))
-    {
-        int32_t ta[3]={a[0],a[1],a[2]};
-        int32_t tb[3]={b[0],b[1],b[2]};
-        tb[1]=-tb[1];
-        result[0] = ((int64_t)ta[1]*tb[2] + (int64_t)tb[1]*ta[2])>>12;
-        ta[0]=-ta[0];
-        result[1] = ((int64_t)ta[2]*tb[0] + (int64_t)tb[2]*ta[0])>>12;
-        tb[0]=-tb[0];
-        result[2] = ((int64_t)ta[0]*tb[1] + (int64_t)tb[0]*ta[1])>>12;
-        //the weird minus signs are to keep it fully identical to the asm code
-        return;
-    }
-    ARM_CODE void libnds_asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result);
-    libnds_asm_crossf32(a,b,result);
-    return;
-}
+ARM_CODE void crossf32(const int32_t *a, const int32_t *b, int32_t *result);
 
 /// 20.12 fixed point dot product.
 ///

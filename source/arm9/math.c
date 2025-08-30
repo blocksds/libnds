@@ -172,37 +172,11 @@ ARM_CODE void normalizef32(int32_t *a)
     }
 }
 
-ARM_CODE void libnds_asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result)
+ARM_CODE void crossf32(const int32_t *a,const int32_t *b, int32_t *result)
 {
-    register const int32_t *r0 asm("r0")=a;
-    asm (
-        ".syntax unified                  \n\t"
-        //load vectors
-        "ldm %[b],{r6,r12,lr}             \n\t"
-        "ldm %[r0],{r3,r4,r5}             \n\t"
-        //first component
-        "rsb   r12,r12,#0                 \n\t"
-        "smull %[r0],%[b], r4, lr         \n\t"
-        "smlal %[r0],%[b], r12, r5        \n\t"
-        "lsr   %[r0],%[r0], #12           \n\t"
-        "orr   %[r0],%[r0],%[b],lsl #20   \n\t"
-        //second component
-        "rsb   r3,r3,#0                   \n\t"
-        "smull r5,%[b], r6, r5            \n\t"
-        "smlal r5,%[b], lr, r3            \n\t"
-        "lsr   r5, r5, #12                \n\t"
-        "orr   r5,r5, %[b], lsl #20       \n\t"
-        //third component
-        "rsb   r6,r6, #0                  \n\t"
-        "smull lr,%[b], r3, r12           \n\t"
-        "smlal lr,%[b], r4, r6            \n\t"
-        "lsr lr, lr, #12                  \n\t"
-        "orr lr,lr, %[b], lsl #20         \n\t"
-        //store result
-        "stm %[result], {%[r0],r5,lr}"
-/*outputs*/:"=m"(*(int32_t (*)[3]) result),[r0]"+r"(r0),[b]"+r"(b)
-/*inputs*/ :[result]"r"(result),"m"(*(int32_t (*)[3]) r0),  "m"(*(int32_t (*)[3]) b)
-/*clobber*/:"r3", "r4", "r5","r6", "r12", "lr"
-    );
-    return;
+    int32_t ta[3]={a[0],a[1],a[2]};
+    int32_t tb[3]={b[0],b[1],b[2]};
+    result[0] = ((int64_t)ta[1] * tb[2] + (int64_t)-tb[1] * ta[2]) >> 12;
+    result[1] = ((int64_t)ta[2] * tb[0] + (int64_t)tb[2] * -ta[0]) >> 12;
+    result[2] = ((int64_t)-ta[0] * -tb[1] + (int64_t)-tb[0] * ta[1]) >> 12;
 }
