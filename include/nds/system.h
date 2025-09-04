@@ -406,7 +406,18 @@ bool setCpuClock(bool speed);
 
 #ifdef ARM7
 
-#define REG_CONSOLEID   (*(vu64 *)0x04004D00)
+#define REG_CID              ((vu8 *)0x02FFD7BC)
+#define REG_CONSOLEID        (*(vu64 *)0x04004D00)
+#define REG_CONSOLEID_FLAG   (*(vu16 *)0x04004D08)
+
+/// Power-controlled hardware devices accessable to the ARM7.
+///
+/// @warning
+///     This function is only available in DSi mode, so you should guard it with isDSiMode().
+///
+/// @return
+///     Returns the console id of the DSi console.
+u64 getConsoleID(void);
 
 /// Power-controlled hardware devices accessable to the ARM7.
 ///
