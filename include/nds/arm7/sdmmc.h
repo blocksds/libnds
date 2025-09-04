@@ -241,11 +241,52 @@ u32 SDMMC_getSectors(const u8 devNum);
 ///     The output buffer pointer. NULL for DMA.
 /// @param count
 ///     The number of sectors to read.
+/// @param crypt_callback
+///     Callback function called each time a sector is processed.
 ///
 /// @return
 ///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
 ///     failure.
-u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 count);
+u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16 count,
+                           tmio_callback_t crypt_callback);
+
+/// Reads one or more sectors from a (e)MMC/SD card device.
+///
+/// @param devNum
+///     The device.
+/// @param sect
+///     The start sector.
+/// @param buf
+///     The output buffer pointer. NULL for DMA.
+/// @param count
+///     The number of sectors to read.
+///
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
+static inline u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 count)
+{
+	return SDMMC_readSectorsCrypt(devNum, sect, buf, count, NULL);
+}
+
+/// Writes one or more sectors to a (e)MMC/SD card device.
+///
+/// @param devNum
+///     The device.
+/// @param sect
+///     The start sector.
+/// @param buf
+///     The input buffer pointer. NULL for DMA.
+/// @param count
+///     The count
+/// @param crypt_callback
+///     Callback function called each time a sector is processed.
+///
+/// @return
+///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
+///     failure.
+u32 SDMMC_writeSectorsCrypt(const u8 devNum, u32 sect, const void *const buf,
+                            const u16 count, tmio_callback_t crypt_callback);
 
 /// Writes one or more sectors to a (e)MMC/SD card device.
 ///
@@ -261,8 +302,11 @@ u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 coun
 /// @return
 ///     Returns SDMMC_ERR_NONE on success or one of the errors listed above on
 ///     failure.
-u32 SDMMC_writeSectors(const u8 devNum, u32 sect, const void *const buf,
-                       const u16 count);
+static inline u32 SDMMC_writeSectors(const u8 devNum, u32 sect, const void *const buf,
+                       const u16 count)
+{
+	return SDMMC_writeSectorsCrypt(devNum, sect, buf, count, NULL);
+}
 
 /// Sends a custom command to a (e)MMC/SD card device.
 ///

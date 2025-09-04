@@ -57,6 +57,21 @@ bool fatInitDefault(void);
 WARN_UNUSED_RESULT
 bool fatInit(int32_t cache_size_pages, bool set_as_default_device);
 
+/// This function mounts the DSi nand if not already mounted by fatInit.
+///
+/// @warning
+///     fatInit must be called before calling this function.
+///
+/// @param read_only
+///     Whether partition should be mounted as read only.
+///
+/// @return It returns true on success, false on error.
+///
+/// @note The partition can be made writable/read only at a later time with
+///     nand_WriteProtect
+WARN_UNUSED_RESULT
+bool nandInit(bool read_only);
+
 /// This function returns the default current working directory.
 ///
 /// It is extracted from argv[0] if it has been provided by the loader. If the

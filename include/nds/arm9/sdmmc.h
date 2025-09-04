@@ -14,6 +14,7 @@ extern "C" {
 /// @brief SDMMC ARM9 module.
 
 #include <unistd.h>
+#include <nds/ndstypes.h>
 
 // These values should be synchronized with <fatfs/diskio.h>.
 #define SDMMC_STATUS_NOINIT     0x01 // Drive not initialized
@@ -28,6 +29,12 @@ extern "C" {
 /// @return
 ///     Returns true on success or false on failure.
 bool nand_Startup(void);
+
+/// Initialize the aes keys to allow reading encrypted eMMC NAND.
+///
+/// @return
+///     Returns true on success or false on failure.
+bool nand_SetupCrypt(void);
 
 /// Returns the SDMMC_STATUS bits of the eMMC NAND.
 ///
@@ -68,6 +75,19 @@ u32 sdmmc_GetSectors(void);
 ///     Returns true on success or false on failure.
 bool nand_ReadSectors(sec_t sector, sec_t numSectors, void *buffer);
 
+/// Reads one or more sectors from the eMMC NAND.
+///
+/// @param[in] sector
+///     The start sector.
+/// @param[in] numSectors
+///     The number of sectors to read.
+/// @param buffer
+///     The output buffer pointer.
+///
+/// @return
+///     Returns true on success or false on failure.
+bool nand_ReadSectorsCrypt(sec_t sector, sec_t numSectors, void *buffer);
+
 /// Writes one or more sectors to the eMMC NAND.
 ///
 /// @param[in] sector
@@ -80,6 +100,28 @@ bool nand_ReadSectors(sec_t sector, sec_t numSectors, void *buffer);
 /// @return
 ///     Returns true on success or false on failure.
 bool nand_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer);
+
+/// Writes one or more sectors to the eMMC NAND.
+///
+/// @param[in] sector
+///     The start sector.
+/// @param[in] numSectors
+///     The number of sectors to read.
+/// @param[in] buffer
+///     The input buffer pointer.
+///
+/// @return
+///     Returns true on success or false on failure.
+bool nand_WriteSectorsCrypt(sec_t sector, sec_t numSectors, const void *buffer);
+
+/// Enables write protection for eMMC NAND.
+///
+/// @param[in] protect
+///     Wether write protection is enabled or not (defaults on).
+/// @note
+///     This protection state only affects nand writes performed through file i/o operations.
+///     Manually calling functions to write to the nand will still go through
+void nand_WriteProtect(bool protect);
 
 // Compatibility macros.
 #define nand_GetSize nand_GetSectors

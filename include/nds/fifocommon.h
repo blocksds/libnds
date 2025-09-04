@@ -95,6 +95,7 @@ typedef enum
     DLDI_CLEAR_STATUS,
     DLDI_SHUTDOWN,
     SLOT1_CARD_READ,
+    SDMMC_NAND_CRYPT_SETUP,
 } FifoSdmmcCommands;
 
 /// System commands to access the firmware (FIFO_FIRMWARE).
