@@ -75,7 +75,7 @@ void scanKeys(void)
         if (keys != keysold)
         {
             count = delay;
-            keysrepeat = keysDown();
+            keysrepeat = (keys & ~keysold);
         }
         count--;
         if (count == 0)
