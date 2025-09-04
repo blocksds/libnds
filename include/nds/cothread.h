@@ -26,6 +26,8 @@ extern "C" {
 typedef int cothread_t;
 /// Mutex
 typedef volatile uint8_t comutex_t;
+/// Semaphore (counting, not binary)
+typedef volatile uint32_t cosema_t;
 /// Thread entrypoint
 typedef int (*cothread_entrypoint_t)(void *);
 
@@ -208,6 +210,68 @@ static inline void comutex_acquire(comutex_t *mutex)
 static inline void comutex_release(comutex_t *mutex)
 {
     *mutex = 0;
+}
+
+/// Initializes a counting semaphore to the desired value.
+///
+/// @param sema
+///     Pointer to the semaphore.
+/// @param init_val
+///     Initial value (zero or a positive integer).
+///
+/// @return
+///     It returns true if the semaphore has been initialized, false if not.
+static inline bool cosema_init(cosema_t *sema, cosema_t init_val)
+{
+    *sema = init_val;
+    return true;
+}
+
+/// Signals a semaphore.
+///
+/// It increases the semaphore counter so that other threads can access the
+/// resources protected by the semaphore.
+///
+/// @param sema
+///     Pointer to the semaphore.
+static inline void cosema_signal(cosema_t *sema)
+{
+    *sema = *sema + 1;
+}
+
+/// Checks if a semaphore has been signalled.
+///
+/// It checks the value of the semaphore and returns right away instead of
+/// waiting for the semaphore to be signalled.
+///
+/// @param sema
+///     Pointer to the semaphore.
+///
+/// @return
+///     If the semaphore has been signalled it returns true. If not, false.
+static inline bool cosema_try_wait(cosema_t *sema)
+{
+    if (*sema > 0)
+    {
+        *sema = *sema - 1;
+        return true;
+    }
+
+    return false;
+}
+
+/// Waits in a loop until the semaphore is signalled.
+///
+/// The main body of the loop calls cothread_yield() after each try, so that
+/// other threads can take control of the CPU and eventually signal the
+/// semaphore.
+///
+/// @param sema
+///     Pointer to the semaphore.
+static inline void cosema_wait(cosema_t *sema)
+{
+    while (cosema_try_wait(sema) == false)
+        cothread_yield();
 }
 
 // Private thread information. It is private to the library, but exposed here
