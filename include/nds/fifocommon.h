@@ -362,7 +362,7 @@ static inline void fifoWaitValue32(u32 channel)
     while (!fifoCheckValue32(channel))
     {
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
     }
 }
 
@@ -376,10 +376,10 @@ static inline void fifoWaitValue32Async(u32 channel)
     while (!fifoCheckValue32(channel))
     {
 #ifdef ARM9
-        cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
+        cothread_yield_irq(IRQ_RECV_FIFO);
 #else
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
 #endif
     }
 }
@@ -394,7 +394,7 @@ static inline void fifoWaitAddress(u32 channel)
     while (!fifoCheckAddress(channel))
     {
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
     }
 }
 
@@ -408,10 +408,10 @@ static inline void fifoWaitAddressAsync(u32 channel)
     while (!fifoCheckAddress(channel))
     {
 #ifdef ARM9
-        cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
+        cothread_yield_irq(IRQ_RECV_FIFO);
 #else
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
 #endif
     }
 }
@@ -426,7 +426,7 @@ static inline void fifoWaitDatamsg(u32 channel)
     while (!fifoCheckDatamsg(channel))
     {
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
     }
 }
 
@@ -440,10 +440,10 @@ static inline void fifoWaitDatamsgAsync(u32 channel)
     while (!fifoCheckDatamsg(channel))
     {
 #ifdef ARM9
-        cothread_yield_irq(IRQ_FIFO_NOT_EMPTY);
+        cothread_yield_irq(IRQ_RECV_FIFO);
 #else
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_FIFO_NOT_EMPTY);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
 #endif
     }
 }

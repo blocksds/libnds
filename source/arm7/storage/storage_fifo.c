@@ -20,14 +20,14 @@ int sdmmcValueHandler(u32 value, void *user_data);
 static void fifoIrqDisable(void)
 {
     int oldIME = enterCriticalSection();
-    REG_IE &= ~(IRQ_FIFO_NOT_EMPTY | IRQ_FIFO_EMPTY);
+    REG_IE &= ~(IRQ_SEND_FIFO | IRQ_RECV_FIFO);
     leaveCriticalSection(oldIME);
 }
 
 static void fifoIrqEnable(void)
 {
     int oldIME = enterCriticalSection();
-    REG_IE |= (IRQ_FIFO_NOT_EMPTY | IRQ_FIFO_EMPTY);
+    REG_IE |= IRQ_SEND_FIFO | IRQ_RECV_FIFO;
     leaveCriticalSection(oldIME);
 }
 
