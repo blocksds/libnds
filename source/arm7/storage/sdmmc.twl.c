@@ -344,7 +344,7 @@ static u32 initTranState(SdmmcDev *const dev, const u8 devType, const u32 rca,
                 // Note: The EXT_CSD is normally read before touching HS timing and bus width.
                 //       We can take advantage of the faster data transfer with this order.
                 alignas(4) u8 ext_csd[512];
-                TMIO_setBuffer(port, (u32 *)ext_csd, 1);
+                TMIO_setBuffer(port, (u32 *)ext_csd, 1, NULL);
                 res = TMIO_sendCommand(port, MMC_SEND_EXT_CSD, 0);
                 if (res != 0)
                     return SDMMC_ERR_SEND_EXT_CSD;
@@ -540,7 +540,7 @@ u32 SDMMC_lockUnlock(const u8 devNum, const u8 mode, const u8 *const pwd, const 
 
         // Note: Command class 7 support is mandatory for (e)MMC. Not for SD cards until 2.00.
         // Same CMD for (e)MMC/SD.
-        TMIO_setBuffer(port, (u32 *)buf, 1);
+        TMIO_setBuffer(port, (u32 *)buf, 1, NULL);
         res = TMIO_sendCommand(port, MMC_LOCK_UNLOCK, 0);
         port->sd_clk_ctrl = clk_ctrl_backup; // Undo the data timeout hack.
         if (res != 0)
@@ -575,7 +575,7 @@ u32 SDMMC_lockUnlock(const u8 devNum, const u8 mode, const u8 *const pwd, const 
 
 // People should not mess with the state which is the reason
 // why the struct is not exposed directly.
-static_assert(sizeof(SdmmcDev) == 64, "Wrong SDMMC dev export/import size.");
+static_assert(sizeof(SdmmcDev) == 68, "Wrong SDMMC dev export/import size.");
 
 u32 SDMMC_exportDevState(const u8 devNum, u8 devOut[64])
 {
@@ -651,18 +651,18 @@ u32 SDMMC_getCid(const u8 devNum, u32 cidOut[4])
 
 u32 SDMMC_getCidRaw(const u8 devNum, u32 cidOut[4])
 {
-	u32 cidFixed[4];
-	u32 err = SDMMC_getCid(devNum, cidFixed);
+    u32 cidFixed[4];
+    u32 err = SDMMC_getCid(devNum, cidFixed);
     if (err != SDMMC_ERR_NONE)
-		return err;
+        return err;
 
-	if (cidOut != NULL)
-	{
-		cidOut[0] = (cidFixed[3] >> 8) | (cidFixed[2] << 24);
-		cidOut[1] = (cidFixed[2] >> 8) | (cidFixed[1] << 24);
-		cidOut[2] = (cidFixed[1] >> 8) | (cidFixed[0] << 24);
-		cidOut[3] = (cidFixed[0] >> 8);
-	}
+    if (cidOut != NULL)
+    {
+        cidOut[0] = (cidFixed[3] >> 8) | (cidFixed[2] << 24);
+        cidOut[1] = (cidFixed[2] >> 8) | (cidFixed[1] << 24);
+        cidOut[2] = (cidFixed[1] >> 8) | (cidFixed[0] << 24);
+        cidOut[3] = (cidFixed[0] >> 8);
+    }
 
     return SDMMC_ERR_NONE;
 }
@@ -712,7 +712,7 @@ static u32 updateStatus(SdmmcDev *const dev, const bool stopTransmission)
 // Note: On multi-block read from the last 2 sectors there are no errors reported by the controller
 //       however the R1 card status may report ADDRESS_OUT_OF_RANGE on next(?) status read.
 //       This error is normal for (e)MMC and can be ignored.
-u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 count)
+u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16 count, tmio_callback_t crypt_callback)
 {
     if (devNum > SDMMC_MAX_DEV_NUM || count == 0)
         return SDMMC_ERR_INVAL_PARAM;
@@ -725,7 +725,7 @@ u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 coun
 
     // Set destination buffer and sector count.
     TmioPort *const port = &dev->port;
-    TMIO_setBuffer(port, buf, count);
+    TMIO_setBuffer(port, buf, count, crypt_callback);
 
     // Read a single 512 bytes block. Same CMD for (e)MMC/SD.
     // Read multiple 512 bytes blocks. Same CMD for (e)MMC/SD.
@@ -751,7 +751,7 @@ u32 SDMMC_readSectors(const u8 devNum, u32 sect, void *const buf, const u16 coun
 // Note: On multi-block write to the last 2 sectors there are no errors reported by the controller
 //       however the R1 card status may report ADDRESS_OUT_OF_RANGE on next(?) status read.
 //       This error is normal for (e)MMC and can be ignored.
-u32 SDMMC_writeSectors(const u8 devNum, u32 sect, const void *const buf, const u16 count)
+u32 SDMMC_writeSectorsCrypt(const u8 devNum, u32 sect, const void *const buf, const u16 count, tmio_callback_t crypt_callback)
 {
     if (devNum > SDMMC_MAX_DEV_NUM || count == 0)
         return SDMMC_ERR_INVAL_PARAM;
@@ -768,7 +768,7 @@ u32 SDMMC_writeSectors(const u8 devNum, u32 sect, const void *const buf, const u
 
     // Set source buffer and sector count.
     TmioPort *const port = &dev->port;
-    TMIO_setBuffer(port, (void *)buf, count);
+    TMIO_setBuffer(port, (void *)buf, count, crypt_callback);
 
     // Write a single 512 bytes block. Same CMD for (e)MMC/SD.
     // Write multiple 512 bytes blocks. Same CMD for (e)MMC/SD.
@@ -799,7 +799,7 @@ u32 SDMMC_sendCommand(const u8 devNum, MmcCommand *const mmcCmd)
     SdmmcDev *const dev = &g_devs[devNum];
     TmioPort *const port = &dev->port;
     TMIO_setBlockLen(port, mmcCmd->blkLen);
-    TMIO_setBuffer(port, mmcCmd->buf, mmcCmd->count);
+    TMIO_setBuffer(port, mmcCmd->buf, mmcCmd->count, NULL);
 
     const u32 res = TMIO_sendCommand(port, mmcCmd->cmd, mmcCmd->arg);
     TMIO_setBlockLen(port, 512); // Restore default block length.

@@ -46,6 +46,8 @@ void storageMsgHandler(int bytes, void *user_data)
         case SDMMC_SD_WRITE_SECTORS:
         case SDMMC_NAND_READ_SECTORS:
         case SDMMC_NAND_WRITE_SECTORS:
+        case SDMMC_NAND_READ_ENCRYPTED_SECTORS:
+        case SDMMC_NAND_WRITE_ENCRYPTED_SECTORS:
             if (isDSiMode())
                 retval = sdmmcMsgHandler(bytes, user_data, &msg);
             break;
@@ -113,6 +115,7 @@ void storageValueHandler(u32 value, void *user_data)
         case SDMMC_NAND_STOP:
         case SDMMC_NAND_STATUS:
         case SDMMC_NAND_SIZE:
+        case SDMMC_NAND_CRYPT_SETUP:
             if (isDSiMode())
                 result = sdmmcValueHandler(value, user_data);
             break;

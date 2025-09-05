@@ -50,6 +50,7 @@
 // Definitions of physical drive number for each drive
 #define DEV_DLDI    0x00 // DLDI driver (flashcard)
 #define DEV_SD      0x01 // SD slot of the DSi
+#define DEV_NAND    0x02 // NAND of the DSi
 
 // Debugging defines.
 // #define DISABLE_DIRECT_READS
@@ -67,6 +68,24 @@ static const DISC_INTERFACE *fs_io[FF_VOLUMES];
 #error "This file assumes that the sector size is always the same".
 #endif
 
+static const DISC_INTERFACE *get_disk_interface(BYTE pdrv)
+{
+    const DISC_INTERFACE *io = NULL;
+    switch (pdrv)
+    {
+        case DEV_NAND:
+            io = get_io_dsinand();
+            break;
+        case DEV_SD:
+            io = get_io_dsisd();
+            break;
+        case DEV_DLDI:
+            io = dldiGetInternal();
+            break;
+    }
+    return io;
+}
+
 //-----------------------------------------------------------------------
 // Get Drive Status
 //-----------------------------------------------------------------------
@@ -74,25 +93,27 @@ static const DISC_INTERFACE *fs_io[FF_VOLUMES];
 // pdrv: Physical drive nmuber to identify the drive
 DSTATUS disk_status(BYTE pdrv)
 {
-    const DISC_INTERFACE *io;
+    const DISC_INTERFACE *io = get_disk_interface(pdrv);
+    if(!io)
+        return STA_NOINIT;
+    
     DSTATUS result = 0;
 
     switch (pdrv)
     {
+        case DEV_NAND:
+            result = nand_GetDiskStatus();
+            break;
         case DEV_SD:
             result = sdmmc_GetDiskStatus();
-            // Fall through
-        case DEV_DLDI:
-            io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
-            result |= (io->features & FEATURE_MEDIUM_CANREAD)
-                ? ((io->features & FEATURE_MEDIUM_CANWRITE) ? 0 : STA_PROTECT)
-                : STA_NODISK;
-            result |= fs_initialized[pdrv] ? 0 : STA_NOINIT;
-            break;
-        default:
-            result = STA_NOINIT;
             break;
     }
+    
+    result |= (io->features & FEATURE_MEDIUM_CANREAD)
+        ? ((io->features & FEATURE_MEDIUM_CANWRITE) ? 0 : STA_PROTECT)
+        : STA_NODISK;
+
+    result |= fs_initialized[pdrv] ? 0 : STA_NOINIT;
 
     return result;
 }
@@ -108,29 +129,24 @@ DSTATUS disk_initialize(BYTE pdrv)
     if (fs_initialized[pdrv])
         return 0;
 
-    switch (pdrv)
-    {
-        case DEV_DLDI:
-        case DEV_SD:
-        {
-            const DISC_INTERFACE *io = pdrv == DEV_SD ? get_io_dsisd() : dldiGetInternal();
+    const DISC_INTERFACE *io = get_disk_interface(pdrv);
 
-            if (!(io->features & FEATURE_MEDIUM_CANREAD))
-                return STA_NOINIT | STA_NODISK;
+    if(!io)
+        return STA_NODISK;
 
-            if (!io->startup())
-                return STA_NOINIT;
+    if (!(io->features & FEATURE_MEDIUM_CANREAD))
+        return STA_NOINIT | STA_NODISK;
 
-            if (!io->isInserted())
-                return STA_NODISK;
+    if (!io->startup())
+        return STA_NOINIT;
 
-            fs_io[pdrv] = io;
-            fs_initialized[pdrv] = true;
+    if (!io->isInserted())
+        return STA_NODISK;
 
-            return disk_status(pdrv);
-        }
-    }
-    return STA_NOINIT;
+    fs_io[pdrv] = io;
+    fs_initialized[pdrv] = true;
+
+    return disk_status(pdrv);
 }
 
 #define IS_WORD_ALIGNED(buff) (!(((uintptr_t) (buff)) & 0x03))
@@ -161,6 +177,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
     {
         case DEV_DLDI:
         case DEV_SD:
+        case DEV_NAND:
         {
             const DISC_INTERFACE *io = fs_io[pdrv];
 
@@ -246,6 +263,7 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
     {
         case DEV_DLDI:
         case DEV_SD:
+        case DEV_NAND:
         {
             cache_sector_invalidate(pdrv, sector, sector + count - 1);
 
@@ -314,9 +332,10 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
     switch (pdrv)
     {
         case DEV_SD:
+        case DEV_NAND:
             if (cmd == GET_SECTOR_COUNT)
             {
-                *((LBA_t*) buff) = sdmmc_GetSectors();
+                *((LBA_t*) buff) = pdrv == DEV_SD ? sdmmc_GetSectors() : nand_GetSectors();
                 return RES_OK;
             }
 

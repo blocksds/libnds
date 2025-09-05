@@ -8,6 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <nds/arm9/sdmmc.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -18,13 +19,15 @@
 
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
-// Devices: "fat:/", "sd:/"
+// Devices: "fat:/", "sd:/", "nand:/"
 static FATFS fs_info[FF_VOLUMES] = { 0 };
 
 static const char *fat_drive = "fat:/";
 static const char *sd_drive = "sd:/";
+static const char *nand_drive = "nand:/";
 
 static bool fat_initialized = false;
+static bool nand_mounted = false;
 
 int fatfs_error_to_posix(FRESULT error)
 {
@@ -255,6 +258,28 @@ const char *fatGetDefaultDrive(void)
         return fat_drive;
 }
 
+bool nandInit(bool read_only)
+{
+    if (!isDSiMode())
+        return false;
+
+    nand_WriteProtect(read_only);
+
+    static bool mount_attempted = false;
+    if (mount_attempted)
+        return nand_mounted;
+
+    mount_attempted = true;
+    nand_mounted = true;
+    FRESULT result = f_mount(&fs_info[2], nand_drive, 1);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        nand_mounted = false;
+    }
+    return true;
+}
+
 bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 {
     (void)set_as_default_device;
@@ -278,6 +303,7 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 
     int32_t cache_size_sectors = cache_size_pages * DEFAULT_SECTORS_PER_PAGE;
 
+    // once the cache is initialized, keep it around for the lifetime of the program
     int ret = cache_init(cache_size_sectors);
     if (ret != 0)
     {
@@ -309,15 +335,29 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 
         bool require_fat = false;
         bool require_sd = true;
+        bool require_nand = false;
         default_drive = sd_drive;
 
-        if (default_cwd != NULL && strncmp(default_cwd, fat_drive, strlen(fat_drive)) == 0)
+        if (default_cwd != NULL)
         {
-            // This is the unusual case of the ROM being loaded from the
-            // DLDI device instead of the internal SD card.
-            require_fat = true;
-            require_sd = false;
-            default_drive = fat_drive;
+            if (strncmp(default_cwd, fat_drive, strlen(fat_drive)) == 0)
+            {
+                // This is the unusual case of the ROM being loaded from the
+                // DLDI device instead of the internal SD card.
+                require_fat = true;
+                require_sd = false;
+                require_nand = false;
+                default_drive = fat_drive;
+            }
+
+            if (strncmp(default_cwd, nand_drive, strlen(nand_drive)) == 0)
+            {
+                // The rom is being loaded from the DSi NAND.
+                require_fat = false;
+                require_sd = false;
+                require_nand = true;
+                default_drive = nand_drive;
+            }
         }
 
         // Try to initialize the internal SD slot
@@ -334,6 +374,14 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
         {
             errno = fatfs_error_to_posix(result);
             goto cleanup;
+        }
+
+        if (require_nand)
+        {
+            if (!nandInit(true))
+            {
+                goto cleanup;
+            }
         }
     }
     else
@@ -371,7 +419,6 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
 
 cleanup:
     free(default_cwd);
-    cache_deinit();
     return false;
 }
 

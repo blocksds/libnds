@@ -47,6 +47,7 @@
 /// - @ref fat.h "Simple replacement of libfat"
 /// - @ref filesystem.h "NitroFS, filesystem embedded in a NDS ROM"
 /// - @ref nds/arm9/sdmmc.h "ARM9 SDMMC Module"
+/// - @ref nds/arm7/nand_crypto.h "ARM7 Low-level NAND cryptographic helper functions"
 ///
 /// @section system_api System
 /// - @ref nds/ndstypes.h "Custom DS types"
@@ -204,6 +205,7 @@ extern "C" {
 #    include <nds/arm7/gpio.h>
 #    include <nds/arm7/i2c.h>
 #    include <nds/arm7/input.h>
+#    include <nds/arm7/nand_crypto.h>
 #    include <nds/arm7/sdmmc.h>
 #    include <nds/arm7/serial.h>
 #    include <nds/arm7/tmio.h>
