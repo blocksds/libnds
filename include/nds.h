@@ -57,6 +57,7 @@
 /// - @ref nds/interrupts.h "Interrupts"
 /// - @ref nds/fifocommon.h "FIFO"
 /// - @ref nds/timers.h "Timers"
+/// - @ref nds/device_list.h "Device List structures used by DSi/3DS launchers"
 ///
 /// @section multithreading_api Multithreading
 /// - @ref nds/cothread.h "Cooperative multithreading"
@@ -140,6 +141,7 @@ extern "C" {
 #include <nds/cpu.h>
 #include <nds/debug.h>
 #include <nds/decompress.h>
+#include <nds/device_list.h>
 #include <nds/dma.h>
 #include <nds/exceptions.h>
 #include <nds/fifocommon.h>

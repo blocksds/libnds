@@ -238,7 +238,7 @@ typedef struct __DSiHeader
     void *arm9idestination;
     u32 arm9ibinarySize;
     void *arm7iromOffset;
-    u32 offset_0x1D4;
+    void *arm7ideviceList;
     void *arm7idestination;
     u32 arm7ibinarySize;
 
