@@ -671,7 +671,8 @@ struct __argv {
     u32 host;           // Internal use, host ip for dslink
 };
 
-#define __system_argv ((struct __argv *)0x02FFFE70)
+#define ARGV_ADDRESS ((u32)0x02FFFE70)
+#define __system_argv ((struct __argv *)ARGV_ADDRESS)
 
 #define BOOTSIG 0x62757473746F6F62ULL // 'bootstub'
 
