@@ -18,6 +18,10 @@
 #include "filesystem_internal.h"
 #include "nitrofs_internal.h"
 
+ssize_t (*socket_fn_write)(int, const void *, size_t) = NULL;
+ssize_t (*socket_fn_read)(int, void *, size_t) = NULL;
+int (*socket_fn_close)(int) = NULL;
+
 bool current_drive_is_nitrofs = false;
 
 // This file implements stubs for system calls. For more information about it,
@@ -133,7 +137,7 @@ int open(const char *path, int flags, ...)
     FRESULT result = f_open(fp, path, mode);
 
     if (result == FR_OK)
-        return (int)fp;
+        return FD_FAT_PACK(fp);
 
     free(fp);
     errno = fatfs_error_to_posix(result);
@@ -149,7 +153,15 @@ ssize_t read(int fd, void *ptr, size_t len)
     if (FD_IS_NITRO(fd))
         return nitrofs_read(fd, ptr, len);
 
-    FIL *fp = (FIL *)fd;
+    if (FD_IS_SOCKET(fd))
+    {
+        if (socket_fn_read != NULL)
+            return socket_fn_read(fd, ptr, len);
+
+        return -1;
+    }
+
+    FIL *fp = FD_FAT_UNPACK(fd);
     UINT bytes_read = 0;
 
     FRESULT result = f_read(fp, ptr, len, &bytes_read);
@@ -173,7 +185,16 @@ ssize_t write(int fd, const void *ptr, size_t len)
         return -1;
     }
 
-    FIL *fp = (FIL *)fd;
+    if (FD_IS_SOCKET(fd))
+    {
+        if (socket_fn_write != NULL)
+            return socket_fn_write(fd, ptr, len);
+
+        errno = EINVAL;
+        return -1;
+    }
+
+    FIL *fp = FD_FAT_UNPACK(fd);
     UINT bytes_written = 0;
 
     FRESULT result = f_write(fp, ptr, len, &bytes_written);
@@ -194,7 +215,15 @@ int close(int fd)
     if (FD_IS_NITRO(fd))
         return nitrofs_close(fd);
 
-    FIL *fp = (FIL *)fd;
+    if (FD_IS_SOCKET(fd))
+    {
+        if (socket_fn_close != NULL)
+            return socket_fn_close(fd);
+
+        return -1;
+    }
+
+    FIL *fp = FD_FAT_UNPACK(fd);
 
     FRESULT result = f_close(fp);
 
@@ -218,7 +247,7 @@ off_t lseek(int fd, off_t offset, int whence)
     if (FD_IS_NITRO(fd))
         return nitrofs_lseek(fd, offset, whence);
 
-    FIL *fp = (FIL *)fd;
+    FIL *fp = FD_FAT_UNPACK(fd);
 
     if (whence == SEEK_END)
     {
@@ -340,7 +369,7 @@ int fstat(int fd, struct stat *st)
     if (FD_IS_NITRO(fd))
         return nitrofs_fstat(fd, st);
 
-    FIL *fp = (FIL *)fd;
+    FIL *fp = FD_FAT_UNPACK(fd);
 
     // On FatFS, st_dev is either 0 (DLDI) or 1 (DSi SD),
     // while st_ino is the file's starting cluster in FAT.
@@ -401,7 +430,7 @@ static int ftruncate_internal(int fd, off_t length)
     // one, so it doesn't have any shortcuts in case they are the same. The
     // callers must implement them.
 
-    FIL *fp = (FIL *)fd;
+    FIL *fp = FD_FAT_UNPACK(fd);
 
     FSIZE_t fsize = f_size(fp);
 
@@ -472,7 +501,7 @@ int ftruncate(int fd, off_t length)
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
 
-    FIL *fp = (FIL *)fd;
+    FIL *fp = FD_FAT_UNPACK(fd);
 
     if ((size_t)length == (size_t)f_size(fp))
         return 0; // There is nothing to do
@@ -505,7 +534,7 @@ int truncate(const char *path, off_t length)
     if (fd == -1)
         return -1;
 
-    FIL *fp = (FIL *)fd;
+    FIL *fp = FD_FAT_UNPACK(fd);
     if ((size_t)length != (size_t)f_size(fp))
     {
         int ret = ftruncate_internal(fd, length);

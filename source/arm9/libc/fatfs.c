@@ -432,7 +432,7 @@ int fatInitLookupCache(int fd, uint32_t max_buffer_size)
     if (!FD_IS_FAT(fd))
         return FAT_INIT_LOOKUP_CACHE_NOT_SUPPORTED;
 
-    FIL *f = (FIL *) fd;
+    FIL *f = FD_FAT_UNPACK(fd);
     if (f->cltbl != NULL)
         return FAT_INIT_LOOKUP_CACHE_ALREADY_ALLOCATED;
 

@@ -60,7 +60,6 @@ int statvfs(const char *restrict path, struct statvfs *restrict buf)
 
 int fstatvfs(int fd, struct statvfs *buf)
 {
-    FIL *fp;
     FATFS *fs;
     DWORD nclst = 0;
     FRESULT result;
@@ -75,7 +74,7 @@ int fstatvfs(int fd, struct statvfs *buf)
         return -1;
     }
 
-    fp = (FIL *)fd;
+    FIL *fp = FD_FAT_UNPACK(fd);
     fs = fp->obj.fs;
 
     // This is not a standard use of f_getfree - there's a patch
