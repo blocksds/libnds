@@ -261,7 +261,10 @@ const char *fatGetDefaultDrive(void)
 bool nandInit(bool read_only)
 {
     if (!isDSiMode())
+    {
+        errno = ENODEV;
         return false;
+    }
 
     nand_WriteProtect(read_only);
 
