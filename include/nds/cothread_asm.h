@@ -18,6 +18,6 @@
 
 // Offsets to fields inside the cothread_info_t struct
 #define COTHREAD_INFO_NEXT_IRQ_OFFSET   20
-#define COTHREAD_INFO_FLAGS_OFFSET      24
+#define COTHREAD_INFO_FLAGS_OFFSET      28
 
 #endif // LIBNDS_NDS_COTRHEAD_ASM_H__

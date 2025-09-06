@@ -75,6 +75,9 @@ ITCM_BSS cothread_info_t *cothread_list_irq[32];
 cothread_info_t *cothread_list_irq_aux[32];
 #endif
 
+// List of threads waiting for signals.
+ITCM_BSS cothread_info_t *cothread_list_signal;
+
 // Total number of threads
 ITCM_BSS uint32_t cothread_threads_count;
 
@@ -518,6 +521,83 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 #endif
+
+ITCM_CODE void cothread_yield_signal(uint32_t signal_id)
+{
+    // We can't yield from inside an interrupt handler
+    if (irq_nesting_level > 0)
+        return;
+
+    cothread_info_t *ctx = cothread_active_thread;
+
+    if (cothread_list_signal != NULL)
+    {
+        ctx->next_signal = cothread_list_signal;
+        cothread_list_signal = ctx;
+    }
+    else
+    {
+        cothread_list_signal = ctx;
+    }
+
+    ctx->wait_signal_id = signal_id;
+    ctx->flags |= COTHREAD_WAITING;
+
+    cothread_threads_waiting_count++;
+
+    __ndsabi_coro_yield((void *)ctx, 0);
+}
+
+ITCM_CODE void cothread_send_signal(uint32_t signal_id)
+{
+    int count = 0;
+
+    cothread_info_t *ctx_prev = NULL;
+    cothread_info_t *ctx = cothread_list_signal;
+
+    while (ctx != NULL)
+    {
+        // Skip threads waiting for a different signal ID
+        if (ctx->wait_signal_id != signal_id)
+        {
+            ctx_prev = ctx;
+            ctx = ctx->next_signal;
+            continue;
+        }
+
+        // If this thread is waiting for the signal ID, remove the "waiting"
+        // flag and remove it from the cothread_list_signal list.
+
+        ctx->flags &= ~COTHREAD_WAITING;
+
+        if (ctx_prev == NULL)
+        {
+            // If this is the first element in the list, make
+            // cothread_list_signal point to the new first element.
+            cothread_list_signal = ctx->next_signal;
+
+            ctx = ctx->next_signal;
+        }
+        else
+        {
+            // If this isn't the first element, make the previous element point
+            // to the next one and skip the current one.
+            ctx_prev->next_signal = ctx->next_signal;
+
+            ctx_prev = ctx;
+            ctx = ctx->next_signal;
+        }
+
+        count++;
+    }
+
+    if (count > 0)
+    {
+        int oldIME = enterCriticalSection();
+        cothread_threads_waiting_count -= count;
+        leaveCriticalSection(oldIME);
+    }
+}
 
 //-------------------------------------------------------------------
 

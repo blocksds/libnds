@@ -155,6 +155,30 @@ void cothread_yield_irq(uint32_t flag);
 void cothread_yield_irq_aux(uint32_t flag);
 #endif
 
+/// Tells the scheduler to switch to a different thread until the specified
+/// signal ID is received.
+///
+/// The thread will wait until cothread_send_signal() is called with the same
+/// signal ID.
+///
+/// User-defined signal IDs aren't allowed to use numbers greater than
+/// 0x7FFFFFFF. Bit 31 is reserved for system signal IDs.
+///
+/// @param signal_id
+///     A user-defined number.
+void cothread_yield_signal(uint32_t signal_id);
+
+/// Awake threads waiting for the provided signal ID.
+///
+/// All threads waiting for this signal ID will wake up.
+///
+/// User-defined signal IDs aren't allowed to use numbers greater than
+/// 0x7FFFFFFF. Bit 31 is reserved for system signal IDs.
+///
+/// @param signal_id
+///     A user-defined number.
+void cothread_send_signal(uint32_t signal_id);
+
 /// Returns ID of the thread that is running currently.
 ///
 /// @return
@@ -287,7 +311,13 @@ typedef struct
     void *stack_base; // If not NULL, it has to be freed by the scheduler
     void *tls;
     void *next; // Next thread in the global list of threads
-    void *next_irq; // Next thread in the list of threads waiting for the same IRQ
+    union {
+        void *next_irq; // Next thread in the list of threads waiting for the same IRQ
+        void *next_signal; // Next thread in the list of threads waiting for a signal
+    };
+    union {
+        uint32_t wait_signal_id; // Signal ID the thread is waiting for
+    };
     uint32_t flags; // COTHREAD_DETACHED, COTHREAD_WAIT_IRQ, etc
 } cothread_info_t;
 
