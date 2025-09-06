@@ -20,6 +20,7 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
+#include <nds/ndstypes.h>
 #include <nds/cothread_asm.h>
 
 /// Thread ID
@@ -30,6 +31,18 @@ typedef volatile uint8_t comutex_t;
 typedef volatile uint32_t cosema_t;
 /// Thread entrypoint
 typedef int (*cothread_entrypoint_t)(void *);
+
+// Internal helper to create a signal ID from a comutex_t
+static inline uint32_t comutex_to_signal_id(comutex_t *mutex)
+{
+    return BIT(31) | (uintptr_t)mutex;
+}
+
+// Internal helper to create a signal ID from a cosema_t
+static inline uint32_t cosema_to_signal_id(cosema_t *sema)
+{
+    return BIT(31) | (uintptr_t)sema;
+}
 
 /// Creates a thread and allocate the stack for it.
 ///
@@ -216,24 +229,27 @@ static inline bool comutex_try_acquire(comutex_t *mutex)
 
 /// Waits in a loop until the mutex is available.
 ///
-/// The main body of the loop calls cothread_yield() after each try, so that
-/// other threads can take control of the CPU and eventually release the mutex.
+/// The main body of the loop yields after each try so that other threads can
+/// take control of the CPU and eventually release the mutex.
 ///
 /// @param mutex
 ///     Pointer to the mutex.
 static inline void comutex_acquire(comutex_t *mutex)
 {
     while (comutex_try_acquire(mutex) == false)
-        cothread_yield();
+        cothread_yield_signal(comutex_to_signal_id(mutex));
 }
 
 /// Releases a mutex.
+///
+/// It also sends a signal to all threads that may be waiting for this mutex.
 ///
 /// @param mutex
 ///     Pointer to the mutex.
 static inline void comutex_release(comutex_t *mutex)
 {
     *mutex = 0;
+    cothread_send_signal(comutex_to_signal_id(mutex));
 }
 
 /// Initializes a counting semaphore to the desired value.
@@ -254,13 +270,15 @@ static inline bool cosema_init(cosema_t *sema, uint32_t init_val)
 /// Signals a semaphore.
 ///
 /// It increases the semaphore counter so that other threads can access the
-/// resources protected by the semaphore.
+/// resources protected by the semaphore. It also sends a signal to all threads
+/// that may be waiting for this semaphore.
 ///
 /// @param sema
 ///     Pointer to the semaphore.
 static inline void cosema_signal(cosema_t *sema)
 {
     *sema = *sema + 1;
+    cothread_send_signal(cosema_to_signal_id(sema));
 }
 
 /// Checks if a semaphore has been signalled.
@@ -286,16 +304,15 @@ static inline bool cosema_try_wait(cosema_t *sema)
 
 /// Waits in a loop until the semaphore is signalled.
 ///
-/// The main body of the loop calls cothread_yield() after each try, so that
-/// other threads can take control of the CPU and eventually signal the
-/// semaphore.
+/// The main body of the loop yields after each try so that other threads can
+/// take control of the CPU and eventually signal the semaphore.
 ///
 /// @param sema
 ///     Pointer to the semaphore.
 static inline void cosema_wait(cosema_t *sema)
 {
     while (cosema_try_wait(sema) == false)
-        cothread_yield();
+        cothread_yield_signal(cosema_to_signal_id(sema));
 }
 
 // Private thread information. It is private to the library, but exposed here
