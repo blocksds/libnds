@@ -772,7 +772,7 @@ static inline void glClearDepth(fixed12d3 depth)
 ///     The blue component (0 - 255). Bottom 3 bits ignored.
 static inline void glColor3b(uint8_t red, uint8_t green, uint8_t blue)
 {
-    GFX_COLOR = (vu32)RGB15(red >> 3, green >> 3, blue >> 3);
+    GFX_COLOR = (u32)RGB15(red >> 3, green >> 3, blue >> 3);
 }
 
 /// Set the color for the following vertices.
@@ -781,7 +781,7 @@ static inline void glColor3b(uint8_t red, uint8_t green, uint8_t blue)
 ///     The 15 bit color value.
 static inline void glColor(rgb color)
 {
-    GFX_COLOR = (vu32)color;
+    GFX_COLOR = (u32)color;
 }
 
 /// Specifies a vertex.

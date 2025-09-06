@@ -221,7 +221,7 @@ static inline void comutex_release(comutex_t *mutex)
 ///
 /// @return
 ///     It returns true if the semaphore has been initialized, false if not.
-static inline bool cosema_init(cosema_t *sema, cosema_t init_val)
+static inline bool cosema_init(cosema_t *sema, uint32_t init_val)
 {
     *sema = init_val;
     return true;
