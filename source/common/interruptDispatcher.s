@@ -247,7 +247,7 @@ clear_next_thread:
 
     // Clear the "waiting for IRQ" flag
     ldr     r3, [r0, #COTHREAD_INFO_FLAGS_OFFSET]
-    bic     r3, r3, #COTHREAD_WAIT_IRQ
+    bic     r3, r3, #COTHREAD_WAITING
     str     r3, [r0, #COTHREAD_INFO_FLAGS_OFFSET]
 
     add     r2, r0, COTHREAD_INFO_NEXT_IRQ_OFFSET
@@ -263,7 +263,7 @@ exit:
     moveq   pc, lr
 
     // Decrease number of threads waiting for interrupts
-    ldr     r0, =cothread_threads_wait_irq_count
+    ldr     r0, =cothread_threads_waiting_count
     ldr     r2, [r0]
     sub     r2, r2, r1
     str     r2, [r0]

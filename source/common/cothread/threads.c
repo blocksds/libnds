@@ -68,6 +68,8 @@ static cothread_info_t cothread_list;
 // TODO: When a non-detached thread ends, remove it from this list and add it to
 // a list of finished-but-not-deleted threads.
 
+// 32 list of threads waiting for interrupts for the 32 bits in the registers IE
+// and IF.
 ITCM_BSS cothread_info_t *cothread_list_irq[32];
 #ifdef ARM7
 cothread_info_t *cothread_list_irq_aux[32];
@@ -76,8 +78,8 @@ cothread_info_t *cothread_list_irq_aux[32];
 // Total number of threads
 ITCM_BSS uint32_t cothread_threads_count;
 
-// Total number of threads waiting for interrupts
-ITCM_BSS uint32_t cothread_threads_wait_irq_count;
+// Total number of threads waiting for events such as interrupts
+ITCM_BSS uint32_t cothread_threads_waiting_count;
 
 //-------------------------------------------------------------------
 
@@ -159,7 +161,7 @@ ITCM_CODE static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ct
             {
                 // Remove from list
                 *list = (*list)->next_irq;
-                cothread_threads_wait_irq_count--;
+                cothread_threads_waiting_count--;
                 leaveCriticalSection(oldIME);
                 return;
             }
@@ -176,7 +178,7 @@ ITCM_CODE static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ct
             {
                 // Remove from list
                 *list = (*list)->next_irq;
-                cothread_threads_wait_irq_count--;
+                cothread_threads_waiting_count--;
                 leaveCriticalSection(oldIME);
                 return;
             }
@@ -462,13 +464,13 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
         cothread_list_irq[index] = ctx;
     }
 
-    ctx->flags |= COTHREAD_WAIT_IRQ;
+    ctx->flags |= COTHREAD_WAITING;
 
     // It isn't needed to check if the interrupt is in the list twice. This
     // should never happen because a thread waiting for an interrupt should
     // never be scheduled again until that interrupt has happened.
 
-    cothread_threads_wait_irq_count++;
+    cothread_threads_waiting_count++;
 
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
@@ -506,9 +508,9 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
         cothread_list_irq_aux[index] = ctx;
     }
 
-    ctx->flags |= COTHREAD_WAIT_IRQ;
+    ctx->flags |= COTHREAD_WAITING;
 
-    cothread_threads_wait_irq_count++;
+    cothread_threads_waiting_count++;
 
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
@@ -538,8 +540,9 @@ ITCM_CODE ARM_CODE static int cothread_scheduler_start(void)
         // If the thread has finished, skip it
         if (ctx->joined == 0)
         {
-            // If this thread is waiting for any interrupt to happen, skip it
-            if ((ctx->flags & COTHREAD_WAIT_IRQ) == 0)
+            // If this thread is waiting for an event (like an interrupt) to
+            // happen, skip it.
+            if ((ctx->flags & COTHREAD_WAITING) == 0)
             {
                 // Set this thread as the active one and resume it.
                 cothread_active_thread = ctx;
@@ -588,11 +591,11 @@ ITCM_CODE ARM_CODE static int cothread_scheduler_start(void)
             // state atomically or it's possible that an interrupt happens right
             // before entering halt state and then there is nothing else that
             // takes us out of halt state.
-            if (cothread_threads_count == cothread_threads_wait_irq_count)
+            if (cothread_threads_count == cothread_threads_waiting_count)
             {
                 // If no thread is active that means that all threads are
-                // waiting for an interrupt to happen. Use BIOS calls to enter
-                // low power mode.
+                // waiting for an event (such as interrupt) to happen. Use BIOS
+                // calls to enter low power mode.
 #ifdef ARM9
                 // TODO: We should be able to use CP15_WaitForInterrupt(), but
                 // it hangs the CPU for some reason. swiIntrWait() sets REG_IME

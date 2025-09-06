@@ -13,8 +13,8 @@
 /// cothread_has_joined() or cothread_get_exit_code() isn't allowed.
 #define COTHREAD_DETACHED   (1 << 0)
 
-/// Flags a thread as waiting for an interrupt
-#define COTHREAD_WAIT_IRQ   (1 << 1)
+/// Flags a thread as waiting for an event (like an interrupt)
+#define COTHREAD_WAITING    (1 << 1)
 
 // Offsets to fields inside the cothread_info_t struct
 #define COTHREAD_INFO_NEXT_IRQ_OFFSET   20
