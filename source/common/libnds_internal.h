@@ -33,15 +33,24 @@ typedef struct {
 
 typedef struct __TransferRegion
 {
+    // Counter incremented by the ARM7 and read by the ARM9.
     time_t unixTime;
+
+    // This is used to share the bootstub pointer between both CPUs.
     struct __bootstub *bootcode;
+
+    // Space reserved to share crash information from the ARM7 to the ARM9
     union {
         ExceptionState exceptionState;
         AssertionState assertionState;
     };
 } __TransferRegion, *__pTransferRegion;
 
-static_assert(sizeof(__TransferRegion) <= 0x1000, "Transfer region is too big");
+// Address 0x2FFFC80 contains the user settings loaded from flash memory. We
+// aren't allowed to overwrite this with the __TransferRegion struct. The
+// TransferRegion struct is placed at address 0x2FFF000, so let's restrict the
+// maximum size to 0xC00 bytes.
+static_assert(sizeof(__TransferRegion) <= 0xC00, "Transfer region is too big");
 
 static inline __TransferRegion volatile *__transferRegion(void)
 {
