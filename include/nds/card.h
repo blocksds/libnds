@@ -35,9 +35,6 @@ extern "C" {
 #define REG_CARD_1B8 (*(vu16 *)0x040001B8)
 #define REG_CARD_1BA (*(vu16 *)0x040001BA)
 
-#define CARD_CR1_ENABLE 0x80 // In byte 1, i.e. 0x8000
-#define CARD_CR1_IRQ    0x40 // In byte 1, i.e. 0x4000
-
 // SPI EEPROM COMMANDS
 #define SPI_EEPROM_WRSR 0x01
 #define SPI_EEPROM_PP   0x02 // Page Program
@@ -95,6 +92,9 @@ extern "C" {
 
 #define CARD_SPICNTH_ENABLE  (1 << 7) // In byte 1, i.e. 0x8000
 #define CARD_SPICNTH_IRQ     (1 << 6) // In byte 1, i.e. 0x4000
+
+#define CARD_CR1_ENABLE CARD_SPICNTH_ENABLE // In byte 1, i.e. 0x8000
+#define CARD_CR1_IRQ    CARD_SPICNTH_IRQ    // In byte 1, i.e. 0x4000
 
 /// Enable Slot-1 in a DSi console.
 void enableSlot1(void);

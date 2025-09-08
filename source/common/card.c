@@ -17,7 +17,7 @@
 
 void cardWriteCommand(const u8 *command)
 {
-    REG_AUXSPICNTH = CARD_CR1_ENABLE | CARD_CR1_IRQ;
+    REG_AUXSPICNTH = CARD_SPICNTH_ENABLE | CARD_SPICNTH_IRQ;
 
     for (int index = 0; index < 8; index++)
         REG_CARD_COMMAND[7 - index] = command[index];
@@ -89,7 +89,7 @@ void cardReadHeader(u8 *header)
 
     swiDelay(167550);
 
-    REG_AUXSPICNTH = CARD_CR1_ENABLE | CARD_CR1_IRQ;
+    REG_AUXSPICNTH = CARD_SPICNTH_ENABLE | CARD_SPICNTH_IRQ;
     REG_ROMCTRL = CARD_nRESET | CARD_SEC_SEED;
 
     while (REG_ROMCTRL & CARD_BUSY);
