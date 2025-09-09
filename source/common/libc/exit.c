@@ -76,6 +76,14 @@ ARM_CODE void _exit(int rc)
 #ifdef ARM9
         CP15_MPUDisable();
 
+        if (isDSiMode())
+        {
+            // Restore extended DSi RAM size to 32 MB to prevent crashes with
+            // loaders that incorrectly use REG_SCFG_EXT to determine the size
+            // of RAM.
+            REG_SCFG_EXT |= SCFG_EXT_RAM_DEBUG | SCFG_EXT_RAM_TWL;
+        }
+
         bootcode->arm9reboot();
 #endif
 #ifdef ARM7
