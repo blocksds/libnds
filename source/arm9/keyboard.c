@@ -222,7 +222,7 @@ s16 keyboardUpdate(void)
 
     static u32 oldKeys = 0;
 
-    u32 keys = keysCurrent();
+    u32 keys = keysHeld();
 
     u32 temp = keys;
     keys &= ~oldKeys;
@@ -230,7 +230,7 @@ s16 keyboardUpdate(void)
 
     if (pressed)
     {
-        if (!(keysCurrent() & KEY_TOUCH))
+        if (!(keysHeld() & KEY_TOUCH))
         {
             pressed = 0;
 

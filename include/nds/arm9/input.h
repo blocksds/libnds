@@ -44,9 +44,16 @@ void scanKeys(void);
 /// Call this function to get keypad state without affecting state of other key
 /// functions (keysUp keysHeld etc...).
 ///
+/// @deprecated
+///     This function isn't safe. Normally scanKeys() reads the current state of
+///     the keys (from the ARM7 and ARM9) and saves the current state in an
+///     atomic way to prevent race conditions. keysCurrent() doesn't work in an
+///     atomic way, so it's likely to cause bugs. Use scanKeys() and keysHeld()
+///     instead.
+///
 /// @return
 ///     Bitmask of keys that are pressed.
-uint32_t keysCurrent(void);
+__attribute__((deprecated)) uint32_t keysCurrent(void);
 
 /// Obtains the current keypad held state.
 ///
