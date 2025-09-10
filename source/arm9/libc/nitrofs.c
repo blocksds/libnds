@@ -59,63 +59,76 @@ extern char __dtcm_start[];
 const uintptr_t DTCM_START = (uintptr_t)__dtcm_start;
 const uintptr_t DTCM_END   = DTCM_START + (16 * 1024) - 1;
 
-static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
+// Read from NitroFS when it is being read from a file
+static ssize_t nitrofs_read_internal_file(void *ptr, size_t offset, size_t len)
 {
-    if (nitrofs_local.file)
-    {
-        fseek(nitrofs_local.file, offset, SEEK_SET);
-        return fread(ptr, 1, len, nitrofs_local.file);
-    }
+    fseek(nitrofs_local.file, offset, SEEK_SET);
+    return fread(ptr, 1, len, nitrofs_local.file);
+}
 
-    if (nitrofs_local.use_slot2)
+// Read from NitroFS when it is being read from Slot-2
+static ssize_t nitrofs_read_internal_slot2(void *ptr, size_t offset, size_t len)
+{
+    sysSetCartOwner(BUS_OWNER_ARM9);
+    memcpy(ptr, (void *)(0x08000000 + offset), len);
+    return len;
+}
+
+// Read from NitroFS when it is being read with cartridge commands
+static ssize_t nitrofs_read_internal_cart(void *ptr, size_t offset, size_t len)
+{
+    if (dldiGetMode() == DLDI_MODE_ARM7)
     {
-        sysSetCartOwner(BUS_OWNER_ARM9);
-        memcpy(ptr, (void *)(0x08000000 + offset), len);
-        return len;
-    }
-    else
-    {
-        if (dldiGetMode() == DLDI_MODE_ARM7)
+        if ((uintptr_t)ptr >= DTCM_START && (uintptr_t)ptr < DTCM_END)
         {
-            if ((uintptr_t)ptr >= DTCM_START && (uintptr_t)ptr < DTCM_END)
-            {
-                // The destination is in DTCM
+            // The destination is in DTCM
 
-                void *cache = cache_sector_borrow();
+            void *cache = cache_sector_borrow();
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "This code expects a fixed sector size"
 #endif
-                uint8_t *buff = ptr;
+            uint8_t *buff = ptr;
 
-                while (len > 0)
-                {
-                    size_t read_size = len > FF_MAX_SS ? FF_MAX_SS : len;
-
-                    cardReadArm7(cache, offset, read_size, __NDSHeader->cardControl13);
-
-                    __aeabi_memcpy(buff, cache, read_size);
-
-                    len -= read_size;
-                    offset += read_size;
-                    buff += read_size;
-                }
-
-                return len;
-            }
-            else
+            while (len > 0)
             {
-                cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
-                return len;
+                size_t read_size = len > FF_MAX_SS ? FF_MAX_SS : len;
+
+                cardReadArm7(cache, offset, read_size, __NDSHeader->cardControl13);
+
+                __aeabi_memcpy(buff, cache, read_size);
+
+                len -= read_size;
+                offset += read_size;
+                buff += read_size;
             }
+
+            return len;
         }
         else
         {
-            sysSetCardOwner(BUS_OWNER_ARM9);
-            cardRead(ptr, offset, len, __NDSHeader->cardControl13);
+            cardReadArm7(ptr, offset, len, __NDSHeader->cardControl13);
             return len;
         }
     }
+    else
+    {
+        sysSetCardOwner(BUS_OWNER_ARM9);
+        cardRead(ptr, offset, len, __NDSHeader->cardControl13);
+        return len;
+    }
+}
+
+// This reads from NitroFS using the right access system
+static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
+{
+    if (nitrofs_local.file)
+        return nitrofs_read_internal_file(ptr, offset, len);
+
+    if (nitrofs_local.use_slot2)
+        return nitrofs_read_internal_slot2(ptr, offset, len);
+
+    return nitrofs_read_internal_cart(ptr, offset, len);
 }
 
 /// Directory I/O
@@ -716,10 +729,39 @@ bool nitroFSInit(const char *basepath)
 
     // Read FNT/FAT offset/size information.
     if (nitrofs_local.file)
-        nitrofs_read_internal(nitrofs_offsets, 0x40, 4 * sizeof(uint32_t));
+    {
+        // If we have an open file, that's the path we need to use. This can
+        // happen in two situations:
+        //
+        // - We are loading the same NDS currently running.
+        // - The caller of nitroFSInit() has provided a different path, so we
+        //   may be loading the same NDS file or a completely different one.
+
+        nitrofs_read_internal_file(nitrofs_offsets,
+                                   offsetof(tNDSHeader, filenameOffset),
+                                   4 * sizeof(uint32_t));
+    }
     else
     {
+        // There is no open file:
+        //
+        // - We are trying to open the currently running file from an emulator,
+        //   an official NDS cartridge, or a Slot-2 device.
+        // - We're running on a flashcart but the NitroFS initialization failed.
+        //
+        // First, attempt to read from Slot-2. If that fails, attempt to read
+        // from the cartridge with official cartridge commands (this should work
+        // on emulators). If both fail, nitroFSInit() has failed.
+        //
+        // To check if either system works, we need to compare the offset table
+        // currently pre-loaded in RAM with the tables that we can read from
+        // Slot-2 or with the cartridge commands.
+
+        // Reference pre-loaded offsets
         memcpy(nitrofs_offsets, &(__NDSHeader->filenameOffset), 4 * sizeof(uint32_t));
+
+        // Offsets that we will read
+        uint32_t nitrofs_offsets_check[4];
 
         // If not in DSi mode and the .nds file is <= 32MB...
         if (!isDSiMode() && __NDSHeader->deviceSize <= 8)
@@ -727,11 +769,32 @@ bool nitroFSInit(const char *basepath)
             // ... we could still be reading from Slot-2.
             // Figure this out by comparing NitroFS header data between the two.
             sysSetCartOwner(BUS_OWNER_ARM9);
-            nitrofs_local.use_slot2 = !memcmp(((uint16_t *) 0x08000040), nitrofs_offsets, 4 * sizeof(uint32_t));
+
+            // Try to read from Slot-2
+            nitrofs_read_internal_slot2(nitrofs_offsets_check,
+                                        offsetof(tNDSHeader, filenameOffset),
+                                        4 * sizeof(uint32_t));
+
+            if (memcmp(nitrofs_offsets_check, nitrofs_offsets, 4 * sizeof(uint32_t)) == 0)
+                nitrofs_local.use_slot2 = true;
+            else
+                nitrofs_local.use_slot2 = false;
+
         }
-        else
+
+        // If we can't use Slot-2, make sure that Slot-1 is actually available
+        if (!nitrofs_local.use_slot2)
         {
-            nitrofs_local.use_slot2 = false;
+            nitrofs_read_internal_cart(nitrofs_offsets_check,
+                                       offsetof(tNDSHeader, filenameOffset),
+                                       4 * sizeof(uint32_t));
+
+            if (memcmp(nitrofs_offsets_check, nitrofs_offsets, 4 * sizeof(uint32_t)) != 0)
+            {
+                nitrofs_local.fnt_offset = 0;
+                errno = ENODEV;
+                return false;
+            }
         }
     }
 
