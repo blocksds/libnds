@@ -2,6 +2,10 @@
 //
 // Copyright (C) 2025 Edoardo Lolletti (edo9300)
 
+/// @file nds/device_list.h
+///
+/// @brief Device List structures used by DSi/3DS launchers.
+
 #ifndef DEVICE_LIST_H
 #define DEVICE_LIST_H
 

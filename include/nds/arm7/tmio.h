@@ -405,6 +405,8 @@ static inline void TMIO_setBusWidth(TmioPort *const port, const u8 width)
 ///     The buffer pointer.
 /// @param[in] blocks
 ///     The number of blocks to transfer.
+/// @param callback
+///     Callback that will be used to read or write.
 static inline void TMIO_setBuffer(TmioPort *const port, void *buf, const u16 blocks, tmio_callback_t callback_function)
 {
     port->buf    = buf;
