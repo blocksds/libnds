@@ -790,7 +790,7 @@ bool nitroFSInit(const char *basepath)
 
         }
 
-        // If we can't use Slot-2, make sure that Slot-1 is actually available
+        // If we can't use Slot-2, make sure that card commands actually work
         if (!nitrofs_local.use_slot2)
         {
             nitrofs_read_internal_cart(&nitrofs_offsets_check,
