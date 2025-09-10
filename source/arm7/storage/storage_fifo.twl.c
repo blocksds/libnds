@@ -201,32 +201,30 @@ static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count, bool 
 {
     u32 result;
     const bool word_aligned = IS_WORD_ALIGNED(buf);
-    if(crypt)
-    {
+
 #ifdef NDMA_CHANNEL
-        if(word_aligned)
+    if (crypt)
+    {
+        if (word_aligned)
         {
-            NDMA_SRC(NDMA_CHANNEL) = (u32) &REG_AES_RDFIFO;
+            NDMA_SRC(NDMA_CHANNEL) = (u32)&REG_AES_RDFIFO;
             NDMA_DEST(NDMA_CHANNEL) = (u32)buf;
             NDMA_BLENGTH(NDMA_CHANNEL) = 16;
             NDMA_BDELAY(NDMA_CHANNEL) = NDMA_BDELAY_DIV_1 | NDMA_BDELAY_CYCLES(0);
             NDMA_CR(NDMA_CHANNEL) = NDMA_ENABLE | NDMA_REPEAT | NDMA_BLOCK_SCALER(4)
                                     | NDMA_SRC_FIX | NDMA_DST_INC | NDMA_START_AES_OUT;
         }
-#endif
+
         startingSector = sect;
         remainingSectors = setupAesRegs(sect, count);
         result = SDMMC_readSectorsCrypt(devNum, sect, buf, count, sector_crypt_callback);
-#ifdef NDMA_CHANNEL
-        if(word_aligned)
+
+        if (word_aligned)
         {
             NDMA_CR(NDMA_CHANNEL) = 0;
         }
-#endif
     }
-    else
-#ifdef NDMA_CHANNEL
-    if (word_aligned)
+    else if (word_aligned)
     {
         NDMA_SRC(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
         NDMA_DEST(NDMA_CHANNEL) = (u32)buf;
@@ -238,39 +236,49 @@ static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count, bool 
         NDMA_CR(NDMA_CHANNEL) = 0;
     }
     else
-#endif
     {
         result = SDMMC_readSectors(devNum, sect, buf, count);
     }
+#else
+    if (crypt)
+    {
+        startingSector = sect;
+        remainingSectors = setupAesRegs(sect, count);
+        result = SDMMC_readSectorsCrypt(devNum, sect, buf, count, sector_crypt_callback);
+    }
+    else
+    {
+        result = SDMMC_readSectors(devNum, sect, buf, count);
+    }
+#endif
+
     return result;
 }
 
 static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count, bool crypt)
 {
     u32 result;
-    if(crypt)
-    {
+
 #ifdef NDMA_CHANNEL
-        NDMA_SRC(NDMA_CHANNEL) = (u32) &REG_AES_RDFIFO;
-        NDMA_DEST(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
+    if (crypt)
+    {
+        NDMA_SRC(NDMA_CHANNEL) = (u32)&REG_AES_RDFIFO;
+        NDMA_DEST(NDMA_CHANNEL) = (u32)getTmioFifo(getTmioRegs(0));
         NDMA_BLENGTH(NDMA_CHANNEL) = 16;
         NDMA_BDELAY(NDMA_CHANNEL) = NDMA_BDELAY_DIV_1 | NDMA_BDELAY_CYCLES(0);
         NDMA_CR(NDMA_CHANNEL) = NDMA_ENABLE | NDMA_REPEAT | NDMA_BLOCK_SCALER(4)
                                 | NDMA_SRC_FIX | NDMA_DST_FIX | NDMA_START_AES_OUT;
-#endif
+
         startingSector = sect;
         remainingSectors = setupAesRegs(sect, count);
         result = SDMMC_writeSectorsCrypt(devNum, sect, buf, count, sector_crypt_callback);
-#ifdef NDMA_CHANNEL
+
         NDMA_CR(NDMA_CHANNEL) = 0;
-#endif
     }
-    else
-#ifdef NDMA_CHANNEL
-    if (IS_WORD_ALIGNED(buf))
+    else if (IS_WORD_ALIGNED(buf))
     {
-        NDMA_SRC(NDMA_CHANNEL) = (u32) buf;
-        NDMA_DEST(NDMA_CHANNEL) = (u32) getTmioFifo(getTmioRegs(0));
+        NDMA_SRC(NDMA_CHANNEL) = (u32)buf;
+        NDMA_DEST(NDMA_CHANNEL) = (u32)getTmioFifo(getTmioRegs(0));
         NDMA_BLENGTH(NDMA_CHANNEL) = 512 / 4;
         NDMA_BDELAY(NDMA_CHANNEL) = NDMA_BDELAY_DIV_1 | NDMA_BDELAY_CYCLES(0);
         NDMA_CR(NDMA_CHANNEL) = NDMA_ENABLE | NDMA_REPEAT | NDMA_BLOCK_SCALER(4)
@@ -279,10 +287,22 @@ static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count
         NDMA_CR(NDMA_CHANNEL) = 0;
     }
     else
-#endif
     {
         result = SDMMC_writeSectors(devNum, sect, buf, count);
     }
+#else
+    if (crypt)
+    {
+        startingSector = sect;
+        remainingSectors = setupAesRegs(sect, count);
+        result = SDMMC_writeSectorsCrypt(devNum, sect, buf, count, sector_crypt_callback);
+    }
+    else
+    {
+        result = SDMMC_writeSectors(devNum, sect, buf, count);
+    }
+#endif
+
     return result;
 }
 
