@@ -16,7 +16,7 @@ void nandCrypt_Init(void)
         return;
 
     // "Activate" the key Y to generate the normal key
-    ((volatile  u32*)(AES_KEYSLOT3.key_y))[3] = 0xE1A00005;
+    ((volatile u32*)(AES_KEYSLOT3.key_y))[3] = 0xE1A00005;
 
     // Calculate the Input Vector used for NAND decryption
     // First 16 bytes of the SHA of the nand cid will be used

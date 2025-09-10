@@ -23,23 +23,26 @@ static sec_t startingSector;
 
 #define SECTOR_SIZE             0x200
 #define AES_BLOCK_SIZE          16
+
 static sec_t setupAesRegs(u32 sectorNum, sec_t totalSectors)
 {
-    REG_AES_CNT = ( AES_CNT_MODE(2) |
-                    AES_WRFIFO_FLUSH |
-                    AES_RDFIFO_FLUSH |
-                    AES_CNT_KEY_APPLY | AES_CNT_KEYSLOT(3) | // apply keyslot 3 containing the nand normal key
-                    AES_CNT_DMA_WRITE_SIZE(0) | AES_CNT_DMA_READ_SIZE(3) // set both input and output expected dma size to 16 words
-                    );
+    REG_AES_CNT = AES_CNT_MODE(2) |
+                  AES_WRFIFO_FLUSH |
+                  AES_RDFIFO_FLUSH |
+                  // Apply keyslot 3 containing the nand normal key
+                  AES_CNT_KEY_APPLY | AES_CNT_KEYSLOT(3) |
+                  // Set both input and output expected dma size to 16 words
+                  AES_CNT_DMA_WRITE_SIZE(0) | AES_CNT_DMA_READ_SIZE(3);
+
     // The blkcnt register holds the number of total blocks (16 bytes) to be parsed
     // by the current aes operation
     sec_t toReadSectors = totalSectors;
-    if(toReadSectors > SECTOR_CAP)
+    if (toReadSectors > SECTOR_CAP)
     {
         toReadSectors = SECTOR_CAP;
     }
     u32 aesBlockCount = toReadSectors * (SECTOR_SIZE / AES_BLOCK_SIZE);
-    REG_AES_BLKCNT = (aesBlockCount << 16);
+    REG_AES_BLKCNT = aesBlockCount << 16;
 
     u32 offset = sectorNum * (SECTOR_SIZE / AES_BLOCK_SIZE);
     // The ctr is the base ctr calculated by the sha of the CID + (address / 16)
@@ -48,17 +51,17 @@ static sec_t setupAesRegs(u32 sectorNum, sec_t totalSectors)
 
     REG_AES_CNT |= AES_CNT_ENABLE;
 
-    return  totalSectors - toReadSectors;
+    return totalSectors - toReadSectors;
 }
 
-static void cryptSectorsRead(u32 fifo, void* buffer, u32 numBytes)
+static void cryptSectorsRead(u32 fifo, void *buffer, u32 numBytes)
 {
     const bool word_aligned = IS_WORD_ALIGNED(buffer);
-    vu32* inSdmcFifo32 = (vu32*)fifo;
-    if(word_aligned)
+    vu32 *inSdmcFifo32 = (vu32*)fifo;
+    if (word_aligned)
 #ifdef NDMA_CHANNEL
     {
-        for (unsigned i = 0; i < numBytes / 4; ++i)
+        for (unsigned int i = 0; i < numBytes / 4; ++i)
         {
             while (((REG_AES_CNT) & 0x1F) == 16);
             REG_AES_WRFIFO = *inSdmcFifo32;
@@ -66,14 +69,16 @@ static void cryptSectorsRead(u32 fifo, void* buffer, u32 numBytes)
     }
 #else
     {
-        vu32* out32 = (vu32*)buffer;
-        for (unsigned i = 0; i < numBytes / (4 * 16); ++i)
+        vu32 *out32 = (vu32*)buffer;
+        for (unsigned int i = 0; i < numBytes / (4 * 16); ++i)
         {
             for (int j = 0; j < 16; ++j)
             {
                 REG_AES_WRFIFO = *inSdmcFifo32;
             }
+
             while (((REG_AES_CNT >> 0x5) & 0x1F) < 16);
+
             for (int j = 0; j < 16; ++j)
             {
                 *out32++ = REG_AES_RDFIFO;
@@ -83,14 +88,16 @@ static void cryptSectorsRead(u32 fifo, void* buffer, u32 numBytes)
 #endif
     else
     {
-        vu8* out8 = (vu8*)buffer;
-        for (unsigned i = 0; i < numBytes / (4 * 16); ++i)
+        vu8 *out8 = (vu8*)buffer;
+        for (unsigned int i = 0; i < numBytes / (4 * 16); ++i)
         {
             for (int j = 0; j < 16; ++j)
             {
                 REG_AES_WRFIFO = *inSdmcFifo32;
             }
+
             while (((REG_AES_CNT >> 0x5) & 0x1F) < 16);
+
             for (int j = 0; j < 16; ++j)
             {
                 const u32 tmp = REG_AES_RDFIFO;
@@ -103,45 +110,49 @@ static void cryptSectorsRead(u32 fifo, void* buffer, u32 numBytes)
     }
 }
 
-
-static void cryptSectorsWrite(u32 fifo, void* buffer, u32 numBytes)
+static void cryptSectorsWrite(u32 fifo, void *buffer, u32 numBytes)
 {
 #ifdef NDMA_CHANNEL
     (void)fifo;
     if (IS_WORD_ALIGNED(buffer))
     {
-        vu32* in32 = (vu32*)buffer;
-        for (unsigned i = 0; i < numBytes / 4; ++i)
+        vu32 *in32 = (vu32*)buffer;
+        for (unsigned int i = 0; i < numBytes / 4; ++i)
         {
             while (((REG_AES_CNT) & 0x1F) == 16);
+
             REG_AES_WRFIFO = *in32++;
         }
     }
     else
     {
-        vu8* in8 = (vu8*)buffer;
-        for (unsigned i = 0; i < numBytes / 4; ++i)
+        vu8 *in8 = (vu8*)buffer;
+        for (unsigned int i = 0; i < numBytes / 4; ++i)
         {
             u32 tmp = *in8++;
             tmp |= *in8++ << 8;
             tmp |= *in8++ << 16;
             tmp |= *in8++ << 24;
+
             while (((REG_AES_CNT) & 0x1F) == 16);
+
             REG_AES_WRFIFO = tmp;
         }
     }
 #else
-    vu32* outSdmcFifo32 = (vu32*)fifo;
+    vu32 *outSdmcFifo32 = (vu32*)fifo;
     if (IS_WORD_ALIGNED(buffer))
     {
-        vu32* in32 = (vu32*)buffer;
-        for (unsigned i = 0; i < numBytes / (4 * 16); ++i)
+        vu32 *in32 = (vu32*)buffer;
+        for (unsigned int i = 0; i < numBytes / (4 * 16); ++i)
         {
             for (int j = 0; j < 16; ++j)
             {
                 REG_AES_WRFIFO = *in32++;
             }
+
             while (((REG_AES_CNT >> 0x5) & 0x1F) < 16);
+
             for (int j = 0; j < 16; ++j)
             {
                 *outSdmcFifo32 = REG_AES_RDFIFO;
@@ -150,8 +161,8 @@ static void cryptSectorsWrite(u32 fifo, void* buffer, u32 numBytes)
     }
     else
     {
-        vu8* in8 = (vu8*)buffer;
-        for (unsigned i = 0; i < numBytes / (4 * 16); ++i)
+        vu8 *in8 = (vu8*)buffer;
+        for (unsigned int i = 0; i < numBytes / (4 * 16); ++i)
         {
             for (int j = 0; j < 16; ++j)
             {
@@ -161,7 +172,9 @@ static void cryptSectorsWrite(u32 fifo, void* buffer, u32 numBytes)
                 tmp |= *in8++ << 24;
                 REG_AES_WRFIFO = tmp;
             }
+
             while (((REG_AES_CNT >> 0x5) & 0x1F) < 16);
+
             for (int j = 0; j < 16; ++j)
             {
                 *outSdmcFifo32 = REG_AES_RDFIFO;
@@ -171,23 +184,24 @@ static void cryptSectorsWrite(u32 fifo, void* buffer, u32 numBytes)
 #endif
 }
 
-static void sector_crypt_callback(u32 fifo, void* buffer, u32 numBytes, bool read)
+static void sector_crypt_callback(u32 fifo, void *buffer, u32 numBytes, bool read)
 {
-    if(read)
+    if (read)
         cryptSectorsRead(fifo, buffer, numBytes);
     else
         cryptSectorsWrite(fifo, buffer, numBytes);
-    if(remainingSectors != 0)
+
+    if (remainingSectors != 0)
     {
         u32 cnt = REG_AES_CNT;
-        if((cnt & AES_CNT_ENABLE) == 0)
+        if ((cnt & AES_CNT_ENABLE) == 0)
         {
             startingSector += SECTOR_CAP;
             remainingSectors = setupAesRegs(startingSector, remainingSectors);
 #ifdef NDMA_CHANNEL
-            if(read)
+            if (read)
             {
-                if(!IS_WORD_ALIGNED(buffer))
+                if (!IS_WORD_ALIGNED(buffer))
                     return;
                 NDMA_DEST(NDMA_CHANNEL) = ((u32)buffer) + 512;
             }

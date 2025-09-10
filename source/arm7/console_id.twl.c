@@ -2,25 +2,27 @@
 //
 // Copyright (C) 2025 Edoardo Lolletti (edo9300)
 
-#include <nds.h>
 #include <string.h>
 
-static void computeAes(void* out)
-{
-    REG_AES_BLKCNT = (1 << 16);
-    REG_AES_CNT = ( AES_CNT_MODE(2) |
-                    AES_WRFIFO_FLUSH |
-                    AES_RDFIFO_FLUSH |
-                    AES_CNT_KEY_APPLY |
-                    AES_CNT_KEYSLOT(3) |
-                    AES_CNT_ENABLE
-                    );
+#include <nds.h>
 
-    u32* out32 = (u32*)out;
+static void computeAes(void *out)
+{
+    REG_AES_BLKCNT = 1 << 16;
+    REG_AES_CNT = AES_CNT_MODE(2) |
+                  AES_WRFIFO_FLUSH |
+                  AES_RDFIFO_FLUSH |
+                  AES_CNT_KEY_APPLY |
+                  AES_CNT_KEYSLOT(3) |
+                  AES_CNT_ENABLE;
+
+    u32 *out32 = (u32*)out;
 
     for (int i = 0; i < 4; ++i)
         REG_AES_WRFIFO = 0;
+
     while (((REG_AES_CNT >> 0x5) & 0x1F) < 0x4);
+
     for (int i = 0; i < 4; ++i)
         out32[i] = REG_AES_RDFIFO;
 }
@@ -28,11 +30,11 @@ static void computeAes(void* out)
 // In most of the contexes, the aes keyslot 3 is configured with the keys required
 // to decrypt the console nand
 // The key X from this keyslot, is populated with the console id at bytes 0-3 and 12-15
-static void computeConsoleIdFromNandKeyX(aes_keyslot_t* keyslot, u8 ConsoleIdOut[8])
+static void computeConsoleIdFromNandKeyX(aes_keyslot_t *keyslot, u8 ConsoleIdOut[8])
 {
     // "enable" the keyslot 3 for nand crypto, so that the keys are properly derived
     ((vu32*)(AES_KEYSLOT3.key_y))[3] = 0xE1A00005;
-    u8 canary[16]={0};
+    u8 canary[16] = { 0 };
     computeAes(canary);
 
     u8 key_y_oracle = 0xE1;
@@ -43,7 +45,7 @@ static void computeConsoleIdFromNandKeyX(aes_keyslot_t* keyslot, u8 ConsoleIdOut
         {
             u8 scratch[0x10];
             int key_x_idx = i;
-            if(i >= 4)
+            if (i >= 4)
                 key_x_idx += 8;
             keyslot->key_x[key_x_idx] = j & 0xFF;
             keyslot->key_y[15] = key_y_oracle;

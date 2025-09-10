@@ -299,7 +299,7 @@ static inline u32 TMIO_CLK2DIV(u32 clk)
 #define SD_FIFO32_FULL_IE           (1u<<11) // FIFO full IRQ enable.
 #define SD_FIFO32_NOT_EMPTY_IE      (1u<<12) // FIFO not empty IRQ enable.
 
-typedef void(*tmio_callback_t)(u32 fifo, void* buffer, u32 blocklen, bool read);
+typedef void (*tmio_callback_t)(u32 fifo, void *buffer, u32 blocklen, bool read);
 
 typedef struct
 {
@@ -312,7 +312,6 @@ typedef struct
     u32 resp[4];     // Little endian, MSB first.
     tmio_callback_t callback_function;
 } TmioPort;
-
 
 /// Initializes the tmio driver.
 void TMIO_init(void);
