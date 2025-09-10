@@ -675,8 +675,6 @@ bool nitroFSExit(void)
 
 bool nitroFSInit(const char *basepath)
 {
-    uint32_t nitrofs_offsets[4];
-
     if (nitrofs_local.fat_offset)
         nitroFSExit();
 
@@ -727,6 +725,16 @@ bool nitroFSInit(const char *basepath)
         }
     }
 
+    // This is part of the NDS header struct (tNDSHeader)
+    typedef struct {
+        u32 filenameOffset;
+        u32 filenameSize;
+        u32 fatOffset;
+        u32 fatSize;
+    } nitrofs_offsets_t;
+
+    nitrofs_offsets_t nitrofs_offsets;
+
     // Read FNT/FAT offset/size information.
     if (nitrofs_local.file)
     {
@@ -737,9 +745,9 @@ bool nitroFSInit(const char *basepath)
         // - The caller of nitroFSInit() has provided a different path, so we
         //   may be loading the same NDS file or a completely different one.
 
-        nitrofs_read_internal_file(nitrofs_offsets,
+        nitrofs_read_internal_file(&nitrofs_offsets,
                                    offsetof(tNDSHeader, filenameOffset),
-                                   4 * sizeof(uint32_t));
+                                   sizeof(nitrofs_offsets));
     }
     else
     {
@@ -758,10 +766,10 @@ bool nitroFSInit(const char *basepath)
         // Slot-2 or with the cartridge commands.
 
         // Reference pre-loaded offsets
-        memcpy(nitrofs_offsets, &(__NDSHeader->filenameOffset), 4 * sizeof(uint32_t));
+        memcpy(&nitrofs_offsets, &(__NDSHeader->filenameOffset), sizeof(nitrofs_offsets));
 
         // Offsets that we will read
-        uint32_t nitrofs_offsets_check[4];
+        nitrofs_offsets_t nitrofs_offsets_check;
 
         // If not in DSi mode and the .nds file is <= 32MB...
         if (!isDSiMode() && __NDSHeader->deviceSize <= 8)
@@ -771,11 +779,11 @@ bool nitroFSInit(const char *basepath)
             sysSetCartOwner(BUS_OWNER_ARM9);
 
             // Try to read from Slot-2
-            nitrofs_read_internal_slot2(nitrofs_offsets_check,
+            nitrofs_read_internal_slot2(&nitrofs_offsets_check,
                                         offsetof(tNDSHeader, filenameOffset),
-                                        4 * sizeof(uint32_t));
+                                        sizeof(nitrofs_offsets_check));
 
-            if (memcmp(nitrofs_offsets_check, nitrofs_offsets, 4 * sizeof(uint32_t)) == 0)
+            if (memcmp(&nitrofs_offsets_check, &nitrofs_offsets, sizeof(nitrofs_offsets)) == 0)
                 nitrofs_local.use_slot2 = true;
             else
                 nitrofs_local.use_slot2 = false;
@@ -785,11 +793,11 @@ bool nitroFSInit(const char *basepath)
         // If we can't use Slot-2, make sure that Slot-1 is actually available
         if (!nitrofs_local.use_slot2)
         {
-            nitrofs_read_internal_cart(nitrofs_offsets_check,
+            nitrofs_read_internal_cart(&nitrofs_offsets_check,
                                        offsetof(tNDSHeader, filenameOffset),
-                                       4 * sizeof(uint32_t));
+                                       sizeof(nitrofs_offsets_check));
 
-            if (memcmp(nitrofs_offsets_check, nitrofs_offsets, 4 * sizeof(uint32_t)) != 0)
+            if (memcmp(&nitrofs_offsets_check, &nitrofs_offsets, sizeof(nitrofs_offsets)) != 0)
             {
                 nitrofs_local.fnt_offset = 0;
                 errno = ENODEV;
@@ -803,9 +811,9 @@ bool nitroFSInit(const char *basepath)
     nitrofs_local.fat_offset = 0;
 
     // Initialize FAT offset, if valid; otherwise exit.
-    if (nitrofs_offsets[2] >= 0x200 && nitrofs_offsets[3] > 0)
+    if (nitrofs_offsets.fatOffset >= 0x200 && nitrofs_offsets.fatSize > 0)
     {
-        nitrofs_local.fat_offset = nitrofs_offsets[2];
+        nitrofs_local.fat_offset = nitrofs_offsets.fatOffset;
     }
     else
     {
@@ -823,8 +831,8 @@ bool nitroFSInit(const char *basepath)
 
     // Initialize FNT offset, if valid. Allow opening files by direct ID
     // even without an FNT.
-    if (nitrofs_offsets[0] >= 0x200 && nitrofs_offsets[1] > 0)
-        nitrofs_local.fnt_offset = nitrofs_offsets[0];
+    if (nitrofs_offsets.filenameOffset >= 0x200 && nitrofs_offsets.filenameSize > 0)
+        nitrofs_local.fnt_offset = nitrofs_offsets.filenameOffset;
 
     // Set "nitro:/" as default path
     current_drive_is_nitrofs = true;
