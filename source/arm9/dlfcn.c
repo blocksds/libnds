@@ -105,12 +105,11 @@ int __aeabi_atexit(void *arg, void (*func) (void *), void *dso_handle)
     return 0;
 }
 
-void *dlopen(const char *file, int mode)
+void *dlopen_FILE(FILE *f, int mode)
 {
     // Clear error string
     dl_err_str = NULL;
 
-    FILE *f = NULL;
     uint8_t *loaded_mem = NULL;
     dsl_handle *handle = NULL;
     dsl_symbol_table *sym_table = NULL;
@@ -124,12 +123,6 @@ void *dlopen(const char *file, int mode)
         return NULL;
     }
 
-    if ((file == NULL) || (strlen(file) == 0))
-    {
-        dl_err_str = "no file provided";
-        return NULL;
-    }
-
     // RTLD_NOW or RTLD_LAZY need to be set, but only RTLD_NOW is supported.
     if ((mode & RTLD_NOW) == 0)
     {
@@ -140,10 +133,9 @@ void *dlopen(const char *file, int mode)
     // RTLD_LOCAL is the default setting, but it doesn't need to be set
     // manually.
 
-    f = fopen(file, "rb");
     if (f == NULL)
     {
-        dl_err_str = "file can't be opened";
+        dl_err_str = "no FILE handle provided";
         return NULL;
     }
 
@@ -541,8 +533,6 @@ void *dlopen(const char *file, int mode)
         break;
     }
 
-    fclose(f);
-
     // Now that we have finished loading and handling relocations we need to
     // flush the data cache. If not, the instruction cache won't see the updated
     // code in main RAM! Also, we need to clear the instruction cache in case
@@ -592,9 +582,6 @@ void *dlopen(const char *file, int mode)
     return handle;
 
 cleanup:
-    if (f != NULL)
-        fclose(f);
-
     if (loaded_mem != NULL)
         free(loaded_mem);
 
@@ -610,6 +597,32 @@ cleanup:
     __aeabi_atexit(NULL, NULL, NULL);
 
     return NULL;
+}
+
+void *dlopen(const char *file, int mode)
+{
+    // Clear error string
+    dl_err_str = NULL;
+
+    if ((file == NULL) || (strlen(file) == 0))
+    {
+        dl_err_str = "no file provided";
+        return NULL;
+    }
+
+    FILE *f = fopen(file, "rb");
+    if (f == NULL)
+    {
+        dl_err_str = "file can't be opened";
+        fclose(f);
+        return NULL;
+    }
+
+    void *p = dlopen_FILE(f, mode);
+
+    fclose(f);
+
+    return p;
 }
 
 int dlclose(void *handle)

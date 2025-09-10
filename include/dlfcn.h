@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
+
 /// Perform lazy binding. Not supported.
 #define RTLD_LAZY       0x01
 /// Load everything right away.
@@ -54,6 +56,35 @@ extern "C" {
 ///     error, it returns NULL, and the user is expected to call dlerror() to
 ///     get a user-readable string with the reason of the error.
 void *dlopen(const char *file, int mode);
+
+/// Loads a dynamic library (in DSL format) into RAM from a FILE handle.
+///
+/// The handle must be opened before dlopen_FILE() is called and it must be
+/// closed after dlopen_FILE() returns. It isn't needed after the library has
+/// been loaded.
+///
+/// For example, you can use this to load a dynamic library that you have
+/// already loaded to RAM. You can use `fmemopen()` on the buffer where the
+/// library is stored and pass the resulting handle to `dlopen_FILE()`.
+///
+/// @note
+///     This is a non-standard function, it's only available in libnds.
+///
+/// @note
+///     The value of the environment variable LD_LIBRARY_PATH is ignored.
+///
+/// @param f
+///     Open file handle to the DSL library file.
+/// @param mode
+///     Mode in which the file will be opened. Currently, the only mode
+///     supported is `RTLD_NOW | RTLD_LOCAL`. Also, RTLD_LOCAL is the default
+///     setting, so it isn't required to specify it explicitly.
+///
+/// @return
+///     On success, it returns a handle to be used by dlsym() and dlclose(). On
+///     error, it returns NULL, and the user is expected to call dlerror() to
+///     get a user-readable string with the reason of the error.
+void *dlopen_FILE(FILE *f, int mode);
 
 /// Frees all memory used by a dynamic library.
 ///
@@ -107,6 +138,9 @@ void *dlsym(void *handle, const char *name);
 /// ```
 /// add-symbol-file path/to/dynamic.elf -s .progbits <load_address>
 /// ```
+///
+/// @note
+///     This is a non-standard function, it's only available in libnds.
 ///
 /// @param handle
 ///     The handle returned by dlopen().
