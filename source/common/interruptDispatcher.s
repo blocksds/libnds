@@ -268,7 +268,7 @@ exit:
     sub     r2, r2, r1
     str     r2, [r0]
 
-#endif // ARM9
+#endif // THREADS_ENABLED
 
     mov     pc, lr
 
