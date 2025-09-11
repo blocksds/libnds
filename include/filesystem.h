@@ -21,15 +21,20 @@ extern "C" {
 
 /// Initializes NitroFS.
 ///
-/// If basepath or argv[0] is provided, an attempt to read the file system
-/// using DLDI will be made first. If that fails, the official cartridge
-/// protocol will be used instead.
+/// The caller can optionally provide the path of a NDS file to open.
+///
+/// - If the path is provided by the caller, and the file can't be opened,
+///   nitroFSInit() gives up.
+/// - If the path isn't provided by the user, and the user has provided argv[0],
+///   nitroFSInit() will try to use argv[0]. If that file can't be opened it
+///   will try to open the filesystem in other ways before giving up.
 ///
 /// @param basepath
-///     The .nds file path - NULL to auto-detect.
+///     The .nds file path. If NULL nitroFSInit() will use argv[0] instead.
 ///
 /// @return
-///     It returns true on success, false on error.
+///     It returns true on success, false on error. On error, errno will contain
+///     the reason for the failure.
 WARN_UNUSED_RESULT
 bool nitroFSInit(const char *basepath);
 

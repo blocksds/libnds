@@ -681,10 +681,6 @@ bool nitroFSInit(const char *basepath)
     nitrofs_local.file = NULL;
     nitrofs_local.current_dir = 0xF000;
 
-    // Use argv[0] if basepath is not provided.
-    if (!basepath && __system_argv->argvMagic == ARGV_MAGIC && __system_argv->argc >= 1)
-        basepath = __system_argv->argv[0];
-
     // Initialize cache if it hasn't been initialized already
     if (!cache_initialized())
     {
@@ -699,29 +695,62 @@ bool nitroFSInit(const char *basepath)
         }
     }
 
+    // Keep track of whether the path was provided by the user or it was
+    // obtained from argv.
+    bool user_provided_basepath = false;
+
+    // Use argv[0] if the user hasn't provided any path
+    if (basepath == NULL)
+    {
+        if ((__system_argv->argvMagic == ARGV_MAGIC) && (__system_argv->argc >= 1))
+        {
+            basepath = __system_argv->argv[0];
+        }
+    }
+    else
+    {
+        user_provided_basepath = true;
+    }
+
     // Try to open the basepath file.
-    if (basepath)
+    if (basepath != NULL)
     {
         if (fatInitDefault())
         {
             nitrofs_local.file = fopen(basepath, "r");
+        }
 
-            // Initialize the FAT lookup cache for NitroFS files.
+        if (nitrofs_local.file != NULL)
+        {
+            // If we could open the provided file, initialize the FAT lookup
+            // cache for NitroFS files.
             //
             // NitroFS files inherently do a lot of seeking, so it's almost
-            // always beneficial. At the same time, for a defragmented drive,
-            // this should only occupy a few dozen bytes.
+            // always beneficial. At the same time, for a defragmented
+            // drive, this should only occupy a few dozen bytes.
             //
             // FIXME: Move this to the DLDI driver space and remove the 2KB
             // size limit.
-            if (nitrofs_local.file == NULL)
-                basepath = NULL;
-            else
-                fatInitLookupCacheFile(nitrofs_local.file, 2048);
+            fatInitLookupCacheFile(nitrofs_local.file, 2048);
         }
         else
         {
-            basepath = NULL;
+            // If the user provided the path and it can't be opened we need to
+            // fail right away. The caller may have provided a path that isn't
+            // the same file that is currently running, and all other access
+            // systems can only access the same application currently running.
+            if (user_provided_basepath)
+            {
+                // Don't set errno here, keep the one set by fatInitDefault() or
+                // fopen().
+                nitrofs_local.fnt_offset = 0;
+                return false;
+            }
+
+            // If the path was provided by argv we can try other access modes
+            // before giving up. For example, we may be running on DeSmuME,
+            // which always sets argv[0] but doesn't have automatic FAT support:
+            // https://github.com/TASEmulators/desmume/blob/1638bc00aeff9526601f723c81c418c303b6a04c/desmume/src/NDSSystem.cpp#L2653-L2665
         }
     }
 
@@ -736,7 +765,7 @@ bool nitroFSInit(const char *basepath)
     nitrofs_offsets_t nitrofs_offsets;
 
     // Read FNT/FAT offset/size information.
-    if (nitrofs_local.file)
+    if (nitrofs_local.file != NULL)
     {
         // If we have an open file, that's the path we need to use. This can
         // happen in two situations:
