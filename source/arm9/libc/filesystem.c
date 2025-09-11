@@ -707,6 +707,9 @@ bool fatSetVolumeLabel(const char *name, const char *label)
     if (name == NULL || label == NULL)
         return false;
 
+    if (strncmp(name, "nand", sizeof("nand") - 1) == 0)
+        return false;
+
     size_t name_length = strlen(name);
     size_t label_length = strlen(label);
 
