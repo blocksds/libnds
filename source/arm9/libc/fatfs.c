@@ -19,8 +19,14 @@
 
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
-// Devices: "fat:/", "sd:/", "nand:/"
-static FATFS fs_info[FF_VOLUMES] = { 0 };
+// Device: "fat:/"
+#define FF_NTR_VOLUMES 1
+static FATFS fs_info[FF_NTR_VOLUMES] = { 0 };
+
+// Devices: "sd:/", "nand:/"
+TWL_DATA static FATFS fs_info_twl[FF_VOLUMES - FF_NTR_VOLUMES] = { 0 };
+
+#define FS_INFO(idx) ((idx >= (FF_NTR_VOLUMES)) ? &fs_info_twl[idx - FF_NTR_VOLUMES] : &fs_info[idx])
 
 static const char *fat_drive = "fat:/";
 static const char *sd_drive = "sd:/";
@@ -274,7 +280,7 @@ bool nandInit(bool read_only)
 
     mount_attempted = true;
     nand_mounted = true;
-    FRESULT result = f_mount(&fs_info[2], nand_drive, 1);
+    FRESULT result = f_mount(FS_INFO(2), nand_drive, 1);
     if (result != FR_OK)
     {
         errno = fatfs_error_to_posix(result);
@@ -364,7 +370,7 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
         }
 
         // Try to initialize the internal SD slot
-        result = f_mount(&fs_info[1], sd_drive, 1);
+        result = f_mount(FS_INFO(1), sd_drive, 1);
         if ((result != FR_OK) && require_sd)
         {
             errno = fatfs_error_to_posix(result);
@@ -372,7 +378,7 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
         }
 
         // Try to initialize DLDI
-        result = f_mount(&fs_info[0], fat_drive, 1);
+        result = f_mount(FS_INFO(0), fat_drive, 1);
         if ((result != FR_OK) && require_fat)
         {
             errno = fatfs_error_to_posix(result);
@@ -390,7 +396,7 @@ bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
     else
     {
         // On DS always require DLDI to initialize correctly.
-        result = f_mount(&fs_info[0], fat_drive, 1);
+        result = f_mount(FS_INFO(0), fat_drive, 1);
         if (result != FR_OK)
         {
             errno = fatfs_error_to_posix(result);
