@@ -23,7 +23,7 @@
 #define FF_NTR_VOLUMES 1
 static FATFS fs_info[FF_NTR_VOLUMES] = { 0 };
 
-// Devices: "sd:/", "nand:/"
+// Devices: "sd:/", "nand:/", "nand2:/"
 TWL_DATA static FATFS fs_info_twl[FF_VOLUMES - FF_NTR_VOLUMES] = { 0 };
 
 #define FS_INFO(idx) ((idx >= (FF_NTR_VOLUMES)) ? &fs_info_twl[idx - FF_NTR_VOLUMES] : &fs_info[idx])
@@ -32,11 +32,13 @@ PARTITION VolToPart[FF_VOLUMES] = {
     {0, 1},    /* "0:" ==> 1st partition in physical drive 0 (dldi), "fat:" */
     {1, 1},    /* "1:" ==> 1st partition in physical drive 1 (DSi sd), "sd:" */
     {2, 1},    /* "2:" ==> 1st partition in physical drive 2 (DSi nand), "nand:" */
+    {2, 2},    /* "3:" ==> 2nd partition in physical drive 2 (DSi nand photo partition), "nand2:" */
 };
 
 static const char *fat_drive = "fat:/";
 static const char *sd_drive = "sd:/";
 static const char *nand_drive = "nand:/";
+static const char *nand2_drive = "nand2:/";
 
 static bool fat_initialized = false;
 static bool nand_mounted = false;
@@ -287,6 +289,12 @@ bool nandInit(bool read_only)
     mount_attempted = true;
     nand_mounted = true;
     FRESULT result = f_mount(FS_INFO(2), nand_drive, 1);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        nand_mounted = false;
+    }
+    result = f_mount(FS_INFO(3), nand2_drive, 1);
     if (result != FR_OK)
     {
         errno = fatfs_error_to_posix(result);
