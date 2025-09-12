@@ -28,6 +28,12 @@ TWL_DATA static FATFS fs_info_twl[FF_VOLUMES - FF_NTR_VOLUMES] = { 0 };
 
 #define FS_INFO(idx) ((idx >= (FF_NTR_VOLUMES)) ? &fs_info_twl[idx - FF_NTR_VOLUMES] : &fs_info[idx])
 
+PARTITION VolToPart[FF_VOLUMES] = {
+    {0, 1},    /* "0:" ==> 1st partition in physical drive 0 (dldi), "fat:" */
+    {1, 1},    /* "1:" ==> 1st partition in physical drive 1 (DSi sd), "sd:" */
+    {2, 1},    /* "2:" ==> 1st partition in physical drive 2 (DSi nand), "nand:" */
+};
+
 static const char *fat_drive = "fat:/";
 static const char *sd_drive = "sd:/";
 static const char *nand_drive = "nand:/";

@@ -37,6 +37,7 @@ f_puts		libnds_f_puts
 f_printf	libnds_f_printf
 f_gets		libnds_f_gets
 VolumeStr	libnds_ff_VolumeStr
+VolToPart	libnds_ff_VolToPart
 get_fattime	libnds_ff_get_fattime
 ff_oem2uni	libnds_ff_oem2uni
 ff_uni2oem	libnds_ff_uni2oem
