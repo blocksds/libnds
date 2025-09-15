@@ -840,7 +840,7 @@ bool nitroFSInit(const char *basepath)
     nitrofs_local.fat_offset = 0;
 
     // Initialize FAT offset, if valid; otherwise exit.
-    if (nitrofs_offsets.fatOffset >= 0x200 && nitrofs_offsets.fatSize > 0)
+    if (nitrofs_offsets.fatOffset >= 0x8000 && nitrofs_offsets.fatSize > 0)
     {
         nitrofs_local.fat_offset = nitrofs_offsets.fatOffset;
     }
@@ -860,7 +860,7 @@ bool nitroFSInit(const char *basepath)
 
     // Initialize FNT offset, if valid. Allow opening files by direct ID
     // even without an FNT.
-    if (nitrofs_offsets.filenameOffset >= 0x200 && nitrofs_offsets.filenameSize > 0)
+    if (nitrofs_offsets.filenameOffset >= 0x8000 && nitrofs_offsets.filenameSize > 0)
         nitrofs_local.fnt_offset = nitrofs_offsets.filenameOffset;
 
     // Set "nitro:/" as default path
