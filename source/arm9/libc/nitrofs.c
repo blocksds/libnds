@@ -800,11 +800,18 @@ bool nitroFSInit(const char *basepath)
         // Offsets that we will read
         nitrofs_offsets_t nitrofs_offsets_check;
 
-        // If not in DSi mode and the .nds file is <= 32MB...
-        if (!isDSiMode() && __NDSHeader->deviceSize <= 8)
+        if (isDSiMode() || (__NDSHeader->deviceSize > 8))
         {
-            // ... we could still be reading from Slot-2.
-            // Figure this out by comparing NitroFS header data between the two.
+            // If we're in a DSi we can't use Slot-2. If we're in a regular DS,
+            // only 32 MB fit in Slot-2 cartridge memory, so we can't use
+            // NitroFS from Slot-2 if the NDS file doesn't fit there.
+            nitrofs_local.use_slot2 = false;
+        }
+        else
+        {
+            // If not in DSi mode and the NDS file is smaller or equal to 32MB
+            // we can try to read from Slot-2. Figure this out by comparing
+            // NitroFS header data between the two.
             sysSetCartOwner(BUS_OWNER_ARM9);
 
             // Try to read from Slot-2
@@ -816,7 +823,6 @@ bool nitroFSInit(const char *basepath)
                 nitrofs_local.use_slot2 = true;
             else
                 nitrofs_local.use_slot2 = false;
-
         }
 
         // If we can't use Slot-2, make sure that card commands actually work
