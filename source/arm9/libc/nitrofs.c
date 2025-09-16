@@ -825,14 +825,27 @@ bool nitroFSInit(const char *basepath)
                 nitrofs_local.use_slot2 = false;
         }
 
-        // If we can't use Slot-2, make sure that card commands actually work
+        // If we can't use Slot-2, make sure that card commands actually work.
         if (!nitrofs_local.use_slot2)
         {
-            nitrofs_read_internal_cart(&nitrofs_offsets_check,
-                                       offsetof(tNDSHeader, filenameOffset),
-                                       sizeof(nitrofs_offsets_check));
+            // We can't just read the FAT/FNT offsets in an official cartridge
+            // because addresses below 0x8000 aren't available to be read after
+            // boot (they are read by the NDS file loader).
+            //
+            // Instead, ndstool saves this 8-byte string right after the FAT
+            // table, so we can use it to check if we can read from the
+            // cartridge correctly.
+            const uint8_t magic_ref[8] = {
+                'N', 'i', 't', 'r', 'o', 'F', 'S', '!'
+            };
 
-            if (memcmp(&nitrofs_offsets_check, &nitrofs_offsets, sizeof(nitrofs_offsets)) != 0)
+            uint32_t offset = __NDSHeader->fatOffset + __NDSHeader->fatSize;
+
+            uint8_t magic_read[8];
+
+            nitrofs_read_internal_cart(magic_read, offset, sizeof(magic_read));
+
+            if (memcmp(magic_read, magic_ref, sizeof(magic_read)) != 0)
             {
                 nitrofs_local.fnt_offset = 0;
                 errno = ENODEV;
