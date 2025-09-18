@@ -10,9 +10,14 @@
 static u8 nand_ctr_iv[16] = {0};
 static const u8 empty[16] = {0};
 
+void nandCrypt_Initialized(void)
+{
+    return memcmp(empty, nand_ctr_iv, 16) != 0;
+}
+
 void nandCrypt_Init(void)
 {
-    if (memcmp(empty, nand_ctr_iv, 16) != 0)
+    if (nandCrypt_Initialized())
         return;
 
     // "Activate" the key Y to generate the normal key

@@ -23,6 +23,12 @@ extern "C" {
 /// required to perform cryptographic operations on the NAND.
 void nandCrypt_Init(void);
 
+/// Checks if nand crypto initialization has been performed.
+///
+/// @return
+///     If the AES keyslots were initialized, returns true.
+bool nandCrypt_Initialized(void);
+
 /// Sets the Input Vector in the aes engine to crypt the NAND blocks.
 ///
 /// @param offset
