@@ -216,6 +216,9 @@ static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count, bool 
     u32 result;
     const bool word_aligned = IS_WORD_ALIGNED(buf);
 
+    if (crypt && !nandCrypt_Initialized())
+        return SDMMC_ERR_LOCKED;
+
 #ifdef NDMA_CHANNEL
     if (crypt)
     {
@@ -272,6 +275,9 @@ static u32 sdmmcReadSectors(const u8 devNum, u32 sect, u8 *buf, u32 count, bool 
 static u32 sdmmcWriteSectors(const u8 devNum, u32 sect, const u8 *buf, u32 count, bool crypt)
 {
     u32 result;
+
+    if (crypt && !nandCrypt_Initialized())
+        return SDMMC_ERR_LOCKED;
 
 #ifdef NDMA_CHANNEL
     if (crypt)
