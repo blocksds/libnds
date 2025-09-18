@@ -61,8 +61,9 @@ static void computeConsoleIdFromNandKeyX(aes_keyslot_t *keyslot, u8 ConsoleIdOut
 
 u64 getConsoleID(void)
 {
-    // first check whether we can read the console ID directly and it was not hidden by SCFG
-    if ((REG_SCFG_ROM & (1u << 10)) == 0 && (REG_CONSOLEID_FLAG & 0x1) == 0)
+    if ((REG_SCFG_EXT & SCFG_EXT_SCFG_MBK_REG) != 0 // check if we have access to the SCFG ROM register
+        && (REG_SCFG_ROM & BIT(10)) == 0 // check if we have access to the console id register
+        && (REG_CONSOLEID_FLAG & 0x1) == 0) // check if the console id register is available
     {
         return REG_CONSOLEID;
     }
