@@ -146,9 +146,18 @@ int open(const char *path, int flags, ...)
 
 ssize_t read(int fd, void *ptr, size_t len)
 {
-    // This isn't handled here
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    {
+        // Using fread() means we go through the locks of picolibc. picolibc
+        // never calls read() when reading from stdin, so this is safe.
+        //if (fd == STDIN_FILENO)
+        //    return fread(ptr, len, 1, stdin);
+        // TODO: fread(x, x, x, stdin) doesn't currently work.
+
+        // STDOUT_FILENO or STDERR_FILENO
+        errno = EINVAL;
         return -1;
+    }
 
     if (FD_IS_NITRO(fd))
         return nitrofs_read(fd, ptr, len);
@@ -175,9 +184,19 @@ ssize_t read(int fd, void *ptr, size_t len)
 
 ssize_t write(int fd, const void *ptr, size_t len)
 {
-    // This isn't handled here
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    {
+        // Using fwrite() means we go through the locks of picolibc. picolibc
+        // never calls write() when writing to stdout/stderr, so this is safe.
+        if (fd == STDOUT_FILENO)
+            return fwrite(ptr, len, 1, stdout);
+        if (fd == STDERR_FILENO)
+            return fwrite(ptr, len, 1, stderr);
+
+        // STDIN_FILENO
+        errno = EINVAL;
         return -1;
+    }
 
     if (FD_IS_NITRO(fd))
     {
@@ -208,9 +227,12 @@ ssize_t write(int fd, const void *ptr, size_t len)
 
 int close(int fd)
 {
-    // This isn't handled here
+    // The stdio descriptors can't be opened or closed
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    {
+        errno = EINVAL;
         return -1;
+    }
 
     if (FD_IS_NITRO(fd))
         return nitrofs_close(fd);
@@ -240,9 +262,12 @@ int close(int fd)
 
 off_t lseek(int fd, off_t offset, int whence)
 {
-    // This isn't handled here
+    // This function doesn't work on stdin, stdout or stderr
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    {
+        errno = EINVAL;
         return -1;
+    }
 
     if (FD_IS_NITRO(fd))
         return nitrofs_lseek(fd, offset, whence);
@@ -268,7 +293,7 @@ off_t lseek(int fd, off_t offset, int whence)
     else
     {
         errno = EINVAL;
-        return (off_t)-1;
+        return -1;
     }
 
     FRESULT result = f_lseek(fp, offset);
@@ -362,7 +387,7 @@ int fstat(int fd, struct stat *st)
         return -1;
     }
 
-    // This isn't handled here
+    // stdin, stdout and stderr don't work with fstat()
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
         return -1;
 
@@ -399,8 +424,13 @@ int fstat(int fd, struct stat *st)
 
 int isatty(int fd)
 {
-    (void)fd;
+    if ((fd == STDIN_FILENO) || (fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
+        return 1;
 
+    // We could check if the file descriptor is valid, but that would force us
+    // to check socket descriptors, nitrofs, etc. To make things easier, don't
+    // check them. Instead of EBADF we will return ENOTTY always.
+    errno = ENOTTY;
     return 0;
 }
 
@@ -497,9 +527,12 @@ static int ftruncate_internal(int fd, off_t length)
 
 int ftruncate(int fd, off_t length)
 {
-    // This isn't handled here
+    // This function doesn't work on stdin, stdout or stderr
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    {
+        errno = EINVAL;
         return -1;
+    }
 
     FIL *fp = FD_FAT_UNPACK(fd);
 
