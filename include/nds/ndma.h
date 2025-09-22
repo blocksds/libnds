@@ -18,10 +18,13 @@ extern "C" {
 
 #include <nds/ndstypes.h>
 
+#define NDMA_MAX_CHANNELS   (4)
+
 #define NDMA_GCR            (*(vuint32 *)0x04004100)
 
 #define NDMA_GCR_DELAY_SCALER(n)    ((n) << 16)
-#define NDMA_GCR_ROUND_ROBIN        BIT(31)
+#define NDMA_GCR_ROUND_ROBIN        (1u << 31)
+#define NDMA_GCR_FIXED_METHOD       (0u << 31)
 
 #define NDMA0_SRC           (*(vuint32 *)0x04004104)
 #define NDMA0_DEST          (*(vuint32 *)0x04004108)
