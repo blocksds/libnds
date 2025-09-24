@@ -778,12 +778,23 @@ void resetARM9(u32 address);
 // SCFG_RST
 // ========
 
+#ifdef ARM9
 #define REG_SCFG_RST            (*(vu16 *)0x4004006)
 
-#ifdef ARM9
 #define SCFG_RST_DSP_APPLY      (0 << 0)
 #define SCFG_RST_DSP_RELEASE    (1 << 0)
 #endif // ARM9
+
+// SCFG_JTAG
+// =========
+
+#ifdef ARM7
+#define REG_SCFG_JTAG           (*(vu16 *)0x4004006)
+
+#define SCFG_JTAG_ARM7SEL       (1 << 0)
+#define SCFG_JTAG_CPU_ENABLE    (1 << 1)
+#define SCFG_JTAG_DSP_ENABLE    (1 << 8)
+#endif // ARM7
 
 // SCFG_MC
 // =======
@@ -843,6 +854,25 @@ void resetARM9(u32 address);
 #define SCFG_EXT_GPIO           BIT(23)
 #define SCFG_EXT_MBK_RAM        BIT(25)
 #define SCFG_EXT_SCFG_MBK_REG   BIT(31)
+#endif // ARM7
+
+// SCFG_WL
+// =======
+
+#ifdef ARM7
+#define REG_SCFG_WL             (*(vu16 *)0x4004020)
+
+#define SCFG_WL_OFFB            (1 << 0)
+#endif // ARM7
+
+// SCFG_OP
+// =======
+//
+#ifdef ARM7
+#define REG_SCFG_OP             (*(vu16 *)0x4004024)
+
+#define SCFG_OP_IS_DEBUG        (1 << 0)
+#define SCFG_OP_UNKNOWN         (1 << 4)
 #endif // ARM7
 
 #ifdef __cplusplus
