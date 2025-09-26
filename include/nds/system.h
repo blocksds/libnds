@@ -796,18 +796,6 @@ void resetARM9(u32 address);
 #define SCFG_JTAG_DSP_ENABLE    (1 << 8)
 #endif // ARM7
 
-// SCFG_MC
-// =======
-
-#define REG_SCFG_MC             (*(vu16 *)0x4004010)
-
-#define SCFG_MC_EJECTED         0x01
-#define SCFG_MC_PWR_MASK        0x0C
-#define SCFG_MC_PWR_OFF         0x00
-#define SCFG_MC_PWR_RESET       0x04
-#define SCFG_MC_PWR_ON          0x08
-#define SCFG_MC_PWR_REQUEST_OFF 0x0C
-
 // SCFG_EXT
 // ========
 
@@ -855,6 +843,29 @@ void resetARM9(u32 address);
 #define SCFG_EXT_MBK_RAM        BIT(25)
 #define SCFG_EXT_SCFG_MBK_REG   BIT(31)
 #endif // ARM7
+
+// SCFG_MC
+// =======
+
+#define REG_SCFG_MC             (*(vu16 *)0x4004010)
+
+#define SCFG_MC_EJECTED         0x01
+#define SCFG_MC_PWR_MASK        0x0C
+#define SCFG_MC_PWR_OFF         0x00
+#define SCFG_MC_PWR_RESET       0x04
+#define SCFG_MC_PWR_ON          0x08
+#define SCFG_MC_PWR_REQUEST_OFF 0x0C
+
+// SCFG_CARD_xxx
+// =============
+
+#ifdef ARM7
+#define REG_SCFG_CARD_INSERT_DELAY      (*(vu16 *)0x4004012)
+#define REG_SCFG_CARD_PWROFF_DELAY      (*(vu16 *)0x4004014)
+
+#define SCFG_CARD_INSERT_DELAY_DEFAULT  0x1988 // 100 ms
+#define SCFG_CARD_PWROFF_DELAY_DEFAULT  0x264C // 150 ms
+#endif
 
 // SCFG_WL
 // =======
