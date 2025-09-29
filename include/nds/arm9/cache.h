@@ -61,6 +61,15 @@ static inline void DC_InvalidateAll(void)
 
 /// Invalidate the data cache of a range of addresses.
 ///
+/// @warning
+///     In debug builds of libnds, this function checks that the base and end
+///     addresses are aligned to a cache line.
+///
+///     It's dangerous to invalidate a memory range. If the memory range isn't
+///     fully contained inside cache lines, invalidating it will also invalidate
+///     the variables around the range the caller wants to invalidate. This may
+///     cause unintended effects.
+///
 /// @param base
 ///     Base address of the region to invalidate
 /// @param size
