@@ -40,6 +40,21 @@
 extern "C" {
 #endif
 
+#include <nds/ndstypes.h>
+
+/// Emulation ID (16 bytes, eg. "no$gba v2.7", padded with 0x20)
+#define REG_NOCASH_EMULATOR_ID  ((vu8*)0x4FFFA00)
+/// String out (raw)
+#define REG_NOCASH_STR_RAW      (*(vu32*)0x4FFFA10)
+/// String Out (with %param's)
+#define REG_NOCASH_STR_PARAM    (*(vu32*)0x4FFFA14)
+/// String Out (with %param's, plus linefeed)
+#define REG_NOCASH_STR_PARAM_LF (*(vu32*)0x4FFFA18)
+/// Char Out (nocash)
+#define REG_NOCASH_CHAR         (*(vu32*)0x4FFFA1C)
+/// Clock Cycles (64 bit)
+#define REG_NOCASH_CLOCK_CYCLES (*(vu64*)0x4FFFA20)
+
 /// Send a message to the no$gba debug window.
 ///
 /// @param message
