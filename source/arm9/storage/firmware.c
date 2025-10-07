@@ -14,6 +14,8 @@
 
 static int readFirmwareInternal(u32 address, void *buffer, u32 length)
 {
+    DC_FlushRange(buffer, length);
+
     FifoMessage msg;
 
     msg.type = FW_READ;
@@ -28,8 +30,6 @@ static int readFirmwareInternal(u32 address, void *buffer, u32 length)
     int ret = fifoGetValue32(FIFO_FIRMWARE);
 
     fifoMutexRelease(FIFO_FIRMWARE);
-
-    DC_InvalidateRange(buffer, length);
 
     return ret;
 }

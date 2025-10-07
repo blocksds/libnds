@@ -75,10 +75,7 @@ static bool dldi_arm7_read_sectors(sec_t sector, sec_t numSectors, void *buffer)
     fifoMutexAcquire(FIFO_STORAGE);
 
     fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
-
     fifoWaitValue32Async(FIFO_STORAGE);
-    DC_InvalidateRange(buffer, numSectors * 512);
-
     int result = fifoGetValue32(FIFO_STORAGE);
 
     fifoMutexRelease(FIFO_STORAGE);
@@ -99,10 +96,7 @@ static bool dldi_arm7_write_sectors(sec_t sector, sec_t numSectors, const void *
     fifoMutexAcquire(FIFO_STORAGE);
 
     fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
-
     fifoWaitValue32Async(FIFO_STORAGE);
-    DC_InvalidateRange(buffer, numSectors * 512);
-
     int result = fifoGetValue32(FIFO_STORAGE);
 
     fifoMutexRelease(FIFO_STORAGE);

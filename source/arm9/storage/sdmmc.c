@@ -41,18 +41,7 @@ TWL_CODE static u32 sdmmc_fifo_sectors(uint32_t cmd, sec_t sector, sec_t numSect
     fifoMutexAcquire(FIFO_STORAGE);
 
     fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
-
-    if (write)
-    {
-        DC_InvalidateRange(buffer, numSectors * 512);
-        fifoWaitValue32Async(FIFO_STORAGE);
-    }
-    else
-    {
-        fifoWaitValue32Async(FIFO_STORAGE);
-        DC_InvalidateRange(buffer, numSectors * 512);
-    }
-
+    fifoWaitValue32Async(FIFO_STORAGE);
     int result = fifoGetValue32(FIFO_STORAGE);
 
     fifoMutexRelease(FIFO_STORAGE);

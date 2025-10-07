@@ -26,10 +26,7 @@ bool cardReadArm7(void *dest, size_t offset, size_t size, uint32_t flags)
     sysSetCardOwner(BUS_OWNER_ARM7);
 
     fifoSendDatamsg(FIFO_STORAGE, sizeof(msg), (u8 *)&msg);
-
     fifoWaitValue32Async(FIFO_STORAGE);
-    DC_InvalidateRange(dest, size);
-
     int result = fifoGetValue32(FIFO_STORAGE);
 
     fifoMutexRelease(FIFO_STORAGE);
