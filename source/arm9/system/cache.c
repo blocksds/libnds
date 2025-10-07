@@ -3,6 +3,7 @@
 // Copyright (C) 2023 Antonio Niño Díaz
 
 #include <nds/arm9/cp15.h>
+#include <nds/arm9/sassert.h>
 #include <nds/ndstypes.h>
 
 ITCM_CODE ARM_CODE static inline
@@ -43,8 +44,13 @@ void CP15_CleanAndFlushDCacheRange(const void *base, size_t size)
 ITCM_CODE ARM_CODE __attribute__((noinline))
 void CP15_FlushDCacheRange(const void *base, size_t size)
 {
+    const void *real_end = (const char *)base + size;
+
     uintptr_t address = align_down(base, CACHE_LINE_SIZE);
-    uintptr_t end = align_up((const char *)base + size, CACHE_LINE_SIZE);
+    uintptr_t end = align_up(real_end, CACHE_LINE_SIZE);
+
+    sassert(address == (uintptr_t)base, "Unaligned base address");
+    sassert(end == (uintptr_t)real_end, "Unaligned end address");
 
     // CP15_FlushDCacheEntry
     for ( ; address < end; address += CACHE_LINE_SIZE)
