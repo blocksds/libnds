@@ -27,7 +27,7 @@ TWL_CODE static u32 sdmmc_fifo_value(uint32_t cmd)
     return result;
 }
 
-TWL_CODE static u32 sdmmc_fifo_sectors(uint32_t cmd, sec_t sector, sec_t numSectors, void *buffer, bool write)
+TWL_CODE static u32 sdmmc_fifo_sectors(uint32_t cmd, sec_t sector, sec_t numSectors, void *buffer)
 {
     FifoMessage msg;
 
@@ -99,32 +99,32 @@ TWL_CODE bool sdmmc_IsInserted(void)
 
 TWL_CODE bool nand_ReadSectors(sec_t sector, sec_t numSectors, void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_NAND_READ_SECTORS, sector, numSectors, buffer, false) == 0;
+    return sdmmc_fifo_sectors(SDMMC_NAND_READ_SECTORS, sector, numSectors, buffer) == 0;
 }
 
 TWL_CODE bool nand_ReadSectorsCrypt(sec_t sector, sec_t numSectors, void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_NAND_READ_ENCRYPTED_SECTORS, sector, numSectors, buffer, false) == 0;
+    return sdmmc_fifo_sectors(SDMMC_NAND_READ_ENCRYPTED_SECTORS, sector, numSectors, buffer) == 0;
 }
 
 TWL_CODE bool sdmmc_ReadSectors(sec_t sector, sec_t numSectors, void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_SD_READ_SECTORS, sector, numSectors, buffer, false) == 0;
+    return sdmmc_fifo_sectors(SDMMC_SD_READ_SECTORS, sector, numSectors, buffer) == 0;
 }
 
 TWL_CODE bool nand_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_SECTORS, sector, numSectors, (void *) buffer, true) == 0;
+    return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_SECTORS, sector, numSectors, (void *) buffer) == 0;
 }
 
 TWL_CODE bool nand_WriteSectorsCrypt(sec_t sector, sec_t numSectors, const void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_ENCRYPTED_SECTORS, sector, numSectors, (void *) buffer, true) == 0;
+    return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_ENCRYPTED_SECTORS, sector, numSectors, (void *) buffer) == 0;
 }
 
 TWL_CODE bool sdmmc_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
 {
-    return sdmmc_fifo_sectors(SDMMC_SD_WRITE_SECTORS, sector, numSectors, (void *) buffer, true) == 0;
+    return sdmmc_fifo_sectors(SDMMC_SD_WRITE_SECTORS, sector, numSectors, (void *) buffer) == 0;
 }
 
 TWL_DATA const DISC_INTERFACE __io_dsisd =
