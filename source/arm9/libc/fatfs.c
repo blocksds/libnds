@@ -34,8 +34,8 @@ static inline FATFS* get_fs_info(size_t index)
 }
 
 PARTITION VolToPart[FF_VOLUMES] = {
-    {0, 1},    /* "0:" ==> 1st partition in physical drive 0 (dldi), "fat:" */
-    {1, 1},    /* "1:" ==> 1st partition in physical drive 1 (DSi sd), "sd:" */
+    {0, 0},    /* "0:" ==> Auto discover partition in physical drive 0 (dldi), "fat:" */
+    {1, 0},    /* "1:" ==> Auto discover partition in physical drive 1 (DSi sd), "sd:" */
     {2, 1},    /* "2:" ==> 1st partition in physical drive 2 (DSi nand), "nand:" */
     {2, 2},    /* "3:" ==> 2nd partition in physical drive 2 (DSi nand photo partition), "nand2:" */
 };
