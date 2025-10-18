@@ -888,9 +888,6 @@ static inline void glTranslatev(const GLvector *v)
     MATRIX_TRANSLATE = v->z;
 }
 
-// Map old name to new name
-#define glTranslate3f32 glTranslatef32
-
 /// Multiply the current matrix by a translation matrix.
 ///
 /// @param x
@@ -904,6 +901,13 @@ static inline void glTranslatef32(int x, int y, int z)
     MATRIX_TRANSLATE = x;
     MATRIX_TRANSLATE = y;
     MATRIX_TRANSLATE = z;
+}
+
+// Map old name to new name
+__attribute__((deprecated))
+static inline void glTranslate3f32(int x, int y, int z)
+{
+    glTranslatef32(x, y, z);
 }
 
 /// Multiply the current matrix by a scale matrix.
