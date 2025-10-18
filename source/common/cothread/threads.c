@@ -710,7 +710,7 @@ int cothread_main(void *arg)
 
     extern void __libc_init_array(void); // This is in picolibc
     extern void initSystem(void); // This is in libnds
-    extern int main(int argc, char **argv); // This is in user code
+    extern int main(int argc, char **argv, char *envp[]); // This is in user code
 
 #ifdef ARM9
     // Initialize hardware
@@ -721,9 +721,9 @@ int cothread_main(void *arg)
     __libc_init_array();
 
 #ifdef ARM9
-    return main(main_args.argc, main_args.argv);
+    return main(main_args.argc, main_args.argv, NULL);
 #else
-    return main(0, NULL);
+    return main(0, NULL, NULL);
 #endif
 }
 
