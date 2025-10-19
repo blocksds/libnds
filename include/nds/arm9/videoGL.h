@@ -903,8 +903,16 @@ static inline void glTranslatef32(int x, int y, int z)
     MATRIX_TRANSLATE = z;
 }
 
-// Map old name to new name
-__attribute__((deprecated))
+/// Multiply the current matrix by a translation matrix.
+///
+/// Alias of glTranslatef32().
+///
+/// @param x
+///     Translation on the x axis.
+/// @param y
+///     Translation on the y axis.
+/// @param z
+///     Translation on the z axis.
 static inline void glTranslate3f32(int x, int y, int z)
 {
     glTranslatef32(x, y, z);
