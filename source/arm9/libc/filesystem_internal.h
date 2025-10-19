@@ -23,6 +23,8 @@
 #define FD_TYPE_SOCKET 0x0 // Network sockets
 #define FD_TYPE_FAT    0x1 // Files opened in DLDI / SD / NAND
 #define FD_TYPE_NITRO  0x2 // Files opened in NitroFS
+// Important note: Don't use types over 0x7. Values 0x8 to 0xF would create
+// file descriptors that are negative values, which could cause unexpected bugs.
 
 #define FD_IS_FAT(x)    (FD_TYPE(x) == FD_TYPE_FAT)
 #define FD_IS_NITRO(x)  (FD_TYPE(x) == FD_TYPE_NITRO)
