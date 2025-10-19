@@ -146,6 +146,9 @@ __attribute__((deprecated)) void initClockIRQ(void);
 
 /// Initialize the RTC and setup a timer interrupt to update the time.
 ///
+/// Please, use LIBNDS_DEFAULT_TIMER_RTC as timer index unless you have a very
+/// good reason to not do so.
+///
 /// @param timer
 ///     Timer index to use.
 void initClockIRQTimer(int timer);

@@ -25,6 +25,16 @@ extern "C" {
 
 #include <nds/ndstypes.h>
 
+#ifdef ARM7
+#define LIBNDS_DEFAULT_TIMER_MUSIC  0 // Used by Maxmod and LibXM7
+#define LIBNDS_DEFAULT_TIMER_WIFI   2 // Used by DSWiFI
+#define LIBNDS_DEFAULT_TIMER_RTC    3
+#endif
+
+#ifdef ARM9
+#define LIBNDS_DEFAULT_TIMER_WIFI   3 // Used by DSWiFI
+#endif
+
 /// Returns a dereferenced pointer to the data register for timer control
 /// register.
 ///
