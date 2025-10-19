@@ -534,6 +534,12 @@ int ftruncate(int fd, off_t length)
         return -1;
     }
 
+    if (FD_TYPE(fd) != FD_TYPE_FAT)
+    {
+        errno = EPERM;
+        return -1;
+    }
+
     FIL *fp = FD_FAT_UNPACK(fd);
 
     if ((size_t)length == (size_t)f_size(fp))
@@ -566,6 +572,13 @@ int truncate(const char *path, off_t length)
     int fd = open(path, O_RDWR);
     if (fd == -1)
         return -1;
+
+    if (FD_TYPE(fd) != FD_TYPE_FAT)
+    {
+        close(fd);
+        errno = EPERM;
+        return -1;
+    }
 
     FIL *fp = FD_FAT_UNPACK(fd);
     if ((size_t)length != (size_t)f_size(fp))
