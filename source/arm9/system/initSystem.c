@@ -78,8 +78,16 @@ void __attribute__((weak)) initSystem(void)
     }
 
     // Clear video display registers
-    dmaFillWords(0, (void *)0x04000000, 0x58);
-    dmaFillWords(0, (void *)0x04001008, 0x58 - 8);
+    for (vu16 *p = (vu16*)&REG_DISPCNT; p <= (vu16*)&REG_MASTER_BRIGHT; p++)
+    {
+        // Skip VCOUNT. Writing to it was setting it to 0 causing a frame to be
+        // misrendered. This can also have side effects on 3DS, even though the
+        // official TWL_FIRM can recover from it.
+        if (p != (vu16*)&REG_VCOUNT)
+            *p = 0;
+    }
+    for (vu16 *p = (vu16*)&REG_DISPCNT_SUB; p <= (vu16*)&REG_MASTER_BRIGHT_SUB; p++)
+        *p = 0;
 
     // Turn on power for 2D video
     REG_POWERCNT = (POWER_LCD | POWER_2D_A | POWER_2D_B | POWER_SWAP_LCDS) & 0xFFFF;
