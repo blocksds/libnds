@@ -406,7 +406,6 @@ bool setCpuClock(bool speed);
 
 #ifdef ARM7
 
-#define REG_CID              ((vu8 *)0x02FFD7BC)
 #define REG_CONSOLEID        (*(vu64 *)0x04004D00)
 #define REG_CONSOLEID_FLAG   (*(vu16 *)0x04004D08)
 
