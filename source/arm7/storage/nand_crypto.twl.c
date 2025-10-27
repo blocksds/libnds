@@ -28,10 +28,6 @@ void nandCrypt_Init(void)
     // as base for the input vector
     u8 CID[16];
     SDMMC_getCidRaw(SDMMC_DEV_eMMC, (u32*)CID);
-    for (int i = 0; i < 16; ++i)
-    {
-        REG_CID[i] = CID[i];
-    }
     u8 sha1Digest[20];
     swiSHA1Calc(sha1Digest, CID, 16);
     memcpy(nand_ctr_iv, sha1Digest, 16);
