@@ -28,25 +28,26 @@ static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
 
 TWL_CODE void i2cIRQHandler(void)
 {
-    int cause = (i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & 0x3)
-                | (i2cReadRegister(I2C_GPIO, 0x02) << 2);
+    // I2CREGPM_PWRIF
+    //
+    //   Bit 0 = Just released
+    //   Bit 1 = Long press
+    //   Bit 3 = Just pressed
+    //
+    // A short press will make bit 3 to be set, and bit 0 is set when the button
+    // is released.
+    //
+    // A long press causes bit 3 to be set, then bit 1. Bit 0 is never set.
+    //
+    // A very long press causes bit 3 to be set, then bit 1, then the hardware
+    // is forcefully shut down.
 
-    switch (cause & 3)
+    bool power_released = i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & BIT(0);
+
+    if (power_released)
     {
-        case 1:
-            if (__powerbuttonCB)
-            {
-                __powerbuttonCB();
-            }
-            else
-            {
-                i2cWriteRegister(I2C_PM, I2CREGPM_RESETFLAG, 1);
-                i2cWriteRegister(I2C_PM, I2CREGPM_PWRCNT, 1);
-            }
-            break;
-        case 2:
-            writePowerManagement(PM_CONTROL_REG, PM_SYSTEM_PWR);
-            break;
+        if (__powerbuttonCB)
+            __powerbuttonCB();
     }
 }
 
