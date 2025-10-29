@@ -425,22 +425,27 @@ u64 getConsoleID(void);
 ///     up these hardware devices via the ARM9 would lead to unexpected results.
 ///     ARM7 only.
 typedef enum {
-    POWER_SOUND = BIT(0),          ///< Controls the power for the sound controller
-    POWER_WIFI  = BIT(1),          ///< Controls the power for the WiFi controller
+    POWER_SOUND = BIT(0), ///< Controls the power for the sound controller
+    POWER_WIFI  = BIT(1), ///< Controls the power for the WiFi controller
 
-    PM_CONTROL_REG     = 0,        ///< Selects the PM control register
-    PM_BATTERY_REG     = 1,        ///< Selects the PM battery register
-    PM_AMPLIFIER_REG   = 2,        ///< Selects the PM amplifier register
-    PM_READ_REGISTER   = (1 << 7), ///< Selects the PM read register
-    PM_AMP_OFFSET      = 2,        ///< Selects the PM amp register
-    PM_GAIN_OFFSET     = 3,        ///< Selects the PM gain register
-    PM_BACKLIGHT_LEVEL = 4,        ///< Selects the DS Lite backlight register
-    PM_GAIN_20         = 0,        ///< Sets the mic gain to 20db
-    PM_GAIN_40         = 1,        ///< Sets the mic gain to 40db
-    PM_GAIN_80         = 2,        ///< Sets the mic gain to 80db
-    PM_GAIN_160        = 3,        ///< Sets the mic gain to 160db
-    PM_AMP_ON          = 1,        ///< Turns the sound amp ON
-    PM_AMP_OFF         = 0         ///< Turns the sound amp OFF
+    PM_WRITE_REGISTER  = (0 << 7), ///< Selects PM write operation
+    PM_READ_REGISTER   = (1 << 7), ///< Selects PM read operation
+
+    PM_CONTROL_REG     = 0,     ///< Selects the PM control register
+    PM_BATTERY_REG     = 1,     ///< Selects the PM battery register
+    PM_AMPLIFIER_REG   = 2,     ///< Selects the PM amplifier register
+    PM_AMP_OFFSET      = PM_AMPLIFIER_REG, ///< Alias of PM_AMPLIFIER_REG
+    PM_GAIN_OFFSET     = 3,     ///< Selects the PM gain register
+    PM_BACKLIGHT_LEVEL = 4,     ///< Selects the DS Lite backlight register
+    PM_DSI_RESET_REG   = 0x10,  ///< Selects the DSi backlight mirror and reset register
+
+    PM_GAIN_20  = 0, ///< Sets the mic gain to 20db
+    PM_GAIN_40  = 1, ///< Sets the mic gain to 40db
+    PM_GAIN_80  = 2, ///< Sets the mic gain to 80db
+    PM_GAIN_160 = 3, ///< Sets the mic gain to 160db
+
+    PM_AMP_ON   = 1, ///< Turns the sound amp ON
+    PM_AMP_OFF  = 0  ///< Turns the sound amp OFF
 } ARM7_power;
 
 /// PM control register bits - LED control
