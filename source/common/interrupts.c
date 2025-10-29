@@ -47,7 +47,16 @@ TWL_CODE void i2cIRQHandler(void)
     if (power_released)
     {
         if (__powerbuttonCB)
+        {
             __powerbuttonCB();
+        }
+        else
+        {
+            // If the developer hasn't setup a callback, try to reboot and shut
+            // down the console.
+            systemReboot();
+            systemShutDown();
+        }
     }
 }
 
