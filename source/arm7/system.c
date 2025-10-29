@@ -219,6 +219,12 @@ void powerValueHandler(u32 value, void *user_data)
         case PM_REQ_SLOT1_ENABLE:
             enableSlot1();
             break;
+        case PM_REQ_REBOOT:
+            systemReboot();
+            break;
+        case PM_REQ_SHUTDOWN:
+            systemShutDown();
+            break;
     }
 }
 

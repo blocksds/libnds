@@ -118,6 +118,8 @@ typedef enum
     PM_REQ_SLOT1_DISABLE    = 8 << 16,
     PM_REQ_SLOT1_ENABLE     = 9 << 16,
     PM_REQ_BACKLIGHT_LEVEL  = 10 << 16,
+    PM_REQ_REBOOT           = 11 << 16,
+    PM_REQ_SHUTDOWN         = 12 << 16,
 } FifoPMCommands;
 
 /// Power Management LED blink mode control bits.

@@ -95,6 +95,7 @@ ARM_CODE void _exit(int rc)
     }
     else
     {
+        systemReboot();
         systemShutDown();
     }
 

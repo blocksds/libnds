@@ -22,6 +22,7 @@ extern "C" {
 
 #include <stddef.h>
 
+#include <nds/fifocommon.h>
 #include <nds/ndstypes.h>
 
 /// Screen height in pixels.
@@ -330,7 +331,15 @@ static inline void lcdMainOnBottom(void)
 /// Powers down the DS
 static inline void systemShutDown(void)
 {
-    powerOn(PM_SYSTEM_PWR);
+    fifoSendValue32(FIFO_PM, PM_REQ_SHUTDOWN);
+}
+
+/// This function reboots the console.
+///
+/// It only works on DSi. On DS it does nothing.
+static inline void systemReboot(void)
+{
+    fifoSendValue32(FIFO_PM, PM_REQ_REBOOT);
 }
 
 /// Set the ARM9 interrupt vector base to one of two locations:
@@ -501,8 +510,15 @@ static inline void powerOff(uint32_t bits)
 ///     It returns true on success, false on error.
 bool readUserSettings(void);
 
-/// This function shutds down the console.
+/// This function shuts down the console.
+///
+/// If it fails, it returns.
 void systemShutDown(void);
+
+/// This function reboots the console.
+///
+/// It only works on DSi. On DS it does nothing.
+void systemReboot(void);
 
 #endif // ARM7
 

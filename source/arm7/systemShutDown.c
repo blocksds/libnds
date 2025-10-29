@@ -4,6 +4,7 @@
 // Copyright (C) 2005-2011 Michael Noland (joat)
 // Copyright (C) 2005-2011 Jason Rogers (dovoto)
 // Copyright (C) 2005-2011 Dave Murphy (WinterMute)
+// Copyright (C) 2025 Antonio Niño Díaz
 
 #include <nds/arm7/i2c.h>
 #include <nds/ndstypes.h>
@@ -11,11 +12,12 @@
 
 void systemShutDown(void)
 {
-    if (!isDSiMode())
-    {
-        writePowerManagement(PM_CONTROL_REG, PM_SYSTEM_PWR);
-    }
-    else
+    writePowerManagement(PM_CONTROL_REG, PM_SYSTEM_PWR);
+}
+
+void systemReboot(void)
+{
+    if (isDSiMode())
     {
         i2cWriteRegister(I2C_PM, I2CREGPM_RESETFLAG, 1);
         i2cWriteRegister(I2C_PM, I2CREGPM_PWRCNT, 1);
