@@ -11,6 +11,15 @@
 static u16 piano_keys = 0;
 static u16 piano_keys_old = 0;
 
+static void pianoSetBus(void)
+{
+    REG_EXMEMCNT &= ~EXMEMCNT_CART_ARM7;
+    REG_EXMEMCNT &= ~(EXMEMCNT_SRAM_TIME_MASK | EXMEMCNT_ROM_TIME1_MASK
+                      | EXMEMCNT_ROM_TIME2_MASK | EXMEMCNT_PHI_CLOCK_MASK);
+    REG_EXMEMCNT |= (EXMEMCNT_SRAM_TIME_10_CYCLES | EXMEMCNT_ROM_TIME1_18_CYCLES
+                     | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_PHI_CLOCK_OFF);
+}
+
 bool pianoIsInserted(void)
 {
     // Accessing the slot-2 memory region in DSi mode will cause a MPU
@@ -18,7 +27,7 @@ bool pianoIsInserted(void)
     if (isDSiMode())
         return false;
 
-    sysSetCartOwner(BUS_OWNER_ARM9);
+    pianoSetBus();
 
     // This is 0x96h is a GBA game is inserted
     if (GBA_HEADER.is96h == 0x96)
