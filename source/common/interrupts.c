@@ -42,9 +42,11 @@ TWL_CODE void i2cIRQHandler(void)
     // A very long press causes bit 3 to be set, then bit 1, then the hardware
     // is forcefully shut down.
 
-    bool power_released = i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & BIT(0);
+    // If the user release the power button or it has been pressed for a few
+    // seconds, trigger a shutdown.
+    bool power_event = i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & (BIT(0) | BIT(1));
 
-    if (power_released)
+    if (power_event)
     {
         if (__powerbuttonCB)
         {
