@@ -18,7 +18,7 @@ int getFreeChannel(void)
 {
     for (int i = 0; i < 16; i++)
     {
-        if (!(REG_SOUNDXCNT(i) & SOUNDCNT_ENABLE))
+        if (!(REG_SOUNDXCNT(i) & SOUNDXCNT_ENABLE))
             return i;
     }
 
@@ -29,7 +29,7 @@ int getFreePSGChannel(void)
 {
     for (int i = 8; i < 14; i++)
     {
-        if (!(REG_SOUNDXCNT(i) & SOUNDCNT_ENABLE))
+        if (!(REG_SOUNDXCNT(i) & SOUNDXCNT_ENABLE))
             return i;
     }
 
@@ -40,7 +40,7 @@ int getFreeNoiseChannel(void)
 {
     for (int i = 14; i < 16; i++)
     {
-        if (!(REG_SOUNDXCNT(i) & SOUNDCNT_ENABLE))
+        if (!(REG_SOUNDXCNT(i) & SOUNDXCNT_ENABLE))
             return i;
     }
 
@@ -127,7 +127,7 @@ void soundDataHandler(int bytes, void *user_data)
 
         if (channel >= 0)
         {
-            REG_SOUNDXCNT(channel) = SOUNDCNT_ENABLE | msg.SoundPsg.volume
+            REG_SOUNDXCNT(channel) = SOUNDXCNT_ENABLE | msg.SoundPsg.volume
                                    | SOUNDXCNT_PAN(msg.SoundPsg.pan)
                                    | SOUNDXCNT_FORMAT_PSG;
             REG_SOUNDXTMR(channel) = SOUNDXTMR_FREQ(msg.SoundPsg.freq);
@@ -260,15 +260,15 @@ void soundCommandHandler(u32 command, void *userdata)
             break;
 
         case SOUND_KILL:
-            REG_SOUNDXCNT(channel) &= ~SOUNDCNT_ENABLE;
+            REG_SOUNDXCNT(channel) &= ~SOUNDXCNT_ENABLE;
             break;
 
         case SOUND_PAUSE:
-            REG_SOUNDXCNT(channel) &= ~SOUNDCNT_ENABLE;
+            REG_SOUNDXCNT(channel) &= ~SOUNDXCNT_ENABLE;
             break;
 
         case SOUND_RESUME:
-            REG_SOUNDXCNT(channel) |= SOUNDCNT_ENABLE;
+            REG_SOUNDXCNT(channel) |= SOUNDXCNT_ENABLE;
             break;
 
         case SOUND_CAPTURE_STOP:
