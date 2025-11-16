@@ -7,6 +7,7 @@
 // Copyright (C) 2025 Antonio Niño Díaz
 
 #include <nds/arm7/i2c.h>
+#include <nds/bios.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
@@ -21,5 +22,8 @@ void systemReboot(void)
     {
         i2cWriteRegister(I2C_PM, I2CREGPM_RESETFLAG, 1);
         i2cWriteRegister(I2C_PM, I2CREGPM_PWRCNT, 1);
+        // Wait for 10 ms to give some time for the DS to reboot. This value has
+        // been obtained by trial and error. 1 ms doesn't seem to be enough.
+        swiDelay(10 * 0x20BA);
     }
 }
