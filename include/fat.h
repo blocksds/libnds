@@ -88,7 +88,7 @@ bool nandInit(bool read_only);
 WARN_UNUSED_RESULT
 char *fatGetDefaultCwd(void);
 
-/// This function returns the default drive ("sd:/" or "fat:/").
+/// This function returns the default drive ("sd:/", "fat:/" or "nand:/").
 ///
 /// It is extracted from argv[0] if it has been provided by the loader.
 ///

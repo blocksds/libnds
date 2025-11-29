@@ -264,6 +264,8 @@ const char *fatGetDefaultDrive(void)
         // Check if the path starts with "sd:/", "fat:/", or neither.
         if (strncmp(argv0, sd_drive, strlen(sd_drive)) == 0)
             return sd_drive;
+        else if (strncmp(argv0, nand_drive, strlen(nand_drive)) == 0)
+            return nand_drive;
         else if (strncmp(argv0, fat_drive, strlen(fat_drive)) == 0)
             return fat_drive;
     }
