@@ -719,6 +719,21 @@ static inline void setBackdropColorSub(const u16 color)
 #define REG_MASTER_BRIGHT       (*(vu16 *)0x0400006C)
 #define REG_MASTER_BRIGHT_SUB   (*(vu16 *)0x0400106C)
 
+// Window registers
+#define REG_WIN0H           (*(vu16 *)0x04000040)
+#define REG_WIN1H           (*(vu16 *)0x04000042)
+#define REG_WIN0V           (*(vu16 *)0x04000044)
+#define REG_WIN1V           (*(vu16 *)0x04000046)
+#define REG_WININ           (*(vu16 *)0x04000048)
+#define REG_WINOUT          (*(vu16 *)0x0400004A)
+
+#define REG_WIN0H_SUB       (*(vu16 *)0x04001040)
+#define REG_WIN1H_SUB       (*(vu16 *)0x04001042)
+#define REG_WIN0V_SUB       (*(vu16 *)0x04001044)
+#define REG_WIN1V_SUB       (*(vu16 *)0x04001046)
+#define REG_WININ_SUB       (*(vu16 *)0x04001048)
+#define REG_WINOUT_SUB      (*(vu16 *)0x0400104A)
+
 // Window 0
 #define WIN0_X0             (*(vu8 *)0x04000041)
 #define WIN0_X1             (*(vu8 *)0x04000040)
