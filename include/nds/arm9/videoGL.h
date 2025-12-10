@@ -1471,6 +1471,12 @@ static inline void glCutoffDepth(fixed12d3 wVal)
 ///     1 on success, 0 on failure
 int glInit(void);
 
+/// Deinitializes the GL state machine and frees all memory used by it.
+///
+/// @return
+///     1 on success, 0 on failure
+int glDeinit(void);
+
 /// Sets the color of the rear-plane (a.k.a clear color/plane)
 ///
 /// @param red

@@ -943,12 +943,51 @@ uint32_t vramBlock_getSize(s_vramBlock *mb, uint32_t index)
 
 //------------------------------------------------------------------------------
 
+static int glWaitForGfxIdle(void)
+{
+    if (!GFX_BUSY)
+        return 0;
+
+    // The geometry engine is busy. Check if it's still busy after 2 VBlanks.
+    // TODO: How much time do we need to give it in the worst-case scenario?
+    for (int i = 0; i < 2; i++)
+    {
+        swiWaitForVBlank();
+        if (!GFX_BUSY)
+            return 0;
+    }
+
+    // The geometry engine is still busy. This can happen due to a partial
+    // vertex upload by the previous homebrew application (=> ARM7->ARM9 forced
+    // reset). So long as the buffer wasn't flushed, this is recoverable, so we
+    // attempt to do so.
+    for (int i = 0; i < 8; i++)
+    {
+        GFX_VERTEX16 = 0;
+        swiDelay(0x400); // TODO: Do we need such a high arbitrary delay value?
+        if (!GFX_BUSY)
+            return 0;
+    }
+
+    // The geometry engine is still busy. We've given it enough time to fix
+    // itself and exhausted all recovery strategies, so at this point all we can
+    // do is give up.
+    return -1;
+}
+
 int glInit(void)
 {
-    powerOn(POWER_3D_CORE | POWER_MATRIX); // Enable 3D core & geometry engine
-
     if (glGlob.isActive)
         return 1;
+
+    powerOn(POWER_3D_CORE | POWER_MATRIX); // Enable 3D core & geometry engine
+
+    // Wait for the graphics engine to be idle
+    if (glWaitForGfxIdle() != 0)
+    {
+        powerOff(POWER_3D_CORE | POWER_MATRIX);
+        return 0;
+    }
 
     // Allocate the designated layout for each memory block
     glGlob.vramBlocksTex = vramBlock_Construct((uint8_t *)VRAM_A, (uint8_t *)VRAM_E);
@@ -990,46 +1029,6 @@ int glInit(void)
         DynamicArraySet(&glGlob.palettePtrs, i, NULL);
         DynamicArraySet(&glGlob.deallocTex, i, NULL);
         DynamicArraySet(&glGlob.deallocPal, i, NULL);
-    }
-
-    if (GFX_BUSY)
-    {
-        // The geometry engine is busy. Check if it's still busy after 2
-        // VBlanks.
-        //
-        // TODO: How much time do we need to give it in the worst-case
-        // scenario?
-        for (int i = 0; i < 2; i++)
-        {
-            swiWaitForVBlank();
-            if (!GFX_BUSY)
-                break;
-        }
-
-        if (GFX_BUSY)
-        {
-            // The geometry engine is still busy. This can happen due to a
-            // partial vertex upload by the previous homebrew application (=>
-            // ARM7->ARM9 forced reset).  So long as the buffer wasn't flushed,
-            // this is recoverable, so we attempt to do so.
-            for (int i = 0; i < 8; i++)
-            {
-                GFX_VERTEX16 = 0;
-
-                // TODO: Do we need such a high arbitrary delay value?
-                swiDelay(0x400);
-                if (!GFX_BUSY)
-                    break;
-            }
-
-            if (GFX_BUSY)
-            {
-                // The geometry engine is still busy. We've given it enough time
-                // to fix itself and exhausted all recovery strategies, so at
-                // this point all we can do is give up.
-                return 0;
-            }
-        }
     }
 
     // Clear the FIFO
@@ -1077,6 +1076,43 @@ cleanup:
     vramBlock_Deconstruct(glGlob.vramBlocksTex);
     vramBlock_Deconstruct(glGlob.vramBlocksPal);
     return 0;
+}
+
+int glDeinit(void)
+{
+    if (glGlob.isActive == 0)
+        return 1;
+
+    // Wait for the graphics engine to be idle
+    if (glWaitForGfxIdle() != 0)
+        return 0;
+
+    // Free all texture data (but the arrays remain allocated)
+    glResetTextures();
+
+    glGlob.isActive = 0;
+
+    // Deallocate the texture management arrays
+    DynamicArrayDelete(&glGlob.texturePtrs);
+    DynamicArrayDelete(&glGlob.palettePtrs);
+    DynamicArrayDelete(&glGlob.deallocTex);
+    DynamicArrayDelete(&glGlob.deallocPal);
+
+    vramBlock_Deconstruct(glGlob.vramBlocksTex);
+    vramBlock_Deconstruct(glGlob.vramBlocksPal);
+
+    // Clear the FIFO
+    GFX_STATUS |= (1 << 29);
+
+    // reset the control bits
+    GFX_CONTROL = 0;
+
+    // prime the vertex/polygon buffers
+    glFlush(0);
+
+    powerOff(POWER_3D_CORE | POWER_MATRIX);
+
+    return 1;
 }
 
 void glResetTextures(void)
