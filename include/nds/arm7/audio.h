@@ -78,10 +78,10 @@ extern "C" {
 
 #define SOUNDXCNT_VOL_DIV(v)        ((v) << 8)
 
-#define SOUNDXCNT_VOL_DIV_1         SCHANNEL_VOL_DIV(0)
-#define SOUNDXCNT_VOL_DIV_2         SCHANNEL_VOL_DIV(1)
-#define SOUNDXCNT_VOL_DIV_4         SCHANNEL_VOL_DIV(2)
-#define SOUNDXCNT_VOL_DIV_16        SCHANNEL_VOL_DIV(3)
+#define SOUNDXCNT_VOL_DIV_1         SOUNDXCNT_VOL_DIV(0)
+#define SOUNDXCNT_VOL_DIV_2         SOUNDXCNT_VOL_DIV(1)
+#define SOUNDXCNT_VOL_DIV_4         SOUNDXCNT_VOL_DIV(2)
+#define SOUNDXCNT_VOL_DIV_16        SOUNDXCNT_VOL_DIV(3)
 
 #define SOUNDXCNT_PAN(n)            ((n) << 16) // 0 (left) to 64 (center) to 127 (right)
 
