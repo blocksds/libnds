@@ -357,9 +357,14 @@ typedef enum
 /// Related functions: glEnable(), glDisable(), glInit()
 enum GLFLUSH_ENUM
 {
-    /// Enable manual sorting of translucent polygons, otherwise uses Y-sorting
+    /// Enable automatic Y-sorting of translucent polygons
+    GL_TRANS_YSORT      = (0 << 0),
+    /// Enable manual sorting of translucent polygons
     GL_TRANS_MANUALSORT = (1 << 0),
-    /// Enable W depth buffering of vertices, otherwise uses Z depth buffering
+
+    /// Use Z depth buffering of vertices
+    GL_ZBUFFERING       = (0 << 1),
+    /// Use W depth buffering of vertices (don't use for orthogonal projections)
     GL_WBUFFERING       = (1 << 1)
 };
 
