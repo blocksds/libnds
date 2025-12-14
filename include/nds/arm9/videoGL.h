@@ -1451,7 +1451,7 @@ void glGetFixed(const GL_GET_ENUM param, int *f);
 /// Polygons with a lower alpha value won't be displayed.
 ///
 /// @param alphaThreshold
-///     Minimum alpha value that will be used (0 - 15).
+///     Minimum alpha value that will be used (0 - 31).
 static inline void glAlphaFunc(int alphaThreshold)
 {
     GFX_ALPHA_TEST = alphaThreshold;
