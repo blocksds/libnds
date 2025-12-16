@@ -225,6 +225,35 @@ ssize_t write(int fd, const void *ptr, size_t len)
     return -1;
 }
 
+int fsync(int fd)
+{
+    // For NitroFS, fsync() is a no-op. For other/non-filesystem descriptors,
+    // fsync() is not allowed.
+    if (FD_IS_NITRO(fd))
+        return 0;
+
+    if (((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO)) || !FD_IS_FAT(fd))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    FRESULT result = f_sync(fp);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+// FatFs doesn't distinguish between metadata and non-metadata synchronization,
+// so the fsync() symbol is aliased.
+int fdatasync(int fd) __attribute__((alias("fsync")));
+
 int close(int fd)
 {
     // The stdio descriptors can't be opened or closed
