@@ -167,8 +167,13 @@ typedef enum
     GL_AMBIENT_AND_DIFFUSE = 0x03,
     /// Specular color for the material. The glossy (highlight) color of the polygon.
     GL_SPECULAR            = 0x04,
+
     /// Shininess color for the material. The color that shines back to the user.
+    ///
+    /// @warning
+    ///     This has no effect.
     GL_SHININESS           = 0x08,
+
     /// Emission color for the material. Color independent of normals and lights.
     GL_EMISSION            = 0x10
 } GL_MATERIALS_ENUM;
