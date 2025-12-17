@@ -1033,7 +1033,7 @@ static inline void glFlush(u32 mode)
 /// ```c
 /// glMaterial(GL_SPECULAR, RGB(31, 31, 31) | GL_SPECULAR_USE_TABLE);
 /// ```
-static inline void glMaterialShinyness(void)
+static inline void glMaterialShininess(void)
 {
     /* More optimized version of the following:
 
@@ -1050,6 +1050,13 @@ static inline void glMaterialShinyness(void)
 
     for (int i = 0; i < 128 / 4; i++, v += 0x08080808)
         GFX_SHININESS = v;
+}
+
+/// Old name of the function
+__attribute__((deprecated))
+static inline void glMaterialShinyness(void)
+{
+    glMaterialShininess();
 }
 
 /// Set the parameters for polygons rendered on the current frame.

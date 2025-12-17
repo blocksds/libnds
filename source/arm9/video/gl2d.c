@@ -52,8 +52,8 @@ void glScreen2D(void)
     glMaterialf(GL_SPECULAR, RGB15(31, 31, 31) | GL_SPECULAR_USE_TABLE);
     glMaterialf(GL_EMISSION, RGB15(31, 31, 31));
 
-    // The DS uses a table for shinyness, this generates one
-    glMaterialShinyness();
+    // The DS uses a table for shininess, this generates one
+    glMaterialShininess();
 
     // Polygon attributes
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
