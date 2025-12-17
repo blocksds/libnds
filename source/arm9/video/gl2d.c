@@ -49,7 +49,7 @@ void glScreen2D(void)
 
     glMaterialf(GL_AMBIENT, RGB15(31, 31, 31));
     glMaterialf(GL_DIFFUSE, RGB15(31, 31, 31));
-    glMaterialf(GL_SPECULAR, BIT(15) | RGB15(31, 31, 31));
+    glMaterialf(GL_SPECULAR, RGB15(31, 31, 31) | GL_SPECULAR_USE_TABLE);
     glMaterialf(GL_EMISSION, RGB15(31, 31, 31));
 
     // The DS uses a table for shinyness, this generates one

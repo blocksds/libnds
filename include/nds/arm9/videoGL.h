@@ -178,6 +178,11 @@ typedef enum
     GL_EMISSION            = 0x10
 } GL_MATERIALS_ENUM;
 
+/// Use shininess table for specular materials.
+///
+/// See glMaterialShininess().
+#define GL_SPECULAR_USE_TABLE BIT(15)
+
 /// Polygon rendering attributes.
 ///
 /// Related functions: glPolyFmt(), glInit(), POLY_ALPHA(), POLY_ID()
@@ -1022,7 +1027,12 @@ static inline void glFlush(u32 mode)
     GFX_FLUSH = mode;
 }
 
-/// The DS uses a table for shininess. This generates one.
+/// Generate a linear table of values for GL_SPECULAR materials.
+///
+/// You need to enable it by doing this, for example:
+/// ```c
+/// glMaterial(GL_SPECULAR, RGB(31, 31, 31) | GL_SPECULAR_USE_TABLE);
+/// ```
 static inline void glMaterialShinyness(void)
 {
     /* More optimized version of the following:
