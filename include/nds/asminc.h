@@ -17,15 +17,15 @@
     .type \name, %function
 
     .if \arch == thumb
-        .align          1
+        .balign         2
         .thumb
     .elseif \arch == arm
-        .align          2
+        .balign         4
         .arm
     .elseif \arch == unset
         // If the architecture it isn't specified, don't set it in this macro.
         // Set the aligment to the one that will work in all cases.
-        .align          2
+        .balign         4
     .else
         .error "Unknown architecture"
     .endif
@@ -40,15 +40,15 @@
     .type \name, %function
 
     .if \arch == thumb
-        .align          1
+        .balign         2
         .thumb
     .elseif \arch == arm
-        .align          2
+        .balign         4
         .arm
     .elseif \arch == unset
         // If the architecture it isn't specified, don't set it in this macro.
         // Set the aligment to the one that will work in all cases.
-        .align          2
+        .balign         4
     .else
         .error "Unknown architecture"
     .endif

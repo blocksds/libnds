@@ -17,7 +17,7 @@
     .cpu     arm7tdmi
 #endif
 
-    .align 4
+    .balign 4
     .arm
 
 BEGIN_ASM_FUNC swiSoftReset

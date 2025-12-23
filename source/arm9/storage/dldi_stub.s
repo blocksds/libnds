@@ -8,7 +8,7 @@
 
     .syntax  unified
 
-    .align  4
+    .balign 16
 
     .arm
 
@@ -30,12 +30,11 @@ dldi_start:
 
 // Text identifier. Up to 47 chars + terminating null (48 bytes)
 
-    .align  4
     .asciz  "Default (No interface)"
+    .balign 64
 
 // Offsets to important sections within the data (32 bytes)
 
-    .align  6
     .word   dldi_start    // data start
     .word   dldi_data_end // data end
     .word   0x00000000  // Interworking glue start -- Needs address fixing
@@ -66,7 +65,7 @@ _DLDI_shutdown:
     mov     r0, #0x00   // Return false for every function
     bx      lr
 
-    .align
+    .balign 4
     .pool
 
 dldi_data_end:

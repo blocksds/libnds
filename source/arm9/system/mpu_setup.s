@@ -419,7 +419,7 @@ BEGIN_ASM_FUNC peripheralSlot2DisableCache
     bx      lr
 
     .data
-    .align    2
+    .balign     4
 
 dsmasks:
     .word   0x003fffff, 0x02000000, 0x02c00000

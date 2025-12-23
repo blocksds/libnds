@@ -10,7 +10,7 @@
     .syntax  unified
 
     .text
-    .align 4
+    .balign 4
 
     .thumb
 

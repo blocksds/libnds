@@ -41,7 +41,7 @@ BEGIN_ASM_FUNC __aeabi_read_tp
     // libndsCrash() never returns, it's safe to place the message here
 __aeabi_read_tp_error_msg:
     .asciz "Using TLS from IRQ"
-    .align  2
+    .balign 2
 
 not_in_irq:
 #endif
