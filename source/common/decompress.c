@@ -55,7 +55,7 @@ void decompress(const void *data, void *dst, DecompressType type)
         {
             // This temporary buffer is allocated in the stack, in DTCM, but
             // that's okay because the ARM9 BIOS can access DTCM.
-            uint8_t temp[0x200];
+            uint32_t temp[512 / sizeof(uint32_t)];
             swiDecompressHuffman(data, dst, (uintptr_t)&temp[0], &decomStream);
             break;
         }
