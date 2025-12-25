@@ -271,17 +271,13 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
     if (riff_chunk.id != ID_RIFF)
         return GRF_INVALID_ID_RIFF;
 
-    RIFFChunk grf_chunk;
+    u32 grf_chunk_id;
 
-    if (fread(&grf_chunk, sizeof(RIFFChunk), 1, file) != 1)
+    if (fread(&grf_chunk_id, sizeof(grf_chunk_id), 1, file) != 1)
         return GRF_FILE_NOT_READ;
 
-    if (grf_chunk.id != ID_GRF)
+    if (grf_chunk_id != ID_GRF)
         return GRF_INVALID_ID_GRF;
-
-    // Ensure that both sizes are consistent
-    if (riff_chunk.size != (grf_chunk.size + 8))
-        return GRF_INCONSISTENT_SIZES;
 
     while (1)
     {

@@ -70,7 +70,7 @@ typedef enum
     GRF_FILE_NOT_CLOSED         = -4, ///< Failed to close file with fclose()
     GRF_INVALID_ID_RIFF         = -5, ///< Chunk ID "RIFF" not found
     GRF_INVALID_ID_GRF          = -6, ///< Chunk ID "GRF " not found
-    GRF_INCONSISTENT_SIZES      = -7, ///< Sizes of "RIFF" and "GRF " don't match
+    GRF_INCONSISTENT_SIZES      = -7, ///< The size of a chunk is invalid
     GRF_NOT_ENOUGH_MEMORY       = -8, ///< Not enough memory for malloc()
     GRF_UNKNOWN_COMPRESSION     = -9, ///< Unknown graphics compression format
 } GRFError;
