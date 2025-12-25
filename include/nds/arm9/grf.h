@@ -131,9 +131,11 @@ typedef enum
 /// @param gfxSize
 ///     Location to store the graphics data size.
 /// @param mapDst
-///     Pointer to pointer to load map data.
+///     Pointer to pointer to load map data. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param mapSize
-///     Location to store the map data size.
+///     Location to store the map data size. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param palDst
 ///     Pointer to pointer to load palette data.
 /// @param palSize
@@ -170,9 +172,11 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
 /// @param gfxSize
 ///     Location to store the graphics data size.
 /// @param mapDst
-///     Pointer to pointer to load map data.
+///     Pointer to pointer to load map data. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param mapSize
-///     Location to store the map data size.
+///     Location to store the map data size. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param palDst
 ///     Pointer to pointer to load palette data.
 /// @param palSize
@@ -199,9 +203,11 @@ GRFError grfLoadMem(const void *src, GRFHeader *header,
 /// @param gfxSize
 ///     Location to store the graphics data size.
 /// @param mapDst
-///     Pointer to pointer to load map data.
+///     Pointer to pointer to load map data. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param mapSize
-///     Location to store the map data size.
+///     Location to store the map data size. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param palDst
 ///     Pointer to pointer to load palette data.
 /// @param palSize
@@ -228,9 +234,11 @@ GRFError grfLoadFile(FILE *file, GRFHeader *header,
 /// @param gfxSize
 ///     Location to store the graphics data size.
 /// @param mapDst
-///     Pointer to pointer to load map data.
+///     Pointer to pointer to load map data. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param mapSize
-///     Location to store the map data size.
+///     Location to store the map data size. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param palDst
 ///     Pointer to pointer to load palette data.
 /// @param palSize
@@ -266,9 +274,11 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
 /// @param gfxSize
 ///     Location to store the graphics data size.
 /// @param mapDst
-///     Pointer to pointer to load map data.
+///     Pointer to pointer to load map data. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param mapSize
-///     Location to store the map data size.
+///     Location to store the map data size. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param palDst
 ///     Pointer to pointer to load palette data.
 /// @param palSize
@@ -294,9 +304,11 @@ GRFError grfLoadPath(const char *path, GRFHeader *header,
 /// @param gfxSize
 ///     Location to store the graphics data size.
 /// @param mapDst
-///     Pointer to pointer to load map data.
+///     Pointer to pointer to load map data. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param mapSize
-///     Location to store the map data size.
+///     Location to store the map data size. In Tex4x4 textures this is also
+///     used for the palette indices data.
 /// @param palDst
 ///     Pointer to pointer to load palette data.
 /// @param palSize

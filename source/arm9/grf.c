@@ -20,6 +20,7 @@
 //         "MTIL" # { metatile data }
 //         "MMAP" # { metamap data }
 //         "PAL " # { palette data }
+//         "PIDX" # { tex4x4 palette indices data }
 //     }
 // }
 //
@@ -44,6 +45,7 @@ typedef struct
 #define ID_MTIL     CHUNK_ID('M', 'T', 'I', 'L')
 #define ID_MMAP     CHUNK_ID('M', 'M', 'A', 'P')
 #define ID_PAL      CHUNK_ID('P', 'A', 'L', ' ')
+#define ID_PIDX     CHUNK_ID('P', 'I', 'D', 'X')
 
 // Extracts a GRF item
 static GRFError grfExtract(const void *src, void **dst, size_t *sz)
@@ -142,6 +144,7 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
                 if (gfxDst)
                     ret = grfExtract(data, gfxDst, gfxSize);
                 break;
+            case ID_PIDX: // Tex4x4 textures can't have a map, reuse this pointer
             case ID_MAP:
                 if (mapDst)
                     ret = grfExtract(data, mapDst, mapSize);
@@ -329,6 +332,7 @@ GRFError grfLoadFileEx(FILE *file, GRFHeader *header,
                 }
                 break;
 
+            case ID_PIDX: // Tex4x4 textures can't have a map, reuse this pointer
             case ID_MAP:
                 if (mapDst)
                 {
