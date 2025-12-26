@@ -135,6 +135,8 @@ static inline void set_tls(void *tls)
 
 static void cothread_list_add_ctx(cothread_info_t *ctx)
 {
+    int oldIME = enterCriticalSection();
+
     // Find last node of the list
 
     cothread_info_t *p = &cothread_list;
@@ -145,6 +147,8 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
     // Append the new context to the end
 
     p->next = ctx;
+
+    leaveCriticalSection(oldIME);
 }
 
 ITCM_CODE static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ctx)
@@ -202,6 +206,8 @@ ITCM_CODE static void cothread_list_remove_ctx(cothread_info_t *ctx)
     // element of cothread_list is statically allocated. It is the main()
     // thread, which can never be deleted.
 
+    int oldIME = enterCriticalSection();
+
     cothread_info_t *p = &cothread_list;
 
     for (; p->next != NULL; p = p->next)
@@ -210,6 +216,8 @@ ITCM_CODE static void cothread_list_remove_ctx(cothread_info_t *ctx)
         {
             // Skip the context that we have just found
             p->next = ((cothread_info_t *)p->next)->next;
+
+            leaveCriticalSection(oldIME);
             return;
         }
     }
@@ -238,6 +246,8 @@ static bool cothread_list_contains_ctx(cothread_info_t *ctx)
 
 static void cothread_delete_internal(cothread_info_t *ctx)
 {
+    int oldIME = enterCriticalSection();
+
     cothread_list_remove_ctx(ctx);
 
     if (ctx->stack_base)
@@ -248,6 +258,8 @@ static void cothread_delete_internal(cothread_info_t *ctx)
     free_fn(ctx);
 
     cothread_threads_count--;
+
+    leaveCriticalSection(oldIME);
 }
 
 int cothread_delete(cothread_t thread)
@@ -530,6 +542,8 @@ ITCM_CODE void cothread_yield_signal(uint32_t signal_id)
 
     cothread_info_t *ctx = cothread_active_thread;
 
+    int oldIME = enterCriticalSection();
+
     if (cothread_list_signal != NULL)
     {
         ctx->next_signal = cothread_list_signal;
@@ -545,12 +559,16 @@ ITCM_CODE void cothread_yield_signal(uint32_t signal_id)
 
     cothread_threads_waiting_count++;
 
+    leaveCriticalSection(oldIME);
+
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
 ITCM_CODE void cothread_send_signal(uint32_t signal_id)
 {
     int count = 0;
+
+    int oldIME = enterCriticalSection();
 
     cothread_info_t *ctx_prev = NULL;
     cothread_info_t *ctx = cothread_list_signal;
@@ -593,10 +611,10 @@ ITCM_CODE void cothread_send_signal(uint32_t signal_id)
 
     if (count > 0)
     {
-        int oldIME = enterCriticalSection();
         cothread_threads_waiting_count -= count;
-        leaveCriticalSection(oldIME);
     }
+
+    leaveCriticalSection(oldIME);
 }
 
 //-------------------------------------------------------------------
