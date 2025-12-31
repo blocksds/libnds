@@ -44,11 +44,17 @@ TWL_CODE void i2cIRQHandler(void)
 
     // If the user release the power button or it has been pressed for a few
     // seconds, trigger a shutdown.
-    bool power_event = i2cReadRegister(I2C_PM, I2CREGPM_PWRIF) & (BIT(0) | BIT(1));
+    u8 reg = i2cReadRegister(I2C_PM, I2CREGPM_PWRIF);
+    bool power_event = reg & (BIT(0) | BIT(1));
 
     if (power_event)
     {
-        if (__powerbuttonCB)
+        if (reg & BIT(1))
+        {
+            // Shut down the console if power button is pressed for one second.
+            systemShutDown();
+        }
+        else if (__powerbuttonCB)
         {
             __powerbuttonCB();
         }
