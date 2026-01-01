@@ -364,7 +364,8 @@ PrintConsole *consoleSelect(PrintConsole *console);
 /// @param layer
 ///     Background layer to use.
 /// @param type
-///     Type of the background.
+///     Type of the background. Only regular tiled backgrounds and extended
+///     affine backgrounds are allowed (they have 16-bit map entries).
 /// @param size
 ///     Size of the background.
 /// @param mapBase
@@ -402,7 +403,8 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
 /// @param layer
 ///     Background layer to use.
 /// @param type
-///     Type of the background.
+///     Type of the background. Only regular tiled backgrounds and extended
+///     affine backgrounds are allowed (they have 16-bit map entries).
 /// @param size
 ///     Size of the background.
 /// @param mapBase
