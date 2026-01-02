@@ -220,10 +220,19 @@ u32 systemSetBacklightLevel(u32 level);
 ///
 /// This returns a value with two fields. Bits 0 to 3 are the battery level,
 /// and bit 7 is set to 1 if an external power source is connected to the DS.
+/// You can use the defines BATTERY_LEVEL_MASK and BATTERY_CHARGER_CONNECTED to
+/// make your code more readable:
+///
+/// ```
+/// u32 value = getBatteryLevel();
+/// unsigned int battery_level = value & BATTERY_LEVEL_MASK;
+/// bool charger_connected = value & BATTERY_CHARGER_CONNECTED;
+/// ```
 ///
 /// On DSi the battery level is the one reported by the hardware. On DS, the
 /// battery level is only "high" or "low", and libnds returns 15 or 3
-/// respectively as the equivalent DSi battery level.
+/// respectively as the equivalent DSi battery level. You can use defines
+/// BATTERY_LEVEL_DS_HIGH and BATTERY_LEVEL_DS_LOW instead.
 ///
 /// @note
 ///     When called from the ARM9, this function requests the battery
@@ -233,6 +242,17 @@ u32 systemSetBacklightLevel(u32 level);
 /// @return
 ///     Battery level and external power source status.
 u32 getBatteryLevel(void);
+
+/// This is set if the charger is connected. See getBatteryLevel().
+#define BATTERY_CHARGER_CONNECTED   BIT(7)
+
+/// Mask to get the actual battery level from getBatteryLevel().
+#define BATTERY_LEVEL_MASK          0xF
+
+/// Value that corresponds to high battery level on a DS (green LED).
+#define BATTERY_LEVEL_DS_HIGH       0xF
+/// Value that corresponds to low battery level on a DS (red LED).
+#define BATTERY_LEVEL_DS_LOW        0x3
 
 // Helper functions for heap size
 

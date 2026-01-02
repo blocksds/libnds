@@ -52,7 +52,8 @@ u32 getBatteryLevel(void)
         // DSi mode we get a value between 0 and 15 instead, so this code picks
         // 3 as low charge value and 15 as high charge value as arbitrary values
         // to imitate the behaviour of the DSi.
-        battery = (readPowerManagement(PM_BATTERY_REG) & 1) ? 3 : 15;
+        battery = (readPowerManagement(PM_BATTERY_REG) & 1) ?
+                  BATTERY_LEVEL_DS_LOW : BATTERY_LEVEL_DS_HIGH;
 
         // DS-Lite and DSi Only - Backlight Levels/Power Source
         uint32_t backlight = readPowerManagement(PM_BACKLIGHT_LEVEL);
@@ -63,7 +64,8 @@ u32 getBatteryLevel(void)
             // If bit 3 is set, the console is connected to external power. In
             // that case, set bit 7 of the returned value to match the bit used
             // in DSi.
-            battery += (backlight & (1 << 3)) << 4;
+            if (backlight & (1 << 3))
+                battery |= BATTERY_CHARGER_CONNECTED;
         }
     }
     else
