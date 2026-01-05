@@ -49,6 +49,23 @@ ARM_CODE void _exit(int rc)
 
     struct __bootstub *bootcode = __transferRegion()->bootcode;
 
+#ifdef ARM9
+    extern uint8_t __dtcm_start[];
+
+    if (((uintptr_t) bootcode) >= ((uintptr_t) __dtcm_start) &&
+        ((uintptr_t) bootcode) < (((uintptr_t) __dtcm_start) + 0x4000))
+    {
+        // The bootstub area may be obscured by DTCM. Reveal it.
+        //
+        // - On DS consoles, the maximum memory size is 8 MiB, so main memory
+        //   at 0x2FF4000 can be accessed through the mirror at 0x27F4000.
+        // - On DSi consoles, the main memory at 0x2FF4000 can be accessed
+        //   throught he mirror at 0xCFF4000.
+        s32 offset = (isDSiMode() ? 0xCFF4000 : 0x27F4000) - 0x2FF4000;
+        bootcode = (struct __bootstub *) (((uintptr_t) bootcode) + offset);
+    }
+#endif
+
     if (bootcode->bootsig == BOOTSIG)
     {
         // Both CPUs need to be running for a reset to be possible. It doesn't
@@ -84,7 +101,10 @@ ARM_CODE void _exit(int rc)
             REG_SCFG_EXT |= SCFG_EXT_RAM_DEBUG | SCFG_EXT_RAM_TWL;
         }
 
-        bootcode->arm9reboot();
+        // DTCM overlaps the bootstub, so we need to use a special assembler
+        // routine to hand off execution to it.
+        void __libnds_mpu_jump_past_dtcm(VoidFn address);
+        __libnds_mpu_jump_past_dtcm(bootcode->arm9reboot);
 #endif
 #ifdef ARM7
         //bootcode->arm7reboot();
