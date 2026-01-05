@@ -20,6 +20,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   Re-licensed 25 Sep 2023 with MIT-0 replacing obsolete CC0
   See https://opensource.org/license/mit-0/
 
+* Modified by Adrian "asie" Siekierka:
+
+  * Removed mmap_threshold, as bare metal platforms do not typically
+    provide mmap().
+
 * Quickstart
 
   This library is all in one file to simplify the most common usage:
@@ -2625,7 +2630,9 @@ struct malloc_params {
   size_t magic;
   size_t page_size;
   size_t granularity;
+#if HAVE_MMAP
   size_t mmap_threshold;
+#endif
   size_t trim_threshold;
   flag_t default_mflags;
 };
@@ -3147,7 +3154,9 @@ static int init_mparams(void) {
       ABORT;
     mparams.granularity = gsize;
     mparams.page_size = psize;
+#if HAVE_MMAP
     mparams.mmap_threshold = DEFAULT_MMAP_THRESHOLD;
+#endif
     mparams.trim_threshold = DEFAULT_TRIM_THRESHOLD;
 #if MORECORE_CONTIGUOUS
     mparams.default_mflags = USE_LOCK_BIT|USE_MMAP_BIT;
@@ -3210,9 +3219,11 @@ static int change_mparam(int param_number, int value) {
     }
     else
       return 0;
+#if HAVE_MMAP
   case M_MMAP_THRESHOLD:
     mparams.mmap_threshold = val;
     return 1;
+#endif
   default:
     return 0;
   }
@@ -4049,11 +4060,13 @@ static void* sys_alloc(mstate m, size_t nb) {
   ensure_initialization();
 
   /* Directly map large chunks, but only if already initialized */
+#if HAVE_MMAP
   if (use_mmap(m) && nb >= mparams.mmap_threshold && m->topsize != 0) {
     void* mem = mmap_alloc(m, nb);
     if (mem != 0)
       return mem;
   }
+#endif
 
   asize = granularity_align(nb + SYS_ALLOC_PADDING);
   if (asize <= nb)
