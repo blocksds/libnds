@@ -345,6 +345,37 @@ BEGIN_ASM_FUNC CP15_MPUDisable
     mov     lr, r8
     bx      lr
 
+// Jumps to a location behind DTCM (r0) by first disabling DTCM.
+BEGIN_ASM_FUNC __libnds_mpu_jump_past_dtcm
+    mov     lr, r0
+
+    // Disable interrupts (REG_IME = 0)
+    mov     r0, #0x4000000
+    str     r0, [r0, #0x208]
+
+    // Disable DTCM - this makes the stack state invalid!
+    mrc     CP15_REG1_CONTROL_REGISTER(r0)
+    bic     r0, r0, CP15_CONTROL_DTCM_ENABLE
+    mcr     CP15_REG1_CONTROL_REGISTER(r0)
+
+    // Set stacks so that push/pop calls do not immediately
+    // corrupt the boot stub.
+    ldr     r2, =0x2FF4000
+    mov     r1, #0x12       // Switch to IRQ Mode
+    msr     cpsr, r1
+    mov     sp, r2          // Set IRQ stack
+
+    sub     r2, r2, #0x100
+    mov     r1, #0x13       // Switch to SVC Mode
+    msr     cpsr, r1
+    mov     sp, r2          // Set SVC stack
+
+    mov     r1, #0x1F       // Switch to System Mode
+    msr     cpsr, r1
+    sub     sp, r2, #0x100  // Set user stack
+
+    bx      lr
+
 // Returns a cached mirror of an address.
 BEGIN_ASM_FUNC memCached
 

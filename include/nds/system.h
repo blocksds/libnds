@@ -723,9 +723,20 @@ struct __bootstub {
     u32 bootsize;
 };
 
-// This is 0x23F4000 on NDS and 0x2FF4000 on DSi. However, on NDS 0x2FF4000 is a
-// mirror of 0x23F4000.
-#define __system_bootstub ((struct __bootstub *)0x02FF4000)
+// The boot stub is stored at 0x2FF4000. However, on the ARM9 side, DTCM is
+// made available through this location, overlaping the boot stub data.
+// As such, it has to be accessed through a mirror:
+//
+// - On the DS, 0x27F4000 is used - this covers both debugger units (on
+//   which this is at the end of the cached RAM area) and retail units
+//   (on which this is the first of three RAM mirrors).
+// - On the DSi, 0xCFF4000 is used - this is a distinct area where the
+//   main memory is made available.
+#ifdef ARM9
+#define __system_bootstub ((struct __bootstub *) (isDSiMode() ? 0x0CFF4000 : 0x027F4000))
+#else
+#define __system_bootstub ((struct __bootstub *) 0x02FF4000)
+#endif
 
 #ifdef ARM9
 /// Returns a cached mirror of an address.
