@@ -36,6 +36,9 @@ void micSetAmp_TWL(u8 control, u8 gain)
         cdcWriteReg(CDC_CONTROL, CDC_CONTROL_ADC_VOL_FINE, 0x80); // mute adc
         cdcWriteReg(CDC_CONTROL, CDC_CONTROL_ADC_MIC, 0x00); // turn off adc
         cdcWriteReg(CDC_SOUND, CDC_SOUND_MIC_BIAS, 0x00); // disable adc bias
+
+        // micReadData16_TWL does not disable the microphone FIFO, so do it here instead.
+        REG_MICCNT &= ~MICCNT_ENABLE;
     }
 }
 
