@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: CC0-1.0
+//
+// SPDX-FileContributor: Doug Lea
+
 /*
   Default header file for malloc-2.8.x, written by Doug Lea
   and released to the public domain, as explained at

@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT-0
+//
+// Copyright (C) 2023 Doug Lea
+
 /*
 Copyright 2023 Doug Lea
 

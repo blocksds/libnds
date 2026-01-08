@@ -45,9 +45,16 @@ static comutex_t malloc_global_mutex;
 // malloc implementations and aliases
 
 #undef DEBUG
+
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Walloc-size"
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #include "dlmalloc_impl.h"
 
 void *aligned_alloc(size_t, size_t) __attribute__((alias("memalign"), leaf, nothrow));
-void *__malloc_malloc(size_t) __attribute__((alias("malloc"), leaf, malloc, nothrow));
+void *__malloc_malloc(size_t) __attribute__((alias("malloc"), leaf, malloc, nothrow, __alloc_size__(1)));
 void __malloc_free(void *) __attribute__((alias("free"), leaf, nothrow));
 void cfree(void *) __attribute__((alias("free"), leaf, nothrow));
