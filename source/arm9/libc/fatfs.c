@@ -307,7 +307,7 @@ bool nandInit(bool read_only)
         errno = fatfs_error_to_posix(result);
         nand_mounted = false;
     }
-    return true;
+    return nand_mounted;
 }
 
 bool fatInit(int32_t cache_size_pages, bool set_as_default_device)
