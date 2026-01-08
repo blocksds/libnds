@@ -87,8 +87,8 @@ void systemMsgHandler(int bytes, void *user_data)
 
 u32 systemSetBacklightLevel(u32 level)
 {
-    if (level > 5)
-        level = 5;
+    if (level > PM_BACKLIGHT_MAX)
+        level = PM_BACKLIGHT_MAX;
 
     fifoSendValue32(FIFO_PM, PM_REQ_BACKLIGHT_LEVEL | level);
     fifoWaitValue32(FIFO_PM);
