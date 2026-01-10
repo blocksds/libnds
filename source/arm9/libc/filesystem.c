@@ -408,6 +408,9 @@ int stat(const char *path, struct stat *st)
     return 0;
 }
 
+// FatFS/NitroFS does not distinguish symbolic links.
+int lstat(const char *path, struct stat *st) __attribute__((alias("stat")));
+
 int fstat(int fd, struct stat *st)
 {
     if (st == NULL)
