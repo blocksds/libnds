@@ -3,9 +3,9 @@
 A library to develop applications for a Nintendo DS.
 
 - [Documentation](https://blocksds.skylyrac.net/libnds/index.html)
-- [Examples](https://github.com/blocksds/sdk/tree/master/examples)
+- [Examples](https://codeberg.org/blocksds/sdk/src/branch/master/examples)
 
-Please, report issues [here](https://github.com/blocksds/sdk/issues).
+Please, report issues [here](https://codeberg.org/blocksds/sdk/issues).
 
 ## Licensing
 
