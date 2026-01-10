@@ -858,3 +858,22 @@ int FAT_setAttr(const char *file, uint8_t attr)
 
     return 0;
 }
+
+bool FAT_getShortNameFor(const char *path, char *buf)
+{
+    if ((path == NULL) || (buf == NULL) || nitrofs_use_for_path(path))
+    {
+        return false;
+    }
+
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(path, &fno);
+
+    if (result != FR_OK)
+    {
+        return false;
+    }
+
+    strncpy(buf, fno.altname, FF_SFN_BUF + 1);
+    return true;
+}

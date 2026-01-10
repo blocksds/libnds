@@ -192,6 +192,22 @@ int FAT_getAttr(const char *file);
 ///     0 on success, -1 on error.
 int FAT_setAttr(const char *file, uint8_t attr);
 
+#define FAT_SHORT_FILE_NAME_MAX 12
+
+/// Get the short name (SFN) for a given file or directory.
+///
+/// This function only works on FAT file system paths.
+///
+/// @param path
+///     Path to the file or directory.
+/// @param buf
+///    Buffer to store the short file name. This buffer should be at least
+///    FAT_SHORT_FILE_NAME_MAX+1 bytes in size.
+///
+/// @return
+///    True on success, false on error.
+bool FAT_getShortNameFor(const char *path, char *buf);
+
 #ifdef __cplusplus
 }
 #endif
