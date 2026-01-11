@@ -78,27 +78,30 @@ extern "C" {
 #define SPI_CONTINUOUS          BIT(11)
 
 /// Wait until the SPI bus is available.
-static inline void spiWaitBusy(void)
-{
-    while (REG_SPICNT & SPI_BUSY);
-}
+void spiWaitBusy(void);
 
 #define SerialWaitBusy spiWaitBusy
 
-static inline u8 spiExchange(u8 value)
-{
-    REG_SPIDATA = value;
-    spiWaitBusy();
-    return REG_SPIDATA & 0xFF;
-}
+/// Does an exchange in the SPI bus (sends a value while a value is received).
+///
+/// @param value
+///     Value to write to the SPI bus.
+///
+/// @return
+///     Returns the value read from the SPI bus.
+u8 spiExchange(u8 value);
 
-static inline void spiWrite(u8 value)
-{
-    REG_SPIDATA = value;
-    spiWaitBusy();
-}
+/// Writes a value to the SPI bus.
+///
+/// @param value
+///     Value to write to the SPI bus.
+void spiWrite(u8 value);
 
-#define spiRead() spiExchange(0)
+/// Reads a value from the SPI bus (by doing an exchange and sending a 0).
+///
+/// @return
+///     Returns the value read from the SPI bus.
+u8 spiRead(void);
 
 #ifdef __cplusplus
 }

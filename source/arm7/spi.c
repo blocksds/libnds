@@ -8,6 +8,29 @@
 #include <nds/interrupts.h>
 #include <nds/system.h>
 
+void spiWaitBusy(void)
+{
+    while (REG_SPICNT & SPI_BUSY);
+}
+
+u8 spiExchange(u8 value)
+{
+    REG_SPIDATA = value;
+    spiWaitBusy();
+    return REG_SPIDATA & 0xFF;
+}
+
+void spiWrite(u8 value)
+{
+    REG_SPIDATA = value;
+    spiWaitBusy();
+}
+
+u8 spiRead(void)
+{
+    return spiExchange(0);
+}
+
 int writePowerManagement(int reg, int command)
 {
     int oldIME = enterCriticalSection();
