@@ -1024,6 +1024,7 @@ static inline void glViewport(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 ///     Flags from GLFLUSH_ENUM.
 static inline void glFlush(u32 mode)
 {
+    COMPILER_MEMORY_BARRIER();
     GFX_FLUSH = mode;
 }
 
