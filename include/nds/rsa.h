@@ -25,15 +25,15 @@ extern "C" {
 /// Context that holds information about the RSA heap
 typedef struct swiRSAHeapContext
 {
-    void *heapStart __attribute__((aligned(4)));    ///< Start of the heap rounded up to 4-byte boundary
-    void *heapEnd __attribute__((aligned(4)));      ///< start + size rounded down to 4-byte boundary
-    size_t heapSize;    ///< Heap size matched to the above rounded values
+    void *heapStart ALIGN(4); ///< Start of the heap rounded up to 4-byte boundary
+    void *heapEnd ALIGN(4);   ///< start + size rounded down to 4-byte boundary
+    size_t heapSize;          ///< Heap size matched to the above rounded values
 } swiRSAHeapContext_t;
 
 /// Struture that holds pointers to the RSA buffers
 typedef struct swiRSAbuffers
 {
-    void *dst;  ///< Pointer to the output buffer
+    void *dst;          ///< Pointer to the output buffer
     const void *sig;    ///< Pointer to the signature buffer
     const void *key;    ///< Pointer to the RSA key buffer
 } swiRSAbuffers_t;

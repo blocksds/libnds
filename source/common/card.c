@@ -158,7 +158,7 @@ static inline void cardReadInternal(void *dest, size_t offset, size_t len, uint3
 
 void cardRead(void *dest, size_t offset, size_t len, uint32_t flags)
 {
-    uint8_t buffer[NDS_CARD_BLOCK_SIZE] __attribute__((aligned(4)));
+    uint8_t buffer[NDS_CARD_BLOCK_SIZE] ALIGN(4);
     uint8_t *pc = dest;
 
     while (len)

@@ -15,6 +15,8 @@
 extern "C" {
 #endif
 
+#include <nds/ndstypes.h>
+
 typedef struct PCXHeader
 {
     char      manufacturer;  // Should be 0
@@ -31,7 +33,7 @@ typedef struct PCXHeader
     short int bytesPerLine;
     short int paletteYype;   // Should be 2
     char      filler[58];    // Ignore
-} __attribute__((packed)) PCXHeader, *pPCXHeader;
+} PACKED PCXHeader, *pPCXHeader;
 
 /// Loads an image structure with data from PCX formatted data.
 ///
