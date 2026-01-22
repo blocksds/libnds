@@ -126,11 +126,11 @@ void rtcTransaction(uint8_t *command, uint32_t commandLength, uint8_t *result,
 // All of the deprecated helpers are using byte arrays as input/output types
 // instead of structures.
 
-__attribute__((deprecated)) void rtcGetTime(uint8_t *time);
-__attribute__((deprecated)) void rtcSetTime(uint8_t *time);
+LIBNDS_DEPRECATED void rtcGetTime(uint8_t *time);
+LIBNDS_DEPRECATED void rtcSetTime(uint8_t *time);
 
-__attribute__((deprecated)) void rtcGetTimeAndDate(uint8_t *time);
-__attribute__((deprecated)) void rtcSetTimeAndDate(uint8_t *time);
+LIBNDS_DEPRECATED void rtcGetTimeAndDate(uint8_t *time);
+LIBNDS_DEPRECATED void rtcSetTimeAndDate(uint8_t *time);
 
 void BCDToInteger(uint8_t *data, uint32_t length);
 void integerToBCD(uint8_t *data, uint32_t length);
@@ -142,7 +142,7 @@ void integerToBCD(uint8_t *data, uint32_t length);
 ///     application that uses it will run on DS and DSi consoles, but not on
 ///     3DS. Also, most emulators don't support it either. The alternative is to
 ///     use initClockIRQTimer(), which uses a timer interrupt instead.
-__attribute__((deprecated)) void initClockIRQ(void);
+LIBNDS_DEPRECATED void initClockIRQ(void);
 
 /// Initialize the RTC and setup a timer interrupt to update the time.
 ///

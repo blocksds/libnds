@@ -128,7 +128,7 @@ uint32_t keysUp(void)
     return keysup;
 }
 
-uint32_t keysCurrent(void)
+LIBNDS_DEPRECATED uint32_t keysCurrent(void)
 {
     int oldIME = enterCriticalSection();
     uint32_t result = keys_cur();

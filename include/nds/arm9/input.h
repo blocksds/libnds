@@ -53,7 +53,7 @@ void scanKeys(void);
 ///
 /// @return
 ///     Bitmask of keys that are pressed.
-__attribute__((deprecated)) uint32_t keysCurrent(void);
+LIBNDS_DEPRECATED uint32_t keysCurrent(void);
 
 /// Obtains the current keypad held state.
 ///
@@ -110,7 +110,7 @@ uint32_t keysUp(void);
 void touchRead(touchPosition *data);
 
 // Old way of reading the touchpad state.
-static inline __attribute__((deprecated)) touchPosition touchReadXY(void)
+static inline LIBNDS_DEPRECATED touchPosition touchReadXY(void)
 {
     touchPosition touchPos;
     touchRead(&touchPos);

@@ -56,6 +56,9 @@ extern "C" {
 #define PACKED __attribute__ ((packed))
 #define packed_struct struct PACKED
 
+/// Used to mark functions and types as deprecated.
+#define LIBNDS_DEPRECATED __attribute__((deprecated))
+
 /// Helper that prevents the compiler from reordering memory accesses.
 ///
 /// Accesses to pointers marked as "volatile" aren't reordered, but accesses
@@ -165,8 +168,8 @@ typedef uint32_t sec_t;
 /// Function pointer that takes no arguments and doesn't return anything.
 typedef void (* VoidFn)(void);
 
-__attribute__((deprecated)) typedef void (* IntFn)(void);
-__attribute__((deprecated)) typedef void (* fp)(void);
+LIBNDS_DEPRECATED typedef void (* IntFn)(void);
+LIBNDS_DEPRECATED typedef void (* fp)(void);
 
 #ifdef __cplusplus
 }

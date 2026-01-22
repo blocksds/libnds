@@ -121,7 +121,7 @@ void rtcReset(void)
     }
 }
 
-__attribute__((deprecated)) void rtcGetTimeAndDate(uint8_t *time)
+LIBNDS_DEPRECATED void rtcGetTimeAndDate(uint8_t *time)
 {
     uint8_t command, status;
 
@@ -137,7 +137,7 @@ __attribute__((deprecated)) void rtcGetTimeAndDate(uint8_t *time)
     BCDToInteger(time, 7);
 }
 
-__attribute__((deprecated)) void rtcSetTimeAndDate(uint8_t *time)
+LIBNDS_DEPRECATED void rtcSetTimeAndDate(uint8_t *time)
 {
     uint8_t command[8];
 
@@ -150,7 +150,7 @@ __attribute__((deprecated)) void rtcSetTimeAndDate(uint8_t *time)
     rtcTransaction(command, 8, 0, 0);
 }
 
-__attribute__((deprecated)) void rtcGetTime(uint8_t *time)
+LIBNDS_DEPRECATED void rtcGetTime(uint8_t *time)
 {
     uint8_t command, status;
 
@@ -165,7 +165,7 @@ __attribute__((deprecated)) void rtcGetTime(uint8_t *time)
     BCDToInteger(time, 3);
 }
 
-__attribute__((deprecated)) void rtcSetTime(uint8_t *time)
+LIBNDS_DEPRECATED void rtcSetTime(uint8_t *time)
 {
     uint8_t command[4];
 
@@ -366,7 +366,7 @@ void resyncClock(void)
     __transferRegion()->unixTime = __mktime(&dstime);
 }
 
-__attribute__((deprecated)) void initClockIRQ(void)
+LIBNDS_DEPRECATED void initClockIRQ(void)
 {
     REG_RCNT = 0x8100;
     irqSet(IRQ_RTC, syncRTC);

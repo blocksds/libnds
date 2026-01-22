@@ -337,7 +337,7 @@ typedef _palette _ext_palette[16];
 u32 vramSetPrimaryBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c, VRAM_D_TYPE d);
 
 // Same as vramSetPrimaryBanks(), but deprecated.
-__attribute__((deprecated))
+LIBNDS_DEPRECATED
 static inline u32 vramSetMainBanks(VRAM_A_TYPE a, VRAM_B_TYPE b, VRAM_C_TYPE c,
                                    VRAM_D_TYPE d)
 {
@@ -378,7 +378,7 @@ static inline void vramRestorePrimaryBanks(u32 vramTemp)
 }
 
 // Same as vramRestorePrimaryBanks(), but deprecated.
-__attribute__((deprecated))
+LIBNDS_DEPRECATED
 static inline void vramRestoreMainBanks(u32 vramTemp)
 {
     COMPILER_MEMORY_BARRIER();

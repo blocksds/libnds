@@ -1054,7 +1054,7 @@ static inline void glMaterialShininess(void)
 }
 
 /// Old name of the function
-__attribute__((deprecated))
+LIBNDS_DEPRECATED
 static inline void glMaterialShinyness(void)
 {
     glMaterialShininess();

@@ -669,7 +669,7 @@ typedef struct tPERSONAL_DATA
 /// Struct containing time and day of the real time clock.
 ///
 /// Use rtcTimeAndDate instead.
-__attribute__((deprecated)) typedef struct {
+LIBNDS_DEPRECATED typedef struct {
     u8 year;    ///< Add 2000 to get 4 digit year
     u8 month;   ///< 1 to 12
     u8 day;     ///< 1 to (days in month)

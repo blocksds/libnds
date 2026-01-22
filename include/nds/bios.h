@@ -112,7 +112,7 @@ typedef struct UnpackStruct
     /// BIOS_UNPACK_OFFSET_ADD_ALWAYS can be used to set bit 31, offsetting all destination writes, zero or non-zero
     /// BIOS_UNPACK_OFFSET_ADD_NON_ZERO can be used to unset bit 31, offsetting only non-zero destination writes
     uint32_t dataOffset;
-} PACKED TUnpackStruct, __attribute__((deprecated)) *PUnpackStruct;
+} PACKED TUnpackStruct, LIBNDS_DEPRECATED *PUnpackStruct;
 
 /// For TUnpackStruct.dataOffset, this flag signals that all destination writes, zero or non-zero, should be offset
 #define BIOS_UNPACK_OFFSET_ADD_ALWAYS (1u << 31)
