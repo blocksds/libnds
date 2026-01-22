@@ -614,7 +614,6 @@ void *dlopen(const char *file, int mode)
     if (f == NULL)
     {
         dl_err_str = "file can't be opened";
-        fclose(f);
         return NULL;
     }
 
