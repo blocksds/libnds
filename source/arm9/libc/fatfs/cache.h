@@ -16,10 +16,8 @@ void *cache_sector_get(uint8_t pdrv, uint32_t sector);
 void *cache_sector_add(uint8_t pdrv, uint32_t sector);
 void cache_sector_invalidate(uint8_t pdrv, uint32_t sector_from, uint32_t sector_to);
 
-/**
- * "Borrow" an unused cache entry to use as a write buffer.
- */
-__attribute__((always_inline))
+// "Borrow" an unused cache entry to use as a write buffer.
+LIBNDS_ALWAYS_INLINE
 static inline void *cache_sector_borrow(void)
 {
     return cache_sector_add(0xFF, 0);

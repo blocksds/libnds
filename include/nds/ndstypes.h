@@ -62,6 +62,9 @@ extern "C" {
 /// Used to mark functions that mustn't be inlined.
 #define LIBNDS_NOINLINE __attribute__((noinline))
 
+/// Used to mark functions that must be inlined.
+#define LIBNDS_ALWAYS_INLINE __attribute__((always_inline))
+
 /// Helper that prevents the compiler from reordering memory accesses.
 ///
 /// Accesses to pointers marked as "volatile" aren't reordered, but accesses

@@ -25,8 +25,8 @@ static _Atomic u32 g_status[2] = {0};
 // SD card and trigger a callback on the ARM9.
 static bool g_sd_inserted;
 
-
-__attribute__((always_inline)) static inline u8 port2Controller(const u8 portNum)
+LIBNDS_ALWAYS_INLINE
+static inline u8 port2Controller(const u8 portNum)
 {
     return portNum / 2;
 }

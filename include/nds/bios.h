@@ -146,7 +146,7 @@ void swiSoftReset(void);
 #ifdef __clang__
 void swiDelay(uint32_t duration);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiDelay(uint32_t duration)
 {
     register uint32_t r0 asm("r0") = duration;
@@ -166,7 +166,7 @@ static inline void swiDelay(uint32_t duration)
 #ifdef __clang__
 int swiDivide(int numerator, int divisor);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiDivide(int numerator, int divisor)
 {
     register int r0 asm("r0") = numerator;
@@ -188,7 +188,7 @@ static inline int swiDivide(int numerator, int divisor)
 #ifdef __clang__
 int swiRemainder(int numerator, int divisor);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiRemainder(int numerator, int divisor)
 {
     register int r0 asm("r0") = numerator;
@@ -211,7 +211,7 @@ static inline int swiRemainder(int numerator, int divisor)
 #ifdef __clang__
 void swiDivMod(int numerator, int divisor, int *result, int *remainder);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiDivMod(int numerator, int divisor, int *result, int *remainder)
 {
     register int r0 asm("r0") = numerator;
@@ -243,7 +243,7 @@ static inline void swiDivMod(int numerator, int divisor, int *result, int *remai
 #ifdef __clang__
 void swiCopy(const void *source, void *dest, int flags);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiCopy(const void *source, void *dest, int flags)
 {
     register const void *r0 asm("r0") = source;
@@ -270,7 +270,7 @@ static inline void swiCopy(const void *source, void *dest, int flags)
 #ifdef __clang__
 void swiFastCopy(const void *source, void *dest, int flags);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiFastCopy(const void *source, void *dest, int flags)
 {
     register const void *r0 asm("r0") = source;
@@ -293,7 +293,7 @@ static inline void swiFastCopy(const void *source, void *dest, int flags)
 #ifdef __clang__
 int swiSqrt(int value);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiSqrt(int value)
 {
     register int r0 asm("r0") = value;
@@ -320,7 +320,7 @@ static inline int swiSqrt(int value)
 #ifdef __clang__
 uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 {
     register uint32_t r0 asm("r0") = crc;
@@ -343,7 +343,7 @@ static inline uint16_t swiCRC16(uint16_t crc, const void *data, uint32_t size)
 #ifdef __clang__
 int swiIsDebugger(void);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiIsDebugger(void)
 {
     register int i asm("r0");
@@ -365,7 +365,7 @@ static inline int swiIsDebugger(void)
 #ifdef __clang__
 void swiUnpackBits(const void *source, void *destination, TUnpackStruct *params);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiUnpackBits(const void *source, void *destination, TUnpackStruct *params)
 {
     register const void* r0 asm("r0") = source;
@@ -390,7 +390,7 @@ static inline void swiUnpackBits(const void *source, void *destination, TUnpackS
 #ifdef __clang__
 void swiDecompressLZSSWram(const void *source, void *destination);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiDecompressLZSSWram(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -430,7 +430,7 @@ int swiDecompressLZSSVram(const void *source, void *destination, uint32_t toGetS
 int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiDecompressLZSSVramNTR(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream)
 {
@@ -447,7 +447,7 @@ static inline int swiDecompressLZSSVramNTR(const void *source, void *destination
 int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiDecompressLZSSVramTWL(const void *source, void *destination, uint32_t toGetSize,
                              TDecompressionStream *stream)
 {
@@ -481,7 +481,7 @@ static inline int swiDecompressLZSSVramTWL(const void *source, void *destination
 int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiDecompressHuffman(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream)
 {
@@ -516,7 +516,7 @@ static inline int swiDecompressHuffman(const void *source, void *destination, ui
 #ifdef __clang__
 void swiDecompressRLEWram(const void *source, void *destination);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiDecompressRLEWram(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -556,7 +556,7 @@ static inline void swiDecompressRLEWram(const void *source, void *destination)
 int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline int swiDecompressRLEVram(const void *source, void *destination, uint32_t toGetSize,
                          TDecompressionStream *stream)
 {
@@ -578,7 +578,7 @@ static inline int swiDecompressRLEVram(const void *source, void *destination, ui
 #ifdef __clang__
 void swiWaitForIRQ(void);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiWaitForIRQ(void)
 {
     asm volatile inline ("swi 0x6 << ((1f - . == 4) * -16); 1:");
@@ -610,7 +610,7 @@ void swiSetHaltCR(uint32_t data);
 #ifdef __clang__
 void swiDecodeDelta8(const void *source, void *destination);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiDecodeDelta8(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -635,7 +635,7 @@ static inline void swiDecodeDelta8(const void *source, void *destination)
 #ifdef __clang__
 void swiDecodeDelta16(const void *source, void *destination);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiDecodeDelta16(const void *source, void *destination)
 {
     register const void* r0 asm("r0") = source;
@@ -664,7 +664,7 @@ void swiSetHaltCR(uint8_t data);
 #ifdef __clang__
 void swiHalt(void);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiHalt(void)
 {
     asm volatile inline ("swi 0x6 << ((1f - . == 4) * -16); 1:");
@@ -678,7 +678,7 @@ static inline void swiHalt(void)
 #ifdef __clang__
 void swiSleep(void);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiSleep(void)
 {
     asm volatile inline ("swi 0x7 << ((1f - . == 4) * -16); 1:");
@@ -705,7 +705,7 @@ void swiSwitchToGBAMode(void);
 #ifdef __clang__
 uint16_t swiGetSineTable(int index);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline uint16_t swiGetSineTable(int index)
 {
     register int r0 asm("r0") = index;
@@ -727,7 +727,7 @@ static inline uint16_t swiGetSineTable(int index)
 #ifdef __clang__
 uint16_t swiGetPitchTable(int index);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline uint16_t swiGetPitchTable(int index)
 {
     register int r0 asm("r0") = index;
@@ -749,7 +749,7 @@ static inline uint16_t swiGetPitchTable(int index)
 #ifdef __clang__
 uint8_t swiGetVolumeTable(int index);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline uint8_t swiGetVolumeTable(int index)
 {
     register int r0 asm("r0") = index;
@@ -771,7 +771,7 @@ static inline uint8_t swiGetVolumeTable(int index)
 #ifdef __clang__
 void swiChangeSoundBias(int enabled, int delay);
 #else
-__attribute__((always_inline))
+LIBNDS_ALWAYS_INLINE
 static inline void swiChangeSoundBias(int enabled, int delay)
 {
     register int r0 asm("r0") = enabled;
