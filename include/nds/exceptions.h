@@ -77,7 +77,7 @@ void releaseExceptionHandler(void);
 ///
 /// @param message
 ///     String to be printed in the exception handler.
-__attribute__((noreturn)) void libndsCrash(const char *message);
+LIBNDS_NORETURN void libndsCrash(const char *message);
 
 #ifdef __cplusplus
 }

@@ -12,7 +12,7 @@
 #include "common/libnds_internal.h"
 
 // This is called by assert() from picolibc
-__attribute__((noreturn))
+LIBNDS_NORETURN
 void __assert_func(const char *file, int line, const char *func,
                    const char *failedexpr)
 {

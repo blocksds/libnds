@@ -65,6 +65,9 @@ extern "C" {
 /// Used to mark functions that must be inlined.
 #define LIBNDS_ALWAYS_INLINE __attribute__((always_inline))
 
+/// Used to mark functions that don't return to the caller.
+#define LIBNDS_NORETURN __attribute__((noreturn))
+
 /// Helper that prevents the compiler from reordering memory accesses.
 ///
 /// Accesses to pointers marked as "volatile" aren't reordered, but accesses

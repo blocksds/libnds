@@ -125,7 +125,7 @@ typedef struct UnpackStruct
 /// @note
 ///     This doesn't actually use a software interrupt, it's a custom function
 ///     implemented in libnds.
-__attribute__((noreturn))
+LIBNDS_NORETURN
 void swiSoftReset(void);
 
 /// Delays the code.
@@ -689,7 +689,7 @@ static inline void swiSleep(void)
 ///
 /// @note
 ///     ARM7 exclusive.
-__attribute__((noreturn))
+LIBNDS_NORETURN
 void swiSwitchToGBAMode(void);
 
 /// Returns an entry in the sine table.

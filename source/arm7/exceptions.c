@@ -20,7 +20,7 @@
 #include "common/fifo_messages_helpers.h"
 #include "common/libnds_internal.h"
 
-__attribute__((noreturn))
+LIBNDS_NORETURN
 void guruMeditationDump(void)
 {
     REG_IME = 0;
@@ -142,7 +142,7 @@ void guruMeditationDump(void)
         swiWaitForVBlank();
 }
 
-__attribute__((noreturn))
+LIBNDS_NORETURN
 static void defaultHandler(void)
 {
     guruMeditationDump();
@@ -155,7 +155,7 @@ void defaultExceptionHandler(void)
 
 // ---------------------------------------
 
-__attribute__((noreturn))
+LIBNDS_NORETURN
 static void releaseCrashHandler(void)
 {
     REG_IME = 0;

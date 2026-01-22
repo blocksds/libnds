@@ -126,7 +126,7 @@ ARM_CODE void _exit(int rc)
 // to include newlib/picolibc stack smash protection overrides.
 uintptr_t __stack_chk_guard = 0x00000aff;
 
-__attribute__((noreturn))
+LIBNDS_NORETURN
 THUMB_CODE void __stack_chk_fail(void)
 {
     libndsCrash("Stack corrupted");
