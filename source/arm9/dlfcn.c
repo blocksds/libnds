@@ -71,7 +71,7 @@ static __thread dsl_handle *dsl_current = NULL;
 // opposite order of the constructors. Also, in case a global constructor isn't
 // called, the destructor won't be called either. More information here:
 // https://etherealwake.com/2021/09/crt-startup/#c-abi-extensions
-__attribute__((noinline))
+LIBNDS_NOINLINE
 int __aeabi_atexit(void *arg, void (*func) (void *), void *dso_handle)
 {
     (void)dso_handle;

@@ -59,6 +59,9 @@ extern "C" {
 /// Used to mark functions and types as deprecated.
 #define LIBNDS_DEPRECATED __attribute__((deprecated))
 
+/// Used to mark functions that mustn't be inlined.
+#define LIBNDS_NOINLINE __attribute__((noinline))
+
 /// Helper that prevents the compiler from reordering memory accesses.
 ///
 /// Accesses to pointers marked as "volatile" aren't reordered, but accesses

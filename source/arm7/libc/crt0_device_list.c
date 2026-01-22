@@ -38,7 +38,7 @@ device_list_argv;
 static_assert((ARGV_ADDRESS + sizeof(device_list_argv)) < 0x03000000,
               "The device list argv struct would fall outside main ram");
 
-TWL_CODE static __attribute__((noinline))
+TWL_CODE static LIBNDS_NOINLINE
 void check_device_list_internal(void)
 {
     if (__system_argv->argvMagic == ARGV_MAGIC)

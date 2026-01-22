@@ -18,7 +18,7 @@ void swiWaitForVBlank(void)
     swiIntrWait(INTRWAIT_CLEAR_FLAGS, IRQ_VBLANK);
 }
 
-__attribute__((noinline)) // So that it isn't inlined in swiWaitForVBlank()
+LIBNDS_NOINLINE // So that it isn't inlined in swiWaitForVBlank()
 ARM_CODE ITCM_CODE
 void swiIntrWait(u32 clearOldFlags, uint32_t flags)
 {

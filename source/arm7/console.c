@@ -42,7 +42,7 @@ static uint16_t consoleNextWriteIndex(ConsoleArm7Ipc *c)
         return c->write_index + 1;
 }
 
-__attribute__((noinline)) bool consoleIsFull(void)
+LIBNDS_NOINLINE bool consoleIsFull(void)
 {
     uint16_t next_write_index = consoleNextWriteIndex(con);
 
@@ -52,7 +52,7 @@ __attribute__((noinline)) bool consoleIsFull(void)
     return false;
 }
 
-__attribute__((noinline)) int consolePrintChar(char c)
+LIBNDS_NOINLINE int consolePrintChar(char c)
 {
     if (con == NULL)
         return -1;
@@ -85,13 +85,13 @@ void consoleFlush(void)
     fifoSendValue32(FIFO_SYSTEM, SYS_ARM7_CONSOLE_FLUSH);
 }
 
-__attribute__((noinline)) void consolePuts(const char *str)
+LIBNDS_NOINLINE void consolePuts(const char *str)
 {
     while (*str != '\0')
         consolePrintChar(*str++);
 }
 
-__attribute__((noinline)) void consolePrintNumUnsigned(uint32_t num, uint32_t base)
+LIBNDS_NOINLINE void consolePrintNumUnsigned(uint32_t num, uint32_t base)
 {
     // When printing the number we actually get the digits in reverse, so we
     // need a small buffer to store the number and then print it in reverse from
