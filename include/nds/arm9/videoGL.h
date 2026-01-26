@@ -227,7 +227,7 @@ enum GL_POLY_FORMAT_ENUM
 
 /// Possibles size of a texture (horizontal and vertical).
 ///
-/// Related functions: glTexImage2D(), glTexParameter()
+/// Related functions: glTexImage2D(), glTexImageNtr2D(), glTexParameter()
 enum GL_TEXTURE_SIZE_ENUM
 {
     TEXTURE_SIZE_INVALID = -1, ///< An invalid number of texels
@@ -243,7 +243,7 @@ enum GL_TEXTURE_SIZE_ENUM
 
 /// Texture parameters such as texture wrapping and texture coord wrapping.
 ///
-/// Related functions: glTexImage2D(), glTexParameter()
+/// Related functions: glTexImage2D(), glTexImageNtr2D(), glTexParameter()
 typedef enum
 {
     /// Wrap (repeat) texture on S axis.
@@ -269,7 +269,7 @@ typedef enum
 
 /// Texture formats.
 ///
-/// Related functions: glTexImage2D(), glTexParameter()
+/// Related functions: glTexImage2D(), glTexImageNtr2D(),  glTexParameter()
 typedef enum
 {
     GL_NOTEXTURE  = 0, ///< No texture is used - useful for making palettes
@@ -282,8 +282,8 @@ typedef enum
     GL_RGBA       = 7, ///< 15 bit direct color, 1 bit of alpha
 
     /// 15 bit direct color. Converted to GL_RGBA internally, which causes a
-    /// performance penalty when using glTexImage2D(). This format isn't
-    /// recommended, use GL_RGBA instead.
+    /// performance penalty when using glTexImage2D() or glTexImageNtr2D(). This
+    /// format isn't recommended, use GL_RGBA instead.
     GL_RGB        = 8
 } GL_TEXTURE_TYPE_ENUM;
 
@@ -439,7 +439,53 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 /// The only allowed texture sizes are powers of two between 8 and 1024
 /// (inclusive). It is possible to specify the size in pixels or using the
 /// values of GL_TEXTURE_SIZE_ENUM. Note that a value of 0 won't cause an error
-/// because is a GL_TEXTURE_SIZE_ENUM value equivalent to 8 pixels.
+/// because it's a GL_TEXTURE_SIZE_ENUM value equivalent to 8 pixels.
+///
+/// If the texture type is GL_COMPRESSED you can provide the texture texels and
+/// the texture palette indices concatenated in a single buffer (set
+/// 'texture_ext' to NULL and pass the combined buffer to 'texture') or as two
+/// individual buffers (pass the texture texel data to 'texture' and the texture
+/// palette indices to 'texture_ext').
+///
+/// @param type
+///     The format of the texture.
+/// @param sizeX
+///     Width of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
+/// @param sizeY
+///     Height of the texture (in pixels or GL_TEXTURE_SIZE_ENUM values).
+/// @param param
+///     Parameters of the texture.
+/// @param texture
+///     Pointer to the texture data to load. If this is NULL, the texture will
+///     be allocated but no data will be copied to it.
+/// @param texture_ext
+///     This can be NULL or a pointer ot the texture palette indices data of a
+///     texture with GL_COMPRESSED format.
+///
+/// @return
+///     1 on success, 0 on failure.
+int glTexImageNtr2D(GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
+                   const void *texture, const void *texture_ext);
+
+/// Loads a 2D texture into texture memory and sets the currently bound texture
+/// ID to the attributes specified.
+///
+/// The only allowed texture sizes are powers of two between 8 and 1024
+/// (inclusive). It is possible to specify the size in pixels or using the
+/// values of GL_TEXTURE_SIZE_ENUM. Note that a value of 0 won't cause an error
+/// because it's a GL_TEXTURE_SIZE_ENUM value equivalent to 8 pixels.
+///
+/// If the texture type is GL_COMPRESSED you must provide the texture texels and
+/// the texture palette indices concatenated in a single buffer, not as two
+/// different buffers. You can use glTexImageNtr2D() if you don't want to
+/// concatenate them.
+///
+/// Similar to glTextImage2D() from OpenGL. Empty fields and target are unused
+/// but provided for code compatibility.
+///
+/// @note
+///    glTexImageNtr2D() is preferred. It does the same thing as glTexImage2D()
+///    but with a simpler function signature without ignored arguments.
 ///
 /// @param target
 ///     Ignored, only here for OpenGL compatibility.
@@ -461,8 +507,20 @@ void glRotatef32i(int angle, int32_t x, int32_t y, int32_t z);
 ///
 /// @return
 ///     1 on success, 0 on failure.
+static inline
 int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX,
-                 int sizeY, int empty2, int param, const void *texture);
+                 int sizeY, int empty2, int param, const void *texture)
+{
+    // glTexImage2D() is 'static inline' so that the compiler can see that three
+    // of its arguments are ignored and it can optimize the call to
+    // glTexImageNtr2D(), which requires passing fewer arguments in the stack.
+
+    (void)target;
+    (void)empty1;
+    (void)empty2;
+
+    return glTexImageNtr2D(type, sizeX, sizeY, param, texture, NULL);
+}
 
 /// This converts a size in pixels to a GL_TEXTURE_SIZE_ENUM value.
 ///

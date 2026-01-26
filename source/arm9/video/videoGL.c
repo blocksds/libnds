@@ -1705,8 +1705,6 @@ int glAssignColorTable(int target, int name)
     }
 }
 
-// Although named the same as its OpenGL counterpart it is not compatible.
-// Effort may be made in the future to make it so.
 int glTexParameter(int target, int param)
 {
     (void)target;
@@ -1798,15 +1796,9 @@ int glGetColorTableParameterEXT(int target, int pname, int *params)
     return 1;
 }
 
-// Similer to glTextImage2D from gl it takes a pointer to data. Empty fields and
-// target are unused but provided for code compatibility. Type is simply the
-// texture type (GL_RGB, GL_RGB8 ect...)
-int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY,
-                 int empty2, int param, const void *texture)
+int glTexImageNtr2D(GL_TEXTURE_TYPE_ENUM type, int sizeX, int sizeY, int param,
+                    const void *texture, const void *texture_ext)
 {
-    (void)empty1;
-    (void)empty2;
-
     uint32_t size = 0;
     // Represents the number of bits per pixels for each format
     uint32_t typeSizes[9] =
@@ -2016,8 +2008,6 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                          | (tex->texFormat & 0xFFFF);
     }
 
-    glTexParameter(target, param);
-
     // If a texture has been provided, copy the texture data into VRAM.
     if ((type != GL_NOTEXTURE) && (texture != NULL))
     {
@@ -2068,12 +2058,22 @@ int glTexImage2D(int target, int empty1, GL_TEXTURE_TYPE_ENUM type, int sizeX, i
                 // The size of the ext data is half the size of the regular
                 // texture data. The minimum size is 16/2, which is a multiple
                 // of a word.
+
+                // The user may have provided the pointer to the ext data. If
+                // the pointer isn't provided, assume it goes right after the
+                // regular texture data.
+                if (texture_ext == NULL)
+                    texture_ext = (const char *)texture + tex->texSize;
+
                 memcpy(vramBlock_getAddr(glGlob.vramBlocksTex, tex->texIndexExt),
-                       (const char *)texture + tex->texSize, size / 2);
+                       texture_ext, size / 2);
             }
         }
         vramRestorePrimaryBanks(vramTemp);
     }
+
+    // Save the parameters of this texture and set it as the active texture.
+    glTexParameter(0, param);
 
     return 1;
 }
