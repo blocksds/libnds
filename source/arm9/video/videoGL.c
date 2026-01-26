@@ -1474,14 +1474,8 @@ int glBindTexture(int target, int name)
 
 // Load a 15-bit color format palette into palette memory, and set it to the
 // currently bound texture.
-int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empty3,
-                    const void *table)
+int glColorTableNtr(size_t num_colors, const void *table)
 {
-    (void)target;
-    (void)empty1;
-    (void)empty2;
-    (void)empty3;
-
     // We can only load a palette if there is an active texture
     if (!glGlob.activeTexture)
         return 0;
@@ -1493,21 +1487,21 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
 
     // Exit if color count is 0 (helpful in emptying the palette for the active texture).
     // This isn't considered an error.
-    if (width == 0)
+    if (num_colors == 0)
         return 1;
 
     // Allocate new palette block based on the texture's format
     uint32_t colFormat = (texture->texFormat >> 26) & 0x7;
 
     uint32_t colFormatVal =
-        ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && width <= 4)) ? 3 : 4);
+        ((colFormat == GL_RGB4 || (colFormat == GL_NOTEXTURE && num_colors <= 4)) ? 3 : 4);
     uint8_t *checkAddr = vramBlock_examineSpecial(glGlob.vramBlocksPal,
-        (uint8_t *)VRAM_E, width << 1, colFormatVal);
+        (uint8_t *)VRAM_E, num_colors << 1, colFormatVal);
 
     if (checkAddr == NULL)
     {
         // Failed to find enough space for the palette
-        sassert(texture->palIndex == 0, "glColorTableEXT didn't clear palette");
+        sassert(texture->palIndex == 0, "Failed to clear palette");
         GFX_PAL_FORMAT = glGlob.activePalette = 0;
         return 0;
     }
@@ -1566,14 +1560,14 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     }
 
     // Lock the free space we have found
-    palette->palIndex = vramBlock_allocateSpecial(glGlob.vramBlocksPal, checkAddr, width << 1);
+    palette->palIndex = vramBlock_allocateSpecial(glGlob.vramBlocksPal, checkAddr, num_colors << 1);
     sassert(palette->palIndex != 0, "Failed to lock free palette VRAM");
 
     palette->vramAddr = checkAddr;
     palette->addr = addr;
 
     palette->connectCount = 1;
-    palette->palSize = width << 1;
+    palette->palSize = num_colors << 1;
 
     GFX_PAL_FORMAT = palette->addr;
     glGlob.activePalette = texture->palIndex;
@@ -1586,7 +1580,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     // Copy straight to VRAM, and assign a palette name
     uint32_t tempVRAM = VRAM_EFG_CR;
     uint16_t *startBank = vramGetBank((uint16_t *)palette->vramAddr);
-    uint16_t *endBank = vramGetBank((uint16_t *)((char *)palette->vramAddr + (width << 1) - 1));
+    uint16_t *endBank = vramGetBank((uint16_t *)((char *)palette->vramAddr + (num_colors << 1) - 1));
 
     // Only set to LCD mode the banks that we need to modify, not all of them.
     // Some of them may be used for purposes other than texture palettes.
@@ -1610,7 +1604,7 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
     }
     while (startBank <= endBank);
 
-    memcpy(palette->vramAddr, table, width * 2);
+    memcpy(palette->vramAddr, table, num_colors * 2);
     vramRestoreBanks_EFG(tempVRAM);
 
     return 1;
@@ -1618,13 +1612,8 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2, int empt
 
 // Load a 15-bit color format palette into a specific spot in a currently bound
 // texture's existing palette.
-int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
-                       const void *data)
+int glColorSubTableNtr(int start, int count, const void *data)
 {
-    (void)target;
-    (void)empty1;
-    (void)empty2;
-
     if (count <= 0)
         return 0;
 
@@ -1647,12 +1636,8 @@ int glColorSubTableEXT(int target, int start, int count, int empty1, int empty2,
 
 // Retrieve a 15-bit color format palette from the palette memory of the
 // currently bound texture.
-int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
+int glGetColorTableNtr(void *table)
 {
-    (void)target;
-    (void)empty1;
-    (void)empty2;
-
     if (!glGlob.activePalette)
         return 0;
 

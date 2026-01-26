@@ -564,11 +564,32 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 ///
 /// It can also remove palettes.
 ///
+/// @param num_colors
+///     The length of the palette in colors (if 0, the palette is removed from
+///     currently bound texture).
+/// @param table
+///     Pointer to the palette data to load. If this is NULL, the palette will
+///     be allocated but no data will be copied to it.
+///
+/// @return
+///     1 on success, 0 on failure.
+int glColorTableNtr(size_t num_colors, const void *table);
+
+/// Loads a 15-bit color palette into palette memory, and sets it to the
+/// currently bound texture.
+///
+/// It can also remove palettes.
+///
+/// @note
+///    glColorTableNtr() is preferred. It does the same thing as
+///    glColorTableEXT() but with a simpler function signature without ignored
+///    arguments.
+///
 /// @param target
 ///     Ignored, only here for OpenGL compatibility.
 /// @param empty1
 ///     Ignored, only here for OpenGL compatibility.
-/// @param width
+/// @param num_colors
 ///     The length of the palette in colors (if 0, the palette is removed from
 ///     currently bound texture).
 /// @param empty2
@@ -581,11 +602,42 @@ static inline enum GL_TEXTURE_SIZE_ENUM glTexSizeToEnum(int size)
 ///
 /// @return
 ///     1 on success, 0 on failure.
-int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
-                    int empty3, const void *table);
+static inline
+int glColorTableEXT(int target, int empty1, size_t num_colors, int empty2,
+                    int empty3, const void *table)
+{
+    // glColorTableEXT() is 'static inline' so that the compiler can optimize
+    // out its unused arguments.
+
+    (void)target;
+    (void)empty1;
+    (void)empty2;
+    (void)empty3;
+
+    return glColorTableNtr(num_colors, table);
+}
 
 /// Loads a 15-bit color format palette into a specific spot in a currently
 /// bound texture's existing palette.
+///
+/// @param start
+///     The starting index that new palette data will be written to.
+/// @param count
+///     The number of entries to write.
+/// @param data
+///     Pointer to the palette data to load.
+///
+/// @return
+///     1 on success, 0 on failure.
+int glColorSubTableNtr(int start, int count, const void *data);
+
+/// Loads a 15-bit color format palette into a specific spot in a currently
+/// bound texture's existing palette.
+///
+/// @note
+///    glColorSubTableNtr() is preferred. It does the same thing as
+///    glColorSubTableEXT() but with a simpler function signature without
+///    ignored arguments.
 ///
 /// @param target
 ///     Ignored, only here for OpenGL compatibility.
@@ -602,11 +654,37 @@ int glColorTableEXT(int target, int empty1, uint16_t width, int empty2,
 ///
 /// @return
 ///     1 on success, 0 on failure.
+static inline
 int glColorSubTableEXT(int target, int start, int count, int empty1,
-                       int empty2, const void *data);
+                       int empty2, const void *data)
+{
+    // glColorSubTableEXT() is 'static inline' so that the compiler can optimize
+    // out its unused arguments.
+
+    (void)target;
+    (void)empty1;
+    (void)empty2;
+
+    return glColorSubTableNtr(start, count, data);
+}
 
 /// Retrieves a 15-bit color format palette from the palette memory of the
 /// currently bound texture.
+///
+/// @param table
+///     Pointer where palette data will be written to.
+///
+/// @return
+///     1 on success, 0 on failure.
+int glGetColorTableNtr(void *table);
+
+/// Retrieves a 15-bit color format palette from the palette memory of the
+/// currently bound texture.
+///
+/// @note
+///    glGetColorTableNtr() is preferred. It does the same thing as
+///    glGetColorTableEXT() but with a simpler function signature without
+///    ignored arguments.
 ///
 /// @param target
 ///     Ignored, only here for OpenGL compatibility.
@@ -619,7 +697,18 @@ int glColorSubTableEXT(int target, int start, int count, int empty1,
 ///
 /// @return
 ///     1 on success, 0 on failure.
-int glGetColorTableEXT(int target, int empty1, int empty2, void *table);
+static inline
+int glGetColorTableEXT(int target, int empty1, int empty2, void *table)
+{
+    // glGetColorTableEXT() is 'static inline' so that the compiler can optimize
+    // out its unused arguments.
+
+    (void)target;
+    (void)empty1;
+    (void)empty2;
+
+    return glGetColorTableNtr(table);
+}
 
 /// glAssignColorTable sets the active texture with a palette set with another
 /// texture.
