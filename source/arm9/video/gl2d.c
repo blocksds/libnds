@@ -676,7 +676,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
     glGenTextures(1, &textureID);
     glBindTexture(0, textureID);
 
-    if (glTexImage2D(0, 0, type, sizeX, sizeY, 0, param, texture) == 0)
+    if (glTexImageNtr2D(type, sizeX, sizeY, param, texture, NULL) == 0)
         return -1;
 
     bool needs_palette = !((type == GL_RGBA) || (type == GL_RGB));
@@ -691,7 +691,7 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
         if (!needs_palette)
             return -3;
 
-        if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
+        if (glColorTableNtr(palette_width, palette) == 0)
             return -4;
     }
 
@@ -719,7 +719,7 @@ int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int 
     glGenTextures(1, &textureID);
     glBindTexture(0, textureID);
 
-    if (glTexImage2D(0, 0, type, sizeX, sizeY, 0, param, texture) == 0)
+    if (glTexImageNtr2D(type, sizeX, sizeY, param, texture, NULL) == 0)
         return -1;
 
     bool needs_palette = !((type == GL_RGBA) || (type == GL_RGB));
@@ -734,7 +734,7 @@ int glLoadTileSet(glImage *sprite, int tile_wid, int tile_hei, int bmp_wid, int 
         if (!needs_palette)
             return -3;
 
-        if (glColorTableEXT(0, 0, palette_width, 0, 0, palette) == 0)
+        if (glColorTableNtr(palette_width, palette) == 0)
             return -4;
     }
 

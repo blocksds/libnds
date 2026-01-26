@@ -363,15 +363,15 @@ void glSpriteOnQuad(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 /// @param texcoords
 ///     Texture Packer auto-generated array of UV coords.
 /// @param type
-///     The format of the texture (see glTexImage2D()).
+///     The format of the texture (see glTexImageNtr2D()).
 /// @param sizeX
 ///     The horizontal size of the texture; valid sizes are enumerated in
-///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+///     GL_TEXTURE_TYPE_ENUM (see glTexImageNtr2D()).
 /// @param sizeY
 ///     The vertical size of the texture; valid sizes are enumerated in
-///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+///     GL_TEXTURE_TYPE_ENUM (see glTexImageNtr2D()).
 /// @param param
-///     Parameters for the texture (see glTexImage2D()).
+///     Parameters for the texture (see glTexImageNtr2D()).
 /// @param palette_width
 ///     Length of the palette. Valid values are 4, 16, 32, 256 (if 0, the
 ///     palette is removed from the currently bound texture).
@@ -404,15 +404,15 @@ int glLoadSpriteSet(glImage *sprite, const unsigned int numframes,
 /// @param bmp_hei
 ///     height of of the texture or tileset.
 /// @param type
-///     The format of the texture (see glTexImage2D()).
+///     The format of the texture (see glTexImageNtr2D()).
 /// @param sizeX
 ///     The horizontal size of the texture; valid sizes are enumerated in
-///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+///     GL_TEXTURE_TYPE_ENUM (see glTexImageNtr2D()).
 /// @param sizeY
 ///     The vertical size of the texture; valid sizes are enumerated in
-///     GL_TEXTURE_TYPE_ENUM (see glTexImage2D()).
+///     GL_TEXTURE_TYPE_ENUM (see glTexImageNtr2D()).
 /// @param param
-///     Parameters for the texture (see glTexImage2D()).
+///     Parameters for the texture (see glTexImageNtr2D()).
 /// @param palette_width
 ///     Length of the palette. Valid values are 4, 16, 32, 256 (if 0, the
 ///     palette is removed from the currently bound texture).
