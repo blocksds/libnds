@@ -166,7 +166,7 @@ extern "C" {
 ///     Non zero if busy, 0 if channel is free.
 static inline int ndmaBusy(uint8_t channel)
 {
-    return (NDMA_CR(channel) & NDMA_BUSY) >> 31;
+    return (REG_NDMA_CR(channel) & NDMA_BUSY) >> 31;
 }
 
 #ifdef __cplusplus

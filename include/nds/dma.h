@@ -165,7 +165,7 @@ static inline void dmaCopyWords(uint8_t channel, const void *src, void *dest,
                                 uint32_t size)
 {
     dmaSetParams(channel, src, dest, DMA_COPY_WORDS | (size >> 2));
-    while (DMA_CR(channel) & DMA_BUSY);
+    while (REG_DMA_CR(channel) & DMA_BUSY);
 }
 
 /// Copies from source to destination on one of the 4 available channels in half
@@ -184,7 +184,7 @@ static inline void dmaCopyHalfWords(uint8_t channel, const void *src, void *dest
                                     uint32_t size)
 {
     dmaSetParams(channel, src, dest, DMA_COPY_HALFWORDS | (size >> 1));
-    while (DMA_CR(channel) & DMA_BUSY);
+    while (REG_DMA_CR(channel) & DMA_BUSY);
 }
 
 /// Copies from source to destination using channel 3 of DMA available channels
@@ -201,7 +201,7 @@ static inline void dmaCopy(const void *source, void *dest, uint32_t size)
 {
 
     dmaSetParams(3, source, dest, DMA_COPY_HALFWORDS | (size >> 1));
-    while (DMA_CR(3) & DMA_BUSY);
+    while (REG_DMA_CR(3) & DMA_BUSY);
 }
 
 /// Copies from source to destination on one of the 4 available channels in
@@ -277,11 +277,11 @@ static inline void dmaFillWords(u32 value, void *dest, uint32_t size)
     (*(vu32 *)0x027FFE04) = value;
     src = (const void *)0x027FFE04;
 #else
-    DMA_FILL(3) = value;
-    src = (const void *)(uintptr_t)&DMA_FILL(3);
+    REG_DMA_FILL(3) = value;
+    src = (const void *)(uintptr_t)&REG_DMA_FILL(3);
 #endif
     dmaSetParams(3, src, dest, DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2));
-    while (DMA_CR(3) & DMA_BUSY);
+    while (REG_DMA_CR(3) & DMA_BUSY);
 }
 
 /// Fills the source with the supplied value using DMA channel 3.
@@ -300,11 +300,11 @@ static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
     (*(vu32 *)0x027FFE04) = value;
     src = (const void *)0x027FFE04;
 #else
-    DMA_FILL(3) = value;
-    src = (const void *)(uintptr_t)&DMA_FILL(3);
+    REG_DMA_FILL(3) = value;
+    src = (const void *)(uintptr_t)&REG_DMA_FILL(3);
 #endif
     dmaSetParams(3, src, dest, DMA_SRC_FIX | DMA_COPY_HALFWORDS | (size >> 1));
-    while (DMA_CR(3) & DMA_BUSY);
+    while (REG_DMA_CR(3) & DMA_BUSY);
 }
 
 /// Determines if the specified channel is busy.
@@ -316,7 +316,7 @@ static inline void dmaFillHalfWords(u16 value, void *dest, uint32_t size)
 ///     Non zero if busy, 0 if channel is free.
 static inline int dmaBusy(uint8_t channel)
 {
-    return (DMA_CR(channel) & DMA_BUSY) >> 31;
+    return (REG_DMA_CR(channel) & DMA_BUSY) >> 31;
 }
 
 #ifdef __cplusplus

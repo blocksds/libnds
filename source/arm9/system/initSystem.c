@@ -34,8 +34,8 @@ void __attribute__((weak)) initSystem(void)
     for (int i = 0; i < 4; i++)
     {
         dmaStopSafe(i);
-        DMA_SRC(i) = 0;
-        DMA_DEST(i) = 0;
+        REG_DMA_SRC(i) = 0;
+        REG_DMA_DEST(i) = 0;
         TIMER_CR(i) = 0;
         TIMER_DATA(i) = 0;
     }

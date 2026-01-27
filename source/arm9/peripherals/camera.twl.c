@@ -163,13 +163,13 @@ static void cameraStartDMA(u16 *buffer, u8 captureMode, u8 ndmaId)
 {
     bool preview = (captureMode == MCUREG_APT_SEQ_CMD_PREVIEW);
 
-    NDMA_SRC(ndmaId) = (u32)&REG_CAM_DATA;
-    NDMA_DEST(ndmaId) = (u32)buffer;
-    NDMA_LENGTH(ndmaId) = (preview ? (256 * 192) : (640 * 480)) >> 1;
-    NDMA_BLENGTH(ndmaId) = preview ? 512 : 320;
-    NDMA_BDELAY(ndmaId) = 2;
-    NDMA_CR(ndmaId) =
-        NDMA_SRC_FIX | NDMA_BLOCK_SCALER(4) | NDMA_START_CAMERA | NDMA_ENABLE;
+    REG_NDMA_SRC(ndmaId) = (u32)&REG_CAM_DATA;
+    REG_NDMA_DEST(ndmaId) = (u32)buffer;
+    REG_NDMA_LENGTH(ndmaId) = (preview ? (256 * 192) : (640 * 480)) >> 1;
+    REG_NDMA_BLENGTH(ndmaId) = preview ? 512 : 320;
+    REG_NDMA_BDELAY(ndmaId) = 2;
+    REG_NDMA_CR(ndmaId) = NDMA_SRC_FIX | NDMA_BLOCK_SCALER(4)
+                        | NDMA_START_CAMERA | NDMA_ENABLE;
 }
 
 bool cameraStartTransferTWL(u16 *buffer, u8 captureMode, u8 ndmaId)
