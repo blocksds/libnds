@@ -33,7 +33,7 @@ void __attribute__((weak)) initSystem(void)
     // Stop timers and dma
     for (int i = 0; i < 4; i++)
     {
-        DMA_CR(i) = 0;
+        dmaStopSafe(i);
         DMA_SRC(i) = 0;
         DMA_DEST(i) = 0;
         TIMER_CR(i) = 0;
