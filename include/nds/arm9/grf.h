@@ -38,9 +38,14 @@ typedef struct
     uint16_t palAttr;  ///< Number of colors of the palette. 0 if not present.
     uint8_t  tileWidth, tileHeight; ///< Size of tiles in pixels
     uint8_t  metaWidth, metaHeight; ///< Size of metamap in tiles
-    uint16_t unused; ///< Currently unused
+    uint16_t flags;                 ///< File settings. Check GRFFlags.
     uint32_t gfxWidth, gfxHeight;   ///< Size of graphics in pixels
 } GRFHeader;
+
+/// Flags that can be set in the GRF header.
+typedef enum {
+    GRF_FLAG_COLOR0_TRANSPARENT = 1 << 0, ///< Color 0 is transparent (for textures)
+} GRFFlags;
 
 /// Special values for the GFX attribute field for NDS textures.
 typedef enum
