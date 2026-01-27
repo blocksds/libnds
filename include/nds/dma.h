@@ -36,28 +36,28 @@ extern "C" {
 
 #include <nds/ndstypes.h>
 
-#define DMA0_SRC        (*(vuint32 *)0x040000B0)
-#define DMA0_DEST       (*(vuint32 *)0x040000B4)
-#define DMA0_CR         (*(vuint32 *)0x040000B8)
+#define REG_DMA0_SRC    (*(vuint32 *)0x040000B0)
+#define REG_DMA0_DEST   (*(vuint32 *)0x040000B4)
+#define REG_DMA0_CR     (*(vuint32 *)0x040000B8)
 
-#define DMA1_SRC        (*(vuint32 *)0x040000BC)
-#define DMA1_DEST       (*(vuint32 *)0x040000C0)
-#define DMA1_CR         (*(vuint32 *)0x040000C4)
+#define REG_DMA1_SRC    (*(vuint32 *)0x040000BC)
+#define REG_DMA1_DEST   (*(vuint32 *)0x040000C0)
+#define REG_DMA1_CR     (*(vuint32 *)0x040000C4)
 
-#define DMA2_SRC        (*(vuint32 *)0x040000C8)
-#define DMA2_DEST       (*(vuint32 *)0x040000CC)
-#define DMA2_CR         (*(vuint32 *)0x040000D0)
+#define REG_DMA2_SRC    (*(vuint32 *)0x040000C8)
+#define REG_DMA2_DEST   (*(vuint32 *)0x040000CC)
+#define REG_DMA2_CR     (*(vuint32 *)0x040000D0)
 
-#define DMA3_SRC        (*(vuint32 *)0x040000D4)
-#define DMA3_DEST       (*(vuint32 *)0x040000D8)
-#define DMA3_CR         (*(vuint32 *)0x040000DC)
+#define REG_DMA3_SRC    (*(vuint32 *)0x040000D4)
+#define REG_DMA3_DEST   (*(vuint32 *)0x040000D8)
+#define REG_DMA3_CR     (*(vuint32 *)0x040000DC)
 
-#define DMA_SRC(n)      (*(vuint32 *)(0x040000B0 + ((n) * 12)))
-#define DMA_DEST(n)     (*(vuint32 *)(0x040000B4 + ((n) * 12)))
-#define DMA_CR(n)       (*(vuint32 *)(0x040000B8 + ((n) * 12)))
+#define REG_DMA_SRC(n)  (*(vuint32 *)(0x040000B0 + ((n) * 12)))
+#define REG_DMA_DEST(n) (*(vuint32 *)(0x040000B4 + ((n) * 12)))
+#define REG_DMA_CR(n)   (*(vuint32 *)(0x040000B8 + ((n) * 12)))
 
 #ifdef ARM9
-#    define DMA_FILL(n) (*(vuint32 *)(0x040000E0 + ((n) * 4)))
+#    define REG_DMA_FILL(n) (*(vuint32 *)(0x040000E0 + ((n) * 4)))
 #endif
 
 // DMA control register contents.
@@ -104,6 +104,32 @@ extern "C" {
 #define DMA_COPY_WORDS      (DMA_ENABLE | DMA_32_BIT | DMA_START_NOW)
 #define DMA_COPY_HALFWORDS  (DMA_ENABLE | DMA_16_BIT | DMA_START_NOW)
 #define DMA_FIFO            (DMA_ENABLE | DMA_32_BIT | DMA_DST_FIX | DMA_START_FIFO)
+
+// Outdated defines for backwards compatibility
+
+#define DMA0_SRC        REG_DMA0_SRC
+#define DMA0_DST        REG_DMA0_DEST
+#define DMA0_CR         REG_DMA0_CR
+
+#define DMA1_SRC        REG_DMA1_SRC
+#define DMA1_DEST       REG_DMA1_DEST
+#define DMA1_CR         REG_DMA1_CR
+
+#define DMA2_SRC        REG_DMA2_SRC
+#define DMA2_DEST       REG_DMA2_DEST
+#define DMA2_CR         REG_DMA2_CR
+
+#define DMA3_SRC        REG_DMA3_SRC
+#define DMA3_DEST       REG_DMA3_DEST
+#define DMA3_CR         REG_DMA3_CR
+
+#define DMA_SRC(n)      REG_DMA_SRC(n)
+#define DMA_DEST(n)     REG_DMA_DEST(n)
+#define DMA_CR(n)       REG_DMA_CR(n)
+
+#ifdef ARM9
+#    define DMA_FILL(n) REG_DMA_FILL(n)
+#endif
 
 /// Starts a DMA transfer safely from ITCM.
 ///
