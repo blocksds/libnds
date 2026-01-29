@@ -40,12 +40,15 @@ typedef struct
     uint8_t  metaWidth, metaHeight; ///< Size of metamap in tiles
     uint16_t flags;                 ///< File settings. Check GRFFlags.
     uint32_t gfxWidth, gfxHeight;   ///< Size of graphics in pixels
-} GRFHeader;
+}
+GRFHeader;
 
 /// Flags that can be set in the GRF header.
-typedef enum {
+typedef enum
+{
     GRF_FLAG_COLOR0_TRANSPARENT = 1 << 0, ///< Color 0 is transparent (for textures)
-} GRFFlags;
+}
+GRFFlags;
 
 /// Special values for the GFX attribute field for NDS textures.
 typedef enum
@@ -53,17 +56,26 @@ typedef enum
     GRF_TEXFMT_A5I3 = 128,
     GRF_TEXFMT_A3I5 = 129,
     GRF_TEXFMT_4x4  = 130,
-} GRFTextureTypes;
+}
+GRFTextureTypes;
 
 /// Special values for the MAP attribute field that define background types.
 typedef enum
 {
-    GRF_BGFMT_NO_DATA        = 0, ///< No map data present
-    GRF_BGFMT_REG_16x16      = 1, ///< Regular, 16 palettes of 16 colors
-    GRF_BGFMT_REG_256x1      = 2, ///< Regular, 1 palette of 256 colors
-    GRF_BGFMT_AFF_256x1      = 3, ///< Affine, 1 palette of 256 colors
-    GRF_BGFMT_AFF_EXT_256x16 = 4, ///< Extended affine, 16 palettes of 256 colors
-} GRFMapType;
+    GRF_BGFMT_NO_DATA       = 0, ///< No map data present
+    GRF_BGFMT_SBB_4BPP      = 1, ///< SBB layout, 16-bit entries, 16-color palettes
+    GRF_BGFMT_SBB_8BPP      = 2, ///< SBB layout, 16-bit entries, 256-color palettes
+    GRF_BGFMT_AFF_8BPP      = 3, ///< Affine layout, 8-bit entries, 256-color palette
+    GRF_BGFMT_FLAT_8BPP     = 4, ///< Flat layout, 16-bit entries, 256-color palettes
+    GRF_BGFMT_FLAT_4BPP     = 5, ///< Flat layout, 16-bit entries, 16-color palettes
+
+    // Deprecated defines
+    GRF_BGFMT_REG_16x16      = 1, // Regular, 16 palettes of 16 colors
+    GRF_BGFMT_REG_256x1      = 2, // Regular, 1 palette of 256 colors
+    GRF_BGFMT_AFF_256x1      = 3, // Affine, 1 palette of 256 colors
+    GRF_BGFMT_AFF_EXT_256x16 = 4, // Extended affine, 16 palettes of 256 colors
+}
+GRFMapType;
 
 /// Possible errors that can happen while reading GRF files.
 typedef enum
@@ -78,7 +90,8 @@ typedef enum
     GRF_INCONSISTENT_SIZES      = -7, ///< The size of a chunk is invalid
     GRF_NOT_ENOUGH_MEMORY       = -8, ///< Not enough memory for malloc()
     GRF_UNKNOWN_COMPRESSION     = -9, ///< Unknown graphics compression format
-} GRFError;
+}
+GRFError;
 
 /// From a GRF file in RAM, extract all data and allocate memory for it.
 ///
