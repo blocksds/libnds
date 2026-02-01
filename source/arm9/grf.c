@@ -106,18 +106,12 @@ GRFError grfLoadMemEx(const void *src, GRFHeader *header,
 
     uint32_t riff_size = riff_chunk->size;
 
-    const RIFFChunk *grf_chunk = (const RIFFChunk *)&(riff_chunk->data[0]);
+    u32 grf_chunk_id = *(const u32 *)&(riff_chunk->data[0]);
 
-    if (grf_chunk->id != ID_GRF)
+    if (grf_chunk_id != ID_GRF)
         return GRF_INVALID_ID_GRF;
 
-    uint32_t grf_size = grf_chunk->size;
-
-    // Ensure that both sizes are consistent
-    if (riff_size != grf_size + 8)
-        return GRF_INCONSISTENT_SIZES;
-
-    uintptr_t ptr = (uintptr_t)&(grf_chunk->data[0]);
+    uintptr_t ptr = (uintptr_t)&(riff_chunk->data[4]);
     uintptr_t end = (uintptr_t)src + riff_size + 8;
 
     while (ptr < end)
