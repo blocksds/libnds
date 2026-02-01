@@ -503,7 +503,10 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 #define REG_DISPCNT             (*(vu32 *)0x04000000)
 #define REG_DISPCNT_SUB         (*(vu32 *)0x04001000)
 
-#define ENABLE_3D               (1 << 3)
+#define DISPLAY_VIDEO_MODE(n)   (n)
+
+#define ENABLE_3D               (1 << 3) // Main engine
+
 #define DISPLAY_ENABLE_SHIFT    8
 #define DISPLAY_BG0_ACTIVE      (1 << 8)
 #define DISPLAY_BG1_ACTIVE      (1 << 9)
@@ -514,9 +517,14 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 #define DISPLAY_WIN1_ON         (1 << 14)
 #define DISPLAY_SPR_WIN_ON      (1 << 15)
 
-/// @enum VideoMode
-///
-/// @brief The allowed video modes of the 2D processors.
+#define DISPLAY_MODE_OFF        (0 << 16)
+#define DISPLAY_MODE_NORMAL     (1 << 16)
+#define DISPLAY_MODE_FB         (2 << 16) // Main engine. Use VRAM bank as framebuffer.
+#define DISPLAY_MODE_FIFO       (3 << 16) // Main engine. DMA transfer from main RAM.
+
+#define DISPLAY_FB_BANK(n)     ((n) << 18) // Main engine.
+
+/// The allowed video modes of the 2D processors.
 ///
 ///     Main 2D engine
 ///     ______________________________
@@ -540,33 +548,37 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 ///     |  4  |  T  |  T  |  R  |  E |
 ///     |  5  |  T  |  T  |  E  |  E |
 ///     ------------------------------
-
 typedef enum
 {
-    MODE_0_2D = 0x10000, ///< Video mode 0
-    MODE_1_2D = 0x10001, ///< Video mode 1
-    MODE_2_2D = 0x10002, ///< Video mode 2
-    MODE_3_2D = 0x10003, ///< Video mode 3
-    MODE_4_2D = 0x10004, ///< Video mode 4
-    MODE_5_2D = 0x10005, ///< Video mode 5
-    MODE_6_2D = 0x10006, ///< Video mode 6 (main engine)
-    MODE_0_3D = (0x10000 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 0 with 3D (main engine)
-    MODE_1_3D = (0x10001 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 1 with 3D (main engine)
-    MODE_2_3D = (0x10002 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 2 with 3D (main engine)
-    MODE_3_3D = (0x10003 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 3 with 3D (main engine)
-    MODE_4_3D = (0x10004 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 4 with 3D (main engine)
-    MODE_5_3D = (0x10005 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 5 with 3D (main engine)
-    MODE_6_3D = (0x10006 | DISPLAY_BG0_ACTIVE | ENABLE_3D), ///< Video mode 6 with 3D (main engine)
+    MODE_0_2D = DISPLAY_VIDEO_MODE(0) | DISPLAY_MODE_NORMAL, ///< Video mode 0
+    MODE_1_2D = DISPLAY_VIDEO_MODE(1) | DISPLAY_MODE_NORMAL, ///< Video mode 1
+    MODE_2_2D = DISPLAY_VIDEO_MODE(2) | DISPLAY_MODE_NORMAL, ///< Video mode 2
+    MODE_3_2D = DISPLAY_VIDEO_MODE(3) | DISPLAY_MODE_NORMAL, ///< Video mode 3
+    MODE_4_2D = DISPLAY_VIDEO_MODE(4) | DISPLAY_MODE_NORMAL, ///< Video mode 4
+    MODE_5_2D = DISPLAY_VIDEO_MODE(5) | DISPLAY_MODE_NORMAL, ///< Video mode 5
+    MODE_6_2D = DISPLAY_VIDEO_MODE(6) | DISPLAY_MODE_NORMAL, ///< Video mode 6 (main engine)
 
-    MODE_FIFO = (3 << 16),    ///< Video display from main memory
+    MODE_0_3D = MODE_0_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 0 with 3D (main engine)
+    MODE_1_3D = MODE_1_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 1 with 3D (main engine)
+    MODE_2_3D = MODE_2_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 2 with 3D (main engine)
+    MODE_3_3D = MODE_3_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 3 with 3D (main engine)
+    MODE_4_3D = MODE_5_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 4 with 3D (main engine)
+    MODE_5_3D = MODE_5_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 5 with 3D (main engine)
+    MODE_6_3D = MODE_6_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 6 with 3D (main engine)
 
-    MODE_FB0  = (0x00020000), ///< Video display directly from VRAM_A in LCD mode
-    MODE_FB1  = (0x00060000), ///< Video display directly from VRAM_B in LCD mode
-    MODE_FB2  = (0x000A0000), ///< Video display directly from VRAM_C in LCD mode
-    MODE_FB3  = (0x000E0000)  ///< Video display directly from VRAM_D in LCD mode
-} VideoMode;
+    /// Video display from main memory (main engine)
+    MODE_FIFO = DISPLAY_MODE_FIFO,
 
-// Main display only
+    /// Video display directly from VRAM_A in LCD mode (main engine)
+    MODE_FB0 = DISPLAY_FB_BANK(0) | DISPLAY_MODE_FB,
+    /// Video display directly from VRAM_B in LCD mode (main engine)
+    MODE_FB1 = DISPLAY_FB_BANK(1) | DISPLAY_MODE_FB,
+    /// Video display directly from VRAM_C in LCD mode (main engine)
+    MODE_FB2 = DISPLAY_FB_BANK(2) | DISPLAY_MODE_FB,
+    /// Video display directly from VRAM_D in LCD mode (main engine)
+    MODE_FB3 = DISPLAY_FB_BANK(3) | DISPLAY_MODE_FB
+}
+VideoMode;
 
 #define DISPLAY_SPR_HBLANK          (1 << 23)
 
@@ -582,8 +594,8 @@ typedef enum
 #define DISPLAY_SPR_1D_SIZE_64      (1 << 20)
 #define DISPLAY_SPR_1D_SIZE_128     (2 << 20)
 #define DISPLAY_SPR_1D_SIZE_256     (3 << 20)
-#define DISPLAY_SPR_1D_BMP_SIZE_128 (0 << 22)
-#define DISPLAY_SPR_1D_BMP_SIZE_256 (1 << 22)
+#define DISPLAY_SPR_1D_BMP_SIZE_128 (0 << 22) // Main engine
+#define DISPLAY_SPR_1D_BMP_SIZE_256 (1 << 22) // Main engine
 
 // Mask to clear all attributes related to sprites from display control
 #define DISPLAY_SPRITE_ATTR_MASK    ((7u << 4) | (7u << 20) | (1u << 31))
@@ -591,16 +603,17 @@ typedef enum
 #define DISPLAY_SPR_EXT_PALETTE     (1u << 31)
 #define DISPLAY_BG_EXT_PALETTE      (1 << 30)
 
+// This disables the screen
 #define DISPLAY_SCREEN_OFF          (1 << 7)
 
 // The next two defines only apply to MAIN 2D engine. In tile modes, this is
 // multiplied by 64 KB and added to BG_TILE_BASE. In all bitmap modes, it is not
-// used.
+// used. Main engine.
 #define DISPLAY_CHAR_BASE(n)        (((n) & 7) << 24)
 
 // In tile modes, this is multiplied by 64KB and added to BG_MAP_BASE. In
 // bitmap modes, this is multiplied by 64KB and added to BG_BMP_BASE. In large
-// bitmap modes, this is not used.
+// bitmap modes, this is not used. Main engine.
 #define DISPLAY_SCREEN_BASE(n)      (((n) & 7) << 27)
 
 /// Sets the main 2D engine video mode.
