@@ -507,6 +507,9 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 
 #define ENABLE_3D               (1 << 3) // Main engine
 
+// This disables the screen
+#define DISPLAY_SCREEN_OFF      (1 << 7)
+
 #define DISPLAY_ENABLE_SHIFT    8
 #define DISPLAY_BG0_ACTIVE      (1 << 8)
 #define DISPLAY_BG1_ACTIVE      (1 << 9)
@@ -600,12 +603,6 @@ VideoMode;
 // Mask to clear all attributes related to sprites from display control
 #define DISPLAY_SPRITE_ATTR_MASK    ((7u << 4) | (7u << 20) | (1u << 31))
 
-#define DISPLAY_SPR_EXT_PALETTE     (1u << 31)
-#define DISPLAY_BG_EXT_PALETTE      (1 << 30)
-
-// This disables the screen
-#define DISPLAY_SCREEN_OFF          (1 << 7)
-
 // The next two defines only apply to MAIN 2D engine. In tile modes, this is
 // multiplied by 64 KB and added to BG_TILE_BASE. In all bitmap modes, it is not
 // used. Main engine.
@@ -615,6 +612,9 @@ VideoMode;
 // bitmap modes, this is multiplied by 64KB and added to BG_BMP_BASE. In large
 // bitmap modes, this is not used. Main engine.
 #define DISPLAY_SCREEN_BASE(n)      (((n) & 7) << 27)
+
+#define DISPLAY_BG_EXT_PALETTE      (1 << 30)
+#define DISPLAY_SPR_EXT_PALETTE     (1u << 31)
 
 /// Sets the main 2D engine video mode.
 ///
