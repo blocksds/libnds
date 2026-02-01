@@ -525,7 +525,7 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 #define DISPLAY_MODE_FB         (2 << 16) // Main engine. Use VRAM bank as framebuffer.
 #define DISPLAY_MODE_FIFO       (3 << 16) // Main engine. DMA transfer from main RAM.
 
-#define DISPLAY_FB_BANK(n)     ((n) << 18) // Main engine.
+#define DISPLAY_VRAM_BANK(n)     ((n) << 18) // Main engine.
 
 /// The allowed video modes of the 2D processors.
 ///
@@ -569,17 +569,23 @@ typedef enum
     MODE_5_3D = MODE_5_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 5 with 3D (main engine)
     MODE_6_3D = MODE_6_2D | DISPLAY_BG0_ACTIVE | ENABLE_3D, ///< Video mode 6 with 3D (main engine)
 
-    /// Video display from main memory (main engine)
+    /// Video display from main RAM with a DMA transfer (main engine)
     MODE_FIFO = DISPLAY_MODE_FIFO,
 
     /// Video display directly from VRAM_A in LCD mode (main engine)
-    MODE_FB0 = DISPLAY_FB_BANK(0) | DISPLAY_MODE_FB,
+    MODE_VRAM_A = DISPLAY_VRAM_BANK(0) | DISPLAY_MODE_FB,
     /// Video display directly from VRAM_B in LCD mode (main engine)
-    MODE_FB1 = DISPLAY_FB_BANK(1) | DISPLAY_MODE_FB,
+    MODE_VRAM_B = DISPLAY_VRAM_BANK(1) | DISPLAY_MODE_FB,
     /// Video display directly from VRAM_C in LCD mode (main engine)
-    MODE_FB2 = DISPLAY_FB_BANK(2) | DISPLAY_MODE_FB,
+    MODE_VRAM_C = DISPLAY_VRAM_BANK(2) | DISPLAY_MODE_FB,
     /// Video display directly from VRAM_D in LCD mode (main engine)
-    MODE_FB3 = DISPLAY_FB_BANK(3) | DISPLAY_MODE_FB
+    MODE_VRAM_D = DISPLAY_VRAM_BANK(3) | DISPLAY_MODE_FB,
+
+    // Old defines for compatibility
+    MODE_FB0 = MODE_VRAM_A,
+    MODE_FB1 = MODE_VRAM_B,
+    MODE_FB2 = MODE_VRAM_C,
+    MODE_FB3 = MODE_VRAM_D,
 }
 VideoMode;
 
