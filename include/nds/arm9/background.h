@@ -617,6 +617,15 @@ static inline void bgSetScale(int id, s32 sx, s32 sy)
 /// Sets the rotation/scale attributes for rot/ex rot backgrounds to 1:1 scale
 /// and 0 angle of rotation.
 ///
+/// @warning
+///     Your video mode must be setup correctly. For example, if you want to use
+///     a bitmap background, remember to set the video mode to a valid mode,
+///     like 5. Otherwise, bgUpdate() won't update the video registers
+///     correctly.
+///
+/// @note
+///     tileBase is unused for bitmap backgrounds.
+///
 /// @param layer
 ///     Background layer to init. Must be 0 - 3.
 /// @param type
@@ -631,9 +640,6 @@ static inline void bgSetScale(int id, s32 sx, s32 sy)
 ///
 /// @return
 ///     The background ID to be used in the supporting functions.
-///
-/// @note
-///     tileBase is unused for bitmap backgrounds
 static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int tileBase)
 {
     sassert(layer >= 0 && layer <= 3, "Only layers 0 - 3 are supported");
@@ -662,6 +668,15 @@ static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int t
 /// Sets the rotation/scale attributes for rot/ex rot backgrounds to 1:1 scale
 /// and 0 angle of rotation.
 ///
+/// @warning
+///     Your video mode must be setup correctly. For example, if you want to use
+///     a bitmap background, remember to set the video mode to a valid mode,
+///     like 5. Otherwise, bgUpdate() won't update the video registers
+///     correctly.
+///
+/// @note
+///     tileBase is unused for bitmap backgrounds.
+///
 /// @param layer
 ///     Background hardware layer to init. Must be 0 - 3.
 /// @param type
@@ -677,9 +692,6 @@ static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int t
 ///
 /// @return
 ///     The background ID to be used in the supporting functions.
-///
-/// @note
-///     tileBase is unused for bitmap backgrounds.
 static inline int bgInitSub(int layer, BgType type, BgSize size, int mapBase,
                             int tileBase)
 {
