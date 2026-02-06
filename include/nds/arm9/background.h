@@ -97,27 +97,27 @@ extern "C" {
 /// Register overlay for scroll registers
 typedef struct bg_scroll
 {
-    u16 x; ///< X scroll
-    u16 y; ///< Y scroll
+    vu16 x; ///< X scroll
+    vu16 y; ///< Y scroll
 }
 bg_scroll;
 
 /// Register overlay for affine matrix registers
 typedef struct bg_transform
 {
-    s16 hdx; ///< The change in x per horizontal pixel
-    s16 vdx; ///< The change in x per vertical pixel
-    s16 hdy; ///< The change in y per horizontal pixel
-    s16 vdy; ///< The change in x per vertical pixel
-    s32 dx;  ///< Map x value which corresponds to the screen origin
-    s32 dy;  ///< Map y value which corresponds to the screen origin
+    vs16 hdx; ///< The change in x per horizontal pixel
+    vs16 vdx; ///< The change in x per vertical pixel
+    vs16 hdy; ///< The change in y per horizontal pixel
+    vs16 vdy; ///< The change in x per vertical pixel
+    vs32 dx;  ///< Map x value which corresponds to the screen origin
+    vs32 dy;  ///< Map y value which corresponds to the screen origin
 }
 bg_transform;
 
 /// Register overlay for background attribute registers.
 typedef struct bg_attribute
 {
-    u16 control[4];             ///< Background control registers
+    vu16 control[4];            ///< Background control registers
     bg_scroll scroll[4];        ///< Background scroll registers
     bg_transform bg2_rotation;  ///< Background 2 affine matrix
     bg_transform bg3_rotation;  ///< Background 3 affine matrix
