@@ -99,7 +99,8 @@ typedef struct bg_scroll
 {
     u16 x; ///< X scroll
     u16 y; ///< Y scroll
-} bg_scroll;
+}
+bg_scroll;
 
 /// Register overlay for affine matrix registers
 typedef struct bg_transform
@@ -110,7 +111,8 @@ typedef struct bg_transform
     s16 vdy; ///< The change in x per vertical pixel
     s32 dx;  ///< Map x value which corresponds to the screen origin
     s32 dy;  ///< Map y value which corresponds to the screen origin
-} bg_transform;
+}
+bg_transform;
 
 /// Register overlay for background attribute registers.
 typedef struct bg_attribute
@@ -119,7 +121,8 @@ typedef struct bg_attribute
     bg_scroll scroll[4];        ///< Background scroll registers
     bg_transform bg2_rotation;  ///< Background 2 affine matrix
     bg_transform bg3_rotation;  ///< Background 3 affine matrix
-} bg_attribute;
+}
+bg_attribute;
 
 /// The shift to apply to map base when storing it in a background control register
 #define MAP_BASE_SHIFT      8
@@ -145,7 +148,8 @@ typedef struct bg_attribute
 typedef struct TileMapEntry8
 {
     u8 index;
-} TileMapEntry8;
+}
+TileMapEntry8;
 
 /// Overlay for 16-bit tile map entries
 typedef struct TileMapEntry16
@@ -154,7 +158,8 @@ typedef struct TileMapEntry16
     u16 hflip     : 1;
     u16 vflip     : 1;
     u16 palette   : 4;
-} PACKED TileMapEntry16;
+}
+PACKED TileMapEntry16;
 
 /// Bit defines for the background control registers
 typedef enum
@@ -199,7 +204,8 @@ typedef enum
 
     BG_COLOR_256 = 0x80, ///< 256 color text background
     BG_COLOR_16  = 0x00  ///< 16x16 color text background
-} BackgroundControl;
+}
+BackgroundControl;
 
 /// @}
 
