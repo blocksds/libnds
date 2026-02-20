@@ -609,14 +609,21 @@ VideoMode;
 // Mask to clear all attributes related to sprites from display control
 #define DISPLAY_SPRITE_ATTR_MASK    ((7u << 4) | (7u << 20) | (1u << 31))
 
-// The next two defines only apply to MAIN 2D engine. In tile modes, this is
-// multiplied by 64 KB and added to BG_TILE_BASE. In all bitmap modes, it is not
-// used. Main engine.
+/// Base of the tileset slot in main background VRAM. Main engine only.
+///
+/// The value can go from 0 to 7.
+///
+/// - Tile modes: "n" is multiplied by 64 KB and added to BG_TILE_BASE.
+/// - Bitmap modes: Unused
 #define DISPLAY_CHAR_BASE(n)        (((n) & 7) << 24)
 
-// In tile modes, this is multiplied by 64KB and added to BG_MAP_BASE. In
-// bitmap modes, this is multiplied by 64KB and added to BG_BMP_BASE. In large
-// bitmap modes, this is not used. Main engine.
+/// Base of the tilemap/bitmap slot in main background VRAM. Main engine only.
+///
+/// The value can go from 0 to 7.
+///
+/// - Tile modes: "n" is multiplied by 64 KB and added to BG_MAP_BASE.
+/// - Bitmap modes: "n" is multiplied by 64 KB and added to BG_BMP_BASE.
+/// - Large bitmap modes: Unused
 #define DISPLAY_SCREEN_BASE(n)      (((n) & 7) << 27)
 
 #define DISPLAY_BG_EXT_PALETTE      (1 << 30)
