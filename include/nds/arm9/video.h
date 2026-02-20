@@ -538,7 +538,7 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 ///     |  3  |  T  |  T  |  T  |  E |
 ///     |  4  |  T  |  T  |  R  |  E |
 ///     |  5  |  T  |  T  |  E  |  E |
-///     |  6  |     |  L  |     |    |
+///     |  6  |     |     |  L  |    |
 ///     ------------------------------
 ///
 ///     Sub 2D engine
