@@ -501,8 +501,6 @@ typedef enum
 
 // Internally used for debug assertions
 bool bgIsText(int id);
-int bgInit_call(int layer, BgType type, BgSize size, int mapBase, int tileBase);
-int bgInitSub_call(int layer, BgType type, BgSize size, int mapBase, int tileBase);
 
 /// Must be called once per frame to update scroll/scale/and rotation of
 /// backgrounds.
@@ -640,25 +638,7 @@ static inline void bgSetScale(int id, s32 sx, s32 sy)
 ///
 /// @return
 ///     The background ID to be used in the supporting functions.
-static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int tileBase)
-{
-    sassert(layer >= 0 && layer <= 3, "Only layers 0 - 3 are supported");
-    sassert(tileBase >= 0 && tileBase <= 15, "Background tile base is out of range");
-    sassert(mapBase >= 0 && mapBase <= 31, "Background Map Base is out of range");
-    sassert(layer != 0 || !video3DEnabled(),
-            "Background 0 is currently being used for 3D display");
-    sassert(layer > 1 || type == BgType_Text8bpp || type == BgType_Text4bpp,
-            "Incorrect background type for mode");
-    sassert((size != BgSize_B8_512x1024 && size != BgSize_B8_1024x512) ||
-            (videoGetMode() & 7) == 6, "Incorrect background type for mode");
-    sassert(tileBase == 0 || type < BgType_Bmp8,
-            "Tile base is unused for bitmaps. Can be offset using mapBase * 16KB");
-    sassert((mapBase == 0 || type != BgType_Bmp8) ||
-            (size != BgSize_B8_512x1024 && size != BgSize_B8_1024x512),
-            "Large Bitmaps cannot be offset");
-
-    return bgInit_call(layer, type, size, mapBase, tileBase);
-}
+int bgInit(int layer, BgType type, BgSize size, int mapBase, int tileBase);
 
 /// Initializes a background on the sub display.
 ///
@@ -692,21 +672,7 @@ static inline int bgInit(int layer, BgType type, BgSize size, int mapBase, int t
 ///
 /// @return
 ///     The background ID to be used in the supporting functions.
-static inline int bgInitSub(int layer, BgType type, BgSize size, int mapBase,
-                            int tileBase)
-{
-    sassert(layer >= 0 && layer <= 3, "Only layers 0 - 3 are supported");
-    sassert(tileBase >= 0 && tileBase <= 15, "Background tile base is out of range");
-    sassert(mapBase >= 0 && mapBase <= 31, "Background Map Base is out of range");
-    sassert(layer > 1 || type == BgType_Text8bpp || type == BgType_Text4bpp,
-            "Incorrect background type for mode");
-    sassert(tileBase == 0 || type < BgType_Bmp8,
-            "Tile base is unused for bitmaps. Can be offset using mapBase * 16KB");
-    sassert((size != BgSize_B8_512x1024 && size != BgSize_B8_1024x512),
-            "Sub Display has no large Bitmaps");
-
-    return bgInitSub_call(layer, type, size, mapBase, tileBase);
-}
+int bgInitSub(int layer, BgType type, BgSize size, int mapBase, int tileBase);
 
 /// Allows direct access to background control for the chosen layer, returns a
 /// pointer to the current control bits.

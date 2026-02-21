@@ -524,6 +524,7 @@ static inline void vramSetBankI(VRAM_I_TYPE i)
 #define DISPLAY_MODE_NORMAL     (1 << 16)
 #define DISPLAY_MODE_FB         (2 << 16) // Main engine. Use VRAM bank as framebuffer.
 #define DISPLAY_MODE_FIFO       (3 << 16) // Main engine. DMA transfer from main RAM.
+#define DISPLAY_MODE_MASK       (3 << 16)
 
 #define DISPLAY_VRAM_BANK(n)     ((n) << 18) // Main engine.
 
