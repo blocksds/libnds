@@ -11,21 +11,6 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/trig_lut.h>
 
-
-//const char* BgUsage =
-//"______________________________\n"
-//"|Mode | BG0 | BG1 | BG2 | BG3 |\n"
-//"|  0  |  T  |  T  |  T  |  T  |\n"
-//"|  1  |  T  |  T  |  T  |  R  |\n"
-//"|  2  |  T  |  T  |  R  |  R  |\n"
-//"|  3  |  T  |  T  |  T  |  E  |\n"
-//"|  4  |  T  |  T  |  R  |  E  |\n"
-//"|  5  |  T  |  T  |  E  |  E  |\n"
-//"|_____|_____|_____|_____|_____|\n"
-//"T = Text\n"
-//"R = Rotation\n"
-//"E = Extended Rotation (Bitmap or tiled)\n";
-
 // Look up tables for smoothing register access between the two displays
 vu16 *const bgControl[8] =
 {
