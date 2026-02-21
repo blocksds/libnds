@@ -351,7 +351,7 @@ static ssize_t con_write(const char *ptr, size_t len)
                         break;
                     }
                 }
-            } while (escaping);
+            } while (escaping && (i < len));
             continue;
         }
 
