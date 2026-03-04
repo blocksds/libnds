@@ -307,9 +307,9 @@ void *dlopen_FILE(FILE *f, int mode)
                 // R_ARM_TARGET1 behaves as R_ARM_ABS32 due to the linker option
                 // -Wl,--target1-abs.
                 uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
-                
+
                 dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
-                
+
                 // If the symbol is in the main binary, its address is already
                 // absolute and should not have the loaded_mem offset added.
                 // Otherwise, it's a relative address within the library and
