@@ -2,3 +2,6 @@ build
 lib
 docs
 warn.log
+.cache
+.clangd
+*.json
