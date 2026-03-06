@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023 Antonio Niño Díaz
+// Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include "filesystem_includes.h"
 
@@ -349,6 +349,17 @@ _off64_t lseek64(int fd, _off64_t offset, int whence)
     return (_off64_t)lseek(fd, (off_t)offset, whence);
 }
 
+static int fat_unlink(const char *name)
+{
+    FRESULT result = f_unlink(name);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
 int unlink(const char *name)
 {
     if (nitrofs_use_for_path(name))
@@ -357,7 +368,12 @@ int unlink(const char *name)
         return -1;
     }
 
-    FRESULT result = f_unlink(name);
+    return fat_unlink(name);
+}
+
+static int fat_rmdir(const char *name)
+{
+    FRESULT result = f_rmdir(name);
 
     if (result == FR_OK)
         return 0;
@@ -374,26 +390,11 @@ int rmdir(const char *name)
         return -1;
     }
 
-    FRESULT result = f_rmdir(name);
-
-    if (result == FR_OK)
-        return 0;
-
-    errno = fatfs_error_to_posix(result);
-    return -1;
+    return fat_rmdir(name);
 }
 
-int stat(const char *path, struct stat *st)
+static int fat_stat(const char *path, struct stat *st)
 {
-    if ((path == NULL) || (st == NULL))
-    {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if (nitrofs_use_for_path(path))
-        return nitrofs_stat(path, st);
-
     FILINFO fno = { 0 };
     FRESULT result = f_stat(path, &fno);
 
@@ -430,24 +431,25 @@ int stat(const char *path, struct stat *st)
     return 0;
 }
 
-// FatFS/NitroFS does not distinguish symbolic links.
-int lstat(const char *path, struct stat *st) __attribute__((alias("stat")));
-
-int fstat(int fd, struct stat *st)
+int stat(const char *path, struct stat *st)
 {
-    if (st == NULL)
+    if ((path == NULL) || (st == NULL))
     {
         errno = EINVAL;
         return -1;
     }
 
-    // stdin, stdout and stderr don't work with fstat()
-    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
-        return -1;
+    if (nitrofs_use_for_path(path))
+        return nitrofs_stat(path, st);
 
-    if (FD_IS_NITRO(fd))
-        return nitrofs_fstat(fd, st);
+    return fat_stat(path, st);
+}
 
+// FatFS/NitroFS does not distinguish symbolic links.
+int lstat(const char *path, struct stat *st) __attribute__((alias("stat")));
+
+static int fat_fstat(int fd, struct stat *st)
+{
     FIL *fp = FD_FAT_UNPACK(fd);
 
     // On FatFS, st_dev is either 0 (DLDI) or 1 (DSi SD),
@@ -476,16 +478,41 @@ int fstat(int fd, struct stat *st)
     return 0;
 }
 
-int isatty(int fd)
+int fstat(int fd, struct stat *st)
 {
-    if ((fd == STDIN_FILENO) || (fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
-        return 1;
+    if (st == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    // stdin, stdout and stderr don't work with fstat()
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+        return -1;
+
+    if (FD_IS_NITRO(fd))
+        return nitrofs_fstat(fd, st);
+
+    return fat_fstat(fd, st);
+}
+
+static int fat_isatty(int fd)
+{
+    (void)fd;
 
     // We could check if the file descriptor is valid, but that would force us
     // to check socket descriptors, nitrofs, etc. To make things easier, don't
     // check them. Instead of EBADF we will return ENOTTY always.
     errno = ENOTTY;
     return 0;
+}
+
+int isatty(int fd)
+{
+    if ((fd == STDIN_FILENO) || (fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
+        return 1;
+
+    return fat_isatty(fd);
 }
 
 int link(const char *old, const char *new)
