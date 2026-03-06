@@ -25,5 +25,7 @@ int fat_mkdir(const char *path, mode_t mode);
 int fat_access(const char *path, int amode);
 int fat_statvfs(const char *restrict path, struct statvfs *restrict buf);
 int fat_fstatvfs(int fd, struct statvfs *buf);
+int fat_utimes(const char *filename, const struct timeval times[2]);
+int fat_utime(const char *filename, const struct utimbuf *times);
 
 #endif // FAT_OPS_H__

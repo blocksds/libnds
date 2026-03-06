@@ -417,3 +417,31 @@ int fstatvfs(int fd, struct statvfs *buf)
 
     return fstatvfs(fd, buf);
 }
+
+int utimes(const char *filename, const struct timeval times[2])
+{
+    if (nitrofs_use_for_path(filename))
+    {
+        errno = EROFS;
+        return -1;
+    }
+
+    return fat_utimes(filename, times);
+}
+
+int lutimes(const char *filename, const struct timeval times[2])
+{
+    // FAT does not implement symbolic links; forward to utimes().
+    return utimes(filename, times);
+}
+
+int utime(const char *filename, const struct utimbuf *times)
+{
+    if (times == NULL)
+        return -1;
+
+    if (nitrofs_use_for_path(filename))
+        return -1;
+
+    return fat_utime(filename, times);
+}

@@ -541,6 +541,34 @@ int fat_fstatvfs(int fd, struct statvfs *buf)
 
 // -----------------------------------------------------------------------------
 
+int fat_utimes(const char *filename, const struct timeval times[2])
+{
+    FILINFO fno;
+
+    struct tm *modtime = localtime(&times[1].tv_sec);
+    uint32_t modstamp = fatfs_timestamp_to_fattime(modtime);
+    fno.ftime = modstamp;
+    fno.fdate = modstamp >> 16;
+
+    FRESULT result = f_utime(filename, &fno);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+int fat_utime(const char *filename, const struct utimbuf *times)
+{
+    // Forward to utimes().
+    struct timeval otimes[2];
+    otimes[1].tv_sec = times->modtime;
+    return utimes(filename, otimes);
+}
+
+// -----------------------------------------------------------------------------
+
 bool fatGetVolumeLabel(const char *name, char *label)
 {
     if (name == NULL || label == NULL)
