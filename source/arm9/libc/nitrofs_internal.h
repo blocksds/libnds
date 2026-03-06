@@ -62,7 +62,7 @@ int nitrofs_rewinddir(nitrofs_dir_state_t *state);
 int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent);
 int nitrofs_getcwd(char *buf, size_t size);
 int nitrofs_chdir(const char *path);
-int nitrofs_open(const char *path);
+int nitrofs_open(const char *path, int flags, mode_t mode);
 ssize_t nitrofs_read(int fd, void *ptr, size_t len);
 off_t nitrofs_lseek(int fd, off_t offset, int whence);
 int nitrofs_close(int fd);

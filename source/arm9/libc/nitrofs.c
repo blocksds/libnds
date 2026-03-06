@@ -536,12 +536,27 @@ FILE *nitroFSFopenById(uint16_t id, const char *mode)
     return fdopen(fd, mode);
 }
 
-int nitrofs_open(const char *name)
+int nitrofs_open(const char *name, int flags, mode_t mode_)
 {
+    (void)mode_;
+
     if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
         return -1;
+    }
+
+    switch (flags & (O_RDONLY | O_WRONLY | O_RDWR))
+    {
+        case O_RDONLY:
+            // This is the only valid option
+            break;
+        case O_WRONLY:
+        case O_RDWR:
+            break;
+        default:
+            errno = EACCES;
+            return -1;
     }
 
     int32_t res = nitrofs_path_resolve(name);

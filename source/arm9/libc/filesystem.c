@@ -16,13 +16,9 @@ bool current_drive_is_nitrofs = false;
 //     https://sourceware.org/newlib/libc.html#Syscalls
 //     https://github.com/picolibc/picolibc/blob/main/doc/os.md
 
-int open(const char *path, int flags, ...)
+static int fat_open(const char *path, int flags, mode_t mode_)
 {
-    if (path == NULL)
-    {
-        errno = EINVAL;
-        return -1;
-    }
+    (void)mode_;
 
     // POSIX | FatFs
     // ------+----------------------------------------
@@ -68,16 +64,6 @@ int open(const char *path, int flags, ...)
         default:
             errno = EINVAL;
             return -1;
-    }
-
-    if (nitrofs_use_for_path(path))
-    {
-        if (can_write)
-        {
-            errno = EACCES;
-            return -1;
-        }
-        return nitrofs_open(path);
     }
 
     if (can_write)
@@ -130,6 +116,34 @@ int open(const char *path, int flags, ...)
     return -1;
 }
 
+int open(const char *path, int flags, ...)
+{
+    if (path == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (nitrofs_use_for_path(path))
+        return nitrofs_open(path, flags, 0);
+    else
+        return fat_open(path, flags, 0);
+}
+
+static ssize_t fat_read(int fd, void *ptr, size_t len)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+    UINT bytes_read = 0;
+
+    FRESULT result = f_read(fp, ptr, len, &bytes_read);
+
+    if (result == FR_OK)
+        return bytes_read;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
 ssize_t read(int fd, void *ptr, size_t len)
 {
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
@@ -156,13 +170,18 @@ ssize_t read(int fd, void *ptr, size_t len)
         return -1;
     }
 
-    FIL *fp = FD_FAT_UNPACK(fd);
-    UINT bytes_read = 0;
+    return fat_read(fd, ptr, len);
+}
 
-    FRESULT result = f_read(fp, ptr, len, &bytes_read);
+static ssize_t fat_write(int fd, const void *ptr, size_t len)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+    UINT bytes_written = 0;
+
+    FRESULT result = f_write(fp, ptr, len, &bytes_written);
 
     if (result == FR_OK)
-        return bytes_read;
+        return bytes_written;
 
     errno = fatfs_error_to_posix(result);
     return -1;
@@ -199,13 +218,17 @@ ssize_t write(int fd, const void *ptr, size_t len)
         return -1;
     }
 
-    FIL *fp = FD_FAT_UNPACK(fd);
-    UINT bytes_written = 0;
+    return fat_write(fd, ptr, len);
+}
 
-    FRESULT result = f_write(fp, ptr, len, &bytes_written);
+static int fat_fsync(int fd)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    FRESULT result = f_sync(fp);
 
     if (result == FR_OK)
-        return bytes_written;
+        return 0;
 
     errno = fatfs_error_to_posix(result);
     return -1;
@@ -224,10 +247,22 @@ int fsync(int fd)
         return -1;
     }
 
+    return fat_fsync(fd);
+}
 
+// FatFs doesn't distinguish between metadata and non-metadata synchronization,
+// so the fsync() symbol is aliased.
+int fdatasync(int fd) __attribute__((alias("fsync")));
+
+static int fat_close(int fd)
+{
     FIL *fp = FD_FAT_UNPACK(fd);
 
-    FRESULT result = f_sync(fp);
+    FRESULT result = f_close(fp);
+
+    if (fp->cltbl != NULL)
+        free(fp->cltbl);
+    free(fp);
 
     if (result == FR_OK)
         return 0;
@@ -235,10 +270,6 @@ int fsync(int fd)
     errno = fatfs_error_to_posix(result);
     return -1;
 }
-
-// FatFs doesn't distinguish between metadata and non-metadata synchronization,
-// so the fsync() symbol is aliased.
-int fdatasync(int fd) __attribute__((alias("fsync")));
 
 int close(int fd)
 {
@@ -260,33 +291,11 @@ int close(int fd)
         return -1;
     }
 
-    FIL *fp = FD_FAT_UNPACK(fd);
-
-    FRESULT result = f_close(fp);
-
-    if (fp->cltbl != NULL)
-        free(fp->cltbl);
-    free(fp);
-
-    if (result == FR_OK)
-        return 0;
-
-    errno = fatfs_error_to_posix(result);
-    return -1;
+    return fat_close(fd);
 }
 
-off_t lseek(int fd, off_t offset, int whence)
+static off_t fat_lseek(int fd, off_t offset, int whence)
 {
-    // This function doesn't work on stdin, stdout or stderr
-    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
-    {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if (FD_IS_NITRO(fd))
-        return nitrofs_lseek(fd, offset, whence);
-
     FIL *fp = FD_FAT_UNPACK(fd);
 
     if (whence == SEEK_END)
@@ -318,6 +327,21 @@ off_t lseek(int fd, off_t offset, int whence)
 
     errno = fatfs_error_to_posix(result);
     return -1;
+}
+
+off_t lseek(int fd, off_t offset, int whence)
+{
+    // This function doesn't work on stdin, stdout or stderr
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (FD_IS_NITRO(fd))
+        return nitrofs_lseek(fd, offset, whence);
+
+    return fat_lseek(fd, offset, whence);
 }
 
 _off64_t lseek64(int fd, _off64_t offset, int whence)
