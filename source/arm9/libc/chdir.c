@@ -2,16 +2,7 @@
 //
 // Copyright (C) 2023 Antonio Niño Díaz
 
-#include <errno.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "ff.h"
-#include "fatfs_internal.h"
-#include "filesystem_internal.h"
-#include "nitrofs_internal.h"
+#include "filesystem_includes.h"
 
 int chdir(const char *path)
 {

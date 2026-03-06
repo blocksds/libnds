@@ -2,20 +2,7 @@
 //
 // Copyright (C) 2023 Adrian "asie" Siekierka
 
-#include <errno.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
-#include <sys/unistd.h>
-#include <time.h>
-#include <utime.h>
-
-#include "ff.h"
-#include "fatfs_internal.h"
-#include "filesystem_internal.h"
-#include "nitrofs_internal.h"
+#include "filesystem_includes.h"
 
 int utimes(const char *filename, const struct timeval times[2])
 {

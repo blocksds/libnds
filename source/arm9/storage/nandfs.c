@@ -7,8 +7,8 @@
 #include <nds/fifocommon.h>
 #include <nds/fifomessages.h>
 #include <nds/system.h>
-#include "ff.h"     // Obtains integer types
-#include "diskio.h"
+
+#include "../filesystem_includes.h"
 
 TWL_DATA static bool write_protect = true;
 

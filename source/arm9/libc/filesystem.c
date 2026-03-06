@@ -2,21 +2,7 @@
 //
 // Copyright (C) 2023 Antonio Niño Díaz
 
-#include <errno.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/fcntl.h>
-#include <sys/stat.h>
-#include <sys/times.h>
-#include <sys/unistd.h>
-#include <time.h>
-
-#include "ff.h"
-#include "fatfs_internal.h"
-#include "filesystem_internal.h"
-#include "nitrofs_internal.h"
+#include "filesystem_includes.h"
 
 ssize_t (*socket_fn_write)(int, const void *, size_t) = NULL;
 ssize_t (*socket_fn_read)(int, void *, size_t) = NULL;

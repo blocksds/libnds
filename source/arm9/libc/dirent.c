@@ -2,26 +2,7 @@
 //
 // Copyright (C) 2023 Antonio Niño Díaz
 
-#include <errno.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-// "dirent.h" defines DIR, but "ff.h" defines a different non-standard one.
-// Functions in this file need to use their standard prototypes, so it is needed
-// to somehow rename the DIR of "ff.h". It's better to keep the original header
-// unmodified so that updating it is easier, so this is a hack to rename it just
-// in this compilation unit.
-#define DIR DIRff
-#include "ff.h"
-#include "fatfs_internal.h"
-#undef DIR
-#include "filesystem_internal.h"
-#include "nitrofs_internal.h"
-
-// Include "dirent.h" after the FatFs inclusion hack.
-#include <dirent.h>
+#include "filesystem_includes.h"
 
 #define INDEX_NO_ENTRY          -1
 #define INDEX_END_OF_DIRECTORY  -2

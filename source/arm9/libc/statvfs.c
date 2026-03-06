@@ -2,18 +2,7 @@
 //
 // Copyright (C) 2023 Adrian "asie" Siekierka
 
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/statvfs.h>
-#include <sys/unistd.h>
-
-#include "ff.h"
-#include "diskio.h"
-#include "fatfs_internal.h"
-#include "filesystem_internal.h"
-#include "nitrofs_internal.h"
+#include "filesystem_includes.h"
 
 static void _statvfs_populate(FATFS *fs, DWORD nclst, struct statvfs *buf)
 {

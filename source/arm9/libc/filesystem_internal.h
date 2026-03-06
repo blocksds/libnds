@@ -6,9 +6,7 @@
 #ifndef FILESYSTEM_INTERNAL_H__
 #define FILESYSTEM_INTERNAL_H__
 
-#include <stdbool.h>
-
-#include "ff.h"
+#include "filesystem_includes.h"
 
 // File descriptor pointer parsing
 #define FD_TYPE(x) ((((uint32_t) (x)) >> 28) & 0x07)
