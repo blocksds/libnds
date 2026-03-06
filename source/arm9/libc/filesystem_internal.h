@@ -11,7 +11,7 @@
 #include "ff.h"
 
 // File descriptor pointer parsing
-#define FD_TYPE(x) ((((uint32_t) (x)) >> 28) & 0x0F)
+#define FD_TYPE(x) ((((uint32_t) (x)) >> 28) & 0x07)
 #define FD_DESC(x) ((((uint32_t) (x))) & 0x0FFFFFFF)
 
 // Make sure that FD_TYPE_SOCKET is always 0 so that interfacing with lwIP in
