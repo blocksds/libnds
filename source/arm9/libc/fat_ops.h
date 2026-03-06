@@ -18,5 +18,10 @@ int fat_rmdir(const char *name);
 int fat_stat(const char *path, struct stat *st);
 int fat_fstat(int fd, struct stat *st);
 int fat_isatty(int fd);
+int fat_rename(const char *old, const char *new_);
+int fat_ftruncate(int fd, off_t length);
+int fat_truncate(const char *path, off_t length);
+int fat_mkdir(const char *path, mode_t mode);
+int fat_access(const char *path, int amode);
 
 #endif // FAT_OPS_H__

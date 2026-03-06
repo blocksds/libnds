@@ -298,6 +298,186 @@ int fat_isatty(int fd)
     return 0;
 }
 
+int fat_rename(const char *old, const char *new_)
+{
+    FRESULT result = f_rename(old, new_);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+static int ftruncate_internal(int fd, off_t length)
+{
+    // This function assumes that the new length is different from the current
+    // one, so it doesn't have any shortcuts in case they are the same. The
+    // callers must implement them.
+
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    FSIZE_t fsize = f_size(fp);
+
+    // If the new size is bigger, it's not enough to use f_lseek to set the
+    // pointer to the new size, or to use f_expand. Both of them increase the
+    // size of the file, but the contents are undefined. According to the
+    // documentation of truncate() the new contents need to be zeroed. The only
+    // possible way to do this with FatFs is to simply append zeroes to the end
+    // of the file.
+    //
+    // If the new file is smaller, it is enough to call f_lseek to set the
+    // pointer to the new size, and then call f_truncate.
+
+    if ((size_t)length > (size_t)fsize)
+    {
+        // Expand the file to a bigger size
+
+        FRESULT result = f_lseek(fp, fsize);
+        if (result != FR_OK)
+        {
+            errno = fatfs_error_to_posix(result);
+            return -1;
+        }
+
+        FSIZE_t size_diff = length - fsize;
+
+        char zeroes[128] = { 0 };
+
+        while (size_diff > 128)
+        {
+            if (write(fd, zeroes, 128) == -1)
+                return -1;
+
+            size_diff -= 128;
+        }
+
+        if (size_diff > 0)
+        {
+            if (write(fd, zeroes, size_diff) == -1)
+                return -1;
+        }
+    }
+    else // if (length < fsize)
+    {
+        // Truncate the file to a smaller size
+
+        FRESULT result = f_lseek(fp, length);
+        if (result != FR_OK)
+        {
+            errno = fatfs_error_to_posix(result);
+            return -1;
+        }
+
+        result = f_truncate(fp);
+        if (result != FR_OK)
+        {
+            errno = fatfs_error_to_posix(result);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+int fat_ftruncate(int fd, off_t length)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    if ((size_t)length == (size_t)f_size(fp))
+        return 0; // There is nothing to do
+
+    // Preserve the current pointer
+    FSIZE_t prev_offset = f_tell(fp);
+
+    int ftruncate_ret = ftruncate_internal(fd, length);
+    int ftruncate_errno = errno;
+
+    // Try to return pointer to its previous position even if the truncate
+    // function has failed (but return the previous errno value).
+    FSIZE_t new_offset = fat_lseek(fd, prev_offset, SEEK_SET);
+
+    if (ftruncate_ret != 0)
+    {
+        errno = ftruncate_errno;
+        return -1;
+    }
+
+    if (new_offset != prev_offset)
+        return -1;
+
+    return 0;
+}
+
+int fat_truncate(const char *path, off_t length)
+{
+    int fd = fat_open(path, O_RDWR, 0);
+    if (fd == -1)
+        return -1;
+
+    if (FD_TYPE(fd) != FD_TYPE_FAT)
+    {
+        fat_close(fd);
+        errno = EPERM;
+        return -1;
+    }
+
+    FIL *fp = FD_FAT_UNPACK(fd);
+    if ((size_t)length != (size_t)f_size(fp))
+    {
+        int ret = ftruncate_internal(fd, length);
+        if (ret != 0)
+        {
+            fat_close(fd);
+            return -1;
+        }
+    }
+
+    int ret = fat_close(fd);
+    if (ret != 0)
+        return -1;
+
+    return 0;
+}
+
+int fat_mkdir(const char *path, mode_t mode)
+{
+    (void)mode; // There are no permissions in FAT filesystems
+
+    FRESULT result = f_mkdir(path);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}
+
+int fat_access(const char *path, int amode)
+{
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(path, &fno);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    if (amode != F_OK)
+    {
+        // Ignore R_OK and X_OK. Always test for read access, and test for write
+        // access if requested.
+        if ((amode & W_OK) && (fno.fattrib & (AM_RDO | AM_DIR)))
+        {
+            errno = EACCES;
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 // -----------------------------------------------------------------------------
 
 bool fatGetVolumeLabel(const char *name, char *label)
