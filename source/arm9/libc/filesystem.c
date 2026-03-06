@@ -391,3 +391,29 @@ int symlink(const char *target, const char *path)
     errno = ENOSYS;
     return -1;
 }
+
+int statvfs(const char *restrict path, struct statvfs *restrict buf)
+{
+    if (nitrofs_use_for_path(path))
+    {
+        errno = ENOSYS;
+        return -1;
+    }
+
+    return statvfs(path, buf);
+}
+
+int fstatvfs(int fd, struct statvfs *buf)
+{
+    // This isn't handled here
+    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+        return -1;
+
+    if (FD_IS_NITRO(fd))
+    {
+        errno = ENOSYS;
+        return -1;
+    }
+
+    return fstatvfs(fd, buf);
+}

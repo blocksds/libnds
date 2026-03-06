@@ -23,5 +23,7 @@ int fat_ftruncate(int fd, off_t length);
 int fat_truncate(const char *path, off_t length);
 int fat_mkdir(const char *path, mode_t mode);
 int fat_access(const char *path, int amode);
+int fat_statvfs(const char *restrict path, struct statvfs *restrict buf);
+int fat_fstatvfs(int fd, struct statvfs *buf);
 
 #endif // FAT_OPS_H__
