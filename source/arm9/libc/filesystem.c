@@ -499,6 +499,12 @@ int link(const char *old, const char *new)
 
 int rename(const char *old, const char *new)
 {
+    if (nitrofs_use_for_path(old) || nitrofs_use_for_path(new))
+    {
+        errno = EACCES;
+        return -1;
+    }
+
     FRESULT result = f_rename(old, new);
 
     if (result == FR_OK)
@@ -655,6 +661,12 @@ int truncate(const char *path, off_t length)
 int mkdir(const char *path, mode_t mode)
 {
     (void)mode; // There are no permissions in FAT filesystems
+
+    if (nitrofs_use_for_path(path))
+    {
+        errno = EACCES;
+        return -1;
+    }
 
     FRESULT result = f_mkdir(path);
     if (result != FR_OK)
