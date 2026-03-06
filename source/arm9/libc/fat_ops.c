@@ -1,0 +1,407 @@
+// SPDX-License-Identifier: Zlib
+//
+// Copyright (C) 2023-2026 Antonio Niño Díaz
+
+#include "filesystem_includes.h"
+
+int fat_open(const char *path, int flags, mode_t mode_)
+{
+    (void)mode_;
+
+    // POSIX | FatFs
+    // ------+----------------------------------------
+    // "r"   | FA_READ
+    // "r+"  | FA_READ | FA_WRITE
+    // "w"   | FA_CREATE_ALWAYS | FA_WRITE
+    // "w+"  | FA_CREATE_ALWAYS | FA_WRITE | FA_READ
+    // "wx"  | FA_CREATE_NEW | FA_WRITE
+    // "w+x" | FA_CREATE_NEW | FA_WRITE | FA_READ
+    // "a"   | FA_OPEN_APPEND | FA_WRITE
+    // "a+"  | FA_OPEN_APPEND | FA_WRITE | FA_READ
+
+    // POSIX | open()
+    // ------+----------------------------------------
+    // "r"   | O_RDONLY
+    // "r+"  | O_RDWR
+    // "w"   | O_WRONLY | O_CREAT | O_TRUNC
+    // "w+"  | O_RDWR   | O_CREAT | O_TRUNC
+    // "wx"  | O_WRONLY | O_CREAT | O_TRUNC | O_EXCL
+    // "w+x" | O_RDWR   | O_CREAT | O_TRUNC | O_EXCL
+    // "a"   | O_WRONLY | O_CREAT | O_APPEND
+    // "a+"  | O_RDWR   | O_CREAT | O_APPEND
+
+    // O_BINARY and O_TEXT are ignored.
+
+    BYTE mode = 0;
+
+    int can_write = 0;
+
+    switch (flags & (O_RDONLY | O_WRONLY | O_RDWR))
+    {
+        case O_RDONLY:
+            mode = FA_READ;
+            break;
+        case O_WRONLY:
+            can_write = 1;
+            mode = FA_WRITE;
+            break;
+        case O_RDWR:
+            can_write = 1;
+            mode = FA_READ | FA_WRITE;
+            break;
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+
+    if (can_write)
+    {
+        if (flags & O_CREAT)
+        {
+            if (flags & O_APPEND)
+            {
+                mode |= FA_OPEN_APPEND; // a | a+
+            }
+            else if (flags & O_TRUNC)
+            {
+                // O_EXCL isn't used by the fopen provided by picolibc.
+                if (flags & O_EXCL)
+                    mode |= FA_CREATE_NEW; // wx | w+x
+                else
+                    mode |= FA_CREATE_ALWAYS; // w | w+
+            }
+            else
+            {
+                // O_APPEND or O_TRUNC must be set if O_CREAT is set
+                errno = EINVAL;
+                return -1;
+            }
+        }
+        else
+        {
+            mode |= FA_OPEN_EXISTING; // r+
+        }
+    }
+    else
+    {
+        mode |= FA_OPEN_EXISTING; // r
+    }
+
+    FIL *fp = calloc(1, sizeof(FIL));
+    if (fp == NULL)
+    {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    FRESULT result = f_open(fp, path, mode);
+
+    if (result == FR_OK)
+        return FD_FAT_PACK(fp);
+
+    free(fp);
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+ssize_t fat_read(int fd, void *ptr, size_t len)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+    UINT bytes_read = 0;
+
+    FRESULT result = f_read(fp, ptr, len, &bytes_read);
+
+    if (result == FR_OK)
+        return bytes_read;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+ssize_t fat_write(int fd, const void *ptr, size_t len)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+    UINT bytes_written = 0;
+
+    FRESULT result = f_write(fp, ptr, len, &bytes_written);
+
+    if (result == FR_OK)
+        return bytes_written;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+int fat_fsync(int fd)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    FRESULT result = f_sync(fp);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+int fat_close(int fd)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    FRESULT result = f_close(fp);
+
+    if (fp->cltbl != NULL)
+        free(fp->cltbl);
+    free(fp);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+off_t fat_lseek(int fd, off_t offset, int whence)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    if (whence == SEEK_END)
+    {
+        // The file offset is set to the size of the file plus offset bytes
+        whence = SEEK_SET;
+        offset += f_size(fp);
+    }
+    else if (whence == SEEK_CUR)
+    {
+        // The file offset is set to its current location plus offset bytes
+        whence = SEEK_SET;
+        offset += f_tell(fp);
+    }
+    else if (whence == SEEK_SET)
+    {
+        // The file offset is set to offset bytes.
+    }
+    else
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    FRESULT result = f_lseek(fp, offset);
+
+    if (result == FR_OK)
+        return offset;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+int fat_unlink(const char *name)
+{
+    FRESULT result = f_unlink(name);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+int fat_rmdir(const char *name)
+{
+    FRESULT result = f_rmdir(name);
+
+    if (result == FR_OK)
+        return 0;
+
+    errno = fatfs_error_to_posix(result);
+    return -1;
+}
+
+int fat_stat(const char *path, struct stat *st)
+{
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(path, &fno);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    // On FatFS, st_dev is either 0 (DLDI) or 1 (DSi SD),
+    // while st_ino is the file's starting cluster in FAT.
+    st->st_dev = fno.fpdrv;
+    st->st_ino = fno.fclust;
+
+    st->st_size = fno.fsize;
+
+#if FF_MAX_SS != FF_MIN_SS
+#error "Set the block size to the right value"
+#endif
+    st->st_blksize = FF_MAX_SS;
+    st->st_blocks = (fno.fsize + FF_MAX_SS - 1) / FF_MAX_SS;
+
+    st->st_mode = (fno.fattrib & AM_DIR) ?
+                   S_IFDIR : // Directory
+                   S_IFREG;  // Regular file
+
+    time_t time = fatfs_fattime_to_timestamp(fno.fdate, fno.ftime);
+    time_t crtime = fatfs_fattime_to_timestamp(fno.crdate, fno.crtime);
+
+    st->st_atim.tv_sec = time; // Time of last access
+    st->st_mtim.tv_sec = time; // Time of last modification
+    st->st_ctim.tv_sec = crtime; // Time of last file entry change (~= creation)
+
+    return 0;
+}
+
+int fat_fstat(int fd, struct stat *st)
+{
+    FIL *fp = FD_FAT_UNPACK(fd);
+
+    // On FatFS, st_dev is either 0 (DLDI) or 1 (DSi SD),
+    // while st_ino is the file's starting cluster in FAT.
+    st->st_dev = fp->obj.fs->pdrv;
+    st->st_ino = fp->obj.sclust;
+    st->st_size = fp->obj.objsize;
+
+#if FF_MAX_SS != FF_MIN_SS
+#error "Set the block size to the right value"
+#endif
+    st->st_blksize = FF_MAX_SS;
+    st->st_blocks = (fp->obj.objsize + FF_MAX_SS - 1) / FF_MAX_SS;
+
+    // An open file will never be anything but a regular file.
+    st->st_mode = S_IFREG;
+
+    // TODO: FatFS does not allow running f_stat() on an open file. While some
+    // information can be gathered from the open file structure, the timestamp
+    // is not among them, so it is not available via fstat().
+    time_t time = 0;
+    st->st_atim.tv_sec = time; // Time of last access
+    st->st_mtim.tv_sec = time; // Time of last modification
+    st->st_ctim.tv_sec = time; // Time of last status change
+
+    return 0;
+}
+
+int fat_isatty(int fd)
+{
+    (void)fd;
+
+    // We could check if the file descriptor is valid, but that would force us
+    // to check socket descriptors, nitrofs, etc. To make things easier, don't
+    // check them. Instead of EBADF we will return ENOTTY always.
+    errno = ENOTTY;
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+bool fatGetVolumeLabel(const char *name, char *label)
+{
+    if (name == NULL || label == NULL)
+        return false;
+
+    return f_getlabel(name, label, NULL) == FR_OK;
+}
+
+bool fatSetVolumeLabel(const char *name, const char *label)
+{
+    if (name == NULL || label == NULL)
+        return false;
+
+    if (strncmp(name, "nand", sizeof("nand") - 1) == 0)
+        return false;
+
+    size_t name_length = strlen(name);
+    size_t label_length = strlen(label);
+
+    char *buffer = malloc(name_length + label_length + 2);
+    if (buffer == NULL)
+        return false;
+
+    // Copy volume name, strip slash if necessary
+    strcpy(buffer, name);
+    if (buffer[name_length - 1] == '/')
+        buffer[name_length - 1] = 0;
+
+    // Append destination volume label
+    strcat(buffer, label);
+
+    FRESULT result = f_setlabel(buffer);
+    free(buffer);
+    return result == FR_OK;
+}
+
+int FAT_getAttr(const char *file)
+{
+    if (file == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (nitrofs_use_for_path(file))
+        return nitrofs_fat_get_attr(file);
+
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(file, &fno);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return fno.fattrib;
+}
+
+int FAT_setAttr(const char *file, uint8_t attr)
+{
+    if (file == NULL)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (nitrofs_use_for_path(file))
+    {
+        errno = EROFS; // Read-only filesystem
+        return -1;
+    }
+
+    // Modify all attributes (except for directory and volume)
+    BYTE mask = AM_RDO | AM_ARC | AM_SYS | AM_HID;
+
+    FRESULT result = f_chmod(file, attr, mask);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}
+
+bool FAT_getShortNameFor(const char *path, char *buf)
+{
+    if ((path == NULL) || (buf == NULL) || nitrofs_use_for_path(path))
+    {
+        return false;
+    }
+
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(path, &fno);
+
+    if (result != FR_OK)
+    {
+        return false;
+    }
+
+    strncpy(buf, fno.altname, FF_SFN_BUF + 1);
+    return true;
+}
