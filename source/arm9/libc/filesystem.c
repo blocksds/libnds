@@ -327,6 +327,12 @@ _off64_t lseek64(int fd, _off64_t offset, int whence)
 
 int unlink(const char *name)
 {
+    if (nitrofs_use_for_path(name))
+    {
+        errno = EACCES;
+        return -1;
+    }
+
     FRESULT result = f_unlink(name);
 
     if (result == FR_OK)
@@ -338,6 +344,12 @@ int unlink(const char *name)
 
 int rmdir(const char *name)
 {
+    if (nitrofs_use_for_path(name))
+    {
+        errno = EACCES;
+        return -1;
+    }
+
     FRESULT result = f_rmdir(name);
 
     if (result == FR_OK)
