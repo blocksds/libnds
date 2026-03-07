@@ -36,7 +36,7 @@
 #include "fatfs_internal.h"
 #undef DIR
 #include "filesystem_internal.h"
-#include "nitrofs_internal.h"
+#include "nitrofs_device.h"
 
 // Include "dirent.h" after the FatFs inclusion hack.
 #include <dirent.h>

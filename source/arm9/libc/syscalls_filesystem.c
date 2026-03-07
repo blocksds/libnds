@@ -4,7 +4,7 @@
 
 #include "filesystem_includes.h"
 
-#include "fat_ops.h"
+#include "fat_device.h"
 
 ssize_t (*socket_fn_write)(int, const void *, size_t) = NULL;
 ssize_t (*socket_fn_read)(int, void *, size_t) = NULL;
