@@ -146,7 +146,3 @@ unsigned long getauxval(unsigned long type)
     errno = EINVAL;
     return 0;
 }
-
-// Dummy symbol to allow linking C++ applications. This is only needed to handle
-// dynamic shared objects (.so), but they don't exist on the NDS.
-void *__dso_handle;

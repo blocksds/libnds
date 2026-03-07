@@ -33,11 +33,6 @@ off_t lseek(int fd, off_t offset, int whence)
     return 0;
 }
 
-_off64_t lseek64(int fd, _off64_t offset, int whence)
-{
-    return (_off64_t)lseek(fd, (off_t)offset, whence);
-}
-
 int open(const char *path, int flags, ...)
 {
     (void)path;

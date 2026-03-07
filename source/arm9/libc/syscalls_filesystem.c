@@ -154,11 +154,6 @@ off_t lseek(int fd, off_t offset, int whence)
     return fat_lseek(fd, offset, whence);
 }
 
-_off64_t lseek64(int fd, _off64_t offset, int whence)
-{
-    return (_off64_t)lseek(fd, (off_t)offset, whence);
-}
-
 int unlink(const char *name)
 {
     if (nitrofs_use_for_path(name))

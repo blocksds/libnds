@@ -14,6 +14,8 @@ extern "C" {
 /// UTF-8 necessitates a maximum of three bytes for any UTF-16 codepoint.
 #define MAXNAMLEN (255 * 3)
 
+typedef unsigned short reclen_t;
+
 struct dirent
 {
     /// Inode number. Implementation-defined.
@@ -35,7 +37,7 @@ struct dirent
     unsigned char d_type;
 
     /// Size of this directory entry.
-    unsigned short d_reclen;
+    reclen_t d_reclen;
 };
 
 typedef struct

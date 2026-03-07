@@ -10,11 +10,14 @@
 #include <stdint.h>
 #include <machine/_default_types.h>
 
+typedef uint32_t __dev_t;
+#define __machine_dev_t_defined
+
 typedef uint32_t __ino_t;
 typedef uint64_t __ino64_t;
 #define __machine_ino_t_defined
 
-typedef int32_t _off_t;
+typedef int32_t __off_t;
 #define __machine_off_t_defined
 
 #endif
