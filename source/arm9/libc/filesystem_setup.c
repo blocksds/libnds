@@ -17,7 +17,6 @@
 #include "filesystem_includes.h"
 #include "fatfs/cache.h"
 
-
 #define DEFAULT_SECTORS_PER_PAGE    8 // Each sector is 512 bytes
 
 // Device: "fat:/"
