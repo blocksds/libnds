@@ -119,6 +119,24 @@ int gettimeofday(struct timeval *tp, void *tz)
     return 0;
 }
 
+int clock_gettime(clockid_t clockid, struct timespec *tp)
+{
+    (void)clockid;
+    (void)tp;
+
+    errno = ENOTSUP;
+    return -1;
+}
+
+int clock_settime(clockid_t clockid, const struct timespec *tp)
+{
+    (void)clockid;
+    (void)tp;
+
+    errno = ENOTSUP;
+    return -1;
+}
+
 int execve(const char *name, char *const *argv, char *const *env)
 {
     (void)name;
