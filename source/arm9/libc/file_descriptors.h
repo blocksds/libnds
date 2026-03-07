@@ -3,8 +3,8 @@
 // Copyright (C) 2023 Adrian "asie" Siekierka
 // Copyright (C) 2025 Antonio Niño Díaz
 
-#ifndef FILESYSTEM_INTERNAL_H__
-#define FILESYSTEM_INTERNAL_H__
+#ifndef FILE_DESCRIPTORS_H__
+#define FILE_DESCRIPTORS_H__
 
 #include "filesystem_includes.h"
 
@@ -42,4 +42,4 @@ static inline FIL *FD_FAT_UNPACK(int fd)
 
 extern bool current_drive_is_nitrofs;
 
-#endif // FILESYSTEM_INTERNAL_H__
+#endif // FILE_DESCRIPTORS_H__

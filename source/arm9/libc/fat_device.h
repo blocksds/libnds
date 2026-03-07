@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2026 Antonio Niño Díaz
 
-#ifndef FAT_OPS_H__
-#define FAT_OPS_H__
+#ifndef FAT_DEVICE_H__
+#define FAT_DEVICE_H__
 
 #include "filesystem_includes.h"
 
@@ -28,4 +28,4 @@ int fat_fstatvfs(int fd, struct statvfs *buf);
 int fat_utimes(const char *filename, const struct timeval times[2]);
 int fat_utime(const char *filename, const struct utimbuf *times);
 
-#endif // FAT_OPS_H__
+#endif // FAT_DEVICE_H__

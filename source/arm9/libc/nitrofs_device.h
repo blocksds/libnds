@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2023 Adrian "asie" Siekierka
 
-#ifndef NITROFS_INTERNAL_H__
-#define NITROFS_INTERNAL_H__
+#ifndef NITROFS_DEVICE_H__
+#define NITROFS_DEVICE_H__
 
 #include <stdint.h>
 #include <stdio.h>
@@ -70,4 +70,4 @@ int nitrofs_stat(const char *name, struct stat *st);
 int nitrofs_fstat(int fd, struct stat *st);
 int nitrofs_fat_get_attr(const char *name);
 
-#endif // NITROFS_INTERNAL_H__
+#endif // NITROFS_DEVICE_H__
