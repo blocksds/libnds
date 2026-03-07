@@ -57,9 +57,10 @@ struct stat;
 
 bool nitrofs_use_for_path(const char *path);
 int32_t nitrofs_path_resolve(const char *path);
-int nitrofs_opendir(nitrofs_dir_state_t *state, const char *name);
-int nitrofs_rewinddir(nitrofs_dir_state_t *state);
-int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent);
+void *nitrofs_opendir(const char *name, DIR *dirp);
+int nitrofs_closedir(DIR *dirp);
+struct dirent *nitrofs_readdir(DIR *dirp);
+void nitrofs_rewinddir(DIR *dirp);
 int nitrofs_getcwd(char *buf, size_t size);
 int nitrofs_chdir(const char *path);
 int nitrofs_open(const char *path, int flags, mode_t mode);

@@ -541,6 +541,98 @@ int fat_fstatvfs(int fd, struct statvfs *buf)
 
 // -----------------------------------------------------------------------------
 
+#define INDEX_NO_ENTRY          -1
+#define INDEX_END_OF_DIRECTORY  -2
+
+void *fat_opendir(const char *name, DIR *dirp)
+{
+    DIRff *dp = calloc(1, sizeof(DIRff));
+    if (dp == NULL)
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    FRESULT result = f_opendir(dp, name);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        free(dp);
+        return NULL;
+    }
+
+    dirp->index = INDEX_NO_ENTRY;
+
+    return dp;
+}
+
+int fat_closedir(DIR *dirp)
+{
+    DIRff *dp = dirp->dp;
+    FRESULT result = f_closedir(dp);
+
+    free(dirp->dp);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}
+
+struct dirent *fat_readdir(DIR *dirp)
+{
+    if (dirp->index <= INDEX_END_OF_DIRECTORY)
+    {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    DIRff *dp = dirp->dp;
+
+    FILINFO fno = { 0 };
+    FRESULT result = f_readdir(dp, &fno);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return NULL;
+    }
+
+    if (fno.fname[0] == '\0')
+    {
+        // End of directory reached
+        dirp->index = INDEX_END_OF_DIRECTORY;
+        return NULL;
+    }
+
+    dirp->index++;
+
+    struct dirent *ent = &(dirp->dirent);
+    ent->d_off = dirp->index;
+    ent->d_ino = fno.fclust;
+
+    strncpy(ent->d_name, fno.fname, sizeof(ent->d_name));
+    ent->d_name[sizeof(ent->d_name) - 1] = '\0';
+
+    if (fno.fattrib & AM_DIR)
+        ent->d_type = DT_DIR; // Directory
+    else
+        ent->d_type = DT_REG; // Regular file
+
+    return ent;
+}
+
+void fat_rewinddir(DIR *dirp)
+{
+    DIRff *dp = dirp->dp;
+    (void)f_rewinddir(dp); // Ignore returned value
+    dirp->index = INDEX_NO_ENTRY;
+}
+
+// -----------------------------------------------------------------------------
+
 int fat_utimes(const char *filename, const struct timeval times[2])
 {
     FILINFO fno;

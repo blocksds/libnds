@@ -226,31 +226,55 @@ static int32_t nitrofs_dir_step(uint16_t dir, const char *name)
     return -1;
 }
 
-int nitrofs_opendir(nitrofs_dir_state_t *state, const char *name)
+// -----------------------------------------------------------------------------
+
+#define INDEX_NO_ENTRY          -1
+#define INDEX_END_OF_DIRECTORY  -2
+
+void *nitrofs_opendir(const char *name, DIR *dirp)
 {
     if (!nitrofs_local.fnt_offset)
     {
         errno = ENODEV;
-        return -1;
+        return NULL;
     }
 
     int32_t res = nitrofs_path_resolve(name);
     if (res < 0)
     {
         errno = ENOENT;
-        return -1;
+        return NULL;
     }
+
+    nitrofs_dir_state_t *state = calloc(1, sizeof(nitrofs_dir_state_t));
+    if (state == NULL)
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
     nitrofs_dir_state_init(state, res);
-    return 0;
+
+    dirp->index = INDEX_NO_ENTRY;
+
+    return state;
 }
 
-int nitrofs_rewinddir(nitrofs_dir_state_t *state)
+int nitrofs_closedir(DIR *dirp)
 {
-    nitrofs_dir_state_init(state, state->dir_opened);
+    free(dirp->dp);
     return 0;
 }
 
-int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
+void nitrofs_rewinddir(DIR *dirp)
+{
+    nitrofs_dir_state_t *state = dirp->dp;
+    nitrofs_dir_state_init(state, state->dir_opened);
+
+    dirp->index = INDEX_NO_ENTRY;
+}
+
+static int nitrofs_readdir_internal(nitrofs_dir_state_t *state, struct dirent *ent)
 {
 #ifdef ENABLE_DOTDOT_EMULATION
     // Emit dot and dot-dot entries, if requested.
@@ -293,6 +317,32 @@ int nitrofs_readdir(nitrofs_dir_state_t *state, struct dirent *ent)
 
     return 0;
 }
+
+struct dirent *nitrofs_readdir(DIR *dirp)
+{
+    if (dirp->index <= INDEX_END_OF_DIRECTORY)
+    {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    struct dirent *ent = &(dirp->dirent);
+
+    nitrofs_dir_state_t *dp = dirp->dp;
+    if (nitrofs_readdir_internal(dp, ent))
+    {
+        dirp->index = INDEX_END_OF_DIRECTORY;
+        return NULL;
+    }
+
+    dirp->index++;
+
+    ent->d_off = dirp->index;
+
+    return ent;
+}
+
+// -----------------------------------------------------------------------------
 
 int32_t nitrofs_path_resolve(const char *path)
 {

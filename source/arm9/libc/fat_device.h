@@ -25,6 +25,10 @@ int fat_mkdir(const char *path, mode_t mode);
 int fat_access(const char *path, int amode);
 int fat_statvfs(const char *restrict path, struct statvfs *restrict buf);
 int fat_fstatvfs(int fd, struct statvfs *buf);
+void *fat_opendir(const char *name, DIR *dirp);
+int fat_closedir(DIR *dirp);
+struct dirent *fat_readdir(DIR *dirp);
+void fat_rewinddir(DIR *dirp);
 int fat_utimes(const char *filename, const struct timeval times[2]);
 int fat_utime(const char *filename, const struct utimbuf *times);
 
