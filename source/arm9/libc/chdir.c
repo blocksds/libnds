@@ -4,6 +4,8 @@
 
 #include "filesystem_includes.h"
 
+#include "nitrofs_device.h"
+
 int chdir(const char *path)
 {
     char *divide = strstr(path, ":/");

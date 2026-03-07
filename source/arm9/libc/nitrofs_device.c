@@ -16,6 +16,8 @@
 
 #include "fatfs/cache.h"
 
+#include "nitrofs_device.h"
+
 static nitrofs_t nitrofs_local;
 
 /// Configuration

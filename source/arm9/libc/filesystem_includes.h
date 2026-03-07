@@ -33,10 +33,9 @@
 // in this compilation unit.
 #define DIR DIRff
 #include "ff.h"
-#include "fatfs_internal.h"
+#include "fatfs_helpers.h"
 #undef DIR
-#include "filesystem_internal.h"
-#include "nitrofs_device.h"
+#include "file_descriptors.h"
 
 // Include "dirent.h" after the FatFs inclusion hack.
 #include <dirent.h>

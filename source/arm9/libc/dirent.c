@@ -4,6 +4,8 @@
 
 #include "filesystem_includes.h"
 
+#include "nitrofs_device.h"
+
 #define INDEX_NO_ENTRY          -1
 #define INDEX_END_OF_DIRECTORY  -2
 

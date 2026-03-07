@@ -41,7 +41,7 @@
 #include <nds/memory.h>
 #include <nds/system.h>
 
-#include "../fatfs_internal.h"
+#include "../fatfs_helpers.h"
 
 #include "ff.h"     // Obtains integer types
 #include "diskio.h" // Declarations of disk functions

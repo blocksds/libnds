@@ -5,6 +5,8 @@
 
 #include "filesystem_includes.h"
 
+#include "nitrofs_device.h"
+
 int fat_open(const char *path, int flags, mode_t mode_)
 {
     (void)mode_;
