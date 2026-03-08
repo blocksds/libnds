@@ -631,6 +631,40 @@ void fat_rewinddir(DIR *dirp)
     dirp->index = INDEX_NO_ENTRY;
 }
 
+void fat_seekdir(DIR *dirp, long loc)
+{
+    if (dirp->index <= INDEX_END_OF_DIRECTORY) // If we're at the end
+        fat_rewinddir(dirp);
+    else if (loc < dirp->index) // If we have already passed this entry
+        fat_rewinddir(dirp);
+
+    while (1)
+    {
+        // Check if the entry has been found
+        if (dirp->index == loc)
+            break;
+
+        struct dirent *entry = fat_readdir(dirp);
+        if (entry == NULL)
+        {
+            fat_rewinddir(dirp);
+            break;
+        }
+
+        // Check if we reached the end of the directory without finding it
+        if (dirp->index == INDEX_END_OF_DIRECTORY)
+        {
+            fat_rewinddir(dirp);
+            break;
+        }
+    }
+}
+
+long fat_telldir(DIR *dirp)
+{
+    return dirp->index;
+}
+
 // -----------------------------------------------------------------------------
 
 int fat_utimes(const char *filename, const struct timeval times[2])

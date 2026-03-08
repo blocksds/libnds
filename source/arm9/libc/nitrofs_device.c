@@ -342,6 +342,40 @@ struct dirent *nitrofs_readdir(DIR *dirp)
     return ent;
 }
 
+void nitrofs_seekdir(DIR *dirp, long loc)
+{
+    if (dirp->index <= INDEX_END_OF_DIRECTORY) // If we're at the end
+        nitrofs_rewinddir(dirp);
+    else if (loc < dirp->index) // If we have already passed this entry
+        nitrofs_rewinddir(dirp);
+
+    while (1)
+    {
+        // Check if the entry has been found
+        if (dirp->index == loc)
+            break;
+
+        struct dirent *entry = nitrofs_readdir(dirp);
+        if (entry == NULL)
+        {
+            nitrofs_rewinddir(dirp);
+            break;
+        }
+
+        // Check if we reached the end of the directory without finding it
+        if (dirp->index == INDEX_END_OF_DIRECTORY)
+        {
+            nitrofs_rewinddir(dirp);
+            break;
+        }
+    }
+}
+
+long nitrofs_telldir(DIR *dirp)
+{
+    return dirp->index;
+}
+
 // -----------------------------------------------------------------------------
 
 int32_t nitrofs_path_resolve(const char *path)

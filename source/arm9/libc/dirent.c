@@ -94,39 +94,15 @@ void rewinddir(DIR *dirp)
         fat_rewinddir(dirp);
 }
 
-#define INDEX_NO_ENTRY          -1
-#define INDEX_END_OF_DIRECTORY  -2
-
 void seekdir(DIR *dirp, long loc)
 {
     if (dirp == NULL)
         return;
 
-    if (dirp->index <= INDEX_END_OF_DIRECTORY) // If we're at the end
-        rewinddir(dirp);
-    else if (loc < dirp->index) // If we have already passed this entry
-        rewinddir(dirp);
-
-    while (1)
-    {
-        // Check if the entry has been found
-        if (dirp->index == loc)
-            break;
-
-        struct dirent *entry = readdir(dirp);
-        if (entry == NULL)
-        {
-            rewinddir(dirp);
-            break;
-        }
-
-        // Check if we reached the end of the directory without finding it
-        if (dirp->index == INDEX_END_OF_DIRECTORY)
-        {
-            rewinddir(dirp);
-            break;
-        }
-    }
+    if (dirp->dptype == FD_TYPE_NITRO)
+        nitrofs_seekdir(dirp, loc);
+    else
+        fat_seekdir(dirp, loc);
 }
 
 long telldir(DIR *dirp)
@@ -137,5 +113,8 @@ long telldir(DIR *dirp)
         return -1;
     }
 
-    return dirp->index;
+    if (dirp->dptype == FD_TYPE_NITRO)
+        return nitrofs_telldir(dirp);
+    else
+        return fat_telldir(dirp);
 }

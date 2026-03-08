@@ -61,6 +61,8 @@ void *nitrofs_opendir(const char *name, DIR *dirp);
 int nitrofs_closedir(DIR *dirp);
 struct dirent *nitrofs_readdir(DIR *dirp);
 void nitrofs_rewinddir(DIR *dirp);
+void nitrofs_seekdir(DIR *dirp, long loc);
+long nitrofs_telldir(DIR *dirp);
 int nitrofs_getcwd(char *buf, size_t size);
 int nitrofs_chdir(const char *path);
 int nitrofs_open(const char *path, int flags, mode_t mode);

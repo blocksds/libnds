@@ -29,6 +29,8 @@ void *fat_opendir(const char *name, DIR *dirp);
 int fat_closedir(DIR *dirp);
 struct dirent *fat_readdir(DIR *dirp);
 void fat_rewinddir(DIR *dirp);
+void fat_seekdir(DIR *dirp, long loc);
+long fat_telldir(DIR *dirp);
 int fat_utimes(const char *filename, const struct timeval times[2]);
 int fat_utime(const char *filename, const struct utimbuf *times);
 
