@@ -687,10 +687,10 @@ int fat_utimes(const char *filename, const struct timeval times[2])
 
 int fat_utime(const char *filename, const struct utimbuf *times)
 {
-    // Forward to utimes().
+    // Forward to fat_utimes().
     struct timeval otimes[2];
     otimes[1].tv_sec = times->modtime;
-    return utimes(filename, otimes);
+    return fat_utimes(filename, otimes);
 }
 
 int fat_chdir(const char *path)
