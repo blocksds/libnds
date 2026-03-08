@@ -635,6 +635,16 @@ FILE *nitroFSFopenById(uint16_t id, const char *mode)
     return fdopen(fd, mode);
 }
 
+int nitrofs_access(const char *path, int amode)
+{
+    if ((amode & W_OK) || (nitrofs_path_resolve(path) < 0))
+    {
+        errno = EACCES;
+        return -1;
+    }
+    return 0;
+}
+
 int nitrofs_open(const char *name, int flags, mode_t mode_)
 {
     (void)mode_;

@@ -356,16 +356,9 @@ int access(const char *path, int amode)
     }
 
     if (nitrofs_use_for_path(path))
-    {
-        if ((amode & W_OK) || (nitrofs_path_resolve(path) < 0))
-        {
-            errno = EACCES;
-            return -1;
-        }
-        return 0;
-    }
-
-    return fat_access(path, amode);
+        return nitrofs_access(path, amode);
+    else
+        return fat_access(path, amode);
 }
 
 ssize_t readlink(const char *path, char *buf, size_t length)
