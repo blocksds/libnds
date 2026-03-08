@@ -716,3 +716,14 @@ int fat_chdrive(const char *drive)
 
     return 0;
 }
+
+int fat_getcwd(char *buf, size_t size)
+{
+    FRESULT result = f_getcwd(buf, size - 1);
+    if (result != FR_OK)
+    {
+        errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
+        return -1;
+    }
+    return 0;
+}

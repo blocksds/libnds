@@ -35,5 +35,6 @@ int fat_utimes(const char *filename, const struct timeval times[2]);
 int fat_utime(const char *filename, const struct utimbuf *times);
 int fat_chdir(const char *path);
 int fat_chdrive(const char *drive);
+int fat_getcwd(char *buf, size_t size);
 
 #endif // FAT_DEVICE_H__

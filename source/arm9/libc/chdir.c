@@ -134,15 +134,11 @@ char *getcwd(char *buf, size_t size)
         }
         else
         {
-            FRESULT result = f_getcwd(buf, size - 1);
-            if (result != FR_OK)
-            {
-                errno = result == FR_NOT_ENOUGH_CORE ? ERANGE : fatfs_error_to_posix(result);
+            if (fat_getcwd(buf, size - 1))
                 return NULL;
-            }
         }
-        // This shouldn't be needed, nitrofs_getcwd() and f_getcwd() should fail
-        // if the terminator character doesn't fit in the buffer.
+        // This shouldn't be needed, the drive functions should fail if the
+        // terminator character doesn't fit in the buffer.
         buf[size - 1] = '\0';
 
         return buf;
