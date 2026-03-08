@@ -441,3 +441,117 @@ int utime(const char *filename, const struct utimbuf *times)
 
     return fat_utime(filename, times);
 }
+
+// -----------------------------------------------------------------------------
+
+DIR *opendir(const char *name)
+{
+    if (name == NULL)
+    {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    DIR *dirp = calloc(1, sizeof(DIR));
+    if (dirp == NULL)
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    void *dp;
+
+    if (nitrofs_use_for_path(name))
+    {
+        dirp->dptype = FD_TYPE_NITRO;
+        dp = nitrofs_opendir(name, dirp);
+    }
+    else
+    {
+        dirp->dptype = FD_TYPE_FAT;
+        dp = fat_opendir(name, dirp);
+    }
+
+    if (dp == NULL)
+    {
+        free(dirp);
+        return NULL;
+    }
+
+    dirp->dp = dp;
+
+    return dirp;
+}
+
+int closedir(DIR *dirp)
+{
+    if (dirp == NULL)
+    {
+        errno = EBADF;
+        return -1;
+    }
+
+    int result;
+    if (dirp->dptype == FD_TYPE_FAT)
+        result = fat_closedir(dirp);
+    else
+        result = nitrofs_closedir(dirp);
+
+    free(dirp);
+
+    return result;
+}
+
+struct dirent *readdir(DIR *dirp)
+{
+    if (dirp == NULL)
+    {
+        errno = EBADF;
+        return NULL;
+    }
+
+    struct dirent *ent = &(dirp->dirent);
+    memset(ent, 0, sizeof(struct dirent));
+    ent->d_reclen = sizeof(struct dirent);
+
+    if (dirp->dptype == FD_TYPE_NITRO)
+        return nitrofs_readdir(dirp);
+    else // if (dirp->dptype == FD_TYPE_FAT)
+        return fat_readdir(dirp);
+}
+
+void rewinddir(DIR *dirp)
+{
+    if (dirp == NULL)
+        return;
+
+    if (dirp->dptype == FD_TYPE_NITRO)
+        nitrofs_rewinddir(dirp);
+    else
+        fat_rewinddir(dirp);
+}
+
+void seekdir(DIR *dirp, long loc)
+{
+    if (dirp == NULL)
+        return;
+
+    if (dirp->dptype == FD_TYPE_NITRO)
+        nitrofs_seekdir(dirp, loc);
+    else
+        fat_seekdir(dirp, loc);
+}
+
+long telldir(DIR *dirp)
+{
+    if (dirp == NULL)
+    {
+        errno = EBADF;
+        return -1;
+    }
+
+    if (dirp->dptype == FD_TYPE_NITRO)
+        return nitrofs_telldir(dirp);
+    else
+        return fat_telldir(dirp);
+}
