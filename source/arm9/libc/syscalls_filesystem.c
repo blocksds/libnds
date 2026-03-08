@@ -11,7 +11,8 @@ ssize_t (*socket_fn_write)(int, const void *, size_t) = NULL;
 ssize_t (*socket_fn_read)(int, void *, size_t) = NULL;
 int (*socket_fn_close)(int) = NULL;
 
-bool current_drive_is_nitrofs = false;
+// Default to FAT
+int8_t current_drive_index = FD_TYPE_FAT;
 
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib and picolibc:

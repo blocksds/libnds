@@ -6,6 +6,8 @@
 #ifndef FILE_DESCRIPTORS_H__
 #define FILE_DESCRIPTORS_H__
 
+#include <stdint.h>
+
 #include "filesystem_includes.h"
 
 // File descriptor pointer parsing
@@ -40,6 +42,6 @@ static inline FIL *FD_FAT_UNPACK(int fd)
     return (FIL *)FD_DESC(fd);
 }
 
-extern bool current_drive_is_nitrofs;
+extern int8_t current_drive_index; // FD_TYPE_FAT, FD_TYPE_NITRO, etc
 
 #endif // FILE_DESCRIPTORS_H__

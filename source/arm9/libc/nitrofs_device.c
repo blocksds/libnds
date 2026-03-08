@@ -31,7 +31,7 @@ bool nitrofs_use_for_path(const char *path)
     if (strstr(path, ":/"))
         return !memcmp(path, "nitro:/", 7);
     else
-        return current_drive_is_nitrofs;
+        return (current_drive_index == FD_TYPE_NITRO);
 }
 
 // Symbol defined by the linker
@@ -962,7 +962,7 @@ bool nitroFSInit(const char *basepath)
         nitrofs_local.fnt_offset = nitrofs_offsets.filenameOffset;
 
     // Set "nitro:/" as default path
-    current_drive_is_nitrofs = true;
+    current_drive_index = FD_TYPE_NITRO;
 
     return true;
 }

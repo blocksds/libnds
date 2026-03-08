@@ -15,7 +15,7 @@ int chdir(const char *path)
     {
         // This path doesn't include a drive name
 
-        result = current_drive_is_nitrofs ? nitrofs_chdir(path) : f_chdir(path);
+        result = (current_drive_index == FD_TYPE_NITRO) ? nitrofs_chdir(path) : f_chdir(path);
         if (result != FR_OK)
         {
             errno = fatfs_error_to_posix(result);
@@ -44,11 +44,11 @@ int chdir(const char *path)
 
         if (!strcmp("nitro:", drive))
         {
-            current_drive_is_nitrofs = true;
+            current_drive_index = FD_TYPE_NITRO;
         }
         else
         {
-            current_drive_is_nitrofs = false;
+            current_drive_index = FD_TYPE_FAT;
             result = f_chdrive(drive);
             if (result != FR_OK)
             {
@@ -65,7 +65,7 @@ int chdir(const char *path)
             return -1;
         }
 
-        result = current_drive_is_nitrofs ? nitrofs_chdir(dir) : f_chdir(dir);
+        result = (current_drive_index == FD_TYPE_NITRO) ? nitrofs_chdir(dir) : f_chdir(dir);
 
         free(dir);
 
@@ -134,7 +134,7 @@ char *getcwd(char *buf, size_t size)
             return NULL;
         }
 
-        if (current_drive_is_nitrofs)
+        if (current_drive_index == FD_TYPE_NITRO)
         {
             if (nitrofs_getcwd(buf, size - 1))
                 return NULL;
