@@ -52,8 +52,6 @@ typedef struct
 } nitrofs_dir_state_t;
 
 // Forward declarations
-struct dirent;
-struct stat;
 
 bool nitrofs_use_for_path(const char *path);
 int32_t nitrofs_path_resolve(const char *path);
