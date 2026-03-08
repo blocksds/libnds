@@ -1,28 +1,24 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023 Antonio Niño Díaz
+// Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include "filesystem_includes.h"
 
+#include "fat_device.h"
 #include "nitrofs_device.h"
 
 int chdir(const char *path)
 {
     char *divide = strstr(path, ":/");
-    FRESULT result;
 
     if (divide == NULL)
     {
         // This path doesn't include a drive name
 
-        result = (current_drive_index == FD_TYPE_NITRO) ? nitrofs_chdir(path) : f_chdir(path);
-        if (result != FR_OK)
-        {
-            errno = fatfs_error_to_posix(result);
-            return -1;
-        }
-
-        return 0;
+        if (current_drive_index == FD_TYPE_NITRO)
+            return nitrofs_chdir(path);
+        else
+            return fat_chdir(path);
     }
     else
     {
@@ -42,19 +38,17 @@ int chdir(const char *path)
         memcpy(drive, path, size);
         drive[size - 1] = '\0';
 
-        if (!strcmp("nitro:", drive))
+        if (strcmp("nitro:", drive) == 0)
         {
             current_drive_index = FD_TYPE_NITRO;
+            if (nitrofs_chdrive(drive) != 0)
+                return -1;
         }
         else
         {
             current_drive_index = FD_TYPE_FAT;
-            result = f_chdrive(drive);
-            if (result != FR_OK)
-            {
-                errno = fatfs_error_to_posix(result);
+            if (fat_chdrive(drive) != 0)
                 return -1;
-            }
         }
 
         // Get directory without its path
@@ -65,17 +59,16 @@ int chdir(const char *path)
             return -1;
         }
 
-        result = (current_drive_index == FD_TYPE_NITRO) ? nitrofs_chdir(dir) : f_chdir(dir);
+        int result;
+
+        if (current_drive_index == FD_TYPE_NITRO)
+            result = nitrofs_chdir(dir);
+        else
+            result = fat_chdir(dir);
 
         free(dir);
 
-        if (result != FR_OK)
-        {
-            errno = fatfs_error_to_posix(result);
-            return -1;
-        }
-
-        return 0;
+        return result;
     }
 }
 

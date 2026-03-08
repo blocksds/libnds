@@ -692,3 +692,27 @@ int fat_utime(const char *filename, const struct utimbuf *times)
     otimes[1].tv_sec = times->modtime;
     return utimes(filename, otimes);
 }
+
+int fat_chdir(const char *path)
+{
+    FRESULT result = f_chdir(path);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}
+
+int fat_chdrive(const char *drive)
+{
+    FRESULT result = f_chdrive(drive);
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}

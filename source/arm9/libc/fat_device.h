@@ -33,5 +33,7 @@ void fat_seekdir(DIR *dirp, long loc);
 long fat_telldir(DIR *dirp);
 int fat_utimes(const char *filename, const struct timeval times[2]);
 int fat_utime(const char *filename, const struct utimbuf *times);
+int fat_chdir(const char *path);
+int fat_chdrive(const char *drive);
 
 #endif // FAT_DEVICE_H__

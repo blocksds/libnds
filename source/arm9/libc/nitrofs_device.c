@@ -523,13 +523,26 @@ int nitrofs_getcwd(char *buf, size_t size)
 int nitrofs_chdir(const char *path)
 {
     if (!nitrofs_local.fnt_offset)
-        return FR_NO_FILESYSTEM;
+    {
+        errno = ENODEV;
+        return -1;
+    }
 
     int32_t res = nitrofs_path_resolve(path);
     if (res < 0)
-        return FR_NO_PATH;
+    {
+        errno = ENOENT;
+        return -1;
+    }
+
     nitrofs_local.current_dir = res;
-    return FR_OK;
+    return 0;
+}
+
+int nitrofs_chdrive(const char *drive)
+{
+    (void)drive;
+    return 0;
 }
 
 /// File I/O

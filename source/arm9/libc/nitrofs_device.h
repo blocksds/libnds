@@ -65,6 +65,7 @@ void nitrofs_seekdir(DIR *dirp, long loc);
 long nitrofs_telldir(DIR *dirp);
 int nitrofs_getcwd(char *buf, size_t size);
 int nitrofs_chdir(const char *path);
+int nitrofs_chdrive(const char *drive);
 int nitrofs_open(const char *path, int flags, mode_t mode);
 ssize_t nitrofs_read(int fd, void *ptr, size_t len);
 off_t nitrofs_lseek(int fd, off_t offset, int whence);
