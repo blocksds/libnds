@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (C) 2025 Antonio Niño Díaz
+// Copyright (C) 2026 trustytrojan
 
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -160,13 +161,6 @@ void *dlopen_FILE(FILE *f, int mode)
         addr_space_size = header.addr_space_size;
     }
 
-    loaded_mem = malloc(addr_space_size);
-    if (loaded_mem == NULL)
-    {
-        dl_err_str = "no memory to load sections";
-        goto cleanup;
-    }
-
     dsl_section_header section[10];
     if (num_sections > 10)
     {
@@ -177,6 +171,23 @@ void *dlopen_FILE(FILE *f, int mode)
     if (fread(&section, sizeof(dsl_section_header), num_sections, f) != num_sections)
     {
         dl_err_str = "can't read DSL sections";
+        goto cleanup;
+    }
+
+    // Count total number of relocations as a safe baseline for amount of veneer memory to allocate
+    size_t total_relocs = 0;
+    for (unsigned int s = 0; s < num_sections; s++)
+    {
+        if (section[s].type == DSL_SEGMENT_RELOCATIONS)
+            total_relocs += section[s].size / sizeof(Elf32_Rel);
+    }
+    const size_t veneer_pool_size = total_relocs * 8; // a veneer is 8 bytes as described below
+
+    const size_t loaded_mem_size = addr_space_size + veneer_pool_size;
+    loaded_mem = malloc(loaded_mem_size);
+    if (loaded_mem == NULL)
+    {
+        dl_err_str = "no memory to load sections";
         goto cleanup;
     }
 
@@ -271,6 +282,10 @@ void *dlopen_FILE(FILE *f, int mode)
 
     // Apply relocations
     // -----------------
+
+    // Keep track of how much veneer memory we have left.
+    const uint8_t *veneer_ptr = loaded_mem + addr_space_size;
+    const uint8_t *const veneer_end = loaded_mem + loaded_mem_size;
 
     for (unsigned int i = 0; i < num_sections; i++)
     {
@@ -417,9 +432,12 @@ void *dlopen_FILE(FILE *f, int mode)
                     uint32_t b_addr = (uint32_t)(loaded_mem + rel.r_offset);
                     uint32_t sym_addr = sym->value;
 
+                    // This will change if this is a switch-to-Thumb jump.
+                    uint32_t jump_target = sym_addr;
+
                     // The AAELF32 ABI says that a veneer is required for
                     // R_ARM_JUMP24 when switching to Thumb mode. This is a bit
-                    // tricky, so let's fail in that case:
+                    // tricky:
                     //
                     // https://github.com/ARM-software/abi-aa/blob/4492d1570eb70c8fd146623e0db65b2d241f12e7/aaelf32/aaelf32.rst
                     //
@@ -428,11 +446,25 @@ void *dlopen_FILE(FILE *f, int mode)
                     // https://elixir.bootlin.com/linux/v6.13.1/source/arch/arm/kernel/module.c#L129-L134
                     if ((sym_addr & 1) == 1)
                     {
-                        dl_err_str = "R_ARM_JUMP24 jump to Thumb";
-                        goto cleanup;
+                        if (veneer_ptr + 8 > veneer_end)
+	                    {
+                            dl_err_str = "R_ARM_JUMP24 no space for veneer";
+                            goto cleanup;
+                        }
+
+                        uint32_t *veneer = (uint32_t *)veneer_ptr;
+
+                        // Arm veneer:
+                        //   LDR pc, [pc, #-4]
+                        //   .word thumb_target
+                        veneer[0] = 0xE51FF004;
+                        veneer[1] = sym_addr;
+
+                        jump_target = (uint32_t)veneer_ptr;
+                        veneer_ptr += 8;
                     }
 
-                    int32_t jump_value = sym_addr - b_addr;
+                    int32_t jump_value = jump_target - b_addr;
 
                     jump_value -= 6;
 
