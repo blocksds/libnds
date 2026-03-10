@@ -46,6 +46,7 @@
 /// - @ref nds/arm9/card.h "Slot-1 ARM9 access functions"
 /// - @ref fat.h "Simple replacement of libfat"
 /// - @ref filesystem.h "NitroFS, filesystem embedded in a NDS ROM"
+/// - @ref nds/arm9/device_io.h "Support for custom user-implemented filesystems."
 /// - @ref nds/arm9/sdmmc.h "ARM9 SDMMC Module"
 /// - @ref nds/arm7/nand_crypto.h "ARM7 Low-level NAND cryptographic helper functions"
 ///

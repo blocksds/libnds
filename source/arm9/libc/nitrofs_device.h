@@ -65,6 +65,7 @@ int nitrofs_getcwd(char *buf, size_t size);
 int nitrofs_chdir(const char *path);
 int nitrofs_chdrive(const char *drive);
 int nitrofs_access(const char *path, int amode);
+int nitrofs_isatty(int fd);
 int nitrofs_open(const char *path, int flags, mode_t mode);
 ssize_t nitrofs_read(int fd, void *ptr, size_t len);
 off_t nitrofs_lseek(int fd, off_t offset, int whence);
@@ -72,5 +73,7 @@ int nitrofs_close(int fd);
 int nitrofs_stat(const char *name, struct stat *st);
 int nitrofs_fstat(int fd, struct stat *st);
 int nitrofs_fat_get_attr(const char *name);
+
+bool nitrofs_isdrive(const char *name);
 
 #endif // NITROFS_DEVICE_H__

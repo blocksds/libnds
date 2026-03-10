@@ -8,14 +8,16 @@
 #include <aeabi.h>
 #include <fat.h>
 #include <nds/arm9/card.h>
-#include <nds/arm9/sassert.h>
+#include <nds/arm9/device_io.h>
 #include <nds/arm9/dldi.h>
+#include <nds/arm9/sassert.h>
 #include <nds/card.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
 #include "fatfs/cache.h"
 
+#include "device_io_internal.h"
 #include "nitrofs_device.h"
 
 static nitrofs_t nitrofs_local;
@@ -224,6 +226,17 @@ static int32_t nitrofs_dir_step(uint16_t dir, const char *name)
     } while (nitrofs_dir_state_next(&state));
 
     return -1;
+}
+
+int nitrofs_isatty(int fd)
+{
+    (void)fd;
+
+    // We could check if the file descriptor is valid, but that would force us
+    // to check socket descriptors, nitrofs, etc. To make things easier, don't
+    // check them. Instead of EBADF we will return ENOTTY always.
+    errno = ENOTTY;
+    return 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -624,7 +637,7 @@ int nitroFSOpenById(uint16_t id)
         return -1;
     }
 
-    return FD_DESC(f) | (FD_TYPE_NITRO << 28);
+    return FD_DESC(f);
 }
 
 FILE *nitroFSFopenById(uint16_t id, const char *mode)
@@ -995,4 +1008,12 @@ int nitroFSInitLookupCache(uint32_t max_buffer_size)
     if (!nitrofs_local.fat_offset || !nitrofs_local.file)
         return 0;
     return fatInitLookupCacheFile(nitrofs_local.file, max_buffer_size);
+}
+
+bool nitrofs_isdrive(const char *name)
+{
+    if (strcmp(name, "nitro") == 0)
+        return true;
+
+    return false;
 }

@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 
+#include <nds/arm9/device_io.h>
+
 #include "filesystem_includes.h"
 
 // File descriptor pointer parsing
@@ -20,11 +22,15 @@
 // lwIP-compatible file descriptors to libnds-compatible file descriptors.
 // Important: lwIP must never use 0, 1 or 2 as descriptors, they are reserved
 // for stdin, stdout and stderr.
-#define FD_TYPE_SOCKET 0x0 // Network sockets
-#define FD_TYPE_FAT    0x1 // Files opened in DLDI / SD / NAND
-#define FD_TYPE_NITRO  0x2 // Files opened in NitroFS
+#define FD_TYPE_SOCKET      0x0 // Network sockets
+#define FD_TYPE_FAT         0x1 // Files opened in DLDI / SD / NAND
+#define FD_TYPE_NITRO       0x2 // Files opened in NitroFS
+#define FD_TYPE_USER_MIN    0x3 // First index reserved for user filesystems
+#define FD_TYPE_USER_MAX    0x7 // Last index reserved for user filesystems
 // Important note: Don't use types over 0x7. Values 0x8 to 0xF would create
 // file descriptors that are negative values, which could cause unexpected bugs.
+
+static_assert((FD_TYPE_USER_MAX - FD_TYPE_USER_MIN + 1) == DEVICE_IO_MAX_DEVICES);
 
 #define FD_IS_FAT(x)    (FD_TYPE(x) == FD_TYPE_FAT)
 #define FD_IS_NITRO(x)  (FD_TYPE(x) == FD_TYPE_NITRO)
@@ -33,7 +39,7 @@
 // Create a file descriptor from a FIL pointer
 static inline int FD_FAT_PACK(FIL *f)
 {
-    return (FD_TYPE_FAT << 28) | (intptr_t)f;
+    return (intptr_t)f;
 }
 
 // Recover a FIL pointer from a file descriptor

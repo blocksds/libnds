@@ -3,6 +3,9 @@
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 // Copyright (C) 2023 Adrian "asie" Siekierka
 
+#include <nds/arm9/device_io.h>
+
+#include "device_io_internal.h"
 #include "filesystem_includes.h"
 
 int fat_open(const char *path, int flags, mode_t mode_)
@@ -707,7 +710,21 @@ int fat_chdir(const char *path)
 
 int fat_chdrive(const char *drive)
 {
-    FRESULT result = f_chdrive(drive);
+    // We get the drive name without ':' but FatFs expects it. We need to add
+    // it to the name.
+    char str[DEVICE_IO_MAX_DRIVE_NAME_LENGTH + 1];
+    size_t drive_len = strlen(drive);
+    if ((drive_len + 2) > sizeof(str))
+    {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    strcpy(str, drive);
+    str[drive_len] = ':';
+    str[drive_len + 1] = '\0';
+
+    FRESULT result = f_chdrive(str);
     if (result != FR_OK)
     {
         errno = fatfs_error_to_posix(result);
@@ -726,4 +743,13 @@ int fat_getcwd(char *buf, size_t size)
         return -1;
     }
     return 0;
+}
+
+bool fat_isdrive(const char *name)
+{
+    if ((strcmp(name, "fat") == 0) || (strcmp(name, "sd") == 0) ||
+        (strcmp(name, "nand") == 0) || (strcmp(name, "nand2") == 0))
+        return true;
+
+    return false;
 }

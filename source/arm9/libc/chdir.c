@@ -2,6 +2,9 @@
 //
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 
+#include <nds/arm9/device_io.h>
+
+#include "device_io_internal.h"
 #include "filesystem_includes.h"
 
 #include "fat_device.h"
@@ -13,22 +16,31 @@ int chdir(const char *path)
 
     if (divide == NULL)
     {
-        // This path doesn't include a drive name
+        // This path doesn't include a drive name, use the current drive
+
+        int (*fn_chdir)(const char *);
 
         if (current_drive_index == FD_TYPE_NITRO)
-            return nitrofs_chdir(path);
+            fn_chdir = nitrofs_chdir;
+        else if (current_drive_index == FD_TYPE_FAT)
+            fn_chdir = fat_chdir;
         else
-            return fat_chdir(path);
+            fn_chdir = DEVIO_GETFN(current_drive_index, chdir);
+
+        if (fn_chdir == NULL)
+            return -1;
+
+        return fn_chdir(path);
     }
     else
     {
         // This path includes a drive name. Split it.
 
-        char drive[10]; // The longest name of a drive is "nitro:"
+        char drive[DEVICE_IO_MAX_DRIVE_NAME_LENGTH + 1];
 
         // Size of the drive name
-        size_t size = divide - path + 2;
-        if (size > (10 - 1))
+        size_t size = divide - path;
+        if (size >= sizeof(drive))
         {
             errno = ENOMEM;
             return -1;
@@ -36,18 +48,39 @@ int chdir(const char *path)
 
         // Copy drive name
         memcpy(drive, path, size);
-        drive[size - 1] = '\0';
+        drive[size] = '\0';
 
-        if (strcmp("nitro:", drive) == 0)
+        int index = deviceIoGetIndexFromDrive(drive);
+
+        int (*fn_chdir)(const char *);
+        int (*fn_chdrive)(const char *);
+
+        if (index == FD_TYPE_NITRO)
         {
-            current_drive_index = FD_TYPE_NITRO;
-            if (nitrofs_chdrive(drive) != 0)
-                return -1;
+            fn_chdir = nitrofs_chdir;
+            fn_chdrive = nitrofs_chdrive;
+        }
+        else if (index == FD_TYPE_FAT)
+        {
+            fn_chdir = fat_chdir;
+            fn_chdrive = fat_chdrive;
         }
         else
         {
-            current_drive_index = FD_TYPE_FAT;
-            if (fat_chdrive(drive) != 0)
+            fn_chdir = DEVIO_GETFN(index, chdir);
+            fn_chdrive = DEVIO_GETFN(index, chdrive);
+        }
+
+        if (fn_chdir == NULL)
+        {
+            errno = EINVAL;
+            return -1;
+        }
+        if (fn_chdrive != NULL)
+        {
+            // If the driver doesn't provide a chdrive() function, it may only
+            // support one drive name.
+            if (fn_chdrive(drive) != 0)
                 return -1;
         }
 
@@ -59,12 +92,10 @@ int chdir(const char *path)
             return -1;
         }
 
-        int result;
+        // Set the new drive as default drive
+        current_drive_index = index;
 
-        if (current_drive_index == FD_TYPE_NITRO)
-            result = nitrofs_chdir(dir);
-        else
-            result = fat_chdir(dir);
+        int result = fn_chdir(dir);
 
         free(dir);
 
@@ -127,16 +158,21 @@ char *getcwd(char *buf, size_t size)
             return NULL;
         }
 
+        int (*fn)(char *, size_t);
+
         if (current_drive_index == FD_TYPE_NITRO)
-        {
-            if (nitrofs_getcwd(buf, size - 1))
-                return NULL;
-        }
+            fn = nitrofs_getcwd;
+        else if (current_drive_index == FD_TYPE_FAT)
+            fn = fat_getcwd;
         else
-        {
-            if (fat_getcwd(buf, size - 1))
-                return NULL;
-        }
+            fn = DEVIO_GETFN(current_drive_index, getcwd);
+
+        if (fn == NULL)
+            return NULL;
+
+        if (fn(buf, size - 1) != 0)
+            return NULL;
+
         // This shouldn't be needed, the drive functions should fail if the
         // terminator character doesn't fit in the buffer.
         buf[size - 1] = '\0';
