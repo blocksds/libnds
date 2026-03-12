@@ -17,6 +17,7 @@
 #include <nds/ndstypes.h>
 
 #include "keyboardGfx.h"
+#include "arm9/libnds_internal.h"
 
 s16 lastKey = -1;
 
@@ -492,3 +493,95 @@ void keyboardGetString(char *buffer, int maxLen)
 
     *buffer = 0;
 }
+
+// Picolibc stdin handler
+
+// Newline buffer so that we can support pressing the Backspace key.
+// If not defined, unbuffered keyboard input is used.
+#define INPUT_BUFFER_SIZE 128
+#ifdef INPUT_BUFFER_SIZE
+#define INPUT_BUFFER_MASK (INPUT_BUFFER_SIZE - 1)
+static char stdin_buf[INPUT_BUFFER_SIZE];
+static uint16_t stdin_buf_left = 0;
+static uint16_t stdin_buf_right = 0;
+#endif
+bool stdin_buf_empty = false;
+
+int libnds_stdin_getc_keyboard(FILE *file)
+{
+    (void)file;
+
+    static int shown = 0;
+    int c = -1;
+
+    if (!keyboardLoaded)
+        return c;
+
+#ifdef INPUT_BUFFER_SIZE
+    if (shown == 0 && stdin_buf_left != stdin_buf_right)
+    {
+        c = stdin_buf[stdin_buf_left];
+        stdin_buf_left = (stdin_buf_left + 1) & INPUT_BUFFER_MASK;
+        return c;
+    }
+#endif
+
+    if (shown == 0)
+    {
+        keyboardShow();
+        shown = 1;
+    }
+
+    while (true)
+    {
+        scanKeys();
+#ifdef INPUT_BUFFER_SIZE
+        stdin_buf_empty = stdin_buf_left == stdin_buf_right;
+        int kc = keyboardUpdate();
+        stdin_buf_empty = false;
+        if (kc == DVK_BACKSPACE)
+        {
+            if (stdin_buf_left != stdin_buf_right)
+            {
+                stdin_buf_right = (stdin_buf_right - 1) & INPUT_BUFFER_MASK;
+            }
+        }
+        else if (kc > 0)
+        {
+            uint16_t next_right = (stdin_buf_right + 1) & INPUT_BUFFER_MASK;
+            // if about to overflow buffer, pop char
+            // if newline, finish writing string - hide keyboard + pop char
+            if (next_right == stdin_buf_left || kc == '\n')
+            {
+                if (kc == '\n')
+                {
+                    keyboardHide();
+                    shown = 0;
+                }
+
+                c = stdin_buf[stdin_buf_left];
+                stdin_buf_left = (stdin_buf_left + 1) & INPUT_BUFFER_MASK;
+            }
+            stdin_buf[stdin_buf_right] = kc;
+            stdin_buf_right = next_right;
+        }
+#else
+        c = keyboardUpdate();
+#endif
+        if (c > 0)
+            break;
+
+        cothread_yield_irq(IRQ_VBLANK);
+    }
+
+#ifndef INPUT_BUFFER_SIZE
+    if (c == '\n')
+    {
+        keyboardHide();
+        shown = 0;
+    }
+#endif
+
+    return c;
+}
+
