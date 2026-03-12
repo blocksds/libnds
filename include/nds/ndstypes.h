@@ -23,16 +23,27 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define LIBNDS_STRINGIFY(x) LIBNDS_STRINGIFY_(x)
+#define LIBNDS_STRINGIFY_(x) #x
+
 #ifdef __INTELLISENSE__
 
 #define ITCM_CODE
+#define ITCM_FUNC(x) x
 #define ITCM_DATA
+#define ITCM_DATA_VAR(x) x
 #define ITCM_BSS
+#define ITCM_BSS_VAR(x) x
 #define DTCM_DATA
+#define DTCM_DATA_VAR(x) x
 #define DTCM_BSS
+#define DTCM_BSS_VAR(x) x
 #define TWL_CODE
+#define TWL_FUNC(x) x
 #define TWL_DATA
+#define TWL_DATA_VAR(x) x
 #define TWL_BSS
+#define TWL_BSS_VAR(x) x
 #define ARM_CODE
 #define THUMB_CODE
 #define ALIGN(m)
@@ -49,26 +60,43 @@ extern "C" {
 
 #else // __INTELLISENSE__
 
+
 /// Used to place a function in ITCM
-#define ITCM_CODE __attribute__((section(".itcm.text"), long_call))
+#define ITCM_CODE __attribute__((section(".itcm.text." __FILE__ "." LIBNDS_STRINGIFY(__LINE__)), long_call))
+/// Used to place a function in ITCM
+#define ITCM_FUNC(x) __attribute__((section(".itcm.text." LIBNDS_STRINGIFY(x)))) x
 
 /// Used to place initialized data in ITCM
-#define ITCM_DATA __attribute__((section(".itcm.data")))
+#define ITCM_DATA __attribute__((section(".itcm.data." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
+/// Used to place initialized data in ITCM
+#define ITCM_DATA_VAR(x) __attribute__((section(".itcm.data." LIBNDS_STRINGIFY(x)))) x
 
 /// Used to place uninitialized data in ITCM
-#define ITCM_BSS  __attribute__((section(".itcm.bss")))
+#define ITCM_BSS  __attribute__((section(".itcm.bss." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
+/// Used to place uninitialized data in ITCM
+#define ITCM_BSS_VAR(x) __attribute__((section(".itcm.bss." LIBNDS_STRINGIFY(x)))) x
 
 /// Used to place initialized data in DTCM
-#define DTCM_DATA __attribute__((section(".dtcm")))
+#define DTCM_DATA __attribute__((section(".dtcm." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
 /// Used to place uninitialized data in DTCM
-#define DTCM_BSS __attribute__((section(".sbss")))
+#define DTCM_BSS __attribute__((section(".sbss." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
+/// Used to place initialized data in DTCM
+#define DTCM_DATA_VAR(x) __attribute__((section(".dtcm." LIBNDS_STRINGIFY(x)))) x
+/// Used to place uninitialized data in DTCM
+#define DTCM_BSS_VAR(x) __attribute__((section(".sbss." LIBNDS_STRINGIFY(x)))) x
 
 /// Used to place a function in DSi RAM.
-#define TWL_CODE __attribute__((section(".twl.text")))
+#define TWL_CODE __attribute__((section(".twl.text." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
 /// Used to place initialized data in DSi RAM.
-#define TWL_DATA __attribute__((section(".twl.data")))
+#define TWL_DATA __attribute__((section(".twl.data." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
 /// Used to place uninitialized data in DSi RAM.
-#define TWL_BSS __attribute__((section(".twl_bss")))
+#define TWL_BSS __attribute__((section(".twl_bss." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
+/// Used to place a function in DSi RAM.
+#define TWL_FUNC(x) __attribute__((section(".twl.text." LIBNDS_STRINGIFY(x)))) x
+/// Used to place initialized data in DSi RAM.
+#define TWL_DATA_VAR(x) __attribute__((section(".twl.data." LIBNDS_STRINGIFY(x)))) x
+/// Used to place uninitialized data in DSi RAM.
+#define TWL_BSS_VAR(x) __attribute__((section(".twl_bss." LIBNDS_STRINGIFY(x)))) x
 
 /// Used to tell the compiler to compile a function as ARM code
 #define ARM_CODE __attribute__((target("arm")))
@@ -76,7 +104,7 @@ extern "C" {
 #define THUMB_CODE __attribute__((target("thumb")))
 
 /// Aligns a struct (and other types) to "m".
-#define ALIGN(m) __attribute__((aligned (m)))
+#define ALIGN(m) __attribute__((aligned(m)))
 
 /// Packs a struct so it won't include padding bytes.
 #define PACKED __attribute__ ((packed))
