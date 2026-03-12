@@ -70,19 +70,19 @@ static cothread_info_t cothread_list;
 
 // 32 list of threads waiting for interrupts for the 32 bits in the registers IE
 // and IF.
-ITCM_BSS cothread_info_t *cothread_list_irq[32];
+cothread_info_t *ITCM_BSS_VAR(cothread_list_irq)[32];
 #ifdef ARM7
 cothread_info_t *cothread_list_irq_aux[32];
 #endif
 
 // List of threads waiting for signals.
-ITCM_BSS cothread_info_t *cothread_list_signal;
+cothread_info_t *ITCM_BSS_VAR(cothread_list_signal);
 
 // Total number of threads
-ITCM_BSS uint32_t cothread_threads_count;
+uint32_t ITCM_BSS_VAR(cothread_threads_count);
 
 // Total number of threads waiting for events such as interrupts
-ITCM_BSS uint32_t cothread_threads_waiting_count;
+uint32_t ITCM_BSS_VAR(cothread_threads_waiting_count);
 
 //-------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ void init_tls(void *__tls)
 // the linker (by setting __dtcm_data_size). If not, this variable would be
 // placed at the start of DTCM, so the stack wouldn't be able to grow to main
 // RAM if it runs out of space in DTCM.
-ITCM_DATA void *__tls = __tls_start - TCB_SIZE;
+void *ITCM_DATA_VAR(__tls) = __tls_start - TCB_SIZE;
 
 static inline void set_tls(void *tls)
 {
@@ -151,7 +151,7 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
     leaveCriticalSection(oldIME);
 }
 
-ITCM_CODE static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ctx)
+static void ITCM_FUNC(cothread_list_remove_ctx_from_irq_list)(cothread_info_t *ctx)
 {
     // Look for this thread context in all the list of interrupts and remove it
     // from there.
@@ -197,7 +197,7 @@ ITCM_CODE static void cothread_list_remove_ctx_from_irq_list(cothread_info_t *ct
     }
 }
 
-ITCM_CODE static void cothread_list_remove_ctx(cothread_info_t *ctx)
+static void ITCM_FUNC(cothread_list_remove_ctx)(cothread_info_t *ctx)
 {
     // Remove context from lists of interrupts
     cothread_list_remove_ctx_from_irq_list(ctx);
@@ -534,7 +534,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
 }
 #endif
 
-ITCM_CODE void cothread_yield_signal(uint32_t signal_id)
+void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
@@ -564,7 +564,7 @@ ITCM_CODE void cothread_yield_signal(uint32_t signal_id)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
-ITCM_CODE void cothread_send_signal(uint32_t signal_id)
+void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
 {
     int count = 0;
 
@@ -624,7 +624,7 @@ cothread_t cothread_get_current(void)
     return (cothread_t)cothread_active_thread;
 }
 
-ITCM_CODE ARM_CODE static int cothread_scheduler_start(void)
+ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 {
     cothread_info_t *ctx = &cothread_list;
 

@@ -12,15 +12,15 @@
 
 #pragma GCC optimize ("O3")
 
-ARM_CODE ITCM_CODE
-void swiWaitForVBlank(void)
+ARM_CODE
+void ITCM_FUNC(swiWaitForVBlank)(void)
 {
     swiIntrWait(INTRWAIT_CLEAR_FLAGS, IRQ_VBLANK);
 }
 
 LIBNDS_NOINLINE // So that it isn't inlined in swiWaitForVBlank()
-ARM_CODE ITCM_CODE
-void swiIntrWait(u32 clearOldFlags, uint32_t flags)
+ARM_CODE
+void ITCM_FUNC(swiIntrWait)(u32 clearOldFlags, uint32_t flags)
 {
     REG_IME = 0;
 

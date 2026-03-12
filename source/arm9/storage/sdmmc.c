@@ -12,7 +12,7 @@
 #include <nds/memory.h>
 #include <nds/system.h>
 
-TWL_CODE static u32 sdmmc_fifo_value(uint32_t cmd)
+static u32 TWL_FUNC(sdmmc_fifo_value)(uint32_t cmd)
 {
     u32 result;
 
@@ -27,7 +27,7 @@ TWL_CODE static u32 sdmmc_fifo_value(uint32_t cmd)
     return result;
 }
 
-TWL_CODE static u32 sdmmc_fifo_sectors(uint32_t cmd, sec_t sector, sec_t numSectors, void *buffer)
+static u32 TWL_FUNC(sdmmc_fifo_sectors)(uint32_t cmd, sec_t sector, sec_t numSectors, void *buffer)
 {
     FifoMessage msg;
 
@@ -49,42 +49,42 @@ TWL_CODE static u32 sdmmc_fifo_sectors(uint32_t cmd, sec_t sector, sec_t numSect
     return result;
 }
 
-TWL_CODE bool sdmmc_ClearStatus(void)
+bool TWL_FUNC(sdmmc_ClearStatus)(void)
 {
     return true;
 }
 
-TWL_CODE bool sdmmc_Shutdown(void)
+bool TWL_FUNC(sdmmc_Shutdown)(void)
 {
     return true;
 }
 
-TWL_CODE u8 sdmmc_GetDiskStatus(void)
+u8 TWL_FUNC(sdmmc_GetDiskStatus)(void)
 {
     return sdmmc_fifo_value(SDMMC_SD_STATUS);
 }
 
-TWL_CODE u32 nand_GetSectors(void)
+u32 TWL_FUNC(nand_GetSectors)(void)
 {
     return sdmmc_fifo_value(SDMMC_NAND_SIZE);
 }
 
-TWL_CODE u32 sdmmc_GetSectors(void)
+u32 TWL_FUNC(sdmmc_GetSectors)(void)
 {
     return sdmmc_fifo_value(SDMMC_SD_SIZE);
 }
 
-TWL_CODE bool nand_Startup(void)
+bool TWL_FUNC(nand_Startup)(void)
 {
     return sdmmc_fifo_value(SDMMC_NAND_START) == 0;
 }
 
-TWL_CODE bool nand_SetupCrypt(void)
+bool TWL_FUNC(nand_SetupCrypt)(void)
 {
     return sdmmc_fifo_value(SDMMC_NAND_CRYPT_SETUP) == 0;
 }
 
-TWL_CODE bool sdmmc_Startup(void)
+bool TWL_FUNC(sdmmc_Startup)(void)
 {
     if (sdmmc_fifo_value(SDMMC_SD_STATUS) & SDMMC_STATUS_NODISK)
         return false;
@@ -92,42 +92,42 @@ TWL_CODE bool sdmmc_Startup(void)
     return sdmmc_fifo_value(SDMMC_SD_START) == 0;
 }
 
-TWL_CODE bool sdmmc_IsInserted(void)
+bool TWL_FUNC(sdmmc_IsInserted)(void)
 {
     return (sdmmc_GetDiskStatus() & SDMMC_STATUS_NODISK) == 0;
 }
 
-TWL_CODE bool nand_ReadSectors(sec_t sector, sec_t numSectors, void *buffer)
+bool TWL_FUNC(nand_ReadSectors)(sec_t sector, sec_t numSectors, void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_NAND_READ_SECTORS, sector, numSectors, buffer) == 0;
 }
 
-TWL_CODE bool nand_ReadSectorsCrypt(sec_t sector, sec_t numSectors, void *buffer)
+bool TWL_FUNC(nand_ReadSectorsCrypt)(sec_t sector, sec_t numSectors, void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_NAND_READ_ENCRYPTED_SECTORS, sector, numSectors, buffer) == 0;
 }
 
-TWL_CODE bool sdmmc_ReadSectors(sec_t sector, sec_t numSectors, void *buffer)
+bool TWL_FUNC(sdmmc_ReadSectors)(sec_t sector, sec_t numSectors, void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_SD_READ_SECTORS, sector, numSectors, buffer) == 0;
 }
 
-TWL_CODE bool nand_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
+bool TWL_FUNC(nand_WriteSectors)(sec_t sector, sec_t numSectors, const void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_SECTORS, sector, numSectors, (void *) buffer) == 0;
 }
 
-TWL_CODE bool nand_WriteSectorsCrypt(sec_t sector, sec_t numSectors, const void *buffer)
+bool TWL_FUNC(nand_WriteSectorsCrypt)(sec_t sector, sec_t numSectors, const void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_NAND_WRITE_ENCRYPTED_SECTORS, sector, numSectors, (void *) buffer) == 0;
 }
 
-TWL_CODE bool sdmmc_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
+bool TWL_FUNC(sdmmc_WriteSectors)(sec_t sector, sec_t numSectors, const void *buffer)
 {
     return sdmmc_fifo_sectors(SDMMC_SD_WRITE_SECTORS, sector, numSectors, (void *) buffer) == 0;
 }
 
-TWL_DATA const DISC_INTERFACE __io_dsisd =
+const DISC_INTERFACE TWL_DATA_VAR(__io_dsisd) =
 {
     DEVICE_TYPE_DSI_SD,
     FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,

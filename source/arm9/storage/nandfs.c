@@ -10,9 +10,9 @@
 
 #include "../filesystem_includes.h"
 
-TWL_DATA static bool write_protect = true;
+static bool TWL_DATA_VAR(write_protect) = true;
 
-TWL_CODE static u32 sdmmc_fifo_value(uint32_t cmd)
+static u32 TWL_FUNC(sdmmc_fifo_value)(uint32_t cmd)
 {
     u32 result;
 
@@ -27,12 +27,12 @@ TWL_CODE static u32 sdmmc_fifo_value(uint32_t cmd)
     return result;
 }
 
-TWL_CODE void nand_WriteProtect(bool protect)
+void TWL_FUNC(nand_WriteProtect)(bool protect)
 {
     write_protect = protect;
 }
 
-TWL_CODE bool nandfs_Startup(void)
+bool TWL_FUNC(nandfs_Startup)(void)
 {
     if (!nand_Startup() || !nand_SetupCrypt())
         return false;
@@ -40,17 +40,17 @@ TWL_CODE bool nandfs_Startup(void)
     return true;
 }
 
-TWL_CODE u8 nand_GetDiskStatus(void)
+u8 TWL_FUNC(nand_GetDiskStatus)(void)
 {
     return sdmmc_fifo_value(SDMMC_NAND_STATUS) | (write_protect * STA_PROTECT);
 }
 
-TWL_CODE static bool nandfs_IsInserted(void)
+static bool TWL_FUNC(nandfs_IsInserted)(void)
 {
     return true;
 }
 
-TWL_CODE static bool nandfs_WriteSectors(sec_t sector, sec_t numSectors, const void *buffer)
+static bool TWL_FUNC(nandfs_WriteSectors)(sec_t sector, sec_t numSectors, const void *buffer)
 {
     if (write_protect)
     {
@@ -59,17 +59,17 @@ TWL_CODE static bool nandfs_WriteSectors(sec_t sector, sec_t numSectors, const v
     return nand_WriteSectorsCrypt(sector, numSectors, buffer);
 }
 
-TWL_CODE static bool nandfs_ClearStatus(void)
+static bool TWL_FUNC(nandfs_ClearStatus)(void)
 {
     return true;
 }
 
-TWL_CODE static bool nandfs_Shutdown(void)
+static bool TWL_FUNC(nandfs_Shutdown)(void)
 {
     return true;
 }
 
-TWL_DATA static DISC_INTERFACE __io_dsinand = {
+static DISC_INTERFACE TWL_DATA_VAR(__io_dsinand) = {
     DEVICE_TYPE_DSI_NAND,
     FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE,
     &nandfs_Startup,

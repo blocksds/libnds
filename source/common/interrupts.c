@@ -24,9 +24,9 @@ VoidFn irqTable[MAX_INTERRUPTS] INT_TABLE_SECTION;
 #ifdef ARM7
 VoidFn irqTableAUX[MAX_INTERRUPTS_AUX] TWL_BSS;
 
-static TWL_BSS VoidFn __powerbuttonCB = (VoidFn)0;
+static VoidFn TWL_BSS_VAR(__powerbuttonCB) = (VoidFn)0;
 
-TWL_CODE void i2cIRQHandler(void)
+void TWL_FUNC(i2cIRQHandler)(void)
 {
     // I2CREGPM_PWRIF
     //
@@ -68,7 +68,7 @@ TWL_CODE void i2cIRQHandler(void)
     }
 }
 
-TWL_CODE void irqInitAUX(void)
+void TWL_FUNC(irqInitAUX)(void)
 {
     // Set all interrupts to dummy functions.
     for (int i = 0; i < MAX_INTERRUPTS_AUX; i++)
@@ -199,7 +199,7 @@ void irqClear(u32 mask)
 
 #ifdef ARM7
 
-TWL_CODE void irqSetAUX(u32 mask, VoidFn handler)
+void TWL_FUNC(irqSetAUX)(u32 mask, VoidFn handler)
 {
     int oldIME = enterCriticalSection();
 
@@ -208,7 +208,7 @@ TWL_CODE void irqSetAUX(u32 mask, VoidFn handler)
     leaveCriticalSection(oldIME);
 }
 
-TWL_CODE void irqClearAUX(u32 mask)
+void TWL_FUNC(irqClearAUX)(u32 mask)
 {
     int oldIME = enterCriticalSection();
 
@@ -218,7 +218,7 @@ TWL_CODE void irqClearAUX(u32 mask)
     leaveCriticalSection(oldIME);
 }
 
-TWL_CODE void irqDisableAUX(uint32_t irq)
+void TWL_FUNC(irqDisableAUX)(uint32_t irq)
 {
     int oldIME = enterCriticalSection();
 
@@ -227,7 +227,7 @@ TWL_CODE void irqDisableAUX(uint32_t irq)
     leaveCriticalSection(oldIME);
 }
 
-TWL_CODE void irqEnableAUX(uint32_t irq)
+void TWL_FUNC(irqEnableAUX)(uint32_t irq)
 {
     int oldIME = enterCriticalSection();
 

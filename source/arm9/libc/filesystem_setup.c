@@ -24,7 +24,7 @@
 static FATFS fs_info[FF_NTR_VOLUMES] = { 0 };
 
 // Devices: "sd:/", "nand:/", "nand2:/"
-TWL_BSS static FATFS fs_info_twl[FF_VOLUMES - FF_NTR_VOLUMES] = { 0 };
+static FATFS TWL_BSS_VAR(fs_info_twl)[FF_VOLUMES - FF_NTR_VOLUMES] = { 0 };
 
 static inline FATFS* get_fs_info(size_t index)
 {

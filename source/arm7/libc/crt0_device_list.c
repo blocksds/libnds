@@ -10,8 +10,8 @@
 
 #define DEVICE_LIST_APPNAME_LEN (sizeof(((DeviceList *)0)->appname))
 
-TWL_CODE static
-size_t get_device_name_len_from_app_name(const char (appname)[DEVICE_LIST_APPNAME_LEN])
+static
+size_t TWL_FUNC(get_device_name_len_from_app_name)(const char (appname)[DEVICE_LIST_APPNAME_LEN])
 {
     for (size_t i = 0; i < DEVICE_LIST_APPNAME_LEN; ++i)
     {
@@ -38,8 +38,8 @@ device_list_argv;
 static_assert((ARGV_ADDRESS + sizeof(device_list_argv)) < 0x03000000,
               "The device list argv struct would fall outside main ram");
 
-TWL_CODE static LIBNDS_NOINLINE
-void check_device_list_internal(void)
+static LIBNDS_NOINLINE
+void TWL_FUNC(check_device_list_internal)(void)
 {
     if (__system_argv->argvMagic == ARGV_MAGIC)
         return;
