@@ -728,6 +728,23 @@ int nitrofs_fat_get_attr(const char *name)
     return ATTR_READONLY;
 }
 
+int nitrofs_fat_set_attr(const char *file, uint8_t attr)
+{
+    (void)file;
+    (void)attr;
+
+    errno = EROFS; // Read-only filesystem
+    return -1;
+}
+
+bool nitrofs_fat_get_short_name_for(const char *path, char *buf)
+{
+    (void)path;
+    (void)buf;
+
+    return false;
+}
+
 int nitrofs_stat(const char *name, struct stat *st)
 {
     if (!nitrofs_local.fnt_offset)

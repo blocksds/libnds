@@ -169,6 +169,43 @@ typedef struct
 
     int (*symlink)(const char *target, const char *path);
     ssize_t (*readlink)(const char *path, char *buf, size_t length);
+
+    /// Gets the FAT attributes of the specified file.
+    ///
+    /// @param file
+    ///     File to get the attributes of.
+    ///
+    /// @return
+    ///     Attributes of the file. In FAT filesystems this is a mask of
+    ///     ATTR_ARCHIVE, ATTR_DIRECTORY, ATTR_VOLUME, ATTR_SYSTEM, ATTR_HIDDEN
+    ///     and ATTR_READONLY. On error it returns -1 and sets errno.
+    int (*get_attr)(const char *file);
+
+    /// Sets the FAT attributes of the specified file.
+    ///
+    /// @param file
+    ///     File to set the attributes of.
+    /// @param attr
+    ///     Attributes to set. In FAT filesystems this is a mask of
+    ///     ATTR_ARCHIVE, ATTR_DIRECTORY, ATTR_VOLUME, ATTR_SYSTEM, ATTR_HIDDEN
+    ///     and ATTR_READONLY.
+    ///
+    /// @return
+    ///     On success it returns 0, on error it returns -1 and sets errno.
+    int (*set_attr)(const char *file, uint8_t attr);
+
+    /// Returns the short name of the specified file.
+    ///
+    /// @param file
+    ///     File to get the short name of.
+    /// @param buf
+    ///    Buffer to store the short file name. This buffer should be at least
+    ///    FAT_SHORT_FILE_NAME_MAX+1 bytes in size.
+    ///
+    /// @return
+    ///     On success it returns true, on error it returns false and sets
+    ///     errno.
+    bool (*get_short_name_for)(const char *file, char *buf);
 }
 device_io_t;
 

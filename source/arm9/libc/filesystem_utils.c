@@ -5,6 +5,8 @@
 
 #include "filesystem_includes.h"
 
+#include "device_io_internal.h"
+#include "fat_device.h"
 #include "nitrofs_device.h"
 
 bool fatGetVolumeLabel(const char *name, char *label)
@@ -51,19 +53,21 @@ int FAT_getAttr(const char *file)
         return -1;
     }
 
-    if (nitrofs_use_for_path(file))
-        return nitrofs_fat_get_attr(file);
+    int index = deviceIoGetIndexFromPath(file);
 
-    FILINFO fno = { 0 };
-    FRESULT result = f_stat(file, &fno);
+    int (*fn)(const char *);
 
-    if (result != FR_OK)
-    {
-        errno = fatfs_error_to_posix(result);
+    if (index == FD_TYPE_NITRO)
+        fn = nitrofs_fat_get_attr;
+    else if (index == FD_TYPE_FAT)
+        fn = fat_get_attr;
+    else
+        fn = DEVIO_GETFN(index, get_attr);
+
+    if (fn == NULL)
         return -1;
-    }
 
-    return fno.fattrib;
+    return fn(file);
 }
 
 int FAT_setAttr(const char *file, uint8_t attr)
@@ -74,41 +78,41 @@ int FAT_setAttr(const char *file, uint8_t attr)
         return -1;
     }
 
-    if (nitrofs_use_for_path(file))
-    {
-        errno = EROFS; // Read-only filesystem
+    int index = deviceIoGetIndexFromPath(file);
+
+    int (*fn)(const char *, uint8_t);
+
+    if (index == FD_TYPE_NITRO)
+        fn = nitrofs_fat_set_attr;
+    else if (index == FD_TYPE_FAT)
+        fn = fat_set_attr;
+    else
+        fn = DEVIO_GETFN(index, set_attr);
+
+    if (fn == NULL)
         return -1;
-    }
 
-    // Modify all attributes (except for directory and volume)
-    BYTE mask = AM_RDO | AM_ARC | AM_SYS | AM_HID;
-
-    FRESULT result = f_chmod(file, attr, mask);
-
-    if (result != FR_OK)
-    {
-        errno = fatfs_error_to_posix(result);
-        return -1;
-    }
-
-    return 0;
+    return fn(file, attr);
 }
 
 bool FAT_getShortNameFor(const char *path, char *buf)
 {
-    if ((path == NULL) || (buf == NULL) || nitrofs_use_for_path(path))
-    {
+    if ((path == NULL) || (buf == NULL))
         return false;
-    }
 
-    FILINFO fno = { 0 };
-    FRESULT result = f_stat(path, &fno);
+    int index = deviceIoGetIndexFromPath(path);
 
-    if (result != FR_OK)
-    {
-        return false;
-    }
+    bool (*fn)(const char *, char *);
 
-    strncpy(buf, fno.altname, FF_SFN_BUF + 1);
-    return true;
+    if (index == FD_TYPE_NITRO)
+        fn = nitrofs_fat_get_short_name_for;
+    else if (index == FD_TYPE_FAT)
+        fn = fat_get_short_name_for;
+    else
+        fn = DEVIO_GETFN(index, get_short_name_for);
+
+    if (fn == NULL)
+        return -1;
+
+    return fn(path, buf);
 }

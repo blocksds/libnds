@@ -37,6 +37,10 @@ int fat_chdir(const char *path);
 int fat_chdrive(const char *drive);
 int fat_getcwd(char *buf, size_t size);
 
+int fat_get_attr(const char *file);
+int fat_set_attr(const char *file, uint8_t attr);
+bool fat_get_short_name_for(const char *path, char *buf);
+
 bool fat_isdrive(const char *name);
 
 #endif // FAT_DEVICE_H__

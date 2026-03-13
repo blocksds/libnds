@@ -745,6 +745,48 @@ int fat_getcwd(char *buf, size_t size)
     return 0;
 }
 
+int fat_get_attr(const char *file)
+{
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(file, &fno);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return fno.fattrib;
+}
+
+int fat_set_attr(const char *file, uint8_t attr)
+{
+    // Modify all attributes (except for directory and volume)
+    BYTE mask = AM_RDO | AM_ARC | AM_SYS | AM_HID;
+
+    FRESULT result = f_chmod(file, attr, mask);
+
+    if (result != FR_OK)
+    {
+        errno = fatfs_error_to_posix(result);
+        return -1;
+    }
+
+    return 0;
+}
+
+bool fat_get_short_name_for(const char *path, char *buf)
+{
+    FILINFO fno = { 0 };
+    FRESULT result = f_stat(path, &fno);
+
+    if (result != FR_OK)
+        return false;
+
+    strncpy(buf, fno.altname, FF_SFN_BUF + 1);
+    return true;
+}
+
 bool fat_isdrive(const char *name)
 {
     if ((strcmp(name, "fat") == 0) || (strcmp(name, "sd") == 0) ||

@@ -73,6 +73,8 @@ int nitrofs_close(int fd);
 int nitrofs_stat(const char *name, struct stat *st);
 int nitrofs_fstat(int fd, struct stat *st);
 int nitrofs_fat_get_attr(const char *name);
+int nitrofs_fat_set_attr(const char *file, uint8_t attr);
+bool nitrofs_fat_get_short_name_for(const char *path, char *buf);
 
 bool nitrofs_isdrive(const char *name);
 
