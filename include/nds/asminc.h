@@ -19,6 +19,7 @@
     .if \arch == thumb
         .balign         2
         .thumb
+        .thumb_func
     .elseif \arch == arm
         .balign         4
         .arm
@@ -42,6 +43,7 @@
     .if \arch == thumb
         .balign         2
         .thumb
+        .thumb_func
     .elseif \arch == arm
         .balign         4
         .arm
