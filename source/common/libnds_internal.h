@@ -69,7 +69,7 @@ static inline __TransferRegion volatile *__transferRegion(void)
     // Also, it's important that the region isn't in DTCM, as it can't be seen
     // from the ARM7:
     //
-    //            0x2FF0000-0x2FF4000 (16K)
+    //            0x2FF4000-0x2FF8000 (16K)
     //
     // In DS mode, 0x2FFF000 is a good address, as it is inside an uncached main
     // RAM mirror, and outside DTCM. In a regular DSi, 0xCFFF000 is an

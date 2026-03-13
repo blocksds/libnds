@@ -35,7 +35,7 @@
 //     | 0x02000000 |   8 MB | DSd   [2] |        |       |    |
 //     | 0x02000000 |  16 MB | DSI, DSId |        |       |    |
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
-//   7 | 0x02FF0000 |  16 KB | All       |  R/W   |   N   | N  | DTCM
+//   7 | 0x02FF4000 |  16 KB | All       |  R/W   |   N   | N  | DTCM
 //
 // [1]: The size of the main RAM of the DS is 4 MB. This is mirrored up to
 // 0x03000000 (4 times in total). The last mirror is often used for
