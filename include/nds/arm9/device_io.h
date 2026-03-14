@@ -238,18 +238,6 @@ int deviceIoRemove(int index);
 ///     currently. If no device is active, it returns -1.
 int deviceIoGetIndexFromDrive(const char *drive);
 
-/// Returns the device index that corresponds to the specified file path.
-///
-/// @param path
-///     The path to the desired file. If it doesn't include an explicit drive
-///     name, it returns the device index that is currently active.
-///
-/// @return
-///     The index that corresponds to the specified drive. If it doesn't
-///     correspond to any valid drive, it returns the index of the device active
-///     currently. If no device is active, it returns -1.
-int deviceIoGetIndexFromPath(const char *path);
-
 /// Returns the device interface at the specified index.
 ///
 /// @param index
