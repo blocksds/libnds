@@ -25,8 +25,8 @@ extern "C" {
 /// Context that holds information about the RSA heap
 typedef struct swiRSAHeapContext
 {
-    void *heapStart ALIGN(4); ///< Start of the heap rounded up to 4-byte boundary
-    void *heapEnd ALIGN(4);   ///< start + size rounded down to 4-byte boundary
+    ALIGN(4) void *heapStart; ///< Start of the heap rounded up to 4-byte boundary
+    ALIGN(4) void *heapEnd;   ///< start + size rounded down to 4-byte boundary
     size_t heapSize;          ///< Heap size matched to the above rounded values
 } swiRSAHeapContext_t;
 
