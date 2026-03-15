@@ -587,8 +587,8 @@ void *dlopen_FILE(FILE *f, int mode)
     // this range was already in cache because of a previous library, for
     // example.
 
-    DC_FlushRange(loaded_mem, addr_space_size);
-    IC_InvalidateRange(loaded_mem, addr_space_size);
+    DC_FlushRange(loaded_mem, loaded_mem_size);
+    IC_InvalidateRange(loaded_mem, loaded_mem_size);
 
     // After all the code is loaded check if there are any global constructors
     // and call them.
