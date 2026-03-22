@@ -67,6 +67,20 @@ typedef struct {
 // address of the handle being loaded.
 static __thread dsl_handle *dsl_current = NULL;
 
+// Application symbol resolver callback.
+static SymbolResolverFn symbol_resolver = NULL;
+
+void dsl_set_symbol_resolver(SymbolResolverFn fn)
+{
+    symbol_resolver = fn;
+}
+
+// Determine whether a symbol is external to a DSL.
+static inline bool dsl_symbol_is_external(const dsl_symbol *const sym)
+{
+    return sym->attributes & DSL_SYMBOL_MAIN_BINARY || sym->attributes & DSL_SYMBOL_UNRESOLVED;
+}
+
 // fini_array isn't really used by global destructors. Instead, global
 // constructors call __aeabi_atexit() so that the destructors are called in the
 // opposite order of the constructors. Also, in case a global constructor isn't
@@ -317,45 +331,48 @@ void *dlopen_FILE(FILE *f, int mode)
             int rel_type = rel.r_info & 0xFF;
             int rel_symbol = rel.r_info >> 8;
 
+            dsl_symbol *const sym = &(sym_table->symbol[rel_symbol]);
+
+            // Let the application resolve/override the symbol's value before relocation begins.
+            if (symbol_resolver != NULL &&
+                !symbol_resolver(sym->name_str_offset + (const char *)sym_table, &sym->value, sym->attributes))
+            {
+                dl_err_str = "symbol resolver failed";
+                goto cleanup;
+            }
+
             if ((rel_type == R_ARM_ABS32) || (rel_type == R_ARM_TARGET1))
             {
                 // R_ARM_TARGET1 behaves as R_ARM_ABS32 due to the linker option
                 // -Wl,--target1-abs.
                 uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
 
-                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
-
-                // If the symbol is in the main binary, its address is already
-                // absolute and should not have the loaded_mem offset added.
-                // Otherwise, it's a relative address within the library and
-                // needs to be relocated to the actual load address.
-                if ((sym->attributes & DSL_SYMBOL_MAIN_BINARY) == 0)
+                if (dsl_symbol_is_external(sym))
                 {
-                    *ptr += (uintptr_t)loaded_mem;
+                    // The symbol value already contains the absolute address,
+                    // so we just use it directly.
+                    *ptr = sym->value;
                 }
                 else
                 {
-                    // The symbol value already contains the absolute address
-                    // from the main binary, so we just use it directly.
-                    *ptr = sym->value;
+                    // Otherwise, it's a relative address within the library and
+                    // needs to be relocated to the actual load address.
+                    *ptr += (uintptr_t)loaded_mem;
                 }
             }
             else if (rel_type == R_ARM_THM_CALL)
             {
-                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
-
                 // If the symbol is in the dynamic library, we don't need to do
                 // anything because BL/BLX instructions are relative, and all
                 // the sources and destinations are in the same section, so
                 // moving the section around doesn't matter. We only need to fix
-                // symbols that are in the main binary.
+                // symbols that are external.
 
-                if (sym->attributes & DSL_SYMBOL_MAIN_BINARY)
+                if (dsl_symbol_is_external(sym))
                 {
-                    // We need to adjust the branch to jump to the right symbol
-                    // in the main binary. The range of BL/BLX is +/-4 MB, so
-                    // it will always work if the source and destination are in
-                    // main RAM.
+                    // We need to adjust the branch to jump to the right symbol.
+                    // The range of BL/BLX is +/-4 MB, so it will always work if
+                    // the source and destination are in main RAM.
 
                     uint32_t bl_addr = (uint32_t)(loaded_mem + rel.r_offset);
                     uint32_t sym_addr = sym->value;
@@ -414,20 +431,17 @@ void *dlopen_FILE(FILE *f, int mode)
             }
             else if (rel_type == R_ARM_JUMP24)
             {
-                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
-
                 // If the symbol is in the dynamic library, we don't need to do
                 // anything because B instructions are relative, and all the
                 // sources and destinations are in the same section, so moving
                 // the section around doesn't matter. We only need to fix
-                // symbols that are in the main binary.
+                // symbols that are external.
 
-                if (sym->attributes & DSL_SYMBOL_MAIN_BINARY)
+                if (dsl_symbol_is_external(sym))
                 {
-                    // We need to adjust the branch to jump to the right symbol
-                    // in the main binary. The range of B is +/-32 MB, so it
-                    // will always work if the source and destination are in
-                    // main RAM.
+                    // We need to adjust the branch to jump to the right symbol.
+                    // The range of B is +/-32 MB, so it will always work if the
+                    // source and destination are in main RAM.
 
                     uint32_t b_addr = (uint32_t)(loaded_mem + rel.r_offset);
                     uint32_t sym_addr = sym->value;
@@ -490,20 +504,17 @@ void *dlopen_FILE(FILE *f, int mode)
             }
             else if (rel_type == R_ARM_CALL)
             {
-                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
-
                 // If the symbol is in the dynamic library, we don't need to do
                 // anything because BL/BLX instructions are relative, and all
                 // the sources and destinations are in the same section, so
                 // moving the section around doesn't matter. We only need to fix
-                // symbols that are in the main binary.
+                // symbols that are external.
 
-                if (sym->attributes & DSL_SYMBOL_MAIN_BINARY)
+                if (dsl_symbol_is_external(sym))
                 {
-                    // We need to adjust the branch to jump to the right symbol
-                    // in the main binary. The range of BL/BLX is +/-32 MB, so
-                    // it will always work if the source and destination are in
-                    // main RAM.
+                    // We need to adjust the branch to jump to the right symbol.
+                    // The range of BL/BLX is +/-32 MB, so it will always work if
+                    // the source and destination are in main RAM.
 
                     uint32_t bl_addr = (uint32_t)(loaded_mem + rel.r_offset);
                     uint32_t sym_addr = sym->value;
@@ -567,7 +578,6 @@ void *dlopen_FILE(FILE *f, int mode)
             else if (rel_type == R_ARM_TLS_LE32)
             {
                 uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
-                dsl_symbol *sym = &(sym_table->symbol[rel_symbol]);
 
                 *ptr = sym->value + TCB_SIZE;
             }

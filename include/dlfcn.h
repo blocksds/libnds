@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Zlib
 //
 // Copyright (C) 2025 Antonio Niño Díaz
+// Copyright (C) 2026 trustytrojan
 
 #ifndef LIBNDS_DLFCN_H__
 #define LIBNDS_DLFCN_H__
@@ -22,6 +23,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 
 /// Perform lazy binding. Not supported.
 #define RTLD_LAZY       0x01
@@ -150,6 +152,30 @@ void *dlsym(void *handle, const char *name);
 ///     to RAM. On error it returns NULL, and the user is expected to call
 ///     dlerror() to get a user-readable string with the reason of the error.
 void *dlmembase(void *handle);
+
+typedef bool (*SymbolResolverFn)(const char *name, uint32_t *value, uint32_t attributes);
+
+/// Set the symbol resolver callback function. Passing `NULL` is allowed, and disables symbol resolution.
+/// You may provide a callback to resolve (or override) symbol values of a DSL before relocation.
+/// This is the primary way to let DSLs call functions in each other.
+///
+/// The callback must return whether symbol resolution succeeded as a boolean.
+/// If `false` is returned for any symbol, `dlopen()` will fail with the error "symbol resolver failed".
+///
+/// You should use this safety mechanism to return `false` if you did not resolve a symbol attributed with `DSL_SYMBOL_UNRESOLVED`.
+/// Not resolving these symbols while returning `true` will result in undefined behavior.
+///
+/// @note
+///     This is a non-standard function, it's only available in libnds.
+///
+/// @param fn
+///     The symbol resolver callback function.
+void dsl_set_symbol_resolver(SymbolResolverFn fn);
+
+// DSL symbol attributes.
+#define DSL_SYMBOL_PUBLIC       1 ///< If not set, the symbol is private
+#define DSL_SYMBOL_MAIN_BINARY  2 ///< If set, the symbol is in the main binary
+#define DSL_SYMBOL_UNRESOLVED   4 ///< If set, the symbol must be resolved at runtime
 
 #ifdef __cplusplus
 }
