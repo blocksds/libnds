@@ -3,13 +3,13 @@
 // Copyright (C) 2023-2025 Antonio Niño Díaz
 
 #include <assert.h>
+#include <errno.h>
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/errno.h>
 
 #include <ndsabi.h>
 #ifdef ARM9
