@@ -8,7 +8,7 @@
 
 // dlmalloc configuration
 
-#ifdef DEBUG
+#ifndef NDEBUG
 # define FOOTERS 1
 # define INSECURE 0
 #else
@@ -43,8 +43,6 @@ static comutex_t malloc_global_mutex;
 #define TRY_LOCK(lk) (comutex_try_acquire((lk))?0:1)
 
 // malloc implementations and aliases
-
-#undef DEBUG
 
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
