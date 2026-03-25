@@ -97,7 +97,18 @@ void __attribute__((weak)) initSystem(void)
     vramDefault();
 
     if (isDSiMode())
+    {
         setCpuClock(true);
+
+        // TODO: Add a timeout here? All we can really do is exit to the loader.
+        // If the LCD isn't ready we can't display an error message.
+        //
+        // According to GBATEK:
+        //
+        //     The bit is checked by DSi System Menu. The bit is supposedly used
+        //     at power-up, maybe also for wake-up from certain sleep modes.
+        while ((REG_DISPSTAT & DISP_TWL_LCD_READY) == 0);
+    }
 
     irqInit();
     fifoInit();
