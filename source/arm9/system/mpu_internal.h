@@ -5,7 +5,7 @@
 #ifndef ARM9_SYSTEM_MPU_INTERNAL_H__
 #define ARM9_SYSTEM_MPU_INTERNAL_H__
 
-#define REGION_IO_REGISTERS         0
+#define REGION_IO_VRAM_REGISTERS    0
 #define REGION_SYSTEM_ROM           1
 #define REGION_ALT_VECTORS          2
 #define REGION_SLOT_2_DSI_IWRAM     3 // DS: Slot-2 | DSi: Switchable IWRAM.

@@ -15,7 +15,7 @@
 //
 // Num |    Base    |  Size  | System    | Access | Cache | WB | Description
 // ====+============+========+===========+========+=======+====+=======================
-//   0 | 0x04000000 |  64 MB | All       |  R/W   |   N   | N  | I/O registers
+//   0 | 0x04000000 |  64 MB | All       |  R/W   |   N   | N  | I/O registers and VRAM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
 //   1 | 0xFFFF0000 |  64 KB | All       |  RO    |   Y   | N  | System ROM
 // ----+------------+--------+-----------+--------+-------+----+-----------------------
@@ -177,9 +177,9 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
 
     // Setup memory regions similar to Release Version
 
-    // IO registers
+    // IO registers and VRAM
     ldr     r0, =(0x04000000 | CP15_REGION_SIZE_64MB | CP15_CONFIG_REGION_ENABLE)
-    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_IO_REGISTERS)
+    mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_IO_VRAM_REGISTERS)
 
     // System ROM
     ldr     r0, =(0xFFFF0000 | CP15_REGION_SIZE_64KB | CP15_CONFIG_REGION_ENABLE)
@@ -272,7 +272,7 @@ setregions:
     // - System ROM. It's read-only.
     // - Alternate vector base. See note [3].
     // - DTCM. The CPU can´t execute code from here.
-    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_REGISTERS) | \
+    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_VRAM_REGISTERS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_SYSTEM_ROM) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(REGION_ALT_VECTORS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_SLOT_2_DSI_IWRAM) | \
@@ -285,7 +285,7 @@ setregions:
     // Data access permission. All regions are RW except for:
     // - System ROM. It's read-only.
     // - Alternate vector base. See note [3].
-    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_REGISTERS) | \
+    ldr     r0, =(CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_IO_VRAM_REGISTERS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRO_URO(REGION_SYSTEM_ROM) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PNO_UNO(REGION_ALT_VECTORS) | \
                   CP15_AREA_ACCESS_PERMISSIONS_PRW_URW(REGION_SLOT_2_DSI_IWRAM) | \
