@@ -107,68 +107,78 @@ BEGIN_ASM_FUNC CP15_SetInstructionPermissions
 // See DDI0155 page 2-19
 //////////////////////////////////////////////////////////////////////
 
-BEGIN_ASM_FUNC CP15_GetRegion0
+BEGIN_ASM_FUNC CP15_GetRegion
+    add     pc, pc, r0, lsl #3
+    nop
+
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion0
     mrc     CP15_REG6_PROTECTION_REGION(r0, 0)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion1
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion1
     mrc     CP15_REG6_PROTECTION_REGION(r0, 1)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion2
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion2
     mrc     CP15_REG6_PROTECTION_REGION(r0, 2)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion3
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion3
     mrc     CP15_REG6_PROTECTION_REGION(r0, 3)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion4
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion4
     mrc     CP15_REG6_PROTECTION_REGION(r0, 4)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion5
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion5
     mrc     CP15_REG6_PROTECTION_REGION(r0, 5)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion6
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion6
     mrc     CP15_REG6_PROTECTION_REGION(r0, 6)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_GetRegion7
+BEGIN_ASM_FUNC_NO_SECTION CP15_GetRegion7
     mrc     CP15_REG6_PROTECTION_REGION(r0, 7)
     bx      lr
 
 
-BEGIN_ASM_FUNC CP15_SetRegion0
+BEGIN_ASM_FUNC CP15_SetRegion
+    mov     r2, r0
+    mov     r0, r1
+    add     pc, pc, r2, lsl #3
+    nop
+
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion0
     mcr     CP15_REG6_PROTECTION_REGION(r0, 0)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion1
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion1
     mcr     CP15_REG6_PROTECTION_REGION(r0, 1)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion2
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion2
     mcr     CP15_REG6_PROTECTION_REGION(r0, 2)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion3
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion3
     mcr     CP15_REG6_PROTECTION_REGION(r0, 3)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion4
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion4
     mcr     CP15_REG6_PROTECTION_REGION(r0, 4)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion5
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion5
     mcr     CP15_REG6_PROTECTION_REGION(r0, 5)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion6
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion6
     mcr     CP15_REG6_PROTECTION_REGION(r0, 6)
     bx      lr
 
-BEGIN_ASM_FUNC CP15_SetRegion7
+BEGIN_ASM_FUNC_NO_SECTION CP15_SetRegion7
     mcr     CP15_REG6_PROTECTION_REGION(r0, 7)
     bx      lr
 

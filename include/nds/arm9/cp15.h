@@ -52,6 +52,7 @@ uint32_t CP15_GetInstructionPermissions(void);
 void CP15_SetDataPermissions(void);
 void CP15_SetInstructionPermissions(void);
 
+uint32_t CP15_GetRegion(uint32_t region);
 uint32_t CP15_GetRegion0(void);
 uint32_t CP15_GetRegion1(void);
 uint32_t CP15_GetRegion2(void);
@@ -60,6 +61,8 @@ uint32_t CP15_GetRegion4(void);
 uint32_t CP15_GetRegion5(void);
 uint32_t CP15_GetRegion6(void);
 uint32_t CP15_GetRegion7(void);
+
+void CP15_SetRegion(uint32_t region, uint32_t data);
 void CP15_SetRegion0(uint32_t data);
 void CP15_SetRegion1(uint32_t data);
 void CP15_SetRegion2(uint32_t data);
