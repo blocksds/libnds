@@ -10,6 +10,7 @@
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
+#include <nds/arm9/cp15.h>
 #include <nds/arm9/video.h>
 #include <nds/cpu_asm.h>
 #include <nds/interrupts.h>
@@ -19,6 +20,52 @@
 #include <nds/system.h>
 
 #include "common/libnds_internal.h"
+
+int mpuRegionGet(uintptr_t addr)
+{
+    // Find which region this address is in. Higher region numbers have a higher
+    // priority, so we check them first by flipping the order in the array.
+
+    for (int i = 7; i >= 0; i--)
+    {
+        uint32_t config = CP15_GetRegion(i);
+
+        if ((config & CP15_CONFIG_REGION_ENABLE) == 0)
+            continue;
+
+        uint32_t size_value = config & CP15_CONFIG_REGION_SIZE_MASK;
+
+        // Ignore sizes under 4 KB (they are invalid) and over 256 MB
+        // (they aren't useful on DS, so they are most likely a programming
+        // error).
+        if ((size_value < CP15_REGION_SIZE_4KB) ||
+            (size_value >= CP15_REGION_SIZE_256MB))
+            continue;
+
+        uint32_t region_size = 1u << (1 + (size_value >> 1));
+        uint32_t region_base = config & CP15_CONFIG_REGION_BASE_MASK;
+        uint32_t region_end = region_base + region_size - 1;
+
+        if ((region_base <= addr) && (addr <= region_end))
+            return i;
+    }
+
+    return -1;
+}
+
+bool mpuRegionIsCode(int region)
+{
+    // If this address is outside of all regions, it isn't code
+    if ((region < 0) || (region > 7))
+        return false;
+
+    // Check if the region we've found is a code or data region
+    int instr_permissions = (CP15_GetInstructionPermissions() >> (region * 4)) & 0xF;
+    if (instr_permissions != 0x0)
+        return true;
+
+    return false;
+}
 
 void exceptionStatePrint(ExceptionState *ex, const char *title)
 {
@@ -116,24 +163,9 @@ void guruMeditationDump(void)
             codeAddress = exceptionRegisters[15] - offset;
 
             // Check if the address is a region that normally contains code
+            int region = mpuRegionIsCode(codeAddress);
 
-            // TODO: Support DS debugger regions?
-            bool is_main_ram;
-            if (isDSiMode())
-                is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x03000000;
-            else
-                is_main_ram = codeAddress > 0x02000000 && codeAddress < 0x02400000;
-
-            // Symbol defined in the linkerscript
-            extern const char __itcm_start[];
-
-            bool is_itcm = codeAddress > (u32)__itcm_start
-                        && codeAddress < (u32)(__itcm_start + 32768);
-
-            // If it's in a code region, try to decode the instruction. This
-            // will let us know exactly which address was trying to be accessed.
-
-            if (is_main_ram || is_itcm)
+            if (mpuRegionIsCode(region))
                 exceptionAddress = getExceptionAddress(codeAddress, thumbState);
             else
                 exceptionAddress = codeAddress;
