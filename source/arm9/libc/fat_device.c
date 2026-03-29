@@ -76,9 +76,7 @@ int fat_open(const char *path, int flags, mode_t mode_)
             }
             else
             {
-                // O_APPEND or O_TRUNC must be set if O_CREAT is set
-                errno = EINVAL;
-                return -1;
+                mode |= FA_OPEN_ALWAYS;
             }
         }
         else
