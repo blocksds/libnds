@@ -61,8 +61,11 @@
 #define CP15_REG0_TCM_SIZE(rd)                      p15, 0, rd, c0, c0, 2
 
 #define CP15_TCM_DATA_RAM_SIZE_MASK                 0x003C0000
+#define CP15_TCM_DATA_RAM_SIZE_SHIFT                18
 #define CP15_TCM_DATA_RAM_ABSENT                    0x00004000
+
 #define CP15_TCM_INSTRUCTION_RAM_SIZE_MASK          0x000003C0
+#define CP15_TCM_INSTRUCTION_RAM_SIZE_SHIFT         6
 #define CP15_TCM_INSTRUCTION_RAM_ABSENT             0x00000004
 
 // Register 1, Control Register
@@ -170,6 +173,8 @@
 
 #define CP15_REG9_DTCM_CONTROL(rd)                      p15, 0, rd, c9, c1, 0
 #define CP15_REG9_ITCM_CONTROL(rd)                      p15, 0, rd, c9, c1, 1
+
+#define CP15_TCM_BASE_MASK                              0xFFFFF000
 
 // The "ARM 946E-S Technical Reference Manual" has an erratum and it refers to
 // table 2-20, but it should be referring to "Table 2-23 Tightly-coupled memory
