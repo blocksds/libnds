@@ -490,9 +490,6 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
         libnds_stdout_write = con_write;
         libnds_stderr_write = con_write;
 
-        setvbuf(stdout, NULL, _IONBF, 0);
-        setvbuf(stderr, NULL, _IONBF, 0);
-
         firstConsoleInit = false;
     }
 
@@ -556,8 +553,6 @@ void consoleSetFont(PrintConsole *console, ConsoleFont *font)
 
 void consoleDebugInit(DebugDevice device)
 {
-    int buffertype = _IONBF;
-
     switch (device)
     {
         case DebugDevice_NOCASH:
@@ -570,7 +565,6 @@ void consoleDebugInit(DebugDevice device)
             libnds_stderr_write = NULL;
             break;
     }
-    setvbuf(stderr, NULL, buffertype, 0);
 }
 
 // Places the console in a default mode using bg0 of the sub display, and VRAM_C
