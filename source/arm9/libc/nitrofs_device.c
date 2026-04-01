@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023-2024 Antonio Niño Díaz
+// Copyright (C) 2023-2026 Antonio Niño Díaz
 // Copyright (C) 2023 Adrian "asie" Siekierka
 
 #include "filesystem_includes.h"
@@ -20,7 +20,14 @@
 #include "device_io_internal.h"
 #include "nitrofs_device.h"
 
-static nitrofs_t nitrofs_local;
+static nitrofs_t nitrofs_local =
+{
+    .fd = -1,
+    .fnt_offset = 0,
+    .fat_offset = 0,
+    .current_dir = 0,
+    .use_slot2 = false,
+};
 
 /// Configuration
 #define ENABLE_DOTDOT_EMULATION
@@ -44,8 +51,8 @@ const uintptr_t DTCM_END   = DTCM_START + (16 * 1024) - 1;
 // Read from NitroFS when it is being read from a file
 static ssize_t nitrofs_read_internal_file(void *ptr, size_t offset, size_t len)
 {
-    fseek(nitrofs_local.file, offset, SEEK_SET);
-    return fread(ptr, 1, len, nitrofs_local.file);
+    lseek(nitrofs_local.fd, offset, SEEK_SET);
+    return read(nitrofs_local.fd, ptr, len);
 }
 
 // Read from NitroFS when it is being read from Slot-2
@@ -104,7 +111,7 @@ static ssize_t nitrofs_read_internal_cart(void *ptr, size_t offset, size_t len)
 // This reads from NitroFS using the right access system
 static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
 {
-    if (nitrofs_local.file)
+    if (nitrofs_local.fd != -1)
         return nitrofs_read_internal_file(ptr, offset, len);
 
     if (nitrofs_local.use_slot2)
@@ -131,7 +138,7 @@ static bool nitrofs_dir_state_init(nitrofs_dir_state_t *state, uint16_t dir)
     state->dotdot_offset = dir == 0xF000 ? 0 : -2;
 #endif
 
-    if (nitrofs_local.file == NULL)
+    if (nitrofs_local.fd == -1)
     {
         // Card reads benefit from word-aligning table accesses.
         state->position = state->offset & 3;
@@ -792,11 +799,11 @@ bool nitroFSExit(void)
     if (nitrofs_local.fat_offset == 0)
         return true;
 
-    if (nitrofs_local.file)
+    if (nitrofs_local.fd != -1)
     {
         // TODO: Should we crash here if it fails? It could be leaving a file
         // descriptor open forever.
-        if (fclose(nitrofs_local.file) != 0)
+        if (close(nitrofs_local.fd) != 0)
             return false;
     }
 
@@ -810,7 +817,7 @@ bool nitroFSInit(const char *basepath)
     if (nitrofs_local.fat_offset)
         nitroFSExit();
 
-    nitrofs_local.file = NULL;
+    nitrofs_local.fd = -1;
     nitrofs_local.current_dir = 0xF000;
 
     // Initialize cache if it hasn't been initialized already
@@ -849,10 +856,10 @@ bool nitroFSInit(const char *basepath)
     {
         if (fatInitDefault())
         {
-            nitrofs_local.file = fopen(basepath, "r");
+            nitrofs_local.fd = open(basepath, O_RDONLY, 0);
         }
 
-        if (nitrofs_local.file != NULL)
+        if (nitrofs_local.fd != -1)
         {
             // If we could open the provided file, initialize the FAT lookup
             // cache for NitroFS files.
@@ -863,7 +870,7 @@ bool nitroFSInit(const char *basepath)
             //
             // FIXME: Move this to the DLDI driver space and remove the 2KB
             // size limit.
-            fatInitLookupCacheFile(nitrofs_local.file, 2048);
+            fatInitLookupCache(nitrofs_local.fd, 2048);
         }
         else
         {
@@ -897,7 +904,7 @@ bool nitroFSInit(const char *basepath)
     nitrofs_offsets_t nitrofs_offsets;
 
     // Read FNT/FAT offset/size information.
-    if (nitrofs_local.file != NULL)
+    if (nitrofs_local.fd != -1)
     {
         // If we have an open file, that's the path we need to use. This can
         // happen in two situations:
@@ -997,9 +1004,9 @@ bool nitroFSInit(const char *basepath)
     }
     else
     {
-        if (nitrofs_local.file)
+        if (nitrofs_local.fd != -1)
         {
-            fclose(nitrofs_local.file);
+            close(nitrofs_local.fd);
             // TODO: Should we crash here if it fails? It could be leaving a
             // file descriptor open forever.
         }
@@ -1022,9 +1029,9 @@ bool nitroFSInit(const char *basepath)
 
 int nitroFSInitLookupCache(uint32_t max_buffer_size)
 {
-    if (!nitrofs_local.fat_offset || !nitrofs_local.file)
+    if ((!nitrofs_local.fat_offset) || (nitrofs_local.fd == -1))
         return 0;
-    return fatInitLookupCacheFile(nitrofs_local.file, max_buffer_size);
+    return fatInitLookupCache(nitrofs_local.fd, max_buffer_size);
 }
 
 bool nitrofs_isdrive(const char *name)
