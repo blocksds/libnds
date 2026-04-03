@@ -541,11 +541,7 @@ void bgUpdate(void);
 ///     Background id returned from bgInit or bgInitSub
 /// @param angle
 ///     The angle of counter clockwise rotation (0 to 511)
-static inline void bgSetRotate(int id, int angle)
-{
-    bgState[id].angle = angle;
-    bgState[id].dirty = true;
-}
+void bgSetRotate(int id, int angle);
 
 /// Rotates the background counter clockwise by the specified angle.
 ///
@@ -555,12 +551,7 @@ static inline void bgSetRotate(int id, int angle)
 ///     Background ID returned from bgInit or bgInitSub.
 /// @param angle
 ///     The angle of counter clockwise rotation (-32768 to 32767).
-static inline void bgRotate(int id, int angle)
-{
-    sassert(!bgIsText(id), "Cannot Rotate a Text Background");
-
-    bgSetRotate(id, angle + bgState[id].angle);
-}
+void bgRotate(int id, int angle);
 
 /// Sets the rotation and scale of the background and updates the background
 /// control registers.
@@ -581,22 +572,8 @@ static inline void bgRotate(int id, int angle)
 ///     24.8 bit fractional fixed point center of rotation (X).
 /// @param rotCenterY
 ///     24.8 bit fractional fixed point center of rotation (Y).
-static inline void bgSet(int id, int angle, s32 sx, s32 sy, s32 scrollX, s32 scrollY,
-                         s32 rotCenterX, s32 rotCenterY)
-{
-    bgState[id].scaleX = sx;
-    bgState[id].scaleY = sy;
-
-    bgState[id].scrollX = scrollX;
-    bgState[id].scrollY = scrollY;
-
-    bgState[id].centerX = rotCenterX;
-    bgState[id].centerY = rotCenterY;
-
-    bgState[id].angle = angle;
-
-    bgState[id].dirty = true;
-}
+void bgSet(int id, int angle, s32 sx, s32 sy, s32 scrollX, s32 scrollY,
+           s32 rotCenterX, s32 rotCenterY);
 
 /// Sets the rotation and scale of the background and updates the background
 /// control registers.
@@ -609,14 +586,7 @@ static inline void bgSet(int id, int angle, s32 sx, s32 sy, s32 scrollX, s32 scr
 ///     24.8 bit fractional fixed point horizontal scaling.
 /// @param sy
 ///     24.8 bit fractional fixed point vertical scaling.
-static inline void bgSetRotateScale(int id, int angle, s32 sx, s32 sy)
-{
-    bgState[id].scaleX = sx;
-    bgState[id].scaleY = sy;
-    bgState[id].angle = angle;
-
-    bgState[id].dirty = true;
-}
+void bgSetRotateScale(int id, int angle, s32 sx, s32 sy);
 
 /// Sets the scale of the specified background.
 ///
@@ -626,15 +596,7 @@ static inline void bgSetRotateScale(int id, int angle, s32 sx, s32 sy)
 ///     24.8 bit fractional fixed point horizontal scaling.
 /// @param sy
 ///     24.8 bit fractional fixed point vertical scaling.
-static inline void bgSetScale(int id, s32 sx, s32 sy)
-{
-    sassert(!bgIsText(id), "Cannot Scale a Text Background");
-
-    bgState[id].scaleX = sx;
-    bgState[id].scaleY = sy;
-
-    bgState[id].dirty = true;
-}
+void bgSetScale(int id, s32 sx, s32 sy);
 
 /// Initializes a background on the main display and displays it right away.
 ///
@@ -806,13 +768,7 @@ int bgInitHiddenSub(int layer, BgType type, BgSize size, int mapBase, int tileBa
 ///
 /// @return
 ///     A pointer to the appropriate background control register.
-static inline vuint16 *bgSetControlBits(int id, u16 bits)
-{
-    sassert(id >= 0 && id <= 7,
-            "bgSetControlBits(), id must be the number returned from bgInit or bgInitSub");
-    *bgControl[id] |= bits;
-    return bgControl[id];
-}
+vuint16 *bgSetControlBits(int id, u16 bits);
 
 /// Clears the specified bits from the backgrounds control register
 ///
@@ -820,12 +776,7 @@ static inline vuint16 *bgSetControlBits(int id, u16 bits)
 ///     Background ID returned from bgInit or bgInitSub.
 /// @param bits
 ///     Bits to clear in the background control register.
-static inline void bgClearControlBits(int id, u16 bits)
-{
-    sassert(id >= 0 && id <= 7,
-            "bgClearControlBits(), id must be the number returned from bgInit or bgInitSub");
-    *bgControl[id] &= ~bits;
-}
+void bgClearControlBits(int id, u16 bits);
 
 /// Turns ON wrap for a background.
 ///
@@ -858,13 +809,7 @@ static inline void bgWrapOff(int id)
 ///     Background ID returned from bgInit or bgInitSub.
 /// @param priority
 ///     Background priority (0 - 3).
-static inline void bgSetPriority(int id, unsigned int priority)
-{
-    sassert(priority < 4, "Priority must be less than 4");
-
-    *bgControl[id] &= ~3;
-    *bgControl[id] |= priority;
-}
+void bgSetPriority(int id, unsigned int priority);
 
 /// Sets the background map base.
 ///
@@ -873,13 +818,7 @@ static inline void bgSetPriority(int id, unsigned int priority)
 /// @param base
 ///     The 2 KB offset into VRAM for the backgrounds tile map or the 16 KB
 ///     offset for bitmap graphics.
-static inline void bgSetMapBase(int id, unsigned int base)
-{
-    sassert(base <= 31, "Map base cannot exceed 31");
-
-    *bgControl[id] &= ~(31 << MAP_BASE_SHIFT);
-    *bgControl[id] |= base << MAP_BASE_SHIFT;
-}
+void bgSetMapBase(int id, unsigned int base);
 
 /// Sets the background map base.
 ///
@@ -888,13 +827,7 @@ static inline void bgSetMapBase(int id, unsigned int base)
 /// @param base
 ///     The 16 KB offset into vram for the backgrounds tile map. Ignored for
 ///     bitmap graphics.
-static inline void bgSetTileBase(int id, unsigned int base)
-{
-    sassert(base <= 15, "Tile base cannot exceed 15");
-
-    *bgControl[id] &= ~(15 << TILE_BASE_SHIFT);
-    *bgControl[id] |= base << TILE_BASE_SHIFT;
-}
+void bgSetTileBase(int id, unsigned int base);
 
 /// Sets the scroll hardware to the specified location (fixed point).
 ///
@@ -907,13 +840,7 @@ static inline void bgSetTileBase(int id, unsigned int base)
 ///
 /// @note
 ///     In text backgrounds the fractional part is ignored.
-static inline void bgSetScrollf(int id, s32 x, s32 y)
-{
-    bgState[id].scrollX = x;
-    bgState[id].scrollY = y;
-
-    bgState[id].dirty = true;
-}
+void bgSetScrollf(int id, s32 x, s32 y);
 
 /// Sets the scroll hardware to the specified location.
 ///
@@ -955,13 +882,7 @@ static inline void bgMosaicDisable(int id)
 ///     Horizontal mosaic value (between 0 and 15).
 /// @param dy
 ///     Vertical mosaic value (between 0 and 15).
-static inline void bgSetMosaic(unsigned int dx, unsigned int dy)
-{
-    sassert(dx < 16 && dy < 16, "Mosaic range is 0 to 15");
-
-    mosaicShadow = (mosaicShadow & 0xff00) | (dx | (dy << 4));
-    REG_MOSAIC = mosaicShadow;
-}
+void bgSetMosaic(unsigned int dx, unsigned int dy);
 
 /// Sets the horizontal and vertical mosaic values for all backgrounds (sub
 /// display).
@@ -970,13 +891,7 @@ static inline void bgSetMosaic(unsigned int dx, unsigned int dy)
 ///     Horizontal mosaic value (between 0 and 15).
 /// @param dy
 ///     Vertical mosaic value (between 0 and 15).
-static inline void bgSetMosaicSub(unsigned int dx, unsigned int dy)
-{
-    sassert(dx < 16 && dy < 16, "Mosaic range is 0 to 15");
-
-    mosaicShadowSub = (mosaicShadowSub & 0xff00) | (dx | (dy << 4));
-    REG_MOSAIC_SUB = mosaicShadowSub;
-}
+void bgSetMosaicSub(unsigned int dx, unsigned int dy);
 
 /// Gets the background priority.
 ///
@@ -1024,18 +939,7 @@ static inline int bgGetTileBase(int id)
 ///
 /// @return
 ///     A pointer to the map.
-static inline u16 *bgGetMapPtr(int id)
-{
-    if (id < 4)
-    {
-        int step = DISPLAY_SCREEN_BASE_GET(REG_DISPCNT);
-        return (u16 *)BG_MAP_RAM_MAIN(bgGetMapBase(id), step);
-    }
-    else
-    {
-        return (u16 *)BG_MAP_RAM_SUB(bgGetMapBase(id));
-    }
-}
+u16 *bgGetMapPtr(int id);
 
 /// Gets a pointer to the background graphics.
 ///
@@ -1044,26 +948,7 @@ static inline u16 *bgGetMapPtr(int id)
 ///
 /// @return
 ///     A pointer to the tile graphics or bitmap graphics.
-static inline u16 *bgGetGfxPtr(int id)
-{
-    if (bgState[id].type < BgType_Bmp8) // Tiled modes
-    {
-        if (id < 4)
-        {
-            int step = DISPLAY_CHAR_BASE_GET(REG_DISPCNT);
-            return (u16 *)BG_TILE_RAM_MAIN(bgGetTileBase(id), step);
-        }
-        else
-        {
-            return (u16 *)BG_TILE_RAM_SUB(bgGetTileBase(id));
-        }
-    }
-    else // Bitmap modes
-    {
-        return (id < 4) ? (u16 *)(BG_GFX + 0x2000 * (bgGetMapBase(id))) :
-                          (u16 *)(BG_GFX_SUB + 0x2000 * (bgGetMapBase(id)));
-    }
-}
+u16 *bgGetGfxPtr(int id);
 
 /// Scrolls the background by the specified relative values (fixed point).
 ///
@@ -1129,15 +1014,7 @@ static inline void bgHide(int id)
 ///
 /// @note
 ///     In text backgrounds the fractional part is ignored.
-static inline void bgSetCenterf(int id, s32 x, s32 y)
-{
-    sassert(!bgIsText(id), "Text Backgrounds have no Center of Rotation");
-
-    bgState[id].centerX = x;
-    bgState[id].centerY = y;
-
-    bgState[id].dirty = true;
-}
+void bgSetCenterf(int id, s32 x, s32 y);
 
 /// Sets the center of rotation for the supplied background.
 ///
@@ -1174,21 +1051,8 @@ static inline void bgSetCenter(int id, int x, int y)
 ///     The horizontal scroll/offset value of the background.
 /// @param scrolly
 ///     The vertical scroll/offset value of the background.
-static inline void bgSetAffineMatrixScroll(int id, int hdx, int vdx, int hdy,
-                                           int vdy, int scrollx, int scrolly)
-{
-    sassert(!bgIsText(id), "Text Backgrounds have no affine matrix and scroll registers.");
-
-    bgTransform[id]->hdx = hdx;
-    bgTransform[id]->vdx = vdx;
-    bgTransform[id]->hdy = hdy;
-    bgTransform[id]->vdy = vdy;
-
-    bgTransform[id]->dx = scrollx;
-    bgTransform[id]->dy = scrolly;
-
-    bgState[id].dirty = false;
-}
+void bgSetAffineMatrixScroll(int id, int hdx, int vdx, int hdy, int vdy,
+                             int scrollx, int scrolly);
 
 /// Enable extended palettes (main engine).
 static inline void bgExtPaletteEnable(void)

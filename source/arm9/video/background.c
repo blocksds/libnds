@@ -123,6 +123,55 @@ void bgUpdate(void)
     }
 }
 
+void bgSetRotate(int id, int angle)
+{
+    bgState[id].angle = angle;
+    bgState[id].dirty = true;
+}
+
+void bgRotate(int id, int angle)
+{
+    sassert(!bgIsText(id), "Cannot Rotate a Text Background");
+
+    bgSetRotate(id, angle + bgState[id].angle);
+}
+
+void bgSet(int id, int angle, s32 sx, s32 sy, s32 scrollX, s32 scrollY,
+           s32 rotCenterX, s32 rotCenterY)
+{
+    bgState[id].scaleX = sx;
+    bgState[id].scaleY = sy;
+
+    bgState[id].scrollX = scrollX;
+    bgState[id].scrollY = scrollY;
+
+    bgState[id].centerX = rotCenterX;
+    bgState[id].centerY = rotCenterY;
+
+    bgState[id].angle = angle;
+
+    bgState[id].dirty = true;
+}
+
+void bgSetRotateScale(int id, int angle, s32 sx, s32 sy)
+{
+    bgState[id].scaleX = sx;
+    bgState[id].scaleY = sy;
+    bgState[id].angle = angle;
+
+    bgState[id].dirty = true;
+}
+
+void bgSetScale(int id, s32 sx, s32 sy)
+{
+    sassert(!bgIsText(id), "Cannot Scale a Text Background");
+
+    bgState[id].scaleX = sx;
+    bgState[id].scaleY = sy;
+
+    bgState[id].dirty = true;
+}
+
 #ifndef NDEBUG
 static void bgInitValidate(unsigned int videoMode, unsigned int layer, BgType type,
                            BgSize size, unsigned int mapBase, unsigned int tileBase)
@@ -338,4 +387,127 @@ int bgInitSub(int layer, BgType type, BgSize size, int mapBase, int tileBase)
     int ret = bgInitHiddenSub(layer, type, size, mapBase, tileBase);
     bgShow(ret);
     return ret;
+}
+
+vuint16 *bgSetControlBits(int id, u16 bits)
+{
+    sassert(id >= 0 && id <= 7,
+            "bgSetControlBits(), id must be the number returned from bgInit or bgInitSub");
+    *bgControl[id] |= bits;
+    return bgControl[id];
+}
+
+void bgClearControlBits(int id, u16 bits)
+{
+    sassert(id >= 0 && id <= 7,
+            "bgClearControlBits(), id must be the number returned from bgInit or bgInitSub");
+    *bgControl[id] &= ~bits;
+}
+
+void bgSetPriority(int id, unsigned int priority)
+{
+    sassert(priority < 4, "Priority must be less than 4");
+
+    *bgControl[id] &= ~3;
+    *bgControl[id] |= priority;
+}
+
+void bgSetMapBase(int id, unsigned int base)
+{
+    sassert(base <= 31, "Map base cannot exceed 31");
+
+    *bgControl[id] &= ~(31 << MAP_BASE_SHIFT);
+    *bgControl[id] |= base << MAP_BASE_SHIFT;
+}
+
+void bgSetTileBase(int id, unsigned int base)
+{
+    sassert(base <= 15, "Tile base cannot exceed 15");
+
+    *bgControl[id] &= ~(15 << TILE_BASE_SHIFT);
+    *bgControl[id] |= base << TILE_BASE_SHIFT;
+}
+
+void bgSetScrollf(int id, s32 x, s32 y)
+{
+    bgState[id].scrollX = x;
+    bgState[id].scrollY = y;
+
+    bgState[id].dirty = true;
+}
+
+void bgSetMosaic(unsigned int dx, unsigned int dy)
+{
+    sassert(dx < 16 && dy < 16, "Mosaic range is 0 to 15");
+
+    mosaicShadow = (mosaicShadow & 0xff00) | (dx | (dy << 4));
+    REG_MOSAIC = mosaicShadow;
+}
+
+void bgSetMosaicSub(unsigned int dx, unsigned int dy)
+{
+    sassert(dx < 16 && dy < 16, "Mosaic range is 0 to 15");
+
+    mosaicShadowSub = (mosaicShadowSub & 0xff00) | (dx | (dy << 4));
+    REG_MOSAIC_SUB = mosaicShadowSub;
+}
+
+u16 *bgGetMapPtr(int id)
+{
+    if (id < 4)
+    {
+        int step = DISPLAY_SCREEN_BASE_GET(REG_DISPCNT);
+        return (u16 *)BG_MAP_RAM_MAIN(bgGetMapBase(id), step);
+    }
+    else
+    {
+        return (u16 *)BG_MAP_RAM_SUB(bgGetMapBase(id));
+    }
+}
+
+u16 *bgGetGfxPtr(int id)
+{
+    if (bgState[id].type < BgType_Bmp8) // Tiled modes
+    {
+        if (id < 4)
+        {
+            int step = DISPLAY_CHAR_BASE_GET(REG_DISPCNT);
+            return (u16 *)BG_TILE_RAM_MAIN(bgGetTileBase(id), step);
+        }
+        else
+        {
+            return (u16 *)BG_TILE_RAM_SUB(bgGetTileBase(id));
+        }
+    }
+    else // Bitmap modes
+    {
+        return (id < 4) ? (u16 *)(BG_GFX + 0x2000 * (bgGetMapBase(id))) :
+                          (u16 *)(BG_GFX_SUB + 0x2000 * (bgGetMapBase(id)));
+    }
+}
+
+void bgSetCenterf(int id, s32 x, s32 y)
+{
+    sassert(!bgIsText(id), "Text Backgrounds have no Center of Rotation");
+
+    bgState[id].centerX = x;
+    bgState[id].centerY = y;
+
+    bgState[id].dirty = true;
+}
+
+void bgSetAffineMatrixScroll(int id, int hdx, int vdx, int hdy, int vdy,
+                             int scrollx, int scrolly)
+{
+    sassert(!bgIsText(id), "Text Backgrounds have no affine matrix and scroll registers.");
+
+    bgTransform[id]->hdx = hdx;
+    bgTransform[id]->vdx = vdx;
+    bgTransform[id]->hdy = hdy;
+    bgTransform[id]->vdy = vdy;
+
+    bgTransform[id]->dx = scrollx;
+    bgTransform[id]->dy = scrolly;
+
+    bgState[id].dirty = false;
 }
