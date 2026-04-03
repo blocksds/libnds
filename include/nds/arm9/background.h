@@ -74,6 +74,13 @@
 ///
 /// For more information:
 /// <a href="http://problemkaputt.de/gbatek.htm#dsvideoextendedpalettes">gbatek</a>
+///
+/// @warning
+///     If you're using the DISPLAY_CHAR_BASE(n) and DISPLAY_SCREEN_BASE(n)
+///     macros with videoSetMode(), you must do that before using any
+///     background-related function. Background addresses are calculated by
+///     reading the live values set by the user, and changing the bases won't
+///     update the graphics in VRAM.
 
 #ifndef LIBNDS_NDS_ARM9_BACKGROUND_H__
 #define LIBNDS_NDS_ARM9_BACKGROUND_H__
@@ -228,20 +235,42 @@ BackgroundControl;
 #define BG_OFFSET               ((bg_scroll *)(0x04000010))
 
 /// A macro which returns a u16 pointer to background map RAM (main engine)
+///
+/// @note
+///     Use BG_MAP_RAM_MAIN instead.
 #define BG_MAP_RAM(base)        ((u16 *)(((base) * 0x800) + 0x06000000))
+
 /// A macro which returns a u16 pointer to background tile RAM (main engine)
+///
+/// @note
+///     Use BG_TILE_RAM_MAIN instead.
 #define BG_TILE_RAM(base)       ((u16 *)(((base) * 0x4000) + 0x06000000))
+
 /// A macro which returns a u16 pointer to background graphics memory RAM (main engine)
+///
+/// @note
+///     Use BG_BMP_RAM_MAIN instead.
 #define BG_BMP_RAM(base)        ((u16 *)(((base) * 0x4000) + 0x06000000))
+
+/// Returns a u16 pointer to background map RAM (with 64K step) (main engine)
+#define BG_MAP_RAM_MAIN(base, step) \
+            ((u16 *)(((base) * 0x800) + ((step) * 0x10000) + 0x06000000))
+/// Returns a u16 pointer to background tile RAM (with 64K step) (main engine)
+#define BG_TILE_RAM_MAIN(base, step) \
+            ((u16 *)(((base) * 0x4000) + ((step) * 0x10000) + 0x06000000))
+/// Returns a u16 pointer to background graphics memory RAM (main engine)
+#define BG_BMP_RAM_MAIN(base)   ((u16 *)(((base) * 0x4000) + 0x06000000))
 
 /// A macro which returns a u16 pointer to background tile RAM (main engine).
 ///
-/// Use BG_TILE_RAM instead of this define if possible.
+/// @note
+///     Use BG_TILE_RAM_MAIN instead of this define if possible.
 #define CHAR_BASE_BLOCK(n)      (((n) * 0x4000) + 0x06000000)
 
 /// A macro which returns a u16* pointer to background map RAM (main engine).
 ///
-/// Use BG_MAP_RAM instead of this define if possible.
+/// @note
+///     Use BG_MAP_RAM_MAIN instead of this define if possible.
 #define SCREEN_BASE_BLOCK(n)    (((n) * 0x800) + 0x06000000)
 
 /// Access to all main screen background control registers via BGCTRL[x]
@@ -997,8 +1026,15 @@ static inline int bgGetTileBase(int id)
 ///     A pointer to the map.
 static inline u16 *bgGetMapPtr(int id)
 {
-    return (id < 4) ? (u16 *)BG_MAP_RAM(bgGetMapBase(id)) :
-                      (u16 *)BG_MAP_RAM_SUB(bgGetMapBase(id));
+    if (id < 4)
+    {
+        int step = DISPLAY_SCREEN_BASE_GET(REG_DISPCNT);
+        return (u16 *)BG_MAP_RAM_MAIN(bgGetMapBase(id), step);
+    }
+    else
+    {
+        return (u16 *)BG_MAP_RAM_SUB(bgGetMapBase(id));
+    }
 }
 
 /// Gets a pointer to the background graphics.
@@ -1010,12 +1046,19 @@ static inline u16 *bgGetMapPtr(int id)
 ///     A pointer to the tile graphics or bitmap graphics.
 static inline u16 *bgGetGfxPtr(int id)
 {
-    if (bgState[id].type < BgType_Bmp8)
+    if (bgState[id].type < BgType_Bmp8) // Tiled modes
     {
-        return (id < 4) ? (u16 *)(BG_TILE_RAM(bgGetTileBase(id))) :
-                          (u16 *)BG_TILE_RAM_SUB(bgGetTileBase(id));
+        if (id < 4)
+        {
+            int step = DISPLAY_CHAR_BASE_GET(REG_DISPCNT);
+            return (u16 *)BG_TILE_RAM_MAIN(bgGetTileBase(id), step);
+        }
+        else
+        {
+            return (u16 *)BG_TILE_RAM_SUB(bgGetTileBase(id));
+        }
     }
-    else
+    else // Bitmap modes
     {
         return (id < 4) ? (u16 *)(BG_GFX + 0x2000 * (bgGetMapBase(id))) :
                           (u16 *)(BG_GFX_SUB + 0x2000 * (bgGetMapBase(id)));

@@ -616,16 +616,31 @@ VideoMode;
 ///
 /// - Tile modes: "n" is multiplied by 64 KB and added to BG_TILE_BASE.
 /// - Bitmap modes: Unused
+///
+/// @warning
+///     Make sure to set this value before using any function related to
+///     backgrounds. They rely on reading this value from REG_DISPCNT to
+///     calculate addresses.
 #define DISPLAY_CHAR_BASE(n)        (((n) & 7) << 24)
 
-/// Base of the tilemap/bitmap slot in main background VRAM. Main engine only.
+/// Extracts the tileset base step from a DISPCNT register value.
+#define DISPLAY_CHAR_BASE_GET(n)    (((n) >> 24) & 7)
+
+/// Base of the tilemap slot in main background VRAM. Main engine only.
 ///
 /// The value can go from 0 to 7.
 ///
 /// - Tile modes: "n" is multiplied by 64 KB and added to BG_MAP_BASE.
-/// - Bitmap modes: "n" is multiplied by 64 KB and added to BG_BMP_BASE.
-/// - Large bitmap modes: Unused
+/// - Bitmap modes: Unused
+///
+/// @warning
+///     Make sure to set this value before using any function related to
+///     backgrounds. They rely on reading this value from REG_DISPCNT to
+///     calculate addresses.
 #define DISPLAY_SCREEN_BASE(n)      (((n) & 7) << 27)
+
+/// Extracts the tilemap base step from a DISPCNT register value.
+#define DISPLAY_SCREEN_BASE_GET(n)  (((n) >> 27) & 7)
 
 #define DISPLAY_BG_EXT_PALETTE      (1 << 30)
 #define DISPLAY_SPR_EXT_PALETTE     (1u << 31)
