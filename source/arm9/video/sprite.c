@@ -191,12 +191,6 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
             int affineIndex, bool sizeDouble, bool hide, bool hflip, bool vflip,
             bool mosaic)
 {
-    if (hide)
-    {
-        oam->oamMemory[id].attribute[0] = ATTR0_DISABLED;
-        return;
-    }
-
     oam->oamMemory[id].shape = SPRITE_SIZE_SHAPE(size);
     oam->oamMemory[id].size = SPRITE_SIZE_SIZE(size);
     oam->oamMemory[id].x = x;
@@ -212,11 +206,13 @@ void oamSet(OamState *oam, int id, int x, int y, int priority, int palette_alpha
         oam->oamMemory[id].rotationIndex = affineIndex;
         oam->oamMemory[id].isSizeDouble = sizeDouble;
         oam->oamMemory[id].isRotateScale = true;
+        sassert(!hide, "oamSet() cannot set hide on a RotateScale sprite");
     }
     else
     {
         oam->oamMemory[id].isSizeDouble = false;
         oam->oamMemory[id].isRotateScale = false;
+        oam->oamMemory[id].isHidden = hide ? true : false;
     }
 
     if (format == SpriteColorFormat_Bmp)

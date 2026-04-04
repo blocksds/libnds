@@ -489,7 +489,8 @@ SpriteSize oamDimensionsToSize(int width, int height);
 ///     If affineIndex >= 0 this will be used to double the sprite size for
 ///     rotation.
 /// @param hide
-///     If non zero (true) the sprite will be hidden.
+///     If non zero (true) the sprite will be hidden. Valid only for non RotateScale sprites.
+///     For RotateScale pass zero (false)
 /// @param vflip
 ///     Flip the sprite vertically.
 /// @param hflip
