@@ -60,6 +60,7 @@ extern "C" {
 
 #else // __INTELLISENSE__
 
+#if defined(ARM9)
 
 /// Used to place a function in ITCM
 #define ITCM_CODE __attribute__((__section__(".itcm.text." __FILE__ "." LIBNDS_STRINGIFY(__LINE__)), __long_call__))
@@ -84,6 +85,22 @@ extern "C" {
 #define DTCM_DATA_VAR(x) __attribute__((__section__(".dtcm." LIBNDS_STRINGIFY(x)))) x
 /// Used to place uninitialized data in DTCM
 #define DTCM_BSS_VAR(x) __attribute__((__section__(".sbss." LIBNDS_STRINGIFY(x)))) x
+
+#elif defined(ARM7)
+
+#define ITCM_CODE
+#define ITCM_FUNC(x)  x
+#define ITCM_DATA
+#define ITCM_DATA_VAR(x) x
+#define ITCM_BSS
+#define ITCM_BSS_VAR(x) x
+
+#define DTCM_DATA
+#define DTCM_BSS
+#define DTCM_DATA_VAR(x) x
+#define DTCM_BSS_VAR(x) x
+
+#endif
 
 /// Used to place a function in DSi RAM.
 #define TWL_CODE __attribute__((__section__(".twl.text." __FILE__ "." LIBNDS_STRINGIFY(__LINE__))))
