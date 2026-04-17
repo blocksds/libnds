@@ -722,16 +722,16 @@ void consoleSetCursor(PrintConsole *console, int x, int y)
     if (!console)
         console = currentConsole;
 
-    int max_y = currentConsole->windowHeight - 1;
+    int max_y = console->windowHeight - 1;
     if (y > max_y)
         y = max_y;
 
-    int max_x = currentConsole->windowWidth - 1;
+    int max_x = console->windowWidth - 1;
     if (x > max_x)
         x = max_x;
 
-    currentConsole->cursorX = x;
-    currentConsole->cursorY = y;
+    console->cursorX = x;
+    console->cursorY = y;
 }
 
 void consoleAddToCursor(PrintConsole *console, int deltaX, int deltaY)
@@ -739,23 +739,23 @@ void consoleAddToCursor(PrintConsole *console, int deltaX, int deltaY)
     if (!console)
         console = currentConsole;
 
-    int x = currentConsole->cursorX + deltaX;
-    int y = currentConsole->cursorY + deltaY;
+    int x = console->cursorX + deltaX;
+    int y = console->cursorY + deltaY;
 
-    int max_y = currentConsole->windowHeight - 1;
+    int max_y = console->windowHeight - 1;
     if (y > max_y)
         y = max_y;
     if (y < 0)
         y = 0;
 
-    int max_x = currentConsole->windowWidth - 1;
+    int max_x = console->windowWidth - 1;
     if (x > max_x)
         x = max_x;
     if (x < 0)
         x = 0;
 
-    currentConsole->cursorX = x;
-    currentConsole->cursorY = y;
+    console->cursorX = x;
+    console->cursorY = y;
 }
 
 void consoleGetCursor(PrintConsole *console, int *x, int *y)
@@ -764,10 +764,10 @@ void consoleGetCursor(PrintConsole *console, int *x, int *y)
         console = currentConsole;
 
     if (x != NULL)
-        *x = currentConsole->cursorX;
+        *x = console->cursorX;
 
     if (y != NULL)
-        *y = currentConsole->cursorY;
+        *y = console->cursorY;
 }
 
 void consoleSetColor(PrintConsole *console, ConsoleColor color)
@@ -777,9 +777,9 @@ void consoleSetColor(PrintConsole *console, ConsoleColor color)
 
     // Only colors 0 to 7 are allowed, treat the rest as white
     if (color >= CONSOLE_DEFAULT)
-        currentConsole->fontCurPal = CONSOLE_WHITE;
+        console->fontCurPal = CONSOLE_WHITE;
     else
-        currentConsole->fontCurPal = color;
+        console->fontCurPal = color;
 }
 
 void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height)
