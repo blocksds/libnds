@@ -101,6 +101,24 @@ int fork(void)
     return -1;
 }
 
+pid_t wait(int *wstatus)
+{
+    (void)wstatus;
+
+    errno = ECHILD;
+    return -1;
+}
+
+pid_t waitpid(pid_t pid, int * wstatus, int options)
+{
+    (void)pid;
+    (void)wstatus;
+    (void)options;
+
+    errno = ECHILD;
+    return -1;
+}
+
 int gettimeofday(struct timeval *tp, void *tz)
 {
     (void)tz;
