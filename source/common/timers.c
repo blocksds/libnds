@@ -14,6 +14,9 @@ void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback)
 {
     assert((timer >= 0) && (timer < 4));
 
+    // Make sure that the timer is stopped before setting it up
+    TIMER_CR(timer) = 0;
+
     TIMER_DATA(timer) = ticks;
 
     if (callback)
