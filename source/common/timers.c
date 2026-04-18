@@ -31,7 +31,7 @@ void timerStart(int timer, ClockDivider divider, u16 ticks, VoidFn callback)
     }
 }
 
-u16 elapsed[4] = {0, 0, 0, 0};
+static u16 elapsed[4] = {0, 0, 0, 0};
 
 u16 timerElapsed(int timer)
 {
