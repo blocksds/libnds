@@ -56,6 +56,7 @@ typedef struct {
 #define R_ARM_JUMP24        29
 #define R_ARM_THM_JUMP24    30
 #define R_ARM_TARGET1       38
+#define R_ARM_V4BX          40
 #define R_ARM_TLS_IE32      107
 #define R_ARM_TLS_LE32      108
 
@@ -580,6 +581,10 @@ void *dlopen_FILE(FILE *f, int mode)
                 uint32_t *ptr = (uint32_t *)(loaded_mem + rel.r_offset);
 
                 *ptr = sym->value + TCB_SIZE;
+            }
+            else if (rel_type == R_ARM_V4BX)
+            {
+                // Static relocation type. Nothing to do here.
             }
             else
             {
