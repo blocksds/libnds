@@ -6,6 +6,7 @@
 #include <nds/arm9/sassert.h>
 #include <nds/exceptions.h>
 
+#include "arm9/libnds_internal.h"
 #include "device_io_internal.h"
 #include "filesystem_includes.h"
 
@@ -63,7 +64,7 @@ ssize_t read(int fd, void *ptr, size_t len)
         // never calls read() when reading from stdin, so this is safe.
         //if (fd == STDIN_FILENO)
         //    return fread(ptr, len, 1, stdin);
-        // TODO: fread(x, x, x, stdin) doesn't currently work.
+        // TODO: Call read_stdin_libnds()
 
         // STDOUT_FILENO or STDERR_FILENO
         errno = EINVAL;
@@ -91,12 +92,10 @@ ssize_t write(int fd, const void *ptr, size_t len)
 {
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
     {
-        // Using fwrite() means we go through the locks of picolibc. picolibc
-        // never calls write() when writing to stdout/stderr, so this is safe.
         if (fd == STDOUT_FILENO)
-            return fwrite(ptr, len, 1, stdout);
+            return write_stdout_libnds(0, ptr, len);
         if (fd == STDERR_FILENO)
-            return fwrite(ptr, len, 1, stderr);
+            return write_stderr_libnds(0, ptr, len);
 
         // STDIN_FILENO
         errno = EINVAL;

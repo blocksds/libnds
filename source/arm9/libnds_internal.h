@@ -12,6 +12,9 @@
 
 extern ConsoleOutFn libnds_stdout_write, libnds_stderr_write;
 
+ssize_t write_stderr_libnds(int fd, const void *buf, size_t size);
+ssize_t write_stdout_libnds(int fd, const void *buf, size_t size);
+
 /**
  * @brief Picolibc stdin reader for the keyboard.
  *
