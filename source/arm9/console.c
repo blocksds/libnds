@@ -51,8 +51,15 @@ static const PrintConsole defaultConsole =
     //.cursorY
     //.prevCursorX
     //.prevCursorY
-    //.fontCurPal
     //.fontCharOffset
+
+    //.fontCurPal
+    //.fontCurRgb
+    //.backgroundCurPal;
+    //.backgroundCurRgb;
+    //.sgrIntensity
+    //.sgrForegroundIsRgb
+    //.sgrBackgroundIsRgb
 
     .consoleWidth = 32,
     .consoleHeight = 24,
@@ -229,29 +236,43 @@ static void console_handle_sgr(void *console, size_t param_num, unsigned int *pa
         if (parameter == 0)
         {
             // Reset
-            con->fontCurPal = 15;
-            con->backgroundCurPal = 0;
+            con->fontCurPal = CONSOLE_WHITE;
+            con->backgroundCurPal = CONSOLE_BLACK;
+            con->sgrIntensity = 1;
+            con->sgrForegroundIsRgb = 0;
+            con->sgrBackgroundIsRgb = 0;
         }
         else if (parameter == 1)
         {
             // Bold or increased intensity
-            con->fontCurPal |= (1 << 3);
+            con->sgrIntensity = 1;
+
+            if ((con->sgrForegroundIsRgb == 0) && (con->fontCurPal < 8))
+                con->fontCurPal += 8;
         }
         else if (parameter == 22)
         {
             // Normal intensity
-            con->fontCurPal &= ~(1 << 3);
+            con->sgrIntensity = 0;
+
+            if ((con->sgrForegroundIsRgb == 0) &&
+                (con->fontCurPal >= 8) && (con->fontCurPal < 16))
+            {
+                con->fontCurPal -= 8;
+            }
         }
         else if ((parameter >= 30) && (parameter <= 37))
         {
             // Set foreground color
-            con->fontCurPal &= ~7;
-            con->fontCurPal |= parameter - 30;
+            con->fontCurPal = parameter - 30;
+
+            if (con->sgrIntensity)
+                con->fontCurPal += 8;
         }
         else if (parameter == 39)
         {
             // Default foreground color
-            con->fontCurPal = 15;
+            con->fontCurPal = CONSOLE_WHITE;
         }
         else if ((parameter >= 40) && (parameter <= 47))
         {
@@ -261,17 +282,17 @@ static void console_handle_sgr(void *console, size_t param_num, unsigned int *pa
         else if (parameter == 49)
         {
             // Default background color
-            con->backgroundCurPal = 0;
+            con->backgroundCurPal = CONSOLE_BLACK;
         }
         else if ((parameter >= 90) && (parameter <= 97))
         {
             // Set bright foreground color
-            con->fontCurPal = parameter - 90 + (1 << 3);
+            con->fontCurPal = parameter - 90 + 8;
         }
         else if ((parameter >= 100) && (parameter <= 107))
         {
             // Set bright background color
-            con->backgroundCurPal = parameter - 100 + (1 << 3);
+            con->backgroundCurPal = parameter - 100 + 8;
         }
     }
 }
@@ -606,8 +627,12 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
     console->fontBgMap = bgGetMapPtr(console->bgId);
     console->fontCharOffset = fontCharOffset;
     console->fontPalIndex = palIndex;
+
     console->fontCurPal = 0;
     console->backgroundCurPal = 0;
+    console->sgrIntensity = 1; // High
+    console->sgrForegroundIsRgb = 0;
+    console->sgrBackgroundIsRgb = 0;
 
     consoleCls('2');
 

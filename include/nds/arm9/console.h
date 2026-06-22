@@ -262,11 +262,40 @@ typedef struct PrintConsole
     /// consoleInit().
     u16 fontCharOffset;
 
-    /// The current foreground palette used by the engine. Initialized by consoleInit().
-    u16 fontCurPal;
+    union
+    {
+        /// The current foreground palette (0-255). Initialized by
+        /// consoleInit().
+        u8 fontCurPal;
 
-    /// The current background palette used by the engine. Initialized by consoleInit().
-    u16 backgroundCurPal;
+        /// The current foreground RGB color.
+        u8 fontCurRgb[3];
+    };
+
+    union
+    {
+        /// The current background palette (0-255). Initialized by
+        /// consoleInit().
+        u8 backgroundCurPal;
+
+        /// The current background RGB color.
+        u8 backgroundCurRgb[3];
+    };
+
+    struct
+    {
+        /// Intensity mode. 0 = normal, 1 = high, -1 = dim. Initialized by
+        /// consoleInit().
+        s8 sgrIntensity : 2;
+
+        /// Says if the foreground color uses direct RGB color (1) or paletted
+        /// color (0). Initialized by consoleInit().
+        u8 sgrForegroundIsRgb : 1;
+
+        /// Says if the foreground color uses direct RGB color (1) or paletted
+        /// color (0). Initialized by consoleInit().
+        u8 sgrBackgroundIsRgb : 1;
+    };
 
     /// Callback for printing a character.
     ///
