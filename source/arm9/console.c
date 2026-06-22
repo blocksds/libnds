@@ -62,6 +62,7 @@ static const PrintConsole defaultConsole =
     .windowHeight = 24,
     .tabSize = 3,
     .PrintChar = NULL, // Print callback
+    .HandleSgrCodes = NULL, // SGR attributes callback
 };
 
 #define DEFAULT_CONSOLE_MAP_BASE 22
@@ -184,6 +185,105 @@ ssize_t nocash_write(const char *ptr, size_t len)
     return len;
 }
 
+static void console_handle_sgr_legacy(void *console,
+                                      size_t param_num, unsigned int *params)
+{
+    // This function is buggy on purpose. It expects commands 30-37 in the first
+    // parameter, and commands 0 or 1 in the second one. However, in reality,
+    // commands can come in any order. Also, command 0 resets all attributes,
+    // including color, but here it's treated as "low brightness". The bugs have
+    // been present in libnds for 18 years so it's better to preserve them to
+    // not break code that depends on it.
+
+    PrintConsole *con = console;
+
+    if (param_num < 2)
+        return;
+
+    int parameter = params[0];
+    int intensity = params[1];
+
+    // Only handle 30-37,39 and intensity for the color changes
+    parameter -= 30;
+
+    // 39 is the reset code
+    if (parameter == 9)
+        parameter = 15;
+    else if (parameter > 8)
+        parameter -= 2;
+    else if (intensity)
+        parameter += 8;
+
+    if (parameter < 16 && parameter >= 0)
+        con->fontCurPal = parameter;
+}
+
+static void console_handle_sgr(void *console, size_t param_num, unsigned int *params)
+{
+    PrintConsole *con = console;
+
+    for (size_t p = 0; p < param_num; p++)
+    {
+        int parameter = params[p];
+
+        if (parameter == 0)
+        {
+            // Reset
+            con->fontCurPal = 15;
+            con->backgroundCurPal = 0;
+        }
+        else if (parameter == 1)
+        {
+            // Bold or increased intensity
+            con->fontCurPal |= (1 << 3);
+        }
+        else if (parameter == 22)
+        {
+            // Normal intensity
+            con->fontCurPal &= ~(1 << 3);
+        }
+        else if ((parameter >= 30) && (parameter <= 37))
+        {
+            // Set foreground color
+            con->fontCurPal &= ~7;
+            con->fontCurPal |= parameter - 30;
+        }
+        else if (parameter == 39)
+        {
+            // Default foreground color
+            con->fontCurPal = 15;
+        }
+        else if ((parameter >= 40) && (parameter <= 47))
+        {
+            // Set background color
+            con->backgroundCurPal = parameter - 40;
+        }
+        else if (parameter == 49)
+        {
+            // Default background color
+            con->backgroundCurPal = 0;
+        }
+        else if ((parameter >= 90) && (parameter <= 97))
+        {
+            // Set bright foreground color
+            con->fontCurPal = parameter - 90 + (1 << 3);
+        }
+        else if ((parameter >= 100) && (parameter <= 107))
+        {
+            // Set bright background color
+            con->backgroundCurPal = parameter - 100 + (1 << 3);
+        }
+    }
+}
+
+void consoleEnhancedColorHandler(PrintConsole *console)
+{
+    if (!console)
+        console = currentConsole;
+
+    console->HandleSgrCodes = console_handle_sgr;
+}
+
 static ssize_t con_write(const char *ptr, size_t len)
 {
     const char *tmp = ptr;
@@ -205,7 +305,7 @@ static ssize_t con_write(const char *ptr, size_t len)
             bool escaping = true;
             const char *escapeseq = tmp;
             int escapelen = 0;
-            unsigned int params[2] = { 0 };
+            unsigned int params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
             unsigned int cur_param = 0;
 
             do
@@ -232,7 +332,7 @@ static ssize_t con_write(const char *ptr, size_t len)
 
                     case ';':
                         cur_param++;
-                        if (cur_param == 2) // Only one ';' supported
+                        if (cur_param == LIBNDS_CONSOLE_MAX_ANSI_PARAMS)
                             return -1;
                         break;
 
@@ -327,31 +427,28 @@ static ssize_t con_write(const char *ptr, size_t len)
                         escaping = false;
                         break;
 
-                    // Color scan codes
+                    // Color scan codes (list of numbers separated by ';')
                     case 'm':
                     {
-                        int parameter = params[0];
-                        int intensity = params[1];
-
-                        // only handle 30-37,39 and intensity for the color changes
-                        parameter -= 30;
-
-                        // 39 is the reset code
-                        if (parameter == 9)
-                            parameter = 15;
-                        else if (parameter > 8)
-                            parameter -= 2;
-                        else if (intensity)
-                            parameter += 8;
-
-                        if (parameter < 16 && parameter >= 0)
-                            currentConsole->fontCurPal = parameter;
+                        if (currentConsole->HandleSgrCodes == NULL)
+                        {
+                            // Use the old buggy libnds SGR codes
+                            console_handle_sgr_legacy(currentConsole,
+                                                      cur_param + 1, params);
+                        }
+                        else
+                        {
+                            currentConsole->HandleSgrCodes(currentConsole,
+                                                           cur_param + 1, params);
+                        }
 
                         escaping = false;
                         break;
                     }
                 }
-            } while (escaping && (i < len));
+            }
+            while (escaping && (i < len));
+
             continue;
         }
 
@@ -445,7 +542,7 @@ void consoleLoadFont(PrintConsole *console)
     else
     {
         // Set default palette (4bpp and 8bpp variants)
-        palette[0] = RGB15(0, 0, 0);
+        palette[0] = RGB15(0, 0, 0); // Clear color (displayed under BG layers)
         palette[16 * 16 - 1] = RGB15(31, 31, 31); // 47 & 39 bright white
 
         if (console->font.bpp <= 4)
@@ -510,6 +607,7 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
     console->fontCharOffset = fontCharOffset;
     console->fontPalIndex = palIndex;
     console->fontCurPal = 0;
+    console->backgroundCurPal = 0;
 
     consoleCls('2');
 
@@ -775,11 +873,23 @@ void consoleSetColor(PrintConsole *console, ConsoleColor color)
     if (!console)
         console = currentConsole;
 
-    // Only colors 0 to 7 are allowed, treat the rest as white
+    // Only colors 0 to 15 are allowed, treat the rest as white
     if (color >= CONSOLE_DEFAULT)
         console->fontCurPal = CONSOLE_WHITE;
     else
         console->fontCurPal = color;
+}
+
+void consoleSetBackgroundColor(PrintConsole *console, ConsoleColor color)
+{
+    if (!console)
+        console = currentConsole;
+
+    // Only colors 0 to 15 are allowed, treat the rest as black
+    if (color >= CONSOLE_DEFAULT)
+        console->backgroundCurPal = CONSOLE_BLACK;
+    else
+        console->backgroundCurPal = color;
 }
 
 void consoleSetWindow(PrintConsole *console, int x, int y, int width, int height)

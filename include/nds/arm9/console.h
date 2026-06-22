@@ -89,13 +89,37 @@
 /// - `[u`: Restore saved cursor position. It will preserve the saved position
 ///   in case you want to restore it later.
 ///
-/// - `[c;im`: Change color of the text that will be printed after this.
+/// SGR commands:
 ///
-///   Parameter `c` is the color, and parameter `i` is the intensity. Colors go
-///   from 30 to 37 (black, red, green, yellow, blue, magenta, cyan, white), and
-///   intensity can be 0 or 1 (1 will make the colors brighter).
+/// - Legacy libnds mode (used by default). Only one pattern of commands is
+///   supported, and it doensn't behave like the standard says.
 ///
-///   Color 39 resets the color back to white: `printf("\x1b[39;0m");`
+///   - `[c;im`: Change color of the text that will be printed after this. This
+///     behaves in a non-standard way.
+///
+///     Parameter `c` is the color, and parameter `i` is the intensity. Colors go
+///     from 30 to 37 (black, red, green, yellow, blue, magenta, cyan, white), and
+///     intensity can be 0 or 1 (1 will make the colors brighter).
+///
+///     Color 39 resets the color back to white: `printf("\x1b[39;0m");`
+///
+/// - Enhanced mode. If you want to use SGR codes like the standard says, you
+///   need to call `consoleEnhancedColorHandler()` first. After that, the parser
+///   will accept any list of parameters (up to LIBNDS_CONSOLE_MAX_ANSI_PARAMS
+///   numbers in a single escape sequence) separated by ';' characters and
+///   finishing with an 'm'. For example, `[1;30;45m` and `[0m` are valid
+///   strings. This is a list of supported commands:
+///
+///   - 0: Resets all attributes to the default (white text, black background).
+///   - 1: Set bold/high intensity mode. In the default console: brighter colors.
+///   - 22: Normal intensity. In the default console: darker colors.
+///   - 30 to 37: Set foreground color (ConsoleColor). CONSOLE_WHITE by default.
+///   - 40 to 47: Set background color (ConsoleColor). CONSOLE_BLACK by default.
+///   - 90 to 97: Bright (intense) foreground colors.
+///   - 100 to 107: Bright (intense) background colors.
+///
+///   Background commands are accepted but they don't have any effect in the
+///   default console of libnds.
 ///
 /// A list of all ANSI escape sequences is available here:
 /// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
@@ -116,9 +140,16 @@ extern "C" {
 /// console.
 typedef bool (* ConsolePrint)(void *con, char c);
 
+/// Function type used by PrintConsole struct to handle SGR text attribute
+/// commands.
+typedef void (* ConsoleHandleSgr)(void *con, size_t num, unsigned int *params);
+
 /// Function type used by libnds to redirect characters sent to stdout and
 /// stderr (skipping the call to the ConsolePrint handler).
 typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
+
+/// Maximum number of parameters in an ANSI escape sequence supported by libnds.
+#define LIBNDS_CONSOLE_MAX_ANSI_PARAMS 6
 
 /// A font struct for the console.
 ///
@@ -231,15 +262,23 @@ typedef struct PrintConsole
     /// consoleInit().
     u16 fontCharOffset;
 
-    /// The current palette used by the engine. Initialized by consoleInit().
+    /// The current foreground palette used by the engine. Initialized by consoleInit().
     u16 fontCurPal;
+
+    /// The current background palette used by the engine. Initialized by consoleInit().
+    u16 backgroundCurPal;
 
     /// Callback for printing a character.
     ///
     /// It should return true if it has handled rendering the graphics. If not,
     /// the print engine will attempt to render via tiles).
     ConsolePrint PrintChar;
-} PrintConsole;
+
+    /// Handler of SGR commands that change text attributes like color. If it's
+    /// NULL, it will use the legacy handler of libnds.
+    ConsoleHandleSgr HandleSgrCodes;
+}
+PrintConsole;
 
 /// Console debug devices supported by libnds.
 typedef enum
@@ -320,8 +359,45 @@ typedef enum {
 /// @param console
 ///     Console to set. If NULL it will set the current console window
 /// @param color
-///     Color to be used for new text.
+///     Color to be used for new text. CONSOLE_DEFAULT is white.
 void consoleSetColor(PrintConsole *console, ConsoleColor color);
+
+/// Sets the color to use as background for new text.
+///
+/// @note
+///     The default console of libnds doesn't support this.
+///
+/// @param console
+///     Console to set. If NULL it will set the current console window
+/// @param color
+///     Color to be used for new text. CONSOLE_DEFAULT is black.
+void consoleSetBackgroundColor(PrintConsole *console, ConsoleColor color);
+
+/// Enable more ANSI color codes for this console.
+///
+/// Old libnds only supported escape sequence `\E[%d;%dm` to change the font
+/// color, where the first `%d` was a number between 30 and 37, and the second
+/// `%d` was the intensity (0 or any other value). There were two main issues
+/// with this:
+///
+/// - The first value correctly set the font color, but it forced the color to
+///   be the first entry. According to the standard any command can go in any
+///   position, and they are interpreted from left to right.
+///
+/// - The second value didn't behave the way the standard says. Command 1 means
+///   bold text (or bright colors), which was correct. However, command 0 should
+///   reset all attributes of the text, not just the intensity.
+///
+/// - Values outside of the expected values would cause the color to be
+///   calculated in unexpected ways instead of being ignored.
+///
+/// Old code that uses libnds relies on this behaviour, so it is the default
+/// behaviour of the console. If you want to switch to the updated SGR commands
+/// handler, call consoleEnhancedColorHandler().
+///
+/// @param console
+///     Console to modify. If NULL it will set the current console.
+void consoleEnhancedColorHandler(PrintConsole *console);
 
 /// Sets the print window dimensions.
 ///
