@@ -235,7 +235,7 @@ typedef struct PrintConsole
     u8 fontPalIndex;
 
     /// Background ID. Initialized by consoleInit().
-    int bgId;
+    s8 bgId;
 
     /// Current X location of the cursor. Initialized by consoleInit().
     s16 cursorX;
