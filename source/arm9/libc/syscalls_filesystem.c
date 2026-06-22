@@ -2,6 +2,8 @@
 //
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 
+#include <stdarg.h>
+
 #include <nds/arm9/device_io.h>
 #include <nds/arm9/sassert.h>
 #include <nds/exceptions.h>
@@ -16,6 +18,8 @@
 ssize_t (*socket_fn_write)(int, const void *, size_t) = NULL;
 ssize_t (*socket_fn_read)(int, void *, size_t) = NULL;
 int (*socket_fn_close)(int) = NULL;
+int (*socket_fn_ioctl)(int, unsigned long, va_list) = NULL;
+int (*socket_fn_fcntl)(int, int, va_list) = NULL;
 
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib and picolibc:
@@ -976,4 +980,66 @@ long telldir(DIR *dirp)
         return -1;
 
     return fn(dirp);
+}
+
+int ioctl(int fd, unsigned long op, ...)
+{
+    va_list ap;
+    int (*fn)(int, unsigned long, va_list);
+    int ret = -1;
+
+    va_start(ap, op);
+
+    if (fd == STDIN_FILENO) // TODO: Implement this
+        fn = NULL;
+    else if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
+        fn = NULL;
+    else if (FD_IS_SOCKET(fd))
+        fn = socket_fn_ioctl;
+    else if (FD_IS_NITRO(fd))
+        fn = NULL;
+    else if (FD_IS_FAT(fd))
+        fn = NULL;
+    else
+        fn = DEVIO_GETFN(FD_TYPE(fd), ioctl);
+
+    if (fn == NULL)
+        errno = EINVAL;
+    else
+        ret = fn(FD_DESC(fd), op, ap);
+
+    va_end(ap);
+
+    return ret;
+}
+
+int fcntl(int fd, int cmd, ...)
+{
+    va_list ap;
+    int (*fn)(int, int, va_list);
+    int ret = -1;
+
+    va_start(ap, cmd);
+
+    if (fd == STDIN_FILENO) // TODO: Implement this
+        fn = NULL;
+    else if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
+        fn = NULL;
+    else if (FD_IS_SOCKET(fd))
+        fn = socket_fn_fcntl;
+    else if (FD_IS_NITRO(fd))
+        fn = NULL;
+    else if (FD_IS_FAT(fd))
+        fn = NULL;
+    else
+        fn = DEVIO_GETFN(FD_TYPE(fd), fcntl);
+
+    if (fn == NULL)
+        errno = EINVAL;
+    else
+        ret = fn(FD_DESC(fd), cmd, ap);
+
+    va_end(ap);
+
+    return ret;
 }

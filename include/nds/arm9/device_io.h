@@ -206,6 +206,9 @@ typedef struct
     ///     On success it returns true, on error it returns false and sets
     ///     errno.
     bool (*get_short_name_for)(const char *file, char *buf);
+
+    int (*ioctl)(int fd, unsigned long cmd, va_list ap);
+    int (*fcntl)(int fd, int cmd, va_list ap);
 }
 device_io_t;
 
