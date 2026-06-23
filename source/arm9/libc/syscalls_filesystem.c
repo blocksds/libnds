@@ -62,7 +62,13 @@ int open(const char *path, int flags, ...)
 
 ssize_t read(int fd, void *ptr, size_t len)
 {
-    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
+    if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (fd == STDIN_FILENO)
     {
         // Using fread() means we go through the locks of picolibc. picolibc
         // never calls read() when reading from stdin, so this is safe.
@@ -94,14 +100,13 @@ ssize_t read(int fd, void *ptr, size_t len)
 
 ssize_t write(int fd, const void *ptr, size_t len)
 {
-    if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO))
-    {
-        if (fd == STDOUT_FILENO)
-            return write_stdout_libnds(0, ptr, len);
-        if (fd == STDERR_FILENO)
-            return write_stderr_libnds(0, ptr, len);
+    if (fd == STDOUT_FILENO)
+        return write_stdout_libnds(0, ptr, len);
+    if (fd == STDERR_FILENO)
+        return write_stderr_libnds(0, ptr, len);
 
-        // STDIN_FILENO
+    if (fd == STDIN_FILENO)
+    {
         errno = EINVAL;
         return -1;
     }
