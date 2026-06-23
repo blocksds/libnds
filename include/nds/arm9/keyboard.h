@@ -191,6 +191,12 @@ void keyboardShow(void);
 /// screen. If not, it will hide it right away.
 void keyboardHide(void);
 
+/// Check if the active keyboard is visible or not.
+///
+/// @return
+///     Returns true if the keyboard is visible, false if not.
+bool keyboardIsVisible(void);
+
 /// Returns the ASCII code for the key located at the supplied x and y.
 ///
 /// Will not effect keyboard shift state.

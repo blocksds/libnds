@@ -442,6 +442,14 @@ void keyboardHide(void)
     bgUpdate();
 }
 
+bool keyboardIsVisible(void)
+{
+    if (!keyboardLoaded)
+        return false;
+
+    return curKeyboard.visible;
+}
+
 s16 keyboardGetChar(void)
 {
     if (!keyboardLoaded)
