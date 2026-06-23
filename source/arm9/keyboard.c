@@ -519,14 +519,16 @@ int libnds_stdin_getc_keyboard(FILE *file)
 {
     (void)file;
 
-    static int shown = 0;
-    int c = -1;
-
     if (!keyboardLoaded)
-        return c;
+        return -1;
+
+    int c = -1;
+    int shown = keyboardIsVisible();
 
 #ifdef INPUT_BUFFER_SIZE
-    if (shown == 0 && stdin_buf_left != stdin_buf_right)
+    // If the keyboard is hidden, but the input FIFO has characters, return a
+    // character from it.
+    if ((shown == 0) && (stdin_buf_left != stdin_buf_right))
     {
         c = stdin_buf[stdin_buf_left];
         stdin_buf_left = (stdin_buf_left + 1) & INPUT_BUFFER_MASK;
@@ -534,12 +536,14 @@ int libnds_stdin_getc_keyboard(FILE *file)
     }
 #endif
 
+    // If the FIFO is empty, and the keyboard is hidden, show it
     if (shown == 0)
     {
         keyboardShow();
         shown = 1;
     }
 
+    // Wait until the user presses on a key
     while (true)
     {
         scanKeys();
