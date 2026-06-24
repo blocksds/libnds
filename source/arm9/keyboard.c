@@ -498,13 +498,14 @@ void keyboardGetString(char *buffer, int maxLen)
 // Picolibc stdin handler
 
 // Newline buffer so that we can support pressing the Backspace key.
-// If not defined, unbuffered keyboard input is used.
+// If not defined, unbuffered keyboard input is used. The size must be smaller
+// than 256, and a power of 2.
 #define INPUT_BUFFER_SIZE 128
 #ifdef INPUT_BUFFER_SIZE
 #define INPUT_BUFFER_MASK (INPUT_BUFFER_SIZE - 1)
 static char stdin_buf[INPUT_BUFFER_SIZE];
-static uint16_t stdin_buf_left = 0;
-static uint16_t stdin_buf_right = 0;
+static uint8_t stdin_buf_in = 0;
+static uint8_t stdin_buf_out = 0;
 #endif
 bool stdin_buf_empty = false;
 
