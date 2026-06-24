@@ -21,10 +21,6 @@
 
 s16 lastKey = -1;
 
-// TODO: This is a kludge to handle BACKSPACE in libc/iob.c. Maybe there's a way
-// to do this better?
-extern bool stdin_buf_empty;
-
 // Default keyboard map
 static const s16 SimpleKbdLower[] =
 {
@@ -218,7 +214,7 @@ s16 keyboardUpdate(void)
     if (!curKeyboard.visible)
         return -1;
 
-    static int pressed = 0;
+    static bool pressed = false;
     touchPosition touch;
 
     static u32 oldKeys = 0;
@@ -231,9 +227,9 @@ s16 keyboardUpdate(void)
 
     if (pressed)
     {
-        if (!(keysHeld() & KEY_TOUCH))
+        if (!(keys & KEY_TOUCH))
         {
-            pressed = 0;
+            pressed = false;
 
             if (lastKey != NOKEY)
                 swapKeyGfx(lastKey, false);
@@ -273,12 +269,9 @@ s16 keyboardUpdate(void)
             if (key == NOKEY)
                 return -1;
 
-            pressed = 1;
+            pressed = true;
 
             swapKeyGfx(key, true);
-
-            if (key == DVK_BACKSPACE && stdin_buf_empty)
-                return -1;
 
             if (curKeyboard.OnKeyPressed != NULL)
                 curKeyboard.OnKeyPressed(lastKey);
