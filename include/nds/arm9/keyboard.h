@@ -2,6 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2007 Jason Rogers (dovoto)
+// Copyright (C) 2026 Antonio Niño Díaz
 
 /// @file nds/arm9/keyboard.h
 ///
@@ -237,6 +238,53 @@ s16 keyboardGetChar(void);
 /// @return
 ///     The ASCII code of the key pressed or NOKEY if no key was pressed.
 s16 keyboardUpdate(void);
+
+/// Checks the state of the keyboard and saves key presses in the FIFO buffer.
+///
+/// If your application wants to do non-blocking reads of `stdin` it must
+/// regularly call this function so that key presses are registered and stored
+/// in the input FIFO buffer. You must call scanKeys() regularly as well.
+///
+/// This is only needed if you want to use the standard syscalls `read()`,
+/// `ioctl()` and `fcntl()` to access keyboard input. For example, this can be
+/// very useful if you're porting applications to the DS. If you are creating a
+/// new DS-specific application, use `keyboardUpdate()` instead, which is more
+/// efficient.
+///
+/// ```c
+/// consoleDemoInit();
+///
+/// // Initialize demo keyboard and load graphics to VRAM
+/// Keyboard *kbd = keyboardDemoInit();
+/// keyboardShow();
+///
+/// int opt = 1;
+/// ioctl(STDIN_FILENO, FIONBIO, &opt);
+///
+/// while (true)
+/// {
+///     scanKeys();
+///     keyboardFifoUpdate();
+///
+///     char buffer[50];
+///     size_t num = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
+///     buffer[num] = '\0';
+///
+///     if (num > 0)
+///         printf("[%s] %zu chars\n", buffer, num);
+/// }
+/// ```
+///
+/// You can also query the amount of characters in `stdin` available to be read;
+///
+/// ```c
+/// int num;
+/// if (ioctl(stdin, FIONREAD, &num) > 0)
+///     printf("Bytes available: %d\n", num);
+/// else
+///     printf("Error\n");
+/// ```
+void keyboardFifoUpdate(void);
 
 #ifdef __cplusplus
 }

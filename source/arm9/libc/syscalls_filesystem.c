@@ -21,6 +21,10 @@ int (*socket_fn_close)(int) = NULL;
 int (*socket_fn_ioctl)(int, unsigned long, va_list) = NULL;
 int (*socket_fn_fcntl)(int, int, va_list) = NULL;
 
+ssize_t (*stdin_fn_read)(int, void *, size_t) = NULL;
+int (*stdin_fn_ioctl)(int, unsigned long, va_list) = NULL;
+int (*stdin_fn_fcntl)(int, int, va_list) = NULL;
+
 // This file implements stubs for system calls. For more information about it,
 // check the documentation of newlib and picolibc:
 //
@@ -68,22 +72,11 @@ ssize_t read(int fd, void *ptr, size_t len)
         return -1;
     }
 
-    if (fd == STDIN_FILENO)
-    {
-        // Using fread() means we go through the locks of picolibc. picolibc
-        // never calls read() when reading from stdin, so this is safe.
-        //if (fd == STDIN_FILENO)
-        //    return fread(ptr, len, 1, stdin);
-        // TODO: Call read_stdin_libnds()
-
-        // STDOUT_FILENO or STDERR_FILENO
-        errno = EINVAL;
-        return -1;
-    }
-
     ssize_t (*fn)(int, void *, size_t);
 
-    if (FD_IS_SOCKET(fd))
+    if (fd == STDIN_FILENO)
+        fn = stdin_fn_read;
+    else if (FD_IS_SOCKET(fd))
         fn = socket_fn_read;
     else if (FD_IS_NITRO(fd))
         fn = nitrofs_read;
@@ -995,8 +988,8 @@ int ioctl(int fd, unsigned long op, ...)
 
     va_start(ap, op);
 
-    if (fd == STDIN_FILENO) // TODO: Implement this
-        fn = NULL;
+    if (fd == STDIN_FILENO)
+        fn = stdin_fn_ioctl;
     else if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
         fn = NULL;
     else if (FD_IS_SOCKET(fd))
@@ -1026,8 +1019,8 @@ int fcntl(int fd, int cmd, ...)
 
     va_start(ap, cmd);
 
-    if (fd == STDIN_FILENO) // TODO: Implement this
-        fn = NULL;
+    if (fd == STDIN_FILENO)
+        fn = stdin_fn_fcntl;
     else if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
         fn = NULL;
     else if (FD_IS_SOCKET(fd))

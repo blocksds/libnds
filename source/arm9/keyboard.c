@@ -2,6 +2,7 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2007 Jason Rogers (dovoto)
+// Copyright (C) 2026 Antonio Niño Díaz
 
 // stdin integration for a simple keyboard
 
@@ -19,7 +20,9 @@
 #include "keyboardGfx.h"
 #include "arm9/libnds_internal.h"
 
-s16 lastKey = -1;
+static void keyboardFifoStart(void);
+
+static s16 lastKey = -1;
 
 // Default keyboard map
 static const s16 SimpleKbdLower[] =
@@ -293,6 +296,8 @@ Keyboard *keyboardInit_call(const Keyboard *keyboard, int layer, BgType type, Bg
 {
     sassert(keyboard != NULL, "No keyboard provided");
 
+    keyboardFifoStart();
+
     // Keep a pointer to the original data of the keyboard. We will needed it to
     // re-initialize the shift and mapping state whenever the user calls
     // keyboardShow(). If not, if the keyboard is hidden by keyboardHide() while
@@ -495,99 +500,104 @@ void keyboardGetString(char *buffer, int maxLen)
     *buffer = 0;
 }
 
-// Picolibc stdin handler
+// Keyboard FIFO buffer
+// ====================
 
 // Newline buffer so that we can support pressing the Backspace key.
 // If not defined, unbuffered keyboard input is used. The size must be smaller
 // than 256, and a power of 2.
 #define INPUT_BUFFER_SIZE 128
-#ifdef INPUT_BUFFER_SIZE
 #define INPUT_BUFFER_MASK (INPUT_BUFFER_SIZE - 1)
 static char stdin_buf[INPUT_BUFFER_SIZE];
 static uint8_t stdin_buf_in = 0;
 static uint8_t stdin_buf_out = 0;
-#endif
-bool stdin_buf_empty = false;
+static uint8_t stdin_buf_entries = 0;
 
-int libnds_stdin_getc_keyboard(FILE *file)
+static bool libnds_stdin_fifo_empty(void)
 {
-    (void)file;
+    return (stdin_buf_entries == 0);
+}
 
-    if (!keyboardLoaded)
+static bool libnds_stdin_fifo_full(void)
+{
+    return (stdin_buf_entries == INPUT_BUFFER_SIZE);
+}
+
+static void libnds_stdin_fifo_push(int c)
+{
+    if (libnds_stdin_fifo_full())
+        return;
+
+    stdin_buf[stdin_buf_in] = c;
+    stdin_buf_in = (stdin_buf_in + 1) & INPUT_BUFFER_MASK;
+    stdin_buf_entries++;
+}
+
+// Remove the last character pushed to the FIFO
+static void libnds_stdin_fifo_unpush(void)
+{
+    if (libnds_stdin_fifo_empty())
+        return;
+
+    stdin_buf_in = (stdin_buf_in - 1) & INPUT_BUFFER_MASK;
+    stdin_buf_entries--;
+}
+
+static int libnds_stdin_fifo_pop(void)
+{
+    if (libnds_stdin_fifo_empty())
         return -1;
 
-    int c = -1;
-    int shown = keyboardIsVisible();
-
-#ifdef INPUT_BUFFER_SIZE
-    // If the keyboard is hidden, but the input FIFO has characters, return a
-    // character from it.
-    if ((shown == 0) && (stdin_buf_left != stdin_buf_right))
-    {
-        c = stdin_buf[stdin_buf_left];
-        stdin_buf_left = (stdin_buf_left + 1) & INPUT_BUFFER_MASK;
-        return c;
-    }
-#endif
-
-    // If the FIFO is empty, and the keyboard is hidden, show it
-    if (shown == 0)
-    {
-        keyboardShow();
-        shown = 1;
-    }
-
-    // Wait until the user presses on a key
-    while (true)
-    {
-        scanKeys();
-#ifdef INPUT_BUFFER_SIZE
-        stdin_buf_empty = stdin_buf_left == stdin_buf_right;
-        int kc = keyboardUpdate();
-        stdin_buf_empty = false;
-        if (kc == DVK_BACKSPACE)
-        {
-            if (stdin_buf_left != stdin_buf_right)
-            {
-                stdin_buf_right = (stdin_buf_right - 1) & INPUT_BUFFER_MASK;
-            }
-        }
-        else if (kc > 0)
-        {
-            uint16_t next_right = (stdin_buf_right + 1) & INPUT_BUFFER_MASK;
-            // if about to overflow buffer, pop char
-            // if newline, finish writing string - hide keyboard + pop char
-            if (next_right == stdin_buf_left || kc == '\n')
-            {
-                if (kc == '\n')
-                {
-                    keyboardHide();
-                    shown = 0;
-                }
-
-                c = stdin_buf[stdin_buf_left];
-                stdin_buf_left = (stdin_buf_left + 1) & INPUT_BUFFER_MASK;
-            }
-            stdin_buf[stdin_buf_right] = kc;
-            stdin_buf_right = next_right;
-        }
-#else
-        c = keyboardUpdate();
-#endif
-        if (c > 0)
-            break;
-
-        cothread_yield_irq(IRQ_VBLANK);
-    }
-
-#ifndef INPUT_BUFFER_SIZE
-    if (c == '\n')
-    {
-        keyboardHide();
-        shown = 0;
-    }
-#endif
+    int c = stdin_buf[stdin_buf_out];
+    stdin_buf_out = (stdin_buf_out + 1) & INPUT_BUFFER_MASK;
+    stdin_buf_entries--;
 
     return c;
 }
 
+// Public functions to manage the FIFO buffer
+
+void keyboardFifoUpdate(void)
+{
+    // This function needs to be called if an application wants to use system
+    // calls to read from stdin in a non-blocking way. This function fills the
+    // FIFO buffer when the user presses the keyboard.
+
+    if (!keyboardLoaded)
+        return;
+
+    // Check the current state of the keyboard and save any key presses to the
+    // FIFO buffer.
+
+    int kc = keyboardUpdate();
+
+    if (kc == DVK_BACKSPACE)
+    {
+        // Try to delete the last character pushed to the FIFO
+        libnds_stdin_fifo_unpush();
+    }
+    else if (kc > 0)
+    {
+        libnds_stdin_fifo_push(kc);
+    }
+}
+
+int keyboardFifoGetc(void)
+{
+    // Fetch one character from the FIFO buffer
+    return libnds_stdin_fifo_pop();
+}
+
+size_t keyboardFifoStoredCharacters(void)
+{
+    return stdin_buf_entries;
+}
+
+static void keyboardFifoStart(void)
+{
+    stdin_buf_out = 0;
+    stdin_buf_in = 0;
+    stdin_buf_entries = 0;
+
+    libnds_setup_default_stdin_hooks();
+}
