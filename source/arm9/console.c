@@ -748,14 +748,14 @@ void consolePrintChar(char c)
     if (c == 0)
         return;
 
-    if (currentConsole->fontBgMap == NULL)
-        return;
-
     if (currentConsole->PrintChar)
     {
         if (currentConsole->PrintChar(currentConsole, c))
             return;
     }
+
+    if (currentConsole->fontBgMap == NULL)
+        return;
 
     if (currentConsole->cursorX >= currentConsole->windowWidth)
     {
