@@ -114,12 +114,17 @@
 ///   - 1: Set bold/high intensity mode. In the default console: brighter colors.
 ///   - 22: Normal intensity. In the default console: darker colors.
 ///   - 30 to 37: Set foreground color (ConsoleColor). CONSOLE_WHITE by default.
+///   - 38, 2, rr, gg, bb: Set foreground color to 'rr, gg, bb' (24 bit mode).
+///   - 38, 5, cc: Set foreground color to 'cc' (256 color palette).
 ///   - 40 to 47: Set background color (ConsoleColor). CONSOLE_BLACK by default.
+///   - 48, 2, rr, gg, bb: Set background color to 'rr, gg, bb' (24 bit mode).
+///   - 48, 5, cc: Set background color to 'cc' (256 color palette).
 ///   - 90 to 97: Bright (intense) foreground colors.
 ///   - 100 to 107: Bright (intense) background colors.
 ///
 ///   Background commands are accepted but they don't have any effect in the
-///   default console of libnds.
+///   default console of libnds. Also, 256-color mode and 24-bit color modes
+///   aren't supported by the default console of libnds.
 ///
 /// A list of all ANSI escape sequences is available here:
 /// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences

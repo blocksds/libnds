@@ -269,6 +269,41 @@ static void console_handle_sgr(void *console, size_t param_num, unsigned int *pa
 
             if (con->sgrIntensity)
                 con->fontCurPal += 8;
+
+            con->sgrForegroundIsRgb = false;
+        }
+        else if (parameter == 38)
+        {
+            // Set foreground color (256 colors, 24 bit color)
+
+            if (param_num > 0)
+            {
+                int cmd = *params++;
+                param_num--;
+
+                if (cmd == 5) // 256 colors
+                {
+                    if (param_num > 0)
+                    {
+                        con->fontCurPal = *params++;
+                        param_num--;
+
+                        con->sgrForegroundIsRgb = false;
+                    }
+                }
+                else if (cmd == 2) // 24 bit RGB
+                {
+                    if (param_num > 2)
+                    {
+                        con->fontCurRgb[0] = *params++;
+                        con->fontCurRgb[1] = *params++;
+                        con->fontCurRgb[2] = *params++;
+                        param_num -= 3;
+
+                        con->sgrForegroundIsRgb = true;
+                    }
+                }
+            }
         }
         else if (parameter == 39)
         {
@@ -279,21 +314,58 @@ static void console_handle_sgr(void *console, size_t param_num, unsigned int *pa
         {
             // Set background color
             con->backgroundCurPal = parameter - 40;
+            con->sgrBackgroundIsRgb = false;
+        }
+        else if (parameter == 48)
+        {
+            // Set background color (256 colors, 24 bit color)
+
+            if (param_num > 0)
+            {
+                int cmd = *params++;
+                param_num--;
+
+                if (cmd == 5) // 256 colors
+                {
+                    if (param_num > 0)
+                    {
+                        con->backgroundCurPal = *params++;
+                        param_num--;
+
+                        con->sgrBackgroundIsRgb = false;
+                    }
+                }
+                else if (cmd == 2) // 24 bit RGB
+                {
+                    if (param_num > 2)
+                    {
+                        con->backgroundCurRgb[0] = *params++;
+                        con->backgroundCurRgb[1] = *params++;
+                        con->backgroundCurRgb[2] = *params++;
+                        param_num -= 3;
+
+                        con->sgrBackgroundIsRgb = true;
+                    }
+                }
+            }
         }
         else if (parameter == 49)
         {
             // Default background color
             con->backgroundCurPal = CONSOLE_BLACK;
+            con->sgrBackgroundIsRgb = false;
         }
         else if ((parameter >= 90) && (parameter <= 97))
         {
             // Set bright foreground color
             con->fontCurPal = parameter - 90 + 8;
+            con->sgrForegroundIsRgb = false;
         }
         else if ((parameter >= 100) && (parameter <= 107))
         {
             // Set bright background color
             con->backgroundCurPal = parameter - 100 + 8;
+            con->sgrBackgroundIsRgb = false;
         }
     }
 }
