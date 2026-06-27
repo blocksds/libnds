@@ -15,7 +15,7 @@
 #include "arm9/libnds_internal.h"
 
 // Buffers so that we can send to the console full ANSI escape sequences.
-#define OUTPUT_BUFFER_SIZE 16
+#define OUTPUT_BUFFER_SIZE 48
 static char stdout_buf[OUTPUT_BUFFER_SIZE + 1];
 static char stderr_buf[OUTPUT_BUFFER_SIZE + 1];
 static uint16_t stdout_buf_len = 0;

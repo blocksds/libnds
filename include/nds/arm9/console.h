@@ -149,7 +149,7 @@ typedef void (* ConsoleHandleSgr)(void *con, size_t num, unsigned int *params);
 typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
 
 /// Maximum number of parameters in an ANSI escape sequence supported by libnds.
-#define LIBNDS_CONSOLE_MAX_ANSI_PARAMS 6
+#define LIBNDS_CONSOLE_MAX_ANSI_PARAMS 10
 
 /// A font struct for the console.
 ///

@@ -229,9 +229,10 @@ static void console_handle_sgr(void *console, size_t param_num, unsigned int *pa
 {
     PrintConsole *con = console;
 
-    for (size_t p = 0; p < param_num; p++)
+    while (param_num > 0)
     {
-        int parameter = params[p];
+        int parameter = *params++;
+        param_num--;
 
         if (parameter == 0)
         {
