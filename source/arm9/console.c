@@ -767,15 +767,17 @@ void consolePrintChar(char c)
     switch (c)
     {
         // The only special characters we will handle are tab (\t), carriage
-        // return (\r), line feed (\n) and backspace (\b). Carriage return &
-        // line feed will function the same: go to next line and put cursor at
-        // the beginning. For everything else, use VT sequences.
+        // return (\r), line feed (\n) and backspace (\b).
+        //
+        // Line feed goes to next line and puts the cursor at the beginning.
+        // Carriage return only puts the cursor at the beginning. For everything
+        // else, use VT sequences.
         //
         // Reason: VT sequences are more specific to the task of cursor
         // placement.  The special escape sequences \b \f & \v are archaic and
         // non-portable.
 
-        case 8:
+        case '\b':
         {
             currentConsole->cursorX--;
 
@@ -801,7 +803,7 @@ void consolePrintChar(char c)
             currentConsole->fontBgMap[index] = TILE_PALETTE(currentConsole->fontCurPal) | tile;
             break;
         }
-        case 9:
+        case '\t':
         {
             int spaces = currentConsole->tabSize
                        - ((currentConsole->cursorX) % (currentConsole->tabSize));
@@ -809,10 +811,10 @@ void consolePrintChar(char c)
             currentConsole->cursorX += spaces;
             break;
         }
-        case 10:
+        case '\n':
             newRow();
             // fallthrough
-        case 13:
+        case '\r':
             currentConsole->cursorX = 0;
             break;
 
