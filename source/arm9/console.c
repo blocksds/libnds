@@ -634,13 +634,14 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
     console->sgrForegroundIsRgb = 0;
     console->sgrBackgroundIsRgb = 0;
 
-    consoleCls('2');
+    if (loadGraphics)
+    {
+        consoleLoadFont(console);
+        consoleCls('2');
+    }
 
     console->prevCursorX = 0;
     console->prevCursorY = 0;
-
-    if (loadGraphics)
-        consoleLoadFont(console);
 
     return currentConsole;
 }
