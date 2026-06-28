@@ -147,7 +147,7 @@ typedef bool (* ConsolePrint)(void *con, char c);
 
 /// Function type used by PrintConsole struct to handle SGR text attribute
 /// commands.
-typedef void (* ConsoleHandleSgr)(void *con, size_t num, unsigned int *params);
+typedef void (* ConsoleHandleSgr)(void *con, size_t num, uint8_t *params);
 
 /// Function type used by libnds to redirect characters sent to stdout and
 /// stderr (skipping the call to the ConsolePrint handler).

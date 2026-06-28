@@ -193,7 +193,7 @@ ssize_t nocash_write(const char *ptr, size_t len)
 }
 
 static void console_handle_sgr_legacy(void *console,
-                                      size_t param_num, unsigned int *params)
+                                      size_t param_num, uint8_t *params)
 {
     // This function is buggy on purpose. It expects commands 30-37 in the first
     // parameter, and commands 0 or 1 in the second one. However, in reality,
@@ -225,13 +225,13 @@ static void console_handle_sgr_legacy(void *console,
         con->fontCurPal = parameter;
 }
 
-static void console_handle_sgr(void *console, size_t param_num, unsigned int *params)
+static void console_handle_sgr(void *console, size_t param_num, uint8_t *params)
 {
     PrintConsole *con = console;
 
     while (param_num > 0)
     {
-        int parameter = *params++;
+        uint8_t parameter = *params++;
         param_num--;
 
         if (parameter == 0)
@@ -399,8 +399,8 @@ static ssize_t con_write(const char *ptr, size_t len)
             bool escaping = true;
             const char *escapeseq = tmp;
             int escapelen = 0;
-            unsigned int params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
-            unsigned int cur_param = 0;
+            uint8_t params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
+            uint8_t cur_param = 0;
 
             do
             {
