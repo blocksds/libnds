@@ -818,7 +818,7 @@ static void newRow(void)
 
 void consolePrintChar(char c)
 {
-    if (c == 0)
+    if (c == '\0')
         return;
 
     if (currentConsole->PrintChar)
