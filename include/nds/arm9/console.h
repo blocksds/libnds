@@ -311,6 +311,13 @@ typedef struct PrintConsole
     /// Handler of SGR commands that change text attributes like color. If it's
     /// NULL, it will use the legacy handler of libnds.
     ConsoleHandleSgr HandleSgrCodes;
+
+    /// Pointer available for custom user data related to this console.
+    ///
+    /// This is useful if the PrintChar hook requires more information than the
+    /// available in this struct. libnds ignores this field, it doesn't use it
+    /// or tries to free it.
+    void *userData;
 }
 PrintConsole;
 

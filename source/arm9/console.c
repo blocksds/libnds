@@ -70,6 +70,7 @@ static const PrintConsole defaultConsole =
     .tabSize = 3,
     .PrintChar = NULL, // Print callback
     .HandleSgrCodes = NULL, // SGR attributes callback
+    .userData = NULL,
 };
 
 #define DEFAULT_CONSOLE_MAP_BASE 22
