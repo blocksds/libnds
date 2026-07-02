@@ -679,8 +679,10 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
 
     if (firstConsoleInit)
     {
-        libnds_stdout_write = con_write;
-        libnds_stderr_write = con_write;
+        if (libnds_stdout_write == NULL)
+            libnds_stdout_write = con_write;
+        if (libnds_stderr_write == NULL)
+            libnds_stderr_write = con_write;
 
         firstConsoleInit = false;
     }
