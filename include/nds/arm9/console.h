@@ -56,13 +56,17 @@
 ///
 /// The escape sequences supported by libnds are:
 ///
-/// - `[nA`: Move cursor up by `n` chars (stops at the top row).
+/// - `[nA`: Move cursor up by `n` chars (stops at the top row). If `n` is
+///    missing or 0 it behaves like 1.
 ///
-/// - `[nB`: Move cursor down by `n` chars (stops at the bottom row).
+/// - `[nB`: Move cursor down by `n` chars (stops at the bottom row). If `n` is
+///    missing or 0 it behaves like 1.
 ///
-/// - `[nC`: Move cursor right by `n` chars (stops at the rightmost column).
+/// - `[nC`: Move cursor right by `n` chars (stops at the rightmost column). If
+///    `n` is missing or 0 it behaves like 1.
 ///
-/// - `[nD`: Move cursor left by `n` chars (stops at the leftmost column).
+/// - `[nD`: Move cursor left by `n` chars (stops at the leftmost column). If
+///    `n` is missing or 0 it behaves like 1.
 ///
 /// - `[y;xH` and `[y;xf`: Set cursor to `(x, y)`.
 ///

@@ -93,8 +93,7 @@ static void consoleCls(char mode)
 
     switch (mode)
     {
-        case '[':
-        case '0':
+        case 0:
             colTemp = currentConsole->cursorX;
             rowTemp = currentConsole->cursorY;
 
@@ -108,7 +107,7 @@ static void consoleCls(char mode)
             currentConsole->cursorY = rowTemp;
             break;
 
-        case '1':
+        case 1:
             colTemp = currentConsole->cursorX;
             rowTemp = currentConsole->cursorY;
 
@@ -122,7 +121,7 @@ static void consoleCls(char mode)
             currentConsole->cursorY = rowTemp;
             break;
 
-        case '2':
+        case 2:
             currentConsole->cursorY = 0;
             currentConsole->cursorX = 0;
 
@@ -142,8 +141,7 @@ static void consoleClearLine(char mode)
 
     switch (mode)
     {
-        case '[':
-        case '0':
+        case 0:
             colTemp = currentConsole->cursorX;
 
             while (i++ < (currentConsole->windowWidth - colTemp))
@@ -152,7 +150,7 @@ static void consoleClearLine(char mode)
             currentConsole->cursorX = colTemp;
             break;
 
-        case '1':
+        case 1:
             colTemp = currentConsole->cursorX;
 
             currentConsole->cursorX = 0;
@@ -163,7 +161,7 @@ static void consoleClearLine(char mode)
             currentConsole->cursorX = colTemp;
             break;
 
-        case '2':
+        case 2:
             colTemp = currentConsole->cursorX;
 
             currentConsole->cursorX = 0;
@@ -398,10 +396,9 @@ static ssize_t con_write(const char *ptr, size_t len)
         if (chr == 0x1b && *tmp == '[')
         {
             bool escaping = true;
-            const char *escapeseq = tmp;
             int escapelen = 0;
             uint8_t params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
-            uint8_t cur_param = 0;
+            uint8_t param_num = 0;
 
             do
             {
@@ -422,19 +419,32 @@ static ssize_t con_write(const char *ptr, size_t len)
                     case '7':
                     case '8':
                     case '9':
-                        params[cur_param] = (params[cur_param] * 10) + (chr - '0');
+                    {
+                        // The first parameter will come before any ';'
+                        // character, so we need to support that case.
+                        if (param_num == 0)
+                            param_num = 1;
+
+                        params[param_num - 1] = (params[param_num - 1] * 10) + (chr - '0');
                         break;
+                    }
 
                     case ';':
-                        cur_param++;
-                        if (cur_param == LIBNDS_CONSOLE_MAX_ANSI_PARAMS)
+                    {
+                        if (param_num == LIBNDS_CONSOLE_MAX_ANSI_PARAMS)
                             return -1;
+                        param_num++;
                         break;
+                    }
 
                     // Cursor directional movement
                     case 'A':
                     {
-                        int new_y = currentConsole->cursorY - params[0];
+                        int amount = 1;
+                        if ((param_num > 0) && (params[0] > 0))
+                            amount = params[0];
+
+                        int new_y = currentConsole->cursorY - amount;
                         if (new_y < 0)
                             new_y = 0;
 
@@ -444,7 +454,11 @@ static ssize_t con_write(const char *ptr, size_t len)
                     }
                     case 'B':
                     {
-                        int new_y = currentConsole->cursorY + params[0];
+                        int amount = 1;
+                        if ((param_num > 0) && (params[0] > 0))
+                            amount = params[0];
+
+                        int new_y = currentConsole->cursorY + amount;
                         int max_y = currentConsole->windowHeight - 1;
                         if (new_y > max_y)
                             new_y = max_y;
@@ -455,7 +469,11 @@ static ssize_t con_write(const char *ptr, size_t len)
                     }
                     case 'C':
                     {
-                        int new_x = currentConsole->cursorX + params[0];
+                        int amount = 1;
+                        if ((param_num > 0) && (params[0] > 0))
+                            amount = params[0];
+
+                        int new_x = currentConsole->cursorX + amount;
                         int max_x = currentConsole->windowWidth - 1;
                         if (new_x > max_x)
                             new_x = max_x;
@@ -466,7 +484,11 @@ static ssize_t con_write(const char *ptr, size_t len)
                     }
                     case 'D':
                     {
-                        int new_x = currentConsole->cursorX - params[0];
+                        int amount = 1;
+                        if ((param_num > 0) && (params[0] > 0))
+                            amount = params[0];
+
+                        int new_x = currentConsole->cursorX - amount;
                         if (new_x < 0)
                             new_x = 0;
 
@@ -479,34 +501,49 @@ static ssize_t con_write(const char *ptr, size_t len)
                     case 'H':
                     case 'f':
                     {
-                        int new_y = params[0];
-                        int new_x = params[1];
+                        if (param_num == 2)
+                        {
+                            int new_y = params[0];
+                            int new_x = params[1];
 
-                        int max_y = currentConsole->windowHeight - 1;
-                        if (new_y > max_y)
-                            new_y = max_y;
+                            int max_y = currentConsole->windowHeight - 1;
+                            if (new_y > max_y)
+                                new_y = max_y;
 
-                        int max_x = currentConsole->windowWidth - 1;
-                        if (new_x > max_x)
-                            new_x = max_x;
+                            int max_x = currentConsole->windowWidth - 1;
+                            if (new_x > max_x)
+                                new_x = max_x;
 
-                        currentConsole->cursorY = new_y;
-                        currentConsole->cursorX = new_x;
+                            currentConsole->cursorY = new_y;
+                            currentConsole->cursorX = new_x;
+                        }
                         escaping = false;
                         break;
                     }
 
                     // Screen clear
                     case 'J':
-                        consoleCls(escapeseq[escapelen - 2]);
+                    {
+                        int mode = 0;
+                        if (param_num > 0)
+                            mode = params[0];
+
+                        consoleCls(mode);
                         escaping = false;
                         break;
+                    }
 
                     // Line clear
                     case 'K':
-                        consoleClearLine(escapeseq[escapelen - 2]);
+                    {
+                        int mode = 0;
+                        if (param_num > 0)
+                            mode = params[0];
+
+                        consoleClearLine(mode);
                         escaping = false;
                         break;
+                    }
 
                     // Save cursor position
                     case 's':
@@ -529,12 +566,12 @@ static ssize_t con_write(const char *ptr, size_t len)
                         {
                             // Use the old buggy libnds SGR codes
                             console_handle_sgr_legacy(currentConsole,
-                                                      cur_param + 1, params);
+                                                      param_num, params);
                         }
                         else
                         {
                             currentConsole->HandleSgrCodes(currentConsole,
-                                                           cur_param + 1, params);
+                                                           param_num, params);
                         }
 
                         escaping = false;
@@ -667,7 +704,7 @@ void consoleLoadFont(PrintConsole *console)
     }
 
     PrintConsole *tmp = consoleSelect(console);
-    consoleCls('2');
+    consoleCls(2);
     consoleSelect(tmp);
 }
 
@@ -713,7 +750,7 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
     if (loadGraphics)
     {
         consoleLoadFont(console);
-        consoleCls('2');
+        consoleCls(2);
     }
 
     console->prevCursorX = 0;
@@ -916,7 +953,7 @@ void consolePrintChar(char c)
 
 void consoleClear(void)
 {
-    consoleCls('2');
+    consoleCls(2);
 }
 
 void consoleSetCursor(PrintConsole *console, int x, int y)
