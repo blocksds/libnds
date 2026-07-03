@@ -98,21 +98,21 @@ typedef struct Keyboard
 /// chosen to mimic ASCII control sequences.
 typedef enum
 {
-    NOKEY         = -1,  ///< No key was pressed
-    DVK_FOLD      = -23, ///< Fold key (top left on the default keyboard)
-    DVK_TAB       =  9,  ///< Tab key
-    DVK_BACKSPACE =  8,  ///< Backspace
-    DVK_CAPS      = -15, ///< Caps key
-    DVK_SHIFT     = -14, ///< Shift key
-    DVK_SPACE     =  32, ///< Space key
-    DVK_MENU      = -5,  ///< Menu key
-    DVK_ENTER     =  10, ///< Enter key
-    DVK_CTRL      = -16, ///< Ctrl key
-    DVK_UP        = -17, ///< Up key
-    DVK_RIGHT     = -18, ///< Right key
-    DVK_DOWN      = -19, ///< Down key
-    DVK_LEFT      = -20, ///< Left key
-    DVK_ALT       = -26  ///< Alt key
+    NOKEY         = -1,     ///< No key was pressed
+    DVK_FOLD      = -23,    ///< Fold key (top left on the default keyboard)
+    DVK_TAB       =  '\t',  ///< Tab key
+    DVK_BACKSPACE =  '\b',  ///< Backspace
+    DVK_CAPS      = -15,    ///< Caps key
+    DVK_SHIFT     = -14,    ///< Shift key
+    DVK_SPACE     =  ' ',   ///< Space key
+    DVK_MENU      = -5,     ///< Menu key
+    DVK_ENTER     =  '\n',  ///< Enter key
+    DVK_CTRL      = -16,    ///< Ctrl key
+    DVK_UP        = -17,    ///< Up key
+    DVK_RIGHT     = -18,    ///< Right key
+    DVK_DOWN      = -19,    ///< Down key
+    DVK_LEFT      = -20,    ///< Left key
+    DVK_ALT       = -26     ///< Alt key
 } Keys;
 
 /// Gets the default keyboard.
