@@ -768,10 +768,8 @@ PrintConsole *consoleInit(PrintConsole *console, int layer, BgType type, BgSize 
 
 PrintConsole *consoleSelect(PrintConsole *console)
 {
-    // Make sure that the buffers for the current console are flushed before
-    // switching consoles.
-    fflush(stdout);
-    fflush(stderr);
+    // We don't need to flush the buffers of stdout or stderr because they
+    // aren't buffered.
 
     PrintConsole *tmp = currentConsole;
     currentConsole = console;
