@@ -220,17 +220,9 @@ s16 keyboardUpdate(void)
     static bool pressed = false;
     touchPosition touch;
 
-    static u32 oldKeys = 0;
-
-    u32 keys = keysHeld();
-
-    u32 temp = keys;
-    keys &= ~oldKeys;
-    oldKeys = temp;
-
     if (pressed)
     {
-        if (!(keys & KEY_TOUCH))
+        if (!(keysHeld() & KEY_TOUCH))
         {
             pressed = false;
 
@@ -263,7 +255,7 @@ s16 keyboardUpdate(void)
     }
     else
     {
-        if (keys & KEY_TOUCH)
+        if (keysDown() & KEY_TOUCH)
         {
             touchRead(&touch);
 
