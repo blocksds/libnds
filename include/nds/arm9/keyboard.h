@@ -286,6 +286,17 @@ s16 keyboardUpdate(void);
 /// ```
 void keyboardFifoUpdate(void);
 
+/// Manually add a character to the keyboard FIFO.
+///
+/// This can be useful when simulating keyboard input.
+///
+/// @param kc
+///     The character to add to the FIFO.
+/// @return
+///     On success it returns 0, if the FIFO is full it returns a negative
+///     value.
+int keyboardFifoPutc(char kc);
+
 #ifdef __cplusplus
 }
 #endif
