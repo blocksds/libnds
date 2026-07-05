@@ -239,6 +239,9 @@ s16 keyboardGetChar(void);
 ///     The ASCII code of the key pressed or NOKEY if no key was pressed.
 s16 keyboardUpdate(void);
 
+/// Initializes the keyboard FIFO.
+void keyboardFifoStart(void);
+
 /// Checks the state of the keyboard and saves key presses in the FIFO buffer.
 ///
 /// If your application wants to do non-blocking reads of `stdin` it must
@@ -250,6 +253,10 @@ s16 keyboardUpdate(void);
 /// very useful if you're porting applications to the DS. If you are creating a
 /// new DS-specific application, use `keyboardUpdate()` instead, which is more
 /// efficient.
+///
+/// A keyboard must be initialized before using this function. If you want to
+/// use a completely custom keyboard (not the libnds one) you need to call
+/// keyboardFifoStart() before using this.
 ///
 /// ```c
 /// consoleDemoInit();
@@ -289,6 +296,10 @@ void keyboardFifoUpdate(void);
 /// Manually add a character to the keyboard FIFO.
 ///
 /// This can be useful when simulating keyboard input.
+///
+/// A keyboard must be initialized before using this function. If you want to
+/// use a completely custom keyboard (not the libnds one) you need to call
+/// keyboardFifoStart() before using this.
 ///
 /// @param kc
 ///     The character to add to the FIFO.

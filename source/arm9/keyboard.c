@@ -20,8 +20,6 @@
 #include "keyboardGfx.h"
 #include "arm9/libnds_internal.h"
 
-static void keyboardFifoStart(void);
-
 static s16 lastKey = -1;
 
 // Default keyboard map
@@ -592,7 +590,7 @@ size_t keyboardFifoStoredCharacters(void)
     return stdin_buf_entries;
 }
 
-static void keyboardFifoStart(void)
+void keyboardFifoStart(void)
 {
     stdin_buf_out = 0;
     stdin_buf_in = 0;
