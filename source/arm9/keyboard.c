@@ -207,6 +207,313 @@ void swapKeyGfx(int key, bool pressed)
     }
 }
 
+static int keyboardUpdateModifiersIgnore(void)
+{
+    static bool pressed = false;
+    touchPosition touch;
+
+    // If the key has just been pressed
+    if ((!pressed) && (keysDown() & KEY_TOUCH))
+    {
+        touchRead(&touch);
+
+        int key = keyboardGetKey(touch.px, touch.py);
+
+        if (key == NOKEY)
+            return -1;
+
+        pressed = true;
+
+        swapKeyGfx(key, true);
+
+        if (curKeyboard.OnKeyPressed != NULL)
+            curKeyboard.OnKeyPressed(key);
+
+        return key;
+    }
+
+    // If the key has just been released
+    if ((pressed) && (!(keysHeld() & KEY_TOUCH)))
+    {
+        pressed = false;
+
+        if (lastKey != NOKEY)
+            swapKeyGfx(lastKey, false);
+
+        if (lastKey == DVK_CAPS)
+        {
+            keyboardShiftState();
+            return -1;
+        }
+        else if (lastKey == DVK_SHIFT)
+        {
+            keyboardShiftState();
+            curKeyboard.shifted = !curKeyboard.shifted;
+            return -1;
+        }
+
+        if (curKeyboard.shifted)
+        {
+            keyboardShiftState();
+            curKeyboard.shifted = false;
+        }
+
+        if (curKeyboard.OnKeyReleased != NULL)
+            curKeyboard.OnKeyReleased(lastKey);
+
+        return -1;
+    }
+
+    return -1;
+}
+
+static int keyboardUpdateModifiersStickOnce(void)
+{
+    static bool pressed = false;
+
+    // If the key has just been pressed
+    if ((!pressed) && (keysDown() & KEY_TOUCH))
+    {
+        touchPosition touch;
+        touchRead(&touch);
+
+        int key = keyboardGetKey(touch.px, touch.py);
+
+        if (key == NOKEY)
+            return -1;
+
+        if (key == DVK_CTRL)
+        {
+            if (curKeyboard.ctrlPressed)
+            {
+                curKeyboard.ctrlPressed = false;
+                swapKeyGfx(DVK_CTRL, false);
+
+                if (curKeyboard.OnKeyReleased != NULL)
+                    curKeyboard.OnKeyReleased(DVK_CTRL);
+            }
+            else
+            {
+                curKeyboard.ctrlPressed = true;
+                swapKeyGfx(DVK_CTRL, true);
+
+                if (curKeyboard.OnKeyPressed != NULL)
+                    curKeyboard.OnKeyPressed(DVK_CTRL);
+            }
+        }
+        else if (key == DVK_ALT)
+        {
+            if (curKeyboard.altPressed)
+            {
+                curKeyboard.altPressed = false;
+                swapKeyGfx(DVK_ALT, false);
+
+                if (curKeyboard.OnKeyReleased != NULL)
+                    curKeyboard.OnKeyReleased(DVK_ALT);
+            }
+            else
+            {
+                curKeyboard.altPressed = true;
+                swapKeyGfx(DVK_ALT, true);
+
+                if (curKeyboard.OnKeyPressed != NULL)
+                    curKeyboard.OnKeyPressed(DVK_ALT);
+            }
+        }
+        else
+        {
+            pressed = true;
+
+            swapKeyGfx(key, true);
+
+            if (curKeyboard.OnKeyPressed != NULL)
+                curKeyboard.OnKeyPressed(key);
+
+            return key;
+        }
+    }
+
+    // If the key has just been released
+    if ((pressed) && (!(keysHeld() & KEY_TOUCH)))
+    {
+        // DVK_CTRL and DVK_ALT don't set pressed to true, so this can never be
+        // reached after releasing them.
+
+        pressed = false;
+
+        if (lastKey != NOKEY)
+            swapKeyGfx(lastKey, false);
+
+        if (lastKey == DVK_CAPS)
+        {
+            keyboardShiftState();
+            curKeyboard.ctrlPressed = false;
+            curKeyboard.altPressed = false;
+            return -1;
+        }
+        else if (lastKey == DVK_SHIFT)
+        {
+            keyboardShiftState();
+            curKeyboard.shifted = !curKeyboard.shifted;
+            curKeyboard.ctrlPressed = false;
+            curKeyboard.altPressed = false;
+            return -1;
+        }
+
+        if (curKeyboard.shifted)
+        {
+            keyboardShiftState();
+            curKeyboard.shifted = false;
+        }
+
+        if (curKeyboard.OnKeyReleased != NULL)
+            curKeyboard.OnKeyReleased(lastKey);
+
+        if (curKeyboard.ctrlPressed)
+        {
+            swapKeyGfx(DVK_CTRL, false);
+
+            if (curKeyboard.OnKeyReleased != NULL)
+                curKeyboard.OnKeyReleased(DVK_CTRL);
+        }
+        if (curKeyboard.altPressed)
+        {
+            swapKeyGfx(DVK_ALT, false);
+
+            if (curKeyboard.OnKeyReleased != NULL)
+                curKeyboard.OnKeyReleased(DVK_ALT);
+        }
+
+        curKeyboard.ctrlPressed = false;
+        curKeyboard.altPressed = false;
+    }
+
+    return -1;
+}
+
+static int keyboardUpdateModifiersStickAlways(void)
+{
+    static bool pressed = false;
+
+    // If the key has just been pressed
+    if ((!pressed) && (keysDown() & KEY_TOUCH))
+    {
+        touchPosition touch;
+        touchRead(&touch);
+
+        int key = keyboardGetKey(touch.px, touch.py);
+
+        if (key == NOKEY)
+            return -1;
+
+        if (key == DVK_CTRL)
+        {
+            if (curKeyboard.ctrlPressed)
+            {
+                curKeyboard.ctrlPressed = false;
+                swapKeyGfx(DVK_CTRL, false);
+
+                if (curKeyboard.OnKeyReleased != NULL)
+                    curKeyboard.OnKeyReleased(DVK_CTRL);
+            }
+            else
+            {
+                curKeyboard.ctrlPressed = true;
+                swapKeyGfx(DVK_CTRL, true);
+
+                if (curKeyboard.OnKeyPressed != NULL)
+                    curKeyboard.OnKeyPressed(DVK_CTRL);
+            }
+        }
+        else if (key == DVK_ALT)
+        {
+            if (curKeyboard.altPressed)
+            {
+                curKeyboard.altPressed = false;
+                swapKeyGfx(DVK_ALT, false);
+
+                if (curKeyboard.OnKeyReleased != NULL)
+                    curKeyboard.OnKeyReleased(DVK_ALT);
+            }
+            else
+            {
+                curKeyboard.altPressed = true;
+                swapKeyGfx(DVK_ALT, true);
+
+                if (curKeyboard.OnKeyPressed != NULL)
+                    curKeyboard.OnKeyPressed(DVK_ALT);
+            }
+        }
+        else
+        {
+            pressed = true;
+
+            swapKeyGfx(key, true);
+
+            if (curKeyboard.OnKeyPressed != NULL)
+                curKeyboard.OnKeyPressed(key);
+
+            return key;
+        }
+    }
+
+    // If the key has just been released
+    if ((pressed) && (!(keysHeld() & KEY_TOUCH)))
+    {
+        // DVK_CTRL and DVK_ALT don't set pressed to true, so this can never be
+        // reached after releasing them.
+
+        pressed = false;
+
+        if (lastKey != NOKEY)
+            swapKeyGfx(lastKey, false);
+
+        if (lastKey == DVK_CAPS)
+        {
+            keyboardShiftState();
+            curKeyboard.ctrlPressed = false;
+            curKeyboard.altPressed = false;
+            return -1;
+        }
+        else if (lastKey == DVK_SHIFT)
+        {
+            keyboardShiftState();
+            curKeyboard.shifted = !curKeyboard.shifted;
+            curKeyboard.ctrlPressed = false;
+            curKeyboard.altPressed = false;
+            return -1;
+        }
+
+        if (curKeyboard.shifted)
+        {
+            keyboardShiftState();
+            curKeyboard.shifted = false;
+        }
+
+        if (curKeyboard.OnKeyReleased != NULL)
+            curKeyboard.OnKeyReleased(lastKey);
+    }
+
+    return -1;
+}
+
+int keyboardModifierModeSet(KeyboardModifierMode mode)
+{
+    if (!keyboardLoaded)
+        return -1;
+
+    if (mode == KeyboardModifiersIgnore)
+        curKeyboard.OnKeyUpdate = keyboardUpdateModifiersIgnore;
+    else if (mode == KeyboardModifiersStickOnce)
+        curKeyboard.OnKeyUpdate = keyboardUpdateModifiersStickOnce;
+    else if (mode == KeyboardModifiersStickAlways)
+        curKeyboard.OnKeyUpdate = keyboardUpdateModifiersStickAlways;
+    else
+        return -1;
+
+    return 0;
+}
+
 s16 keyboardUpdate(void)
 {
     if (!keyboardLoaded)
@@ -215,65 +522,10 @@ s16 keyboardUpdate(void)
     if (!curKeyboard.visible)
         return -1;
 
-    static bool pressed = false;
-    touchPosition touch;
-
-    if (pressed)
-    {
-        if (!(keysHeld() & KEY_TOUCH))
-        {
-            pressed = false;
-
-            if (lastKey != NOKEY)
-                swapKeyGfx(lastKey, false);
-
-            if (lastKey == DVK_CAPS)
-            {
-                keyboardShiftState();
-                return -1;
-            }
-            else if (lastKey == DVK_SHIFT)
-            {
-                keyboardShiftState();
-                curKeyboard.shifted = !curKeyboard.shifted;
-                return -1;
-            }
-
-            if (curKeyboard.shifted)
-            {
-                keyboardShiftState();
-                curKeyboard.shifted = false;
-            }
-
-            if (curKeyboard.OnKeyReleased != NULL)
-                curKeyboard.OnKeyReleased(lastKey);
-        }
-
-        return -1;
-    }
-    else
-    {
-        if (keysDown() & KEY_TOUCH)
-        {
-            touchRead(&touch);
-
-            int key = keyboardGetKey(touch.px, touch.py);
-
-            if (key == NOKEY)
-                return -1;
-
-            pressed = true;
-
-            swapKeyGfx(key, true);
-
-            if (curKeyboard.OnKeyPressed != NULL)
-                curKeyboard.OnKeyPressed(lastKey);
-
-            return lastKey;
-        }
-    }
-
-    return -1;
+    if (curKeyboard.OnKeyUpdate)
+        return curKeyboard.OnKeyUpdate();
+    else // Default behaviour
+        return keyboardUpdateModifiersIgnore();
 }
 
 const Keyboard *keyboardGetDefault(void)
@@ -343,6 +595,9 @@ Keyboard *keyboardInit_call(const Keyboard *keyboard, int layer, BgType type, Bg
     curKeyboard.offset_y = -192 + map->height * curKeyboard.grid_height;
 
     curKeyboard.visible = false;
+
+    curKeyboard.ctrlPressed = false;
+    curKeyboard.altPressed = false;
 
     bgUpdate();
 

@@ -33,6 +33,9 @@ extern "C" {
 /// Callback function pointer when a key changes.
 typedef void (*KeyChangeCallback)(int key);
 
+/// Callback to handle touch screen press/release events.
+typedef int (*KeyUpdateCallback)(void);
+
 /// States the keyboard can be in, currently only Lower and Upper supported.
 typedef enum
 {
@@ -40,7 +43,22 @@ typedef enum
     Upper = 1,   ///< Caps lock held
     Numeric = 2, ///< Numeric only keypad (not provided by the default keyboard)
     Reduced = 3  ///< Reduced footprint keyboard (not provided by the default keyboard)
-} KeyboardState;
+}
+KeyboardState;
+
+/// Modes of handling CTRL and ALT buttons.
+typedef enum
+{
+    /// CTRL and ALT are treated like all other buttons. Default behaviour.
+    KeyboardModifiersIgnore,
+
+    /// CTRL and ALT are held until another key is pressed (not CTRL or ALT).
+    KeyboardModifiersStickOnce,
+
+    /// CTRL and ALT are held until they are pressed again.
+    KeyboardModifiersStickAlways,
+}
+KeyboardModifierMode;
 
 /// Defines a key mapping.
 typedef struct KeyMap
@@ -80,6 +98,8 @@ typedef struct Keyboard
     const void *palette; ///< Pointer to the palette
     u32 paletteLen;      ///< Length in bytes of the palette data
 
+    KeyUpdateCallback OnKeyUpdate; ///< Called by keyboardUpdate()
+
     KeyChangeCallback OnKeyPressed;  ///< Will be called on key press
     KeyChangeCallback OnKeyReleased; ///< Will be called on key release
 
@@ -90,6 +110,9 @@ typedef struct Keyboard
     int background;      ///< Background ID used by the keyboard. Initialized by keyboardInit()
     s16 offset_x;        ///< Current X offset of the map. Initialized by keyboardInit()
     s16 offset_y;        ///< Current Y offset of the map. Initialized by keyboardInit()
+
+    bool ctrlPressed;   ///< This is true if the CTRL key is held.
+    bool altPressed;    ///< This is true if the ALT key is held.
 } Keyboard;
 
 /// Enum values for the keyboard control keys.
@@ -238,6 +261,19 @@ s16 keyboardGetChar(void);
 /// @return
 ///     The ASCII code of the key pressed or NOKEY if no key was pressed.
 s16 keyboardUpdate(void);
+
+/// Changes the behaviour of the CTRL and ALT keys of the current keyboard.
+///
+/// Normally the CTRL and ALT keys are treated like other keys. It is possible
+/// to make them "sticky" and remain pressed until another key is pressed or to
+/// make them remain pressed until they are pressed again, depending on what
+/// your application requires.
+///
+/// @param mode
+///     New mode to set.
+/// @return
+///     On success it returns 0, on error it returns a negative number.
+int keyboardModifierModeSet(KeyboardModifierMode mode);
 
 /// Initializes the keyboard FIFO.
 void keyboardFifoStart(void);
