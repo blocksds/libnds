@@ -329,6 +329,16 @@ void keyboardFifoStart(void);
 /// ```
 void keyboardFifoUpdate(void);
 
+/// Try to remove the last character pushed to the keyboard FIFO.
+///
+/// This only works while there are entries in the FIFO. If they have been read
+/// already, this function does nothing.
+///
+/// @return
+///     It returns the key that hasn't been removed from the FIFO, or NOKEY if
+///     the buffer was empty.
+int keyboardFifoUnputc(void);
+
 /// Manually add a character to the keyboard FIFO.
 ///
 /// This can be useful when simulating keyboard input.

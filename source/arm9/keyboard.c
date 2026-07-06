@@ -809,13 +809,16 @@ static int libnds_stdin_fifo_push(int c)
 }
 
 // Remove the last character pushed to the FIFO
-static void libnds_stdin_fifo_unpush(void)
+static int libnds_stdin_fifo_unpush(void)
 {
     if (libnds_stdin_fifo_empty())
-        return;
+        return NOKEY;
 
     stdin_buf_in = (stdin_buf_in - 1) & INPUT_BUFFER_MASK;
     stdin_buf_entries--;
+    int c = stdin_buf[stdin_buf_in];
+
+    return c;
 }
 
 static int libnds_stdin_fifo_pop(void)
@@ -855,6 +858,11 @@ void keyboardFifoUpdate(void)
     {
         libnds_stdin_fifo_push(kc);
     }
+}
+
+int keyboardFifoUnputc(void)
+{
+    return libnds_stdin_fifo_unpush();
 }
 
 int keyboardFifoPutc(char kc)
