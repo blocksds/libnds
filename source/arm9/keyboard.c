@@ -849,14 +849,21 @@ void keyboardFifoUpdate(void)
 
     int kc = keyboardUpdate();
 
-    if (kc == DVK_BACKSPACE)
+    if (curKeyboard.OnKeyPutc)
     {
-        // Try to delete the last character pushed to the FIFO
-        libnds_stdin_fifo_unpush();
+        curKeyboard.OnKeyPutc(kc);
     }
-    else if (kc > 0)
+    else
     {
-        libnds_stdin_fifo_push(kc);
+        if (kc == DVK_BACKSPACE)
+        {
+            // Try to delete the last character pushed to the FIFO
+            libnds_stdin_fifo_unpush();
+        }
+        else if (kc > 0)
+        {
+            libnds_stdin_fifo_push(kc);
+        }
     }
 }
 

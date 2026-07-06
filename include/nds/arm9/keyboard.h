@@ -36,6 +36,9 @@ typedef void (*KeyChangeCallback)(int key);
 /// Callback to handle touch screen press/release events.
 typedef int (*KeyUpdateCallback)(void);
 
+/// Callback used when libnds wants to push characters to the stdin FIFO.
+typedef void (*KeyPutcCallback)(int);
+
 /// States the keyboard can be in, currently only Lower and Upper supported.
 typedef enum
 {
@@ -99,6 +102,18 @@ typedef struct Keyboard
     u32 paletteLen;      ///< Length in bytes of the palette data
 
     KeyUpdateCallback OnKeyUpdate; ///< Called by keyboardUpdate()
+
+    /// Called when the keyboard wants to add a character to the FIFO.
+    ///
+    /// If this is NULL, keyboardFifoPutc() for all keys except for backspace
+    /// (which calls keyboardFifoUnputc()). If the callback isn't NULL, the
+    /// callback needs to do it manually.
+    ///
+    /// This is useful if a keypress needs to add multiple characters to the
+    /// stdin FIFO. For example, libnds usually pushes DVK_UP to the stdin FIFO
+    /// when the Up key is pressed, but you can make this callback send the
+    /// '\x1B', '[', 'A' escape sequence instead.
+    KeyPutcCallback OnKeyPutc;
 
     KeyChangeCallback OnKeyPressed;  ///< Will be called on key press
     KeyChangeCallback OnKeyReleased; ///< Will be called on key release
