@@ -135,6 +135,9 @@ static ssize_t libnds_stdin_read(int fd, void *ptr, size_t len)
             return characters_read;
     }
 
+    if (characters_read == len)
+        return characters_read;
+
     if (stdin_blocking)
     {
         // If there weren't enough characters stored in the FIFO and stdin is in
