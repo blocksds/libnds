@@ -150,10 +150,6 @@ static ssize_t libnds_stdin_read(int fd, void *ptr, size_t len)
 
         while (true)
         {
-            scanKeys();
-
-            keyboardFifoUpdate();
-
             int c = keyboardFifoGetc();
 
             if (c > 0)
