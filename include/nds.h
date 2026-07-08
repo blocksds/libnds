@@ -58,6 +58,7 @@
 /// - @ref nds/interrupts.h "Interrupts"
 /// - @ref nds/fifocommon.h "FIFO"
 /// - @ref nds/timers.h "Timers"
+/// - @ref nds/system_counter.h "System counter"
 /// - @ref nds/device_list.h "Device List structures used by DSi/3DS launchers"
 ///
 /// @section multithreading_api Multithreading
@@ -157,6 +158,7 @@ extern "C" {
 #include <nds/rsa.h>
 #include <nds/sha1.h>
 #include <nds/system.h>
+#include <nds/system_counter.h>
 #include <nds/timers.h>
 #include <nds/touch.h>
 #include <nds/utf.h>

@@ -35,6 +35,8 @@ extern "C" {
 #define LIBNDS_DEFAULT_TIMER_WIFI   3 // Used by DSWiFI
 #endif
 
+#define LIBNDS_TIMER_SYSTEM_COUNTER 2
+
 /// Returns a dereferenced pointer to the data register for timer control
 /// register.
 ///
