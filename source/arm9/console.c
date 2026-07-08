@@ -396,7 +396,6 @@ static ssize_t con_write(const char *ptr, size_t len)
         if (chr == 0x1b && *tmp == '[')
         {
             bool escaping = true;
-            int escapelen = 0;
             uint8_t params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
             uint8_t param_num = 0;
 
@@ -405,7 +404,6 @@ static ssize_t con_write(const char *ptr, size_t len)
                 chr = *(tmp++);
                 i++;
                 count++;
-                escapelen++;
 
                 switch (chr)
                 {
