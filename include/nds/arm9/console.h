@@ -316,6 +316,11 @@ typedef struct PrintConsole
     /// NULL, it will use the legacy handler of libnds.
     ConsoleHandleSgr HandleSgrCodes;
 
+    /// This is an optional hook that is called whenever an unknown escape
+    /// sequence is detected. Note that the initial ESC character isn't passed
+    /// to the hook.
+    ConsoleOutFn HandleEscapeSequence;
+
     /// Pointer available for custom user data related to this console.
     ///
     /// This is useful if the PrintChar hook requires more information than the

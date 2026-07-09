@@ -377,215 +377,217 @@ void consoleEnhancedColorHandler(PrintConsole *console)
     console->HandleSgrCodes = console_handle_sgr;
 }
 
+static ssize_t con_handle_escape_sequence(const char *str, size_t len)
+{
+    const char *tmp = str;
+    size_t i = 0;
+    char chr;
+
+    chr = *tmp++;
+    i++;
+
+    // https://en.wikipedia.org/wiki/ANSI_escape_code
+
+    if (chr == '[') // Control Sequence Introducer (CSI)
+    {
+        uint8_t params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
+        uint8_t param_num = 0;
+
+        while (i < len)
+        {
+            chr = *tmp++;
+            i++;
+
+            if ((chr >= '0') && (chr <= '9'))
+            {
+                // The first parameter will come before any ';'
+                // character, so we need to support that case.
+                if (param_num == 0)
+                    param_num = 1;
+
+                params[param_num - 1] = (params[param_num - 1] * 10) + (chr - '0');
+            }
+            else if (chr == ';') // New parameter
+            {
+                // If we reach the limit, give up
+                if (param_num == LIBNDS_CONSOLE_MAX_ANSI_PARAMS)
+                    return i;
+
+                param_num++;
+            }
+            else if (chr == 'A') // Move cursor up
+            {
+                int amount = 1;
+                if ((param_num > 0) && (params[0] > 0))
+                    amount = params[0];
+
+                int new_y = currentConsole->cursorY - amount;
+                if (new_y < 0)
+                    new_y = 0;
+
+                currentConsole->cursorY = new_y;
+
+                return i;
+            }
+            else if (chr == 'B') // Move cursor down
+            {
+                int amount = 1;
+                if ((param_num > 0) && (params[0] > 0))
+                    amount = params[0];
+
+                int new_y = currentConsole->cursorY + amount;
+                int max_y = currentConsole->windowHeight - 1;
+                if (new_y > max_y)
+                    new_y = max_y;
+
+                currentConsole->cursorY = new_y;
+
+                return i;
+            }
+            else if (chr == 'C') // Move cursor right
+            {
+                int amount = 1;
+                if ((param_num > 0) && (params[0] > 0))
+                    amount = params[0];
+
+                int new_x = currentConsole->cursorX + amount;
+                int max_x = currentConsole->windowWidth - 1;
+                if (new_x > max_x)
+                    new_x = max_x;
+
+                currentConsole->cursorX = new_x;
+
+                return i;
+            }
+            else if (chr == 'D') // Move cursor left
+            {
+                int amount = 1;
+                if ((param_num > 0) && (params[0] > 0))
+                    amount = params[0];
+
+                int new_x = currentConsole->cursorX - amount;
+                if (new_x < 0)
+                    new_x = 0;
+
+                currentConsole->cursorX = new_x;
+
+                return i;
+            }
+            else if ((chr == 'H') || (chr == 'f')) // Set cursor position
+            {
+                if (param_num == 2)
+                {
+                    int new_y = params[0];
+                    int new_x = params[1];
+
+                    int max_y = currentConsole->windowHeight - 1;
+                    if (new_y > max_y)
+                        new_y = max_y;
+
+                    int max_x = currentConsole->windowWidth - 1;
+                    if (new_x > max_x)
+                        new_x = max_x;
+
+                    currentConsole->cursorY = new_y;
+                    currentConsole->cursorX = new_x;
+                }
+
+                return i;
+            }
+            else if (chr == 'J') // Screen clear
+            {
+                int mode = 0;
+                if (param_num > 0)
+                    mode = params[0];
+
+                consoleCls(mode);
+
+                return i;
+            }
+            else if (chr == 'K') // Line clear
+            {
+                int mode = 0;
+                if (param_num > 0)
+                    mode = params[0];
+
+                consoleClearLine(mode);
+
+                return i;
+            }
+            else if (chr == 's') // Save cursor position
+            {
+                currentConsole->prevCursorX = currentConsole->cursorX;
+                currentConsole->prevCursorY = currentConsole->cursorY;
+
+                return i;
+            }
+            else if (chr == 'u') // Load cursor position
+            {
+                currentConsole->cursorX = currentConsole->prevCursorX;
+                currentConsole->cursorY = currentConsole->prevCursorY;
+
+                return i;
+            }
+            else if (chr == 'm') // SGR commands
+            {
+                if (currentConsole->HandleSgrCodes == NULL)
+                {
+                    // Use the old buggy libnds SGR codes
+                    console_handle_sgr_legacy(currentConsole,
+                                                param_num, params);
+                }
+                else
+                {
+                    currentConsole->HandleSgrCodes(currentConsole,
+                                                    param_num, params);
+                }
+
+                return i;
+            }
+            else
+            {
+                // Not implemented
+            }
+        }
+    }
+    else
+    {
+        // Not implemented
+    }
+
+    // Unknown sequence, pass it to the user handler
+    if (currentConsole->HandleEscapeSequence)
+        return currentConsole->HandleEscapeSequence(str, len);
+
+    return i;
+}
+
 static ssize_t con_write(const char *ptr, size_t len)
 {
-    const char *tmp = ptr;
-
-    if (!tmp || len <= 0)
+    if ((ptr == NULL) || (len == 0))
         return -1;
 
+    const char *tmp = ptr;
     size_t i = 0;
-    size_t count = 0;
 
     while (i < len)
     {
-        char chr = *(tmp++);
+        char chr = *tmp++;
         i++;
-        count++;
 
-        if (chr == 0x1b && *tmp == '[')
+        if (chr == 0x1b)
         {
-            bool escaping = true;
-            uint8_t params[LIBNDS_CONSOLE_MAX_ANSI_PARAMS] = { 0 };
-            uint8_t param_num = 0;
-
-            do
-            {
-                chr = *(tmp++);
-                i++;
-                count++;
-
-                switch (chr)
-                {
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                    {
-                        // The first parameter will come before any ';'
-                        // character, so we need to support that case.
-                        if (param_num == 0)
-                            param_num = 1;
-
-                        params[param_num - 1] = (params[param_num - 1] * 10) + (chr - '0');
-                        break;
-                    }
-
-                    case ';':
-                    {
-                        if (param_num == LIBNDS_CONSOLE_MAX_ANSI_PARAMS)
-                            return -1;
-                        param_num++;
-                        break;
-                    }
-
-                    // Cursor directional movement
-                    case 'A':
-                    {
-                        int amount = 1;
-                        if ((param_num > 0) && (params[0] > 0))
-                            amount = params[0];
-
-                        int new_y = currentConsole->cursorY - amount;
-                        if (new_y < 0)
-                            new_y = 0;
-
-                        currentConsole->cursorY = new_y;
-                        escaping = false;
-                        break;
-                    }
-                    case 'B':
-                    {
-                        int amount = 1;
-                        if ((param_num > 0) && (params[0] > 0))
-                            amount = params[0];
-
-                        int new_y = currentConsole->cursorY + amount;
-                        int max_y = currentConsole->windowHeight - 1;
-                        if (new_y > max_y)
-                            new_y = max_y;
-
-                        currentConsole->cursorY = new_y;
-                        escaping = false;
-                        break;
-                    }
-                    case 'C':
-                    {
-                        int amount = 1;
-                        if ((param_num > 0) && (params[0] > 0))
-                            amount = params[0];
-
-                        int new_x = currentConsole->cursorX + amount;
-                        int max_x = currentConsole->windowWidth - 1;
-                        if (new_x > max_x)
-                            new_x = max_x;
-
-                        currentConsole->cursorX = new_x;
-                        escaping = false;
-                        break;
-                    }
-                    case 'D':
-                    {
-                        int amount = 1;
-                        if ((param_num > 0) && (params[0] > 0))
-                            amount = params[0];
-
-                        int new_x = currentConsole->cursorX - amount;
-                        if (new_x < 0)
-                            new_x = 0;
-
-                        currentConsole->cursorX = new_x;
-                        escaping = false;
-                        break;
-                    }
-
-                    // Cursor position movement
-                    case 'H':
-                    case 'f':
-                    {
-                        if (param_num == 2)
-                        {
-                            int new_y = params[0];
-                            int new_x = params[1];
-
-                            int max_y = currentConsole->windowHeight - 1;
-                            if (new_y > max_y)
-                                new_y = max_y;
-
-                            int max_x = currentConsole->windowWidth - 1;
-                            if (new_x > max_x)
-                                new_x = max_x;
-
-                            currentConsole->cursorY = new_y;
-                            currentConsole->cursorX = new_x;
-                        }
-                        escaping = false;
-                        break;
-                    }
-
-                    // Screen clear
-                    case 'J':
-                    {
-                        int mode = 0;
-                        if (param_num > 0)
-                            mode = params[0];
-
-                        consoleCls(mode);
-                        escaping = false;
-                        break;
-                    }
-
-                    // Line clear
-                    case 'K':
-                    {
-                        int mode = 0;
-                        if (param_num > 0)
-                            mode = params[0];
-
-                        consoleClearLine(mode);
-                        escaping = false;
-                        break;
-                    }
-
-                    // Save cursor position
-                    case 's':
-                        currentConsole->prevCursorX = currentConsole->cursorX;
-                        currentConsole->prevCursorY = currentConsole->cursorY;
-                        escaping = false;
-                        break;
-
-                    // Load cursor position
-                    case 'u':
-                        currentConsole->cursorX = currentConsole->prevCursorX;
-                        currentConsole->cursorY = currentConsole->prevCursorY;
-                        escaping = false;
-                        break;
-
-                    // Color scan codes (list of numbers separated by ';')
-                    case 'm':
-                    {
-                        if (currentConsole->HandleSgrCodes == NULL)
-                        {
-                            // Use the old buggy libnds SGR codes
-                            console_handle_sgr_legacy(currentConsole,
-                                                      param_num, params);
-                        }
-                        else
-                        {
-                            currentConsole->HandleSgrCodes(currentConsole,
-                                                           param_num, params);
-                        }
-
-                        escaping = false;
-                        break;
-                    }
-                }
-            }
-            while (escaping && (i < len));
-
-            continue;
+            ssize_t delta = con_handle_escape_sequence(tmp, len - i);
+            tmp += delta;
+            i += delta;
         }
-
-        consolePrintChar(chr);
+        else
+        {
+            consolePrintChar(chr);
+        }
     }
 
-    return count;
+    return i;
 }
 
 ConsoleOutFn libnds_stdout_write = NULL;
