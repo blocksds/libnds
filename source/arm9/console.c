@@ -534,12 +534,12 @@ static ssize_t con_handle_escape_sequence(const char *str, size_t len)
                 {
                     // Use the old buggy libnds SGR codes
                     console_handle_sgr_legacy(currentConsole,
-                                                param_num, params);
+                                              param_num, params);
                 }
                 else
                 {
                     currentConsole->HandleSgrCodes(currentConsole,
-                                                    param_num, params);
+                                                   param_num, params);
                 }
 
                 return i;
@@ -547,6 +547,7 @@ static ssize_t con_handle_escape_sequence(const char *str, size_t len)
             else
             {
                 // Not implemented
+                break;
             }
         }
     }
