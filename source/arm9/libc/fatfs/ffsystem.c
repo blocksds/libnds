@@ -71,7 +71,8 @@ int ff_mutex_take (	/* Returns 1:Succeeded or 0:Timeout */
 )
 {
 	// TODO: Implement timeout.
-	return comutex_try_acquire(&Mutex[vol]);
+	comutex_acquire(&Mutex[vol]);
+	return 1;
 }
 
 
