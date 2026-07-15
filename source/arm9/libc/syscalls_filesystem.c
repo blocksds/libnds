@@ -698,7 +698,7 @@ int fstatvfs(int fd, struct statvfs *buf)
     if (FD_IS_NITRO(fd))
     {
         // Not implemented
-        // TODO: Implament?
+        // TODO: Implement?
         errno = ENOSYS;
         return -1;
     }
@@ -979,6 +979,8 @@ long telldir(DIR *dirp)
 
     return fn(dirp);
 }
+
+// -----------------------------------------------------------------------------
 
 int ioctl(int fd, unsigned long op, ...)
 {
