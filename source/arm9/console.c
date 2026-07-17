@@ -784,7 +784,8 @@ void consoleSetFont(PrintConsole *console, ConsoleFont *font)
 
     console->font = *font;
 
-    consoleLoadFont(console);
+    if (console->font.gfx != NULL)
+        consoleLoadFont(console);
 }
 
 void consoleDebugInit(DebugDevice device)
