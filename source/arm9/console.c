@@ -558,7 +558,7 @@ static ssize_t con_handle_escape_sequence(const char *str, size_t len)
 
     // Unknown sequence, pass it to the user handler
     if (currentConsole->HandleEscapeSequence)
-        return currentConsole->HandleEscapeSequence(str, len);
+        return currentConsole->HandleEscapeSequence(currentConsole, str, len);
 
     return i;
 }

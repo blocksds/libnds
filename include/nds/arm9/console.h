@@ -153,6 +153,9 @@ typedef bool (* ConsolePrint)(void *con, char c);
 /// commands.
 typedef void (* ConsoleHandleSgr)(void *con, size_t num, uint8_t *params);
 
+/// Function type used by PrintConsole struct to handle escape sequences.
+typedef ssize_t (* ConsoleHandleEscape)(void *con, const char *ptr, size_t len);
+
 /// Function type used by libnds to redirect characters sent to stdout and
 /// stderr (skipping the call to the ConsolePrint handler).
 typedef ssize_t (* ConsoleOutFn)(const char *ptr, size_t len);
@@ -319,7 +322,7 @@ typedef struct PrintConsole
     /// This is an optional hook that is called whenever an unknown escape
     /// sequence is detected. Note that the initial ESC character isn't passed
     /// to the hook.
-    ConsoleOutFn HandleEscapeSequence;
+    ConsoleHandleEscape HandleEscapeSequence;
 
     /// Pointer available for custom user data related to this console.
     ///
