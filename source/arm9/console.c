@@ -236,39 +236,26 @@ static void console_handle_sgr(void *console, size_t param_num, uint8_t *params)
         if (parameter == 0)
         {
             // Reset
-            con->fontCurPal = CONSOLE_WHITE;
+            con->fontCurPal = CONSOLE_LIGHT_GRAY;
             con->backgroundCurPal = CONSOLE_BLACK;
-            con->sgrIntensity = 1;
-            con->sgrForegroundIsRgb = 0;
-            con->sgrBackgroundIsRgb = 0;
+            con->sgrIntensity = 0;
+            con->sgrForegroundIsRgb = false;
+            con->sgrBackgroundIsRgb = false;
         }
         else if (parameter == 1)
         {
             // Bold or increased intensity
             con->sgrIntensity = 1;
-
-            if ((con->sgrForegroundIsRgb == 0) && (con->fontCurPal < 8))
-                con->fontCurPal += 8;
         }
         else if (parameter == 22)
         {
             // Normal intensity
             con->sgrIntensity = 0;
-
-            if ((con->sgrForegroundIsRgb == 0) &&
-                (con->fontCurPal >= 8) && (con->fontCurPal < 16))
-            {
-                con->fontCurPal -= 8;
-            }
         }
         else if ((parameter >= 30) && (parameter <= 37))
         {
             // Set foreground color
             con->fontCurPal = parameter - 30;
-
-            if (con->sgrIntensity)
-                con->fontCurPal += 8;
-
             con->sgrForegroundIsRgb = false;
         }
         else if (parameter == 38)
@@ -307,7 +294,8 @@ static void console_handle_sgr(void *console, size_t param_num, uint8_t *params)
         else if (parameter == 39)
         {
             // Default foreground color
-            con->fontCurPal = CONSOLE_WHITE;
+            con->fontCurPal = CONSOLE_LIGHT_GRAY;
+            con->sgrForegroundIsRgb = false;
         }
         else if ((parameter >= 40) && (parameter <= 47))
         {
@@ -375,6 +363,10 @@ void consoleEnhancedColorHandler(PrintConsole *console)
         console = currentConsole;
 
     console->HandleSgrCodes = console_handle_sgr;
+
+    // Reset
+    uint8_t params[1] = { 0 };
+    console->HandleSgrCodes(console, 1, params);
 }
 
 static ssize_t con_handle_escape_sequence(const char *str, size_t len)
@@ -700,7 +692,7 @@ void consoleLoadFont(PrintConsole *console)
             palette[15 * 16 - 1] = RGB15(0, 31, 31);  // 46 bright cyan
 
             // Set the white pre-defined palette as the active palette
-            console->fontCurPal = 15;
+            console->fontCurPal = CONSOLE_WHITE;
         }
     }
 
@@ -744,9 +736,9 @@ PrintConsole *consoleInitEx(PrintConsole *console, int layer, BgType type, BgSiz
 
     console->fontCurPal = 0;
     console->backgroundCurPal = 0;
-    console->sgrIntensity = 1; // High
-    console->sgrForegroundIsRgb = 0;
-    console->sgrBackgroundIsRgb = 0;
+    console->sgrIntensity = 0;
+    console->sgrForegroundIsRgb = false;
+    console->sgrBackgroundIsRgb = false;
 
     if (loadGraphics)
     {
@@ -913,7 +905,11 @@ void consolePrintChar(char c)
                       + (currentConsole->cursorY + currentConsole->windowY)
                          * currentConsole->consoleWidth;
 
-            currentConsole->fontBgMap[index] = TILE_PALETTE(currentConsole->fontCurPal) | tile;
+            uint16_t color = currentConsole->fontCurPal;
+            if (currentConsole->sgrIntensity)
+                color |= 8;
+
+            currentConsole->fontBgMap[index] = TILE_PALETTE(color) | tile;
             break;
         }
         case '\t':
@@ -944,7 +940,11 @@ void consolePrintChar(char c)
                       + (currentConsole->cursorY + currentConsole->windowY)
                          * currentConsole->consoleWidth;
 
-            currentConsole->fontBgMap[index] = TILE_PALETTE(currentConsole->fontCurPal) | tile;
+            uint16_t color = currentConsole->fontCurPal;
+            if (currentConsole->sgrIntensity)
+                color |= 8;
+
+            currentConsole->fontBgMap[index] = TILE_PALETTE(color) | tile;
             currentConsole->cursorX++;
             break;
         }
