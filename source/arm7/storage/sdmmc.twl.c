@@ -381,6 +381,13 @@ static u32 initTranState(SdmmcDev *const dev, const u8 devType, const u32 rca,
 
 u32 SDMMC_init(const u8 devNum)
 {
+    // Check if we have access to the SDMMC registers. If bit SCFG_EXT_SDMMC
+    // and SCFG_EXT_SCFG_MBK_REG are set to 0, the SDMMC registers are locked
+    // and we must return an error.
+    REG_SCFG_EXT |= SCFG_EXT_SDMMC;
+    if ((REG_SCFG_EXT & SCFG_EXT_SDMMC) == 0)
+        return SDMMC_ERR_SCFG;
+
     if (devNum > SDMMC_MAX_DEV_NUM)
         return SDMMC_ERR_INVAL_PARAM;
 

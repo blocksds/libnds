@@ -48,7 +48,8 @@ enum
     SDMMC_ERR_SET_BLOCKLEN     = 24u, // SET_BLOCKLEN CMD error.
     SDMMC_ERR_LOCK_UNLOCK      = 25u, // LOCK_UNLOCK CMD error.
     SDMMC_ERR_LOCK_UNLOCK_FAIL = 26u, // Lock/unlock operation failed (R1 status).
-    SDMMC_ERR_SLEEP_AWAKE      = 27u  // (e)MMC SLEEP_AWAKE CMD error.
+    SDMMC_ERR_SLEEP_AWAKE      = 27u, // (e)MMC SLEEP_AWAKE CMD error.
+    SDMMC_ERR_SCFG             = 28u, // SDMMC is disabled in SCFG_EXT
 };
 
 // (e)MMC/SD device numbers.
