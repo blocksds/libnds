@@ -93,16 +93,16 @@ INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 		   $(foreach path,$(LIBDIRS),-I$(path)/include)
 
 ASFLAGS		+= -g -x assembler-with-cpp $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) \
+		   -mthumb $(INCLUDEFLAGS) \
 		   -ffunction-sections -fdata-sections
 
 CFLAGS		+= -g -std=gnu23 $(WARNFLAGS) $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -O2 \
+		   -mthumb $(INCLUDEFLAGS) -O2 \
 		   -ffunction-sections -fdata-sections \
 		   -fomit-frame-pointer
 
 CXXFLAGS	+= -g -std=gnu++23 $(WARNFLAGS) $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -O2 \
+		   -mthumb $(INCLUDEFLAGS) -O2 \
 		   -ffunction-sections -fdata-sections \
 		   -fno-exceptions -fno-rtti \
 		   -fomit-frame-pointer
