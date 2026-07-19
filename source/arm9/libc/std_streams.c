@@ -162,6 +162,9 @@ static ssize_t libnds_stdin_read(int fd, void *ptr, size_t len)
                 break;
 
             cothread_yield_irq(IRQ_VBLANK);
+
+            scanKeys();
+            keyboardFifoUpdate();
         }
 
         if (!was_shown)
