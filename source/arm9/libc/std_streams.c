@@ -103,10 +103,6 @@ FILE *const stdout = &__stdout.xfile.cfile.file;
 // stdin
 // -----
 
-// In keyboard.c
-int keyboardFifoGetc(void);
-size_t keyboardFifoStoredCharacters(void);
-
 static char stdin_read_buf[128];
 
 static bool stdin_blocking = true;

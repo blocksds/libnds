@@ -369,6 +369,21 @@ int keyboardFifoUnputc(void);
 ///     value.
 int keyboardFifoPutc(char kc);
 
+/// Fetches the first character available from the keyboard FIFO.
+///
+/// This can be useful when using a custom keyboard, but not using OS functions
+/// like read().
+///
+/// @return
+///     It returns a character from the FIFO. If empty, it returns -1.
+int keyboardFifoGetc(void);
+
+/// Returns the number of characters currently available in the keyboard FIFO.
+///
+/// @return
+///     The number of available characters to be read.
+size_t keyboardFifoStoredCharacters(void);
+
 #ifdef __cplusplus
 }
 #endif
