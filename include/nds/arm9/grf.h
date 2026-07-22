@@ -23,7 +23,7 @@ extern "C" {
 /// formats. Note that all compression formats supported by grit are also
 /// supported by decompress().
 ///
-/// Check https://www.coranac.com/man/grit/html/grit.htm for more information.
+/// Check https://blocksds.skylyrac.net/grit/ for more information.
 
 #include <stdint.h>
 #include <stdio.h>
