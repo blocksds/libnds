@@ -477,6 +477,17 @@ static inline int32_t dotf32(int32_t *a, int32_t *b)
 ///     Pointer to the vector to normalize.
 ARM_CODE void normalizef32(int32_t *a);
 
+/// 4.12 fixed point atan2
+///
+/// @param y0
+///     32-bit integer value
+/// @param x0
+///     32-bit integer value
+///
+/// @return
+///     4.12 fixed point result in radians
+ARM_CODE int32_t atan2f16(int32_t y0,int32_t x0);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2024 Dominik Kurz
+// Copyright (C) 2024-2026 Dominik Kurz
 
+#include <math.h>
 #include <stdint.h>
-
+#include <stdbool.h>
 #include <nds/arm9/math.h>
 
 #define QUIET_NAN       ((255 << 23) | ((1 << 22) | 1))
@@ -179,4 +180,102 @@ ARM_CODE void crossf32(const int32_t *a,const int32_t *b, int32_t *result)
     result[0] = ((int64_t)ta[1] * tb[2] + (int64_t)-tb[1] * ta[2]) >> 12;
     result[1] = ((int64_t)ta[2] * tb[0] + (int64_t)tb[2] * -ta[0]) >> 12;
     result[2] = ((int64_t)-ta[0] * -tb[1] + (int64_t)-tb[0] * ta[1]) >> 12;
+}
+
+#define ITERS (6)
+
+static inline int iabs(int x)
+{
+    return x >= 0 ? x : -x;
+}
+
+ARM_CODE int32_t atan2f16(int32_t y0, int32_t x0)
+{
+    const uint16_t angle[ITERS] =
+    {
+        // The first angle is unused
+        4095, // round(atan(pow(2, -5)) * (1 << 17)),
+
+        60771, // round(atan(pow(2, -1)) * (1 << 17)),
+        32110, // round(atan(pow(2, -2)) * (1 << 17)),
+        16299, // round(atan(pow(2, -3)) * (1 << 17)),
+        8181,  // round(atan(pow(2, -4)) * (1 << 17)),
+        4095,  // round(atan(pow(2, -5)) * (1 << 17))
+    };
+
+    int32_t x = iabs(x0);
+    int32_t y = iabs(y0);
+
+    int32_t phi = 0;
+    if (y > x)
+    {
+        int32_t t = y;
+        y = x;
+        x = t;
+    }
+
+    // Normalize using clz instead of division
+    int clz = __builtin_clz(x | y);
+    clz -= 3; // 3 = (sign bit) + (2 extra bits for rotations)
+    if (likely(clz >= 0))
+    {
+        y <<= clz;
+        x <<= clz;
+    }
+    else
+    {
+        y >>= -clz;
+        x >>= -clz;
+    }
+
+    // Check if we are small enough to skip cordic
+    // `if (y/x) < tan(pow(2,-5))` approximately equals `if (y/x) < 2^-5`
+    // The error is `O((y / x) ^ 3) ~ (2^-15 / 3)` since
+    // `tan(x)= x + (x^3 / 3) + O(x^5)` and `atan(x) = x - (x^3 / 3) + O(x^5)`
+    if (!(y < (x >> (ITERS-1))))
+    {
+        #pragma GCC unroll 7
+        for (int i = 1; i<ITERS; i++)
+        {
+            int32_t x_next;
+            int32_t y_next;
+            if (y < 0)
+            {
+                x_next = x - (y >> i);
+                y_next = y + (x >> i);
+                phi -= (int32_t)angle[i];
+            }
+            else
+            {
+                x_next = x + (y >> i);
+                y_next = y - (x >> i);
+                phi += (int32_t)angle[i];
+            }
+            x = x_next;
+            y = y_next;
+        }
+    }
+
+    // Shift down so the correction can use 32-bit div
+    // 8 is enough for all my tests
+    x >>= 8 + (8 - ITERS);
+    y >>= 8 + (8 - ITERS);
+    phi = (phi >> 1) + (y << 16) / x;
+    const int32_t pi = M_PI * (1 << 16);
+
+    // If we swapped x and y earlier we need to correct for it
+    if (iabs(y0) > iabs(x0))
+        phi =(pi >> 1) - phi;
+
+    // If we're in a different quadrant we need to map to the correct range
+    if (y0 < 0)
+        phi = -phi;
+
+    if (x0 < 0 && y0 >= 0)
+       phi =  pi - phi;
+    else if (x0 < 0 && y0 < 0)
+       phi = -pi - phi;
+
+    phi = (phi + (1 << 3)) >> 4; // round to nearest 4.12, ties to ceil
+    return phi;
 }
