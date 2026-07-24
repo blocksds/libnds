@@ -6,6 +6,7 @@
 #define FILESYSTEM_INCLUDES_H__
 
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -18,7 +19,6 @@
 #include <sys/unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/fcntl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/times.h>

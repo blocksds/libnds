@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <nds/arm9/cache.h>

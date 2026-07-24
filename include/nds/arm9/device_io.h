@@ -23,9 +23,9 @@ extern "C" {
 #endif
 
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/fcntl.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <sys/time.h>
