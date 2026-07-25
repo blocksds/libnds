@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023-2025 Antonio Niño Díaz
+// Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include <stdio.h>
+#include <string.h>
 
 #include <nds/debug.h>
 
@@ -13,6 +14,25 @@
 // function.
 
 #ifdef ARM9
+
+void nocashMessage(const char *message)
+{
+    REG_NOCASH_STR_PARAM = (uintptr_t)message;
+}
+
+void nocashWrite(const char *message, int len)
+{
+    static char buf[120];
+
+    if (len >= (int)sizeof(buf))
+        len = sizeof(buf) - 1;
+
+    strncpy(buf, message, len);
+    buf[len] = '\0';
+
+    REG_NOCASH_STR_PARAM = (uintptr_t)buf;
+}
+
 #define NOCASHGBA_BUFFER_SIZE 120
 static char nocash_buf[NOCASHGBA_BUFFER_SIZE + 1]; // Leave space for terminator
 static uint8_t nocash_buf_len = 0;
@@ -33,9 +53,11 @@ int nocash_putc_buffered(char c, FILE *file)
 
     return c;
 }
+
 #endif // ARM9
 
 #ifdef ARM7
+
 #define NOCASHGBA_BUFFER_SIZE 120
 static char nocash_buf[NOCASHGBA_BUFFER_SIZE];
 static uint8_t nocash_buf_len = 0;
@@ -59,4 +81,5 @@ int nocash_putc_buffered(char c, FILE *file)
 
     return c;
 }
+
 #endif

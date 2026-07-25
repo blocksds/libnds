@@ -12,6 +12,7 @@
     .text
     .thumb
 
+#ifdef ARM7
 
 // no$gba debug output function
 // params = { string }
@@ -58,3 +59,5 @@ buffer:
     bx      lr
 
     .pool
+
+#endif // ARM7
