@@ -38,7 +38,9 @@ BEGIN_ASM_FUNC_NO_SECTION nocashMessage
     cmp     r2, r1          // max length == 120
     bne     3b              // loop if < 120 characters
 
-    movs    r0, #0
+    cmp     r2, #120        // If we have added 120 characters, print string
+    beq     4f
+    movs    r0, #0          // If not, add a NUL terminator
     strb    r0, [r4, r2]
 
     // Send message to no$
