@@ -14,19 +14,19 @@
 
 
 // no$gba debug output function
-// params = { string, length }
-BEGIN_ASM_FUNC nocashWrite
-    b   1f
-
-// no$gba debug output function
 // params = { string }
-BEGIN_ASM_FUNC_NO_SECTION nocashMessage
+BEGIN_ASM_FUNC nocashMessage
 
     // copy string into buffer
 
     movs    r1, #120        // max string length == 120 bytes
-1:
+
+// no$gba debug output function
+// params = { string, length }
+BEGIN_ASM_FUNC_NO_SECTION nocashWrite
+
     push    {r4}
+
     ldr     r4, =buffer     // get buffer address
     movs    r2, #0          // r2 = read/write position
 3:
@@ -52,6 +52,7 @@ BEGIN_ASM_FUNC_NO_SECTION nocashMessage
 buffer:
     .space  120             // data
 2:
+
     pop     {r4}
 
     bx      lr
