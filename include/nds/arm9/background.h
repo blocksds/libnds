@@ -492,12 +492,10 @@ typedef enum
     BgType_Bmp16       ///< Bitmap background with 16 bit color values of the form aBBBBBGGGGGRRRRR (if 'a' is not set, the pixel will be transparent)
 } BgType;
 
-/// @brief Allowed background Sizes
+/// Allowed background Sizes
 ///
 /// The lower 16 bits of these defines can be used directly to set the
 /// background control register bits.
-///
-/// @ingroup api_group
 typedef enum
 {
     BgSize_R_128x128 = (0 << 14),   ///< 128 x 128 pixel rotation background

@@ -112,7 +112,7 @@ typedef struct Keyboard
     /// This is useful if a keypress needs to add multiple characters to the
     /// stdin FIFO. For example, libnds usually pushes DVK_UP to the stdin FIFO
     /// when the Up key is pressed, but you can make this callback send the
-    /// '\x1B', '[', 'A' escape sequence instead.
+    /// `'\x1B'`, `'['`, `'A'` escape sequence instead.
     KeyPutcCallback OnKeyPutc;
 
     KeyChangeCallback OnKeyPressed;  ///< Will be called on key press
