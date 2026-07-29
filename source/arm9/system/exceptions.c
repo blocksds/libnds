@@ -2,11 +2,16 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
-// Copyright (C) 2024 Antonio Niño Díaz
+// Copyright (C) 2024-2026 Antonio Niño Díaz
 
-#include <stdio.h>
+// Exception handlers can't use printf(). printf() uses picolibc locks, which
+// use TLS (thread-local storage), so it isn't safe from this file.
+//
+// The exception handler may run from an IRQ handler, and IRQ handlers aren't
+// allowed to use TLS. In libnds debug builds, libndsCrash() is called if this
+// situation is detected.
+
 #include <string.h>
-#include <inttypes.h>
 
 #include <nds/arm9/background.h>
 #include <nds/arm9/console.h>
@@ -15,9 +20,6 @@
 #include <nds/cpu_asm.h>
 #include <nds/interrupts.h>
 #include <nds/exceptions.h>
-#include <nds/memory.h>
-#include <nds/ndstypes.h>
-#include <nds/system.h>
 
 #include "common/libnds_internal.h"
 
@@ -67,6 +69,31 @@ bool mpuRegionIsCode(int region)
     return false;
 }
 
+static void exceptionPrintString(const char *msg)
+{
+    while (1)
+    {
+        char c = *msg++;
+        if (c == '\0')
+            break;
+
+        consolePrintChar(c);
+    }
+}
+
+static void exceptionPrintU32(uint32_t val)
+{
+    for (int i = 28; i >= 0; i -= 4)
+    {
+        unsigned int c = (val >> i) & 0xF;
+
+        if (c < 10)
+            consolePrintChar(c - 0 + '0');
+        else
+            consolePrintChar(c - 10 + 'A');
+    }
+}
+
 void exceptionStatePrint(ExceptionState *ex, const char *title)
 {
     consoleDemoInit();
@@ -76,16 +103,23 @@ void exceptionStatePrint(ExceptionState *ex, const char *title)
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     consoleSetCursor(NULL, (32 - strlen(title)) / 2, 0);
-    printf("%s", title);
+    exceptionPrintString(title);
 
     consoleSetCursor(NULL, (32 - strlen(ex->description)) / 2, 1);
-    printf("%s\n\n", ex->description);
+    exceptionPrintString(ex->description);
+    exceptionPrintString("\n\n");
 
     if (true)
     {
         // Finally, print everything to the screen
 
-        printf("  pc: %08" PRIX32 " addr: %08" PRIX32 "\n\n", ex->reg[15], ex->address);
+        exceptionPrintString("  pc: ");
+        exceptionPrintU32(ex->reg[15]);
+        exceptionPrintString(" addr: ");
+        exceptionPrintU32(ex->address);
+        exceptionPrintString("\n\n");
+
+        // CPU registers
 
         for (int i = 0; i < 8; i++)
         {
@@ -95,17 +129,28 @@ void exceptionStatePrint(ExceptionState *ex, const char *title)
                 "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
             };
 
-            printf("  %s: %08" PRIX32 "   %s: %08" PRIX32 "\n",
-                   registerNames[i], ex->reg[i],
-                   registerNames[i + 8], ex->reg[i + 8]);
+            exceptionPrintString("  ");
+            exceptionPrintString(registerNames[i]);
+            exceptionPrintString(": ");
+            exceptionPrintU32(ex->reg[i]);
+            exceptionPrintString("   ");
+            exceptionPrintString(registerNames[i + 8]);
+            exceptionPrintString(": ");
+            exceptionPrintU32(ex->reg[i + 8]);
+            exceptionPrintString("\n");
         }
 
-        printf("\n");
+        // Stack dump
+
         for (int i = 0; i < 10; i++)
         {
             consoleSetCursor(NULL, 2, i + 14);
-            printf("%08" PRIX32 ":  %08" PRIX32 " %08" PRIX32 "",
-                   (u32)(ex->reg[13] + i * 2), ex->stack[i * 2], ex->stack[(i * 2) + 1]);
+
+            exceptionPrintU32(ex->reg[13] + i * 2);
+            exceptionPrintString(":  ");
+            exceptionPrintU32(ex->stack[i * 2]);
+            exceptionPrintString(" ");
+            exceptionPrintU32(ex->stack[(i * 2) + 1]);
         }
     }
 }
@@ -267,14 +312,7 @@ static void releaseCrashHandler(void)
             msg = "Unknown error";
     }
 
-    while (1)
-    {
-        char c = *msg++;
-        if (c == '\0')
-            break;
-
-        consolePrintChar(c);
-    }
+    exceptionPrintString(msg);
 
     while (1)
         ;
