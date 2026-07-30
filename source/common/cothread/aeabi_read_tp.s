@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023-2025 Antonio Niño Díaz
+// Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include <nds/asminc.h>
 
@@ -27,7 +27,9 @@
 
 BEGIN_ASM_FUNC __aeabi_read_tp
 
-#ifndef NDEBUG
+    // Check this in debug and release builds of libnds. It's very easy to use
+    // TLS from an interrupt context, which can cause memory corruption issues,
+    // so we should always check.
     ldr     r0, =irq_nesting_level
     ldr     r0, [r0]
     cmp     r0, #0
@@ -38,14 +40,11 @@ BEGIN_ASM_FUNC __aeabi_read_tp
     ldr     r1, =libndsCrash
     bx      r1
 
-    // libndsCrash() never returns, it's safe to place the message here
-__aeabi_read_tp_error_msg:
-    .asciz "Using TLS from IRQ"
-    .balign 2
-
 not_in_irq:
-#endif
 
     ldr     r0, =__tls
     ldr     r0, [r0]
     bx      lr
+
+__aeabi_read_tp_error_msg:
+    .asciz "Using TLS from IRQ"
