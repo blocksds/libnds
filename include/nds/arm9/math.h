@@ -424,7 +424,7 @@ static inline uint32_t sqrt64(uint64_t a)
 /// 32-bit floating point sqrt
 ///
 /// @warning
-///     Not safe to call inside an interrupt handler.
+///     Don't use it from inside an interrupt handler.
 ///
 /// @param x
 ///     Valid 32 bit non-negative floating point value.
@@ -479,6 +479,15 @@ ARM_CODE void normalizef32(int32_t *a);
 
 /// 4.12 fixed point atan2
 ///
+/// `atanf16()` isn't currently implemented. You can do this instead:
+///
+/// ```c
+/// int32_t atanf16(int32_t y0)
+/// {
+///     return atan2f16(y0, 1 << 12);
+/// }
+/// ```
+///
 /// @param y0
 ///     32-bit integer value
 /// @param x0
@@ -486,7 +495,7 @@ ARM_CODE void normalizef32(int32_t *a);
 ///
 /// @return
 ///     4.12 fixed point result in radians
-ARM_CODE int32_t atan2f16(int32_t y0,int32_t x0);
+ARM_CODE int32_t atan2f16(int32_t y0, int32_t x0);
 
 #ifdef __cplusplus
 }

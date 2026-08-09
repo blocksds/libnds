@@ -265,7 +265,7 @@ ARM_CODE int32_t atan2f16(int32_t y0, int32_t x0)
 
     // If we swapped x and y earlier we need to correct for it
     if (iabs(y0) > iabs(x0))
-        phi =(pi >> 1) - phi;
+        phi = (pi >> 1) - phi;
 
     // If we're in a different quadrant we need to map to the correct range
     if (y0 < 0)
