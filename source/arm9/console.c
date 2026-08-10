@@ -203,13 +203,23 @@ static void console_handle_sgr_legacy(void *console,
 
     PrintConsole *con = console;
 
-    if (param_num < 2)
+    if (param_num < 1)
         return;
 
     int parameter = params[0];
-    int intensity = params[1];
+    int intensity;
 
-    // Only handle 30-37,39 and intensity for the color changes
+    // Old libnds accepted passing just one command without intensity, and the
+    // intensity would be treated as 0.
+    if (param_num < 2)
+        intensity = 0;
+    else
+        intensity = params[1];
+
+    // Only handle 30-37,39 and intensity for the color changes. The code below
+    // also accepts values 40-47 but it wrongly treats them as bright colors
+    // instead of background colors.
+
     parameter -= 30;
 
     // 39 is the reset code
