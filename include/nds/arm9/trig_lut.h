@@ -145,6 +145,15 @@ s16 asinLerp(s16 par);
 ///     Angle (-32768 to 32767).
 s16 acosLerp(s16 par);
 
+/// Fixed point arctan.
+///
+/// @param par
+///     4.12 fixed point number with the range (-inf, +inf).
+///
+/// @return
+///     Angle (-32768 to 32767).
+s16 atanLerp(s32 par);
+
 #ifdef __cplusplus
 }
 #endif

@@ -214,26 +214,11 @@ s16 acosLerp(s16 par)
     return LIBNDS_QUARTER_ANGLE - asinLerp(par); // returns a value in [0, 256]
 }
 
-int atanComp(const void *a, const void *b)
+s16 atanLerp(s32 par)
 {
-    s32 par = (*(const s32 *)a);
-    const s32 *lut = b;
+    // The input value is in f32 (24.12), but TAN_LUT is in 16.16
+    par <<= TAN_BITSFRACTION - 12;
 
-    if (par == lut[0] || (par > lut[0] && par < lut[1]))
-        return 0;
-
-    if (par < lut[0])
-        return -1;
-
-    return 1;
-}
-
-// TODO: Implement and test
-
-#if 0
-
-s32 atanLerp(s32 par)
-{
     bool neg = false;
     if (par < 0)
     {
@@ -241,37 +226,53 @@ s32 atanLerp(s32 par)
         neg = true;
     }
 
-    // If the parameter is less than the second value in the LUT, we can be
-    // assured the binary search will return the first, which is zero.This zero
-    // will cause a divide by zero later, so this saves the trouble of dealing
-    // with that.
-
-    if (par < TAN_LUT[1])
-    {
-        return 0;
-    }
-
-    // If the parameter is greater than the maximum value the LUT supports, we
-    // can be assured the binary search may fail as atanComp doesn't run bounds
-    // checking. It is faster to add this than fix that (in terms of runtime
-    // speed, I'm not just being lazy).
-
     if (par >= TAN_LUT[LUT_SIZE])
     {
-        return inttof32(128);
+        return (neg ? -degreesToAngle(90) : degreesToAngle(90));
     }
 
-    s32 *at = (s32 *)bsearch(&par, TAN_LUT, LUT_SIZE, sizeof(s32), atanComp);
+    // Look for the two indices that are around the current value
 
-    if (at == NULL)
+    s32 min = 0;
+    s32 cur = LUT_SIZE / 2;
+    s32 max = LUT_SIZE - 1; // Don't consider the last entry
+
+    while (1)
     {
-        at = TAN_LUT + LUT_SIZE;
-        neg = !neg;
+        if (par > TAN_LUT[cur])
+        {
+            min = cur;
+            cur = (max + min) / 2;
+        }
+        else if (par < TAN_LUT[cur])
+        {
+            max = cur;
+            cur = (max + min) / 2;
+        }
+        else // if (par == TAN_LUT[cur])
+        {
+            min = cur;
+            max = cur + 1;
+            break;
+        }
+
+        if ((min + 1) == max)
+            break;
     }
 
-    s32 angle = divf32(mulf32(inttof32(at - TAN_LUT), par), (*at));
+    // Interpolate
 
-    // returns a value in [-128, 128]
+    s32 value_delta = inttof32(par - TAN_LUT[cur]);
+    s32 total_delta = inttof32(TAN_LUT[cur + 1] - TAN_LUT[cur]);
+
+    s32 index_fixed_point = inttof32(cur) + divf32(value_delta, total_delta);
+
+    // The index goes from 0 to 128 for a quarter of a circle, and it is a f32.
+    // In total, this is 7.12 or (1 << 19) degrees.
+    //
+    // A full circle for libnds is (1 << LIBNDS_ANGLE_BITS) degrees, equal to
+    // (1 << 15) degrees. A quarter of a circle is (1 << 13) degrees.
+    s32 angle = index_fixed_point >> (19 - (LIBNDS_ANGLE_BITS - 2));
+
     return (neg ? -angle : angle);
 }
-#endif
