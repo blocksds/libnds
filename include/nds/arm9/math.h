@@ -479,12 +479,12 @@ ARM_CODE void normalizef32(int32_t *a);
 
 /// 4.12 fixed point atan2
 ///
-/// `atanf16()` isn't currently implemented. You can do this instead:
+/// `atanf32()` isn't currently implemented. You can do this instead:
 ///
 /// ```c
-/// int32_t atanf16(int32_t y0)
+/// int32_t atanf32(int32_t y0)
 /// {
-///     return atan2f16(y0, 1 << 12);
+///     return atan2f32(y0, inttof32(1));
 /// }
 /// ```
 ///
@@ -494,8 +494,8 @@ ARM_CODE void normalizef32(int32_t *a);
 ///     32-bit integer value
 ///
 /// @return
-///     4.12 fixed point result in radians
-ARM_CODE int32_t atan2f16(int32_t y0, int32_t x0);
+///     4.12 fixed point (f32) result in radians.
+ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0);
 
 #ifdef __cplusplus
 }

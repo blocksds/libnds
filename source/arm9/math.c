@@ -189,7 +189,7 @@ static inline int iabs(int x)
     return x >= 0 ? x : -x;
 }
 
-ARM_CODE int32_t atan2f16(int32_t y0, int32_t x0)
+ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
 {
     const uint16_t angle[ITERS] =
     {
