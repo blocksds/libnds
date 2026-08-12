@@ -148,7 +148,7 @@ ARM_CODE void normalizef32(int32_t *a)
     while (REG_DIVCNT & DIV_BUSY);
     int64_t reciprocal64 = REG_DIV_RESULT; // 64-bit result is required
 
-    int shift = 32 - __builtin_clz((uint32_t)(reciprocal64 >> 32));
+    int shift = 32 - __builtin_clzg((uint32_t)(reciprocal64 >> 32), 32);
     total_shift -= shift;
     reciprocal64 = reciprocal64 >> shift;
     uint32_t reciprocal = (uint32_t)reciprocal64;
