@@ -237,22 +237,13 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
         #pragma GCC unroll 7
         for (int i = 1; i<ITERS; i++)
         {
-            int32_t x_next;
-            int32_t y_next;
-            if (y < 0)
+            int32_t y_next = y - (x >> i);
+            if (y_next >= 0)
             {
-                x_next = x - (y >> i);
-                y_next = y + (x >> i);
-                phi -= (int32_t)angle[i];
-            }
-            else
-            {
-                x_next = x + (y >> i);
-                y_next = y - (x >> i);
+                x = x + (y >> i);
+                y = y_next;
                 phi += (int32_t)angle[i];
             }
-            x = x_next;
-            y = y_next;
         }
     }
 
