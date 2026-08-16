@@ -3,6 +3,13 @@
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 // Copyright (C) 2023 Adrian "asie" Siekierka
 
+// Important note: Don't use write(), read() or any other POSIX filesystem
+// function from this file when implementing complex functions (like truncate()).
+// The file descriptors expected by POSIX functions have a 4 bit tag in the top
+// 4 bits of the descriptor, but the file descriptors used here have been
+// stripped of that tag, so it isn't possible to mix them. Use only functions
+// like fat_write() or fat_read().
+
 #include <nds/arm9/device_io.h>
 
 #include "device_io_internal.h"
@@ -348,7 +355,7 @@ static int ftruncate_internal(int fd, off_t length)
 
         while (size_diff > 128)
         {
-            if (write(fd, zeroes, 128) == -1)
+            if (fat_write(fd, zeroes, 128) == -1)
                 return -1;
 
             size_diff -= 128;
@@ -356,7 +363,7 @@ static int ftruncate_internal(int fd, off_t length)
 
         if (size_diff > 0)
         {
-            if (write(fd, zeroes, size_diff) == -1)
+            if (fat_write(fd, zeroes, size_diff) == -1)
                 return -1;
         }
     }
