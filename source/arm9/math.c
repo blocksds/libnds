@@ -251,7 +251,7 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
     // 8 is enough for all my tests
     x >>= 8 + (8 - ITERS);
     y >>= 8 + (8 - ITERS);
-    phi = (phi >> 1) + (y << 16) / x;
+    phi = (phi >> 1) + ((uint32_t)y << 16) / (uint32_t)x;
     const int32_t pi = M_PI * (1 << 16);
 
     // If we swapped x and y earlier we need to correct for it
