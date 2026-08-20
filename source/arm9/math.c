@@ -184,7 +184,7 @@ ARM_CODE void crossf32(const int32_t *a,const int32_t *b, int32_t *result)
 
 #define ITERS (6)
 
-static inline int iabs(int x)
+static inline uint32_t iabs(int32_t x)
 {
     return x >= 0 ? x : -x;
 }
@@ -207,7 +207,7 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
     int32_t y = iabs(y0);
 
     int32_t phi = 0;
-    if (y > x)
+    if ((uint32_t)y > (uint32_t)x)
     {
         int32_t t = y;
         y = x;
@@ -224,8 +224,8 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
     }
     else
     {
-        y >>= -clz;
-        x >>= -clz;
+        y = (uint32_t)y >> -clz;
+        x = (uint32_t)x >> -clz;
     }
 
     // Check if we are small enough to skip cordic
@@ -251,7 +251,7 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
     // 8 is enough for all my tests
     x >>= 8 + (8 - ITERS);
     y >>= 8 + (8 - ITERS);
-    phi = (phi >> 1) + (y << 16) / x;
+    phi = (phi >> 1) + ((uint32_t)y << 16) / (uint32_t)x;
     const int32_t pi = M_PI * (1 << 16);
 
     // If we swapped x and y earlier we need to correct for it
