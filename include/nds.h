@@ -32,7 +32,7 @@
 ///
 /// @section math_api Math
 /// - @ref nds/arm9/math.h "Hardware Assisted Math"
-/// - @ref nds/arm9/trig_lut.h "Fixed point trigenometry functions"
+/// - @ref nds/arm9/trig_lut.h "Fixed point trigonometry functions"
 ///
 /// @section memory_api Memory
 /// - @ref nds/memory.h "General memory definitions"
