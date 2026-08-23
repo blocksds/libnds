@@ -61,8 +61,9 @@ enum i2cDevices
 
 u8 i2cWriteRegister(u8 device, u8 reg, u8 data);
 u8 i2cReadRegister(u8 device, u8 reg);
-u8 i2cWriteRegister16(u8 device, u16 reg, u16 data);
-u16 i2cReadRegister16(u8 device, u16 reg);
+// TODO: The following functions aren't implemented
+// u8 i2cWriteRegister16(u8 device, u16 reg, u16 data);
+// u16 i2cReadRegister16(u8 device, u16 reg);
 
 #ifdef __cplusplus
 }
