@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
+
 #include <nds/ndstypes.h>
 
 #define REG_DIVCNT          (*(vu16 *)(0x04000280))
@@ -344,6 +346,54 @@ static inline int32_t mod64(int64_t num, int32_t den)
 
     mod64_asynch(num, den);
     return mod64_result();
+}
+
+/// Asynchronous 64 by 64 bit integer divide.
+///
+/// @param num
+///     64 bit numerator.
+/// @param den
+///     64 bit denominator.
+static inline void divmod64_asynch(int64_t num, int64_t den)
+{
+    REG_DIV_NUMER = num;
+    REG_DIV_DENOM = den;
+
+    if ((REG_DIVCNT & DIV_MODE_MASK) != DIV_64_64)
+        REG_DIVCNT = DIV_64_64;
+}
+
+/// Asynchronous 64 by 64 bit integer divide result.
+///
+/// @param rem
+///     Pointer to store 64 bit remainder. Accepts NULL.
+/// @return
+///     64 bit integer quotient.
+static inline int64_t divmod64_result(int64_t * rem)
+{
+    while (REG_DIVCNT & DIV_BUSY);
+
+    if (rem)
+        *rem = REG_DIVREM_RESULT;
+    return REG_DIV_RESULT;
+}
+
+/// Integer 64 by 64 bit divide.
+///
+/// @param num
+///     64 bit numerator.
+/// @param den
+///     64 bit denominator.
+///
+/// @return
+///     64 bit integer result.
+static inline int64_t div64_64(int64_t num, int64_t den)
+{
+    if (__builtin_constant_p(num) && __builtin_constant_p(den))
+        return num / den;
+
+    divmod64_asynch(num, den);
+    return divmod64_result(NULL);
 }
 
 /// Asynchronous 32-bit integer sqrt start.
