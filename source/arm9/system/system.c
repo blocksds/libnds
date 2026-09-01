@@ -58,7 +58,7 @@ void systemValueHandler(u32 value, void *data)
             __TransferRegion volatile *ipc = __transferRegion();
             AssertionState *as = (AssertionState *)&ipc->assertionState;
 
-            __sassert(as->file, as->line, as->condition, "ARM7 assertion");
+            __sassert_nofmt(as->file, as->line, as->condition, "ARM7 assertion");
 
             while (1)
                 swiWaitForVBlank();

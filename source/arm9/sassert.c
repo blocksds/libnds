@@ -16,34 +16,34 @@
 #include <nds/input.h>
 #include <nds/interrupts.h>
 
-LIBNDS_NORETURN
-void __sassert(const char *fileName, int lineNumber, const char *conditionString,
-               const char *format, ...)
+static void assert_print_prelude(const char *fileName, int lineNumber,
+                                const char *conditionString)
 {
-    va_list ap;
-
     consoleDemoInit();
 
     consoleSetColor(NULL, CONSOLE_LIGHT_YELLOW);
 
-    printf("Assertion!\n\n");
+    consolePrintString("Assertion!\n\n");
 
     consoleSetColor(NULL, CONSOLE_DEFAULT);
 
-    printf("File:\n"
-           "%s\n\n"                 // Print filename
-           "Line: %d\n\n"           // Print line number
-           "Condition:\n"
-           "%s\n\n"                 // Print condition message
-           "Message:\n",
-           fileName, lineNumber, conditionString);
+    consolePrintString("File:\n");
+    consolePrintString(fileName);
+    consolePrintString("\n\n"
+                       "Line:\n");
+    consolePrintUnsigned(lineNumber, 10);
+    consolePrintString("\n\n"
+                       "Condition:\n");
+    consolePrintString(conditionString);
+    consolePrintString("\n\n"
+                       "Message:\n");
+}
 
-    va_start(ap, format);
-    vprintf(format, ap);
-    va_end(ap);
-
+LIBNDS_NORETURN
+static void assert_print_epilogue(void)
+{
     consoleSetCursor(NULL, 0, 23);
-    printf("Press SELECT+START to exit");
+    consolePrintString("Press SELECT+START to exit");
 
     while (1)
     {
@@ -59,11 +59,42 @@ void __sassert(const char *fileName, int lineNumber, const char *conditionString
     // only be seen if exit() hangs, which is not its normal behaviour (it
     // should power off the NDS if it fails to exit to the loader).
     consoleSetCursor(NULL, 0, 23);
-    printf("Failed to exit            ");
+    consolePrintString("Failed to exit            ");
 
     // Return an error code to the loader
     exit(-1);
 
     while (1)
         swiWaitForVBlank();
+}
+
+LIBNDS_NORETURN
+void __sassert_nofmt(const char *fileName, int lineNumber, const char *conditionString,
+                     const char *format)
+{
+    // This function can be called from IRQ handlers
+
+    assert_print_prelude(fileName, lineNumber, conditionString);
+
+    consolePrintString(format);
+
+    assert_print_epilogue();
+}
+
+LIBNDS_NORETURN
+void __sassert(const char *fileName, int lineNumber, const char *conditionString,
+               const char *format, ...)
+{
+    // This function can't be called from IRQ handlers, so it's possible to use
+    // the printf() family of functions.
+
+    va_list ap;
+
+    assert_print_prelude(fileName, lineNumber, conditionString);
+
+    va_start(ap, format);
+    vprintf(format, ap);
+    va_end(ap);
+
+    assert_print_epilogue();
 }

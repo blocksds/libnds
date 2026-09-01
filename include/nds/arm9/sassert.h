@@ -25,10 +25,17 @@ extern "C" {
 #ifdef NDEBUG // Required by ANSI standard
 #define sassert(e, ...) ((void)0)
 #else
-/// Causes a blue screen of death if e is not true with the msg "msg" displayed
+/// Causes a blue screen of death if e is not true with the msg "msg" displayed.
+// This macro can't be used from IRQ handlers.
 #define sassert(e, ...) ((e) ? (void)0 : __sassert (__FILE__, __LINE__, #e, __VA_ARGS__))
 #endif // NDEBUG
 
+// This function can be called from IRQ handlers
+LIBNDS_NORETURN
+void __sassert_nofmt(const char *fileName, int lineNumber, const char *conditionString,
+                     const char *format);
+
+// This function can't be called from IRQ handlers
 LIBNDS_NORETURN LIBNDS_PRINTFLIKE(4, 5)
 void __sassert(const char *fileName, int lineNumber, const char *conditionString,
                const char *format, ...);
