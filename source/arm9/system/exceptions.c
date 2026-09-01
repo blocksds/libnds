@@ -69,31 +69,6 @@ bool mpuRegionIsCode(int region)
     return false;
 }
 
-static void exceptionPrintString(const char *msg)
-{
-    while (1)
-    {
-        char c = *msg++;
-        if (c == '\0')
-            break;
-
-        consolePrintChar(c);
-    }
-}
-
-static void exceptionPrintU32(uint32_t val)
-{
-    for (int i = 28; i >= 0; i -= 4)
-    {
-        unsigned int c = (val >> i) & 0xF;
-
-        if (c < 10)
-            consolePrintChar(c - 0 + '0');
-        else
-            consolePrintChar(c - 10 + 'A');
-    }
-}
-
 void exceptionStatePrint(ExceptionState *ex, const char *title)
 {
     consoleDemoInit();
@@ -103,21 +78,21 @@ void exceptionStatePrint(ExceptionState *ex, const char *title)
     BG_PALETTE_SUB[255] = RGB15(31, 31, 31);
 
     consoleSetCursor(NULL, (32 - strlen(title)) / 2, 0);
-    exceptionPrintString(title);
+    consolePrintString(title);
 
     consoleSetCursor(NULL, (32 - strlen(ex->description)) / 2, 1);
-    exceptionPrintString(ex->description);
-    exceptionPrintString("\n\n");
+    consolePrintString(ex->description);
+    consolePrintString("\n\n");
 
     if (true)
     {
         // Finally, print everything to the screen
 
-        exceptionPrintString("  pc: ");
-        exceptionPrintU32(ex->reg[15]);
-        exceptionPrintString(" addr: ");
-        exceptionPrintU32(ex->address);
-        exceptionPrintString("\n\n");
+        consolePrintString("  pc: ");
+        consolePrintUnsigned(ex->reg[15], 16);
+        consolePrintString(" addr: ");
+        consolePrintUnsigned(ex->address, 16);
+        consolePrintString("\n\n");
 
         // CPU registers
 
@@ -129,15 +104,15 @@ void exceptionStatePrint(ExceptionState *ex, const char *title)
                 "r8 ", "r9 ", "r10", "r11", "r12", "sp ", "lr ", "pc "
             };
 
-            exceptionPrintString("  ");
-            exceptionPrintString(registerNames[i]);
-            exceptionPrintString(": ");
-            exceptionPrintU32(ex->reg[i]);
-            exceptionPrintString("   ");
-            exceptionPrintString(registerNames[i + 8]);
-            exceptionPrintString(": ");
-            exceptionPrintU32(ex->reg[i + 8]);
-            exceptionPrintString("\n");
+            consolePrintString("  ");
+            consolePrintString(registerNames[i]);
+            consolePrintString(": ");
+            consolePrintUnsigned(ex->reg[i], 16);
+            consolePrintString("   ");
+            consolePrintString(registerNames[i + 8]);
+            consolePrintString(": ");
+            consolePrintUnsigned(ex->reg[i + 8], 16);
+            consolePrintString("\n");
         }
 
         // Stack dump
@@ -146,11 +121,11 @@ void exceptionStatePrint(ExceptionState *ex, const char *title)
         {
             consoleSetCursor(NULL, 2, i + 14);
 
-            exceptionPrintU32(ex->reg[13] + i * 2);
-            exceptionPrintString(":  ");
-            exceptionPrintU32(ex->stack[i * 2]);
-            exceptionPrintString(" ");
-            exceptionPrintU32(ex->stack[(i * 2) + 1]);
+            consolePrintUnsigned(ex->reg[13] + i * 2, 16);
+            consolePrintString(":  ");
+            consolePrintUnsigned(ex->stack[i * 2], 16);
+            consolePrintString(" ");
+            consolePrintUnsigned(ex->stack[(i * 2) + 1], 16);
         }
     }
 }
@@ -312,7 +287,7 @@ static void releaseCrashHandler(void)
             msg = "Unknown error";
     }
 
-    exceptionPrintString(msg);
+    consolePrintString(msg);
 
     while (1)
         ;

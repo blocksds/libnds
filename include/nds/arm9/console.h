@@ -575,6 +575,21 @@ void consoleClear(void);
 ///     The character to print.
 void consolePrintChar(char c);
 
+/// Prints a zero-terminated string to the default console.
+///
+/// @param str
+///     The string to print.
+void consolePrintString(const char *str);
+
+/// Prints an unsigned integer to the default console.
+///
+/// @param val
+///     The value to print.
+/// @param base
+///     If 10, the value is printed as a non-padded decimal number. If 16, the
+///     value is printed as a zero-padded hexadecimal number (8 characters).
+void consolePrintUnsigned(uint32_t val, int base);
+
 /// Initializes the debug console output on stderr to the specified device.
 ///
 /// @param device

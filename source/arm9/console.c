@@ -961,6 +961,59 @@ void consolePrintChar(char c)
     }
 }
 
+void consolePrintString(const char *str)
+{
+    while (1)
+    {
+        char c = *str++;
+        if (c == '\0')
+            break;
+
+        consolePrintChar(c);
+    }
+}
+
+void consolePrintUnsigned(uint32_t val, int base)
+{
+    if (base == 16)
+    {
+        for (int i = 28; i >= 0; i -= 4)
+        {
+            unsigned int c = (val >> i) & 0xF;
+
+            if (c < 10)
+                consolePrintChar(c - 0 + '0');
+            else
+                consolePrintChar(c - 10 + 'A');
+        }
+    }
+    else if (base == 10)
+    {
+        char buf[12]; // Enough for UINT_MAX
+        int i = 0;
+
+        buf[0] = '0';
+
+        while (1)
+        {
+            unsigned int digit = val % 10;
+            val = val / 10;
+            buf[i] = digit;
+
+            if (val == 0)
+                break;
+
+            i++;
+        }
+
+        while (i >= 0)
+        {
+            consolePrintChar(buf[i] + '0');
+            i--;
+        }
+    }
+}
+
 void consoleClear(void)
 {
     consoleCls(2);
