@@ -58,6 +58,21 @@ static void tmio2Isr(void) // WiFi SDIO.
 
 void TMIO_init(void)
 {
+    // If we have access to the SCFG registers we need to enable a few things,
+    // just in case. This is required because some loaders and emulators don't
+    // set the SCFG bits correctly.
+    if (REG_SCFG_EXT & SCFG_EXT_SCFG_MBK_REG)
+    {
+        // TODO: What about SCFG_EXT_I2C?
+        REG_SCFG_EXT |= SCFG_EXT_SDMMC | SCFG_EXT_INTERRUPT | SCFG_EXT_AES | SCFG_EXT_DMA;
+    }
+    else
+    {
+        // We may have access to what we need, but we don't have access to
+        // REG_SCFG_EXT to check it, so we need to keep going. If we don't have
+        // access to the hardware, the code will fail later.
+    }
+
     // Save initial state so that no callback is called when IRQs are enabled.
     g_sd_inserted = TMIO_cardDetected();
 
