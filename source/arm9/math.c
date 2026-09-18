@@ -191,11 +191,8 @@ static inline uint32_t iabs(int32_t x)
 
 ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
 {
-    const uint16_t angle[ITERS] =
+    static const uint16_t angle[ITERS - 1] =
     {
-        // The first angle is unused
-        4095, // round(atan(pow(2, -5)) * (1 << 17)),
-
         60771, // round(atan(pow(2, -1)) * (1 << 17)),
         32110, // round(atan(pow(2, -2)) * (1 << 17)),
         16299, // round(atan(pow(2, -3)) * (1 << 17)),
@@ -234,7 +231,7 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
     // `tan(x)= x + (x^3 / 3) + O(x^5)` and `atan(x) = x - (x^3 / 3) + O(x^5)`
     if (!(y < (x >> (ITERS-1))))
     {
-        #pragma GCC unroll 7
+        #pragma GCC unroll 5
         for (int i = 1; i<ITERS; i++)
         {
             int32_t y_next = y - (x >> i);
@@ -242,7 +239,7 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
             {
                 x = x + (y >> i);
                 y = y_next;
-                phi += (int32_t)angle[i];
+                phi += (int32_t)angle[i - 1];
             }
         }
     }
@@ -259,13 +256,10 @@ ARM_CODE int32_t atan2_f32(int32_t y0, int32_t x0)
         phi = (pi >> 1) - phi;
 
     // If we're in a different quadrant we need to map to the correct range
+    if (x0 < 0)
+        phi = pi - phi;
     if (y0 < 0)
         phi = -phi;
-
-    if (x0 < 0 && y0 >= 0)
-       phi =  pi - phi;
-    else if (x0 < 0 && y0 < 0)
-       phi = -pi - phi;
 
     phi = (phi + (1 << 3)) >> 4; // round to nearest 4.12, ties to ceil
     return phi;
