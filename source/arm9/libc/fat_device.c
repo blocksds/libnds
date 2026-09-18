@@ -677,7 +677,7 @@ long fat_telldir(DIR *dirp)
 
 int fat_utimes(const char *filename, const struct timeval times[2])
 {
-    FILINFO fno;
+    FILINFO fno = { 0 };
 
     struct tm *modtime = localtime(&times[1].tv_sec);
     uint32_t modstamp = fatfs_timestamp_to_fattime(modtime);
@@ -696,7 +696,7 @@ int fat_utimes(const char *filename, const struct timeval times[2])
 int fat_utime(const char *filename, const struct utimbuf *times)
 {
     // Forward to fat_utimes().
-    struct timeval otimes[2];
+    struct timeval otimes[2] = { 0 };
     otimes[1].tv_sec = times->modtime;
     return fat_utimes(filename, otimes);
 }
