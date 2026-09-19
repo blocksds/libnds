@@ -73,7 +73,7 @@ int fatfs_error_to_posix(FRESULT error)
     return codes[error];
 }
 
-time_t fatfs_fattime_to_timestamp(uint16_t ftime, uint16_t fdate)
+time_t fatfs_fattime_to_timestamp(uint16_t fdate, uint16_t ftime)
 {
     struct tm timeinfo = { 0 };
     timeinfo.tm_year   = ((fdate >> 9) + 1980) - 1900;
