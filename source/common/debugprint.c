@@ -83,3 +83,13 @@ int nocash_putc_buffered(char c, FILE *file)
 }
 
 #endif
+
+bool is_nocashgba(void)
+{
+    const char *id_str = "no$gba";
+
+    if (strncmp(id_str, (const char *)REG_NOCASH_EMULATOR_ID, strlen(id_str)) == 0)
+        return true;
+
+    return false;
+}

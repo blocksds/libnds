@@ -8,6 +8,8 @@
 #include <nds/system.h>
 #include <nds/device_list.h>
 
+#include "common/libnds_internal.h"
+
 #define DEVICE_LIST_APPNAME_LEN (sizeof(((DeviceList *)0)->appname))
 
 static
@@ -42,6 +44,11 @@ static LIBNDS_NOINLINE
 void TWL_FUNC(check_device_list_internal)(void)
 {
     if (__system_argv->argvMagic == ARGV_MAGIC)
+        return;
+
+    // no$gba provides a valid device list, but it points to a location in NAND,
+    // which is a problem because NAND doesn't work with the driver in libnds.
+    if (is_nocashgba())
         return;
 
     DeviceList *deviceList = __DSiDeviceList();

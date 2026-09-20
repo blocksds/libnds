@@ -5,7 +5,10 @@
 
 #include <stdalign.h>
 #include <string.h>
+
 #include <nds.h>
+
+#include "common/libnds_internal.h"
 
 // Note on INIT_CLOCK:
 // 400 kHz is allowed by the specs. 523 kHz has been proven to work reliably
@@ -60,6 +63,8 @@ typedef struct
 } SdmmcDev;
 
 static SdmmcDev g_devs[2] = {0};
+
+static bool sdmmc_allow_single_block_reads;
 
 static u32 sendAppCmd(TmioPort *const port, const u16 cmd, const u32 arg, const u32 rca)
 {
@@ -442,6 +447,12 @@ u32 SDMMC_init(const u8 devNum)
     if (res != SDMMC_ERR_NONE)
         return res;
 
+    // TODO: Workaround for no$gba: it doesn't support single block reads
+    if (is_nocashgba())
+        sdmmc_allow_single_block_reads = false;
+    else
+        sdmmc_allow_single_block_reads = true;
+
     // Only set dev type on successful init.
     dev->type = devType;
 
@@ -729,7 +740,13 @@ u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16
 
     // Read a single 512 bytes block. Same CMD for (e)MMC/SD.
     // Read multiple 512 bytes blocks. Same CMD for (e)MMC/SD.
-    const u16 readCmd = (count == 1 ? MMC_READ_SINGLE_BLOCK : MMC_READ_MULTIPLE_BLOCK);
+    u16 readCmd;
+
+    if (sdmmc_allow_single_block_reads)
+        readCmd = (count == 1 ? MMC_READ_SINGLE_BLOCK : MMC_READ_MULTIPLE_BLOCK);
+    else
+        readCmd = MMC_READ_MULTIPLE_BLOCK;
+
     if (devType == DEV_TYPE_MMC || devType == DEV_TYPE_SDSC)
         sect *= 512; // Byte addressing.
 

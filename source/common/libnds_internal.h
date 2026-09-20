@@ -114,4 +114,6 @@ void __libnds_exit(int rc);
 int nocash_putc_buffered(char c, FILE *file);
 ssize_t nocash_write(const char *ptr, size_t len);
 
+bool is_nocashgba(void);
+
 #endif // COMMON_LIBNDS_INTERNAL_H__
