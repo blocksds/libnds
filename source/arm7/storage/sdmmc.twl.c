@@ -64,8 +64,6 @@ typedef struct
 
 static SdmmcDev g_devs[2] = {0};
 
-static bool sdmmc_allow_single_block_reads;
-
 static u32 sendAppCmd(TmioPort *const port, const u16 cmd, const u32 arg, const u32 rca)
 {
     // Send app CMD. Same CMD for (e)MMC/SD.
@@ -452,12 +450,6 @@ u32 SDMMC_init(const u8 devNum)
     if (res != SDMMC_ERR_NONE)
         return res;
 
-    // TODO: Workaround for no$gba: it doesn't support single block reads
-    if (is_nocashgba())
-        sdmmc_allow_single_block_reads = false;
-    else
-        sdmmc_allow_single_block_reads = true;
-
     // Only set dev type on successful init.
     dev->type = devType;
 
@@ -747,7 +739,8 @@ u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16
     // Read multiple 512 bytes blocks. Same CMD for (e)MMC/SD.
     u16 readCmd;
 
-    if (sdmmc_allow_single_block_reads)
+    // TODO: Workaround for no$gba: it doesn't support single block reads
+    if (!is_nocashgba())
         readCmd = (count == 1 ? MMC_READ_SINGLE_BLOCK : MMC_READ_MULTIPLE_BLOCK);
     else
         readCmd = MMC_READ_MULTIPLE_BLOCK;
@@ -762,7 +755,7 @@ u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16
         // in data state and we need to send STOP_TRANSMISSION to bring it
         // back to tran state.
         // Otherwise for single-block reads just update the status.
-        updateStatus(dev, count > 1);
+        updateStatus(dev, count > 1 || is_nocashgba());
 
         return SDMMC_ERR_SECT_RW;
     }
