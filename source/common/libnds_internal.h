@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <nds/debug.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
@@ -114,6 +115,11 @@ void __libnds_exit(int rc);
 int nocash_putc_buffered(char c, FILE *file);
 ssize_t nocash_write(const char *ptr, size_t len);
 
-bool is_nocashgba(void);
+
+static inline bool is_nocashgba(void)
+{
+    u32 identifier = 0x67246F6E; // no$g
+    return *(vu32*)REG_NOCASH_EMULATOR_ID == identifier;
+}
 
 #endif // COMMON_LIBNDS_INTERNAL_H__
