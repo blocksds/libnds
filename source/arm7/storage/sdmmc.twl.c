@@ -64,8 +64,6 @@ typedef struct
 
 static SdmmcDev g_devs[2] = {0};
 
-static bool sdmmc_allow_single_block_reads;
-
 static u32 sendAppCmd(TmioPort *const port, const u16 cmd, const u32 arg, const u32 rca)
 {
     // Send app CMD. Same CMD for (e)MMC/SD.
@@ -97,6 +95,11 @@ static u32 goIdleState(TmioPort *const port)
 
 static u32 initIdleState(TmioPort *const port, u8 *const devTypeOut)
 {
+    // no$gba will reply to the SD_SEND_IF_COND and SD_OP_COND_ARG commands even
+    // for the internal nand, which goes against the (e)MMC specs and thus makes the
+    // driver misidentify it as being an SD card, thus sending the wrong commands
+    bool is_nand_on_nocashgba = (port->portNum == SDMMC_DEV_eMMC && is_nocashgba());
+
     // Tell the card what interfaces and voltages we support.
     // Only SD v2 and up will respond. (e)MMC won't respond.
     u32 res = TMIO_sendCommand(port, SD_SEND_IF_COND, SD_IF_COND_ARG);
@@ -108,7 +111,7 @@ static u32 initIdleState(TmioPort *const port, u8 *const devTypeOut)
         // Since we don't support anything but the
         // standard SD interface at 3.3V we can check
         // the whole response at once.
-        if (port->resp[0] != SD_IF_COND_ARG)
+        if (!is_nand_on_nocashgba && port->resp[0] != SD_IF_COND_ARG)
             return SDMMC_ERR_IF_COND_RESP;
     }
     else if (res != SD_STATUS_ERR_CMD_TIMEOUT) // Card responded but an error occured.
@@ -119,7 +122,7 @@ static u32 initIdleState(TmioPort *const port, u8 *const devTypeOut)
     const u32 opCondArg = SD_OP_COND_ARG | (res << 8 ^ SD_ACMD41_HCS); // Caution! Controller specific hack.
     u8 devType = DEV_TYPE_SDSC;
     res = sendAppCmd(port, SD_APP_SD_SEND_OP_COND, opCondArg, 0);
-    if (res == SD_STATUS_ERR_CMD_TIMEOUT)
+    if (res == SD_STATUS_ERR_CMD_TIMEOUT || is_nand_on_nocashgba)
         devType = DEV_TYPE_MMC; // Continue with (e)MMC init.
     else if (res != 0)
         return SDMMC_ERR_SEND_OP_COND; // Unknown error.
@@ -447,12 +450,6 @@ u32 SDMMC_init(const u8 devNum)
     if (res != SDMMC_ERR_NONE)
         return res;
 
-    // TODO: Workaround for no$gba: it doesn't support single block reads
-    if (is_nocashgba())
-        sdmmc_allow_single_block_reads = false;
-    else
-        sdmmc_allow_single_block_reads = true;
-
     // Only set dev type on successful init.
     dev->type = devType;
 
@@ -742,7 +739,8 @@ u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16
     // Read multiple 512 bytes blocks. Same CMD for (e)MMC/SD.
     u16 readCmd;
 
-    if (sdmmc_allow_single_block_reads)
+    // TODO: Workaround for no$gba: it doesn't support single block reads
+    if (!is_nocashgba())
         readCmd = (count == 1 ? MMC_READ_SINGLE_BLOCK : MMC_READ_MULTIPLE_BLOCK);
     else
         readCmd = MMC_READ_MULTIPLE_BLOCK;
@@ -757,7 +755,7 @@ u32 SDMMC_readSectorsCrypt(const u8 devNum, u32 sect, void *const buf, const u16
         // in data state and we need to send STOP_TRANSMISSION to bring it
         // back to tran state.
         // Otherwise for single-block reads just update the status.
-        updateStatus(dev, count > 1);
+        updateStatus(dev, count > 1 || is_nocashgba());
 
         return SDMMC_ERR_SECT_RW;
     }
