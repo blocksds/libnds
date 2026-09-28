@@ -69,7 +69,7 @@ typedef struct
     u8 _0x10a[2];
     vu32 sd_fifo32;           // 0x10C Note: This is in the FIFO region on ARM11 (3DS).
 } Tmio;
-#if __STDC_VERSION__ >= 201112L // C11
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // C11
 static_assert(offsetof(Tmio, sd_fifo32) == 0x10C,
               "Error: Member sd_fifo32 of Tmio is not at offset 0x10C!");
 #endif

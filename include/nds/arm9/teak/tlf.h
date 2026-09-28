@@ -79,7 +79,7 @@ typedef struct
     uint32_t data_offset;   ///< Offset of the file to the data of the section
 } tlf_section_header;
 
-#if __STDC_VERSION__ >= 201112L // C11
+#if define(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // C11
 static_assert(sizeof(tlf_section_header) == 12);
 #endif
 
@@ -101,7 +101,7 @@ typedef struct
 /// Magic value of the TLF header file. Same as 'TLF0'
 #define TLF_MAGIC 0x30464C54
 
-#if __STDC_VERSION__ >= 201112L // C11
+#if define(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // C11
 static_assert(sizeof(tlf_header) == 8);
 #endif
 
