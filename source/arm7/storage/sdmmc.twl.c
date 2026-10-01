@@ -787,7 +787,14 @@ u32 SDMMC_writeSectorsCrypt(const u8 devNum, u32 sect, const void *const buf, co
 
     // Write a single 512 bytes block. Same CMD for (e)MMC/SD.
     // Write multiple 512 bytes blocks. Same CMD for (e)MMC/SD.
-    const u16 writeCmd = (count == 1 ? MMC_WRITE_BLOCK : MMC_WRITE_MULTIPLE_BLOCK);
+    u16 writeCmd;
+
+    // TODO: Workaround for no$gba: it doesn't support single block reads
+    if (!is_nocashgba())
+        writeCmd = (count == 1 ? MMC_WRITE_BLOCK : MMC_WRITE_MULTIPLE_BLOCK);
+    else
+        writeCmd = MMC_WRITE_MULTIPLE_BLOCK;
+
     if (devType == DEV_TYPE_MMC || devType == DEV_TYPE_SDSC)
         sect *= 512; // Byte addressing.
 
@@ -798,7 +805,7 @@ u32 SDMMC_writeSectorsCrypt(const u8 devNum, u32 sect, const void *const buf, co
         // in data state and we need to send STOP_TRANSMISSION to bring it
         // back to tran state.
         // Otherwise for single-block writes just update the status.
-        updateStatus(dev, count > 1);
+        updateStatus(dev, count > 1 || is_nocashgba());
 
         return SDMMC_ERR_SECT_RW;
     }
