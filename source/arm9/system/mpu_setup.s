@@ -91,12 +91,34 @@
     .arm
 
 // This macro sets the zero flag to 1 when running on a DSi; otherwise 0.
-.macro IS_DSI reg
-    // If the lowest two bits of SCFG_A9ROM are 0b01, this is a DSi.
+.macro DETECT_DSI reg1, reg2
+    // Read SCFG_A9ROM and SCFG_EXT9
+    ldr     \reg1, =#0x4004000
+    ldr     \reg2, [\reg1, #8]
+    ldr     \reg1, [\reg1]
 
-    ldr     \reg, =0x04004000 // SCFG_A9ROM
+    // Shift bit 31 of SCFG_EXT9 to bit 0. If this bit is 0, that means that
+    // SCFG_A9ROM is also 0, thus \reg1 will end up being 0 (no TWL features).
+    // If this bit is 1, that means that SCFG_A9ROM can be 0-3, but with the OR
+    // it will either be 1 (TWL features) or 3 (no TWL features).
+    //
+    // This check is used because the application might be running in a context
+    // where the upper DSi BIOS isn't locked, making SCFG_A9ROM return 0, but it
+    // is a different case than it returning 0 due to the console being a DS, or
+    // a DSi with locked SCFG.
+
+    lsr     \reg2, \reg2, #31
+    orr     \reg1, \reg1, \reg2
+
+    cmp     \reg1, #0x1
+.endm
+
+// This macro sets the zero flag to 1 when running on a DSi; otherwise 0.
+// It uses the already set up __dsimode global variable
+.macro IS_DSI reg
+    ldr     \reg, =__dsimode
     ldrb    \reg, [\reg]
-    and     \reg, \reg, #0x3
+
     cmp     \reg, #0x1
 .endm
 
@@ -136,9 +158,9 @@
     ldrbeq  \reg2, [\reg1]
     cmpeq   \reg2, #0xAA
 
-    // If the zero flag is set the memory is definitely present (= debugger DSi)
+    // If the zero flag is set, the memory is definitely present (= debugger DSi)
 
-    // If the zero flag is not set this is a retail DSi, reduce the amount of
+    // If the zero flag is not set, this is a retail DSi, reduce the amount of
     // RAM to 16 MB.
 
     ldrne   \reg1, =0x4004008 // SCFG_EXT9
@@ -150,6 +172,7 @@
 // Returns:
 // r7: 1 if the device is a debugger unit, 0 if it is a retail unit.
 // r8: End address of the cached RAM for this DS model (mapped at 0x02000000)
+// r11: 1 if the device is running in DSi mde, 0 if it is running in DS mode.
 BEGIN_ASM_FUNC __libnds_mpu_setup
 
     // Disable TCM and protection unit
@@ -202,7 +225,9 @@ BEGIN_ASM_FUNC __libnds_mpu_setup
     mcr     CP15_REG6_PROTECTION_REGION(r0, REGION_ITCM)
 
     // When running on a DSi, load DSi code/data sections
-    IS_DSI  r0
+    DETECT_DSI  r0, r1
+    moveq   r11, #0x1
+    movne   r11, #0x0
     beq     dsi_mode
 
     // DS mode: The debugger model is detected using swiIsDebugger()
