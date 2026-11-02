@@ -139,7 +139,16 @@ VoidFunction deviceIoGetFunctionFromIndex(int index, size_t offset)
         return NULL;
     }
 
-    uintptr_t ptr_location = offset + (uintptr_t)devices[index];
+    // Make sure that the device has been registered
+    const device_io_t *dev = devices[index];
+    if (dev == NULL)
+    {
+        errno = ENODEV;
+        return NULL;
+    }
+
+    // Read the function pointer
+    uintptr_t ptr_location = offset + (uintptr_t)dev;
     uintptr_t fn_pointer = *(const uintptr_t *)ptr_location;
 
     VoidFunction ptr = (VoidFunction)fn_pointer;
