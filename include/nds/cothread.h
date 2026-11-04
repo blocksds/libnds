@@ -181,6 +181,15 @@ void cothread_yield_irq_aux(uint32_t mask);
 ///     A user-defined number.
 void cothread_yield_signal(uint32_t signal_id);
 
+/// Tells the scheduler to switch to a different thread until the specified IRQ
+/// or the specified event have happened.
+///
+/// @param mask
+///     Mask of IRQ flags to wait for (IRQ_VBLANK, IRQ_VCOUNT, IRQ_ALL, etc).
+/// @param signal_id
+///     A user-defined number (zero isn't a valid ID).
+void cothread_yield_irq_or_signal(uint32_t mask, uint32_t signal_id);
+
 /// Awake threads waiting for the provided signal ID.
 ///
 /// All threads waiting for this signal ID will wake up.

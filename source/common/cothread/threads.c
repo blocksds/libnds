@@ -487,6 +487,31 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
+void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
+{
+    // We can't yield from inside an interrupt handler
+    if (irq_nesting_level > 0)
+        return;
+
+    // An ID of zero is treated as "not used"
+    if (signal_id == 0)
+        return;
+
+    cothread_info_t *ctx = cothread_active_thread;
+
+    int oldIME = enterCriticalSection();
+
+    ctx->wait_signal_id = signal_id;
+    ctx->wait_irq_mask = mask;
+    ctx->flags |= COTHREAD_WAITING;
+
+    cothread_threads_waiting_count++;
+
+    leaveCriticalSection(oldIME);
+
+    __ndsabi_coro_yield((void *)ctx, 0);
+}
+
 void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
 {
     int count = 0;
