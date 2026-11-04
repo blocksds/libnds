@@ -58,7 +58,7 @@ extern "C" {
 #define IRQ_NDMA1           BIT(29) ///< NDMA 1 interrupt mask (DSi)
 #define IRQ_NDMA2           BIT(30) ///< NDMA 2 interrupt mask (DSi)
 #define IRQ_NDMA3           BIT(31) ///< NDMA 3 interrupt mask (DSi)
-#define IRQ_ALL             (~0)    ///< Mask for all interrupts
+#define IRQ_ALL             (~0u)   ///< Mask for all interrupt
 
 typedef uint32_t IRQ_MASKS;
 typedef uint32_t IRQ_MASK;

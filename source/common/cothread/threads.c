@@ -62,21 +62,15 @@ static void (*free_fn)(void *) = NULL;
 // Thread that is currently running
 static cothread_info_t *cothread_active_thread = NULL;
 
-// This context is the start of the linked list that contains the contexts of
-// all threads. It is also used for the main() thread, which can never be freed.
-static cothread_info_t cothread_list;
+// This is the context of the main thread, which can't be freed (if the main
+// thread ends, the program ends).
+static cothread_info_t main_thread_ctx;
+
+// Linked list of threads
+cothread_info_t *ITCM_BSS_VAR(cothread_list);
+
 // TODO: When a non-detached thread ends, remove it from this list and add it to
 // a list of finished-but-not-deleted threads.
-
-// 32 list of threads waiting for interrupts for the 32 bits in the registers IE
-// and IF.
-cothread_info_t *ITCM_BSS_VAR(cothread_list_irq)[32];
-#ifdef ARM7
-cothread_info_t *cothread_list_irq_aux[32];
-#endif
-
-// List of threads waiting for signals.
-cothread_info_t *ITCM_BSS_VAR(cothread_list_signal);
 
 // Total number of threads
 uint32_t ITCM_BSS_VAR(cothread_threads_count);
@@ -139,7 +133,7 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
 
     // Find last node of the list
 
-    cothread_info_t *p = &cothread_list;
+    cothread_info_t *p = cothread_list;
 
     while (p->next != NULL)
         p = p->next;
@@ -151,84 +145,41 @@ static void cothread_list_add_ctx(cothread_info_t *ctx)
     leaveCriticalSection(oldIME);
 }
 
-static void ITCM_FUNC(cothread_list_remove_ctx_from_irq_list)(cothread_info_t *ctx)
-{
-    // Look for this thread context in all the list of interrupts and remove it
-    // from there.
-
-    for (int i = 0; i < 32; i++)
-    {
-        int oldIME = enterCriticalSection();
-
-        cothread_info_t **list = &cothread_list_irq[i];
-
-        while (*list != NULL)
-        {
-            if (*list == ctx)
-            {
-                // Remove from list
-                *list = (*list)->next_irq;
-                cothread_threads_waiting_count--;
-                leaveCriticalSection(oldIME);
-                return;
-            }
-
-            list = (cothread_info_t **)&((*list)->next_irq);
-        }
-
-#ifdef ARM7
-        list = &cothread_list_irq_aux[i];
-
-        while (*list != NULL)
-        {
-            if (*list == ctx)
-            {
-                // Remove from list
-                *list = (*list)->next_irq;
-                cothread_threads_waiting_count--;
-                leaveCriticalSection(oldIME);
-                return;
-            }
-
-            list = (cothread_info_t **)&((*list)->next_irq);
-        }
-#endif
-        leaveCriticalSection(oldIME);
-    }
-}
-
 static void ITCM_FUNC(cothread_list_remove_ctx)(cothread_info_t *ctx)
 {
-    // Remove context from lists of interrupts
-    cothread_list_remove_ctx_from_irq_list(ctx);
-
-    // Now, remove the context from the global list of threads. The first
-    // element of cothread_list is statically allocated. It is the main()
-    // thread, which can never be deleted.
+    // Look for this thread context in the list of interrupts and remove it.
 
     int oldIME = enterCriticalSection();
 
-    cothread_info_t *p = &cothread_list;
+    cothread_info_t **list = &cothread_list;
 
-    for (; p->next != NULL; p = p->next)
+    while (*list != NULL)
     {
-        if (p->next == ctx)
+        if (*list == ctx)
         {
-            // Skip the context that we have just found
-            p->next = ((cothread_info_t *)p->next)->next;
+            // Remove from list
+            *list = (*list)->next;
+
+            if (ctx->flags & COTHREAD_WAITING)
+                cothread_threads_waiting_count--;
 
             leaveCriticalSection(oldIME);
             return;
         }
+
+        list = (cothread_info_t **)&((*list)->next);
     }
 
-    // Reaching this point means that there is a bug somewhere in the code.
+    leaveCriticalSection(oldIME);
+
+    // The function is trying to remove a context that isn't found in the list,
+    // which means that there is a bug somewhere in the code.
     libndsCrash(__func__);
 }
 
 static bool cothread_list_contains_ctx(cothread_info_t *ctx)
 {
-    cothread_info_t *p = &cothread_list;
+    cothread_info_t *p = cothread_list;
 
     while (1)
     {
@@ -290,6 +241,7 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
 {
     ctx->flags = flags;
     ctx->tls = tls;
+    ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
 
     // Initialize context
     __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
@@ -450,35 +402,23 @@ void cothread_yield(void)
     __ndsabi_coro_yield((void *)ctx, 0);
 }
 
-ARM_CODE void cothread_yield_irq(uint32_t flag)
+ARM_CODE void cothread_yield_irq(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
     {
         if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, flag);
+            swiIntrWait(INTRWAIT_KEEP_FLAGS, mask);
 
         return;
     }
 
-    assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
-
     cothread_info_t *ctx = cothread_active_thread;
-
-    unsigned int index = __builtin_ctz(flag);
 
     REG_IME = 0;
 
-    if (cothread_list_irq[index] != NULL)
-    {
-        ctx->next_irq = cothread_list_irq[index];
-        cothread_list_irq[index] = ctx;
-    }
-    else
-    {
-        cothread_list_irq[index] = ctx;
-    }
-
+    ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
+    ctx->wait_irq_mask = mask;
     ctx->flags |= COTHREAD_WAITING;
 
     // It isn't needed to check if the interrupt is in the list twice. This
@@ -494,35 +434,23 @@ ARM_CODE void cothread_yield_irq(uint32_t flag)
 }
 
 #ifdef ARM7
-ARM_CODE void cothread_yield_irq_aux(uint32_t flag)
+ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
     {
         if (REG_IME == 1)
-            swiIntrWaitAUX(INTRWAIT_KEEP_FLAGS, 0, flag);
+            swiIntrWaitAUX(INTRWAIT_KEEP_FLAGS, 0, mask);
 
         return;
     }
 
-    assert(__builtin_popcount(flag) == 1); // There must be one bit set exactly
-
     cothread_info_t *ctx = cothread_active_thread;
-
-    unsigned int index = __builtin_ctz(flag);
 
     REG_IME = 0;
 
-    if (cothread_list_irq_aux[index] != NULL)
-    {
-        ctx->next_irq = cothread_list_irq_aux[index];
-        cothread_list_irq_aux[index] = ctx;
-    }
-    else
-    {
-        cothread_list_irq_aux[index] = ctx;
-    }
-
+    ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
+    ctx->wait_irq_aux_mask = mask;
     ctx->flags |= COTHREAD_WAITING;
 
     cothread_threads_waiting_count++;
@@ -540,21 +468,16 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
     if (irq_nesting_level > 0)
         return;
 
+    assert(signal_id != COTHREAD_NO_SIGNAL);
+    if (signal_id == COTHREAD_NO_SIGNAL)
+        return;
+
     cothread_info_t *ctx = cothread_active_thread;
 
     int oldIME = enterCriticalSection();
 
-    if (cothread_list_signal != NULL)
-    {
-        ctx->next_signal = cothread_list_signal;
-        cothread_list_signal = ctx;
-    }
-    else
-    {
-        cothread_list_signal = ctx;
-    }
-
     ctx->wait_signal_id = signal_id;
+    ctx->wait_irq_mask = 0;
     ctx->flags |= COTHREAD_WAITING;
 
     cothread_threads_waiting_count++;
@@ -570,43 +493,24 @@ void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
 
     int oldIME = enterCriticalSection();
 
-    cothread_info_t *ctx_prev = NULL;
-    cothread_info_t *ctx = cothread_list_signal;
+    cothread_info_t *ctx = cothread_list;
 
     while (ctx != NULL)
     {
-        // Skip threads waiting for a different signal ID
-        if (ctx->wait_signal_id != signal_id)
+        // Check if the thread is waiting
+        if (ctx->flags & COTHREAD_WAITING)
         {
-            ctx_prev = ctx;
-            ctx = ctx->next_signal;
-            continue;
+            // Check if the signal ID matches
+            if (ctx->wait_signal_id == signal_id)
+            {
+                // Remove the "waiting" flag
+                ctx->flags &= ~COTHREAD_WAITING;
+
+                count++;
+            }
         }
 
-        // If this thread is waiting for the signal ID, remove the "waiting"
-        // flag and remove it from the cothread_list_signal list.
-
-        ctx->flags &= ~COTHREAD_WAITING;
-
-        if (ctx_prev == NULL)
-        {
-            // If this is the first element in the list, make
-            // cothread_list_signal point to the new first element.
-            cothread_list_signal = ctx->next_signal;
-
-            ctx = ctx->next_signal;
-        }
-        else
-        {
-            // If this isn't the first element, make the previous element point
-            // to the next one and skip the current one.
-            ctx_prev->next_signal = ctx->next_signal;
-
-            ctx_prev = ctx;
-            ctx = ctx->next_signal;
-        }
-
-        count++;
+        ctx = ctx->next;
     }
 
     if (count > 0)
@@ -626,7 +530,7 @@ cothread_t cothread_get_current(void)
 
 ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 {
-    cothread_info_t *ctx = &cothread_list;
+    cothread_info_t *ctx = cothread_list;
 
     while (1)
     {
@@ -654,7 +558,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
                 {
                     // If this is the main() thread, exit the whole program with
                     // the exit code returned by main().
-                    if (ctx == &cothread_list)
+                    if (ctx == &main_thread_ctx)
                         return ctx->arg;
 
                     // This is a regular thread.
@@ -674,7 +578,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         if (ctx == NULL)
         {
             // The end of the list has been reached. Go back to the start
-            ctx = &cothread_list;
+            ctx = cothread_list;
 
             // Whenever we reach the end of the list, check if there are threads
             // that aren't waiting for interrupts. If all threads are waiting
@@ -764,9 +668,12 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.
-    cothread_t id = cothread_create_internal(&cothread_list,
+    cothread_t id = cothread_create_internal(&main_thread_ctx,
                                              cothread_main, NULL,
                                              main_stack_top, __tls_start, 0);
+
+    // Initialize the linked list of threads.
+    cothread_list = &main_thread_ctx;
 
     // Start scheduler after everything is ready.
     cothread_scheduler_start();

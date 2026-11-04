@@ -3,7 +3,7 @@
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
 // Copyright (C) 2024 Adrian "asie" Siekierka
-// Copyright (C) 2025 Antonio Niño Díaz
+// Copyright (C) 2025-2026 Antonio Niño Díaz
 
 #include <nds/asminc.h>
 #include <nds/cothread_asm.h>
@@ -103,9 +103,8 @@ BEGIN_ASM_FUNC IntrMain
     str     r3, [r2]
 
 #ifdef THREADS_ENABLED
-    // Get pointer to array of pointers of cothread threads waiting for IRQs.
-    ldr     r2, =cothread_list_irq
-    add     r2, r2, r0, lsl #2
+    // Save the bit of the interrupt that we are handling
+    mov     r2, r1
 #endif
 
     // Calculate address of the IRQ vector
@@ -143,9 +142,9 @@ check_aux_irqs:
     str     r3, [r2]
 
 #ifdef THREADS_ENABLED
-    // Get pointer to array of pointers of cothread threads waiting for IRQs.
-    ldr     r2, =cothread_list_irq_aux
-    add     r2, r2, r0, lsl #2
+    // Save the bit of the interrupt that we are handling
+    mov     r2, r1
+#error "We need to remember that this is an AUX flag, not regular flag."
 #endif
 
     // Calculate address of the IRQ vector
@@ -164,7 +163,7 @@ main_irq_found:
     cmp     r3, #0
     beq     clear_threads_and_exit
 
-    // r2 = Pointer to list of threads waiting for this interrupt
+    // r2 = Bit of the interrupt that we're currently handling
     // r3 = Address of user IRQ handler
 
     // If we've reached this point, we have found an interrupt handler, we have
@@ -180,7 +179,7 @@ main_irq_found:
 
     mrs     r0, spsr
 #ifdef THREADS_ENABLED
-    push    {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
+    push    {r0-r2, r12, lr}        // {spsr_irq, IME, IRQ bit, REG_BASE, lr_irq}
 #else
     push    {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
 #endif
@@ -214,7 +213,7 @@ interrupt_return:
     msr     cpsr, r0                // Return to IRQ mode with IRQs and FIQs disabled
 
 #ifdef THREADS_ENABLED
-    pop     {r0-r2, r12, lr}        // {spsr_irq, IME, thread list, REG_BASE, lr_irq}
+    pop     {r0-r2, r12, lr}        // {spsr_irq, IME, IRQ bit, REG_BASE, lr_irq}
 #else
     pop     {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
 #endif
@@ -234,29 +233,41 @@ clear_threads_and_exit:
 
 #ifdef THREADS_ENABLED
 
-    // r2 = Pointer to list of threads waiting for this interrupt
+    // r2 = Bit of the interrupt we've just handled
 
+    mov     r0, #0 // Used to clear fields inside the loop
     mov     r1, #0 // Counter of how many threads are resumed
-    mov     r12, #0 // This will be used to clear pointers
-clear_next_thread:
-    ldr     r0, [r2]
-    cmp     r0, #0
-    beq     exit // Exit if we have reached the end of the list
 
-    str     r12, [r2] // Clear this pointer
+    // Resume any threads waiting this interrupt to happen
+    ldr     r12, =cothread_list
+check_and_clear_next_thread:
+    ldr     r12, [r12]
+    cmp     r12, #0
+    beq     check_and_clear_end // Exit if we have reached the end of the list
+
+    // Check if the thread is waiting
+    ldr     r3, [r12, #COTHREAD_INFO_FLAGS_OFFSET]
+    tst     r3, #COTHREAD_WAITING
+    beq     check_and_clear_advance
+
+    // Check if the current interrupt was waiting for this interrupt
+    ldr     r3, [r12, #COTHREAD_INFO_WAIT_IRQ_MASK_OFFSET]
+    tst     r3, r2
+    beq     check_and_clear_advance
 
     // Clear the "waiting for IRQ" flag
-    ldr     r3, [r0, #COTHREAD_INFO_FLAGS_OFFSET]
+    ldr     r3, [r12, #COTHREAD_INFO_FLAGS_OFFSET]
     bic     r3, r3, #COTHREAD_WAITING
-    str     r3, [r0, #COTHREAD_INFO_FLAGS_OFFSET]
+    str     r3, [r12, #COTHREAD_INFO_FLAGS_OFFSET]
 
-    add     r2, r0, COTHREAD_INFO_NEXT_IRQ_OFFSET
-
+    // Increment the counter of threads we've resumed
     add     r1, r1, #1
 
-    b       clear_next_thread
+check_and_clear_advance:
+    add     r12, r12, COTHREAD_INFO_NEXT_OFFSET
+    b       check_and_clear_next_thread
 
-exit:
+check_and_clear_end: // We've now checked all threads
 
     // If we haven't resumed any thread, there's nothing to do
     cmp     r1, #0
