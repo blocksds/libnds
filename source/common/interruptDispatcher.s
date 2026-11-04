@@ -246,7 +246,7 @@ check_and_clear_next_thread:
     beq     check_and_clear_end // Exit if we have reached the end of the list
 
     // Check if the thread is waiting
-    ldr     r3, [r12, #COTHREAD_INFO_FLAGS_OFFSET]
+    ldrb    r3, [r12, #COTHREAD_INFO_FLAGS_WAIT_OFFSET]
     tst     r3, #COTHREAD_WAITING
     beq     check_and_clear_advance
 
@@ -256,9 +256,7 @@ check_and_clear_next_thread:
     beq     check_and_clear_advance
 
     // Clear the "waiting for IRQ" flag
-    ldr     r3, [r12, #COTHREAD_INFO_FLAGS_OFFSET]
-    bic     r3, r3, #COTHREAD_WAITING
-    str     r3, [r12, #COTHREAD_INFO_FLAGS_OFFSET]
+    strb    r0, [r12, #COTHREAD_INFO_FLAGS_WAIT_OFFSET]
 
     // Increment the counter of threads we've resumed
     add     r1, r1, #1

@@ -160,7 +160,7 @@ static void ITCM_FUNC(cothread_list_remove_ctx)(cothread_info_t *ctx)
             // Remove from list
             *list = (*list)->next;
 
-            if (ctx->flags & COTHREAD_WAITING)
+            if (ctx->flags_wait & COTHREAD_WAITING)
                 cothread_threads_waiting_count--;
 
             leaveCriticalSection(oldIME);
@@ -237,9 +237,9 @@ int cothread_delete(cothread_t thread)
 static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            int (*entrypoint)(void *), void *arg,
                                            void *stack_top, void *tls,
-                                           unsigned int flags)
+                                           uint8_t flags)
 {
-    ctx->flags = flags;
+    ctx->flags_user = flags;
     ctx->tls = tls;
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
 
@@ -253,7 +253,7 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
 
 cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
                                   void *stack_base, size_t stack_size,
-                                  unsigned int flags)
+                                  uint8_t flags)
 {
     // stack_size can be zero, like for the main() thread.
 
@@ -303,7 +303,7 @@ invalid_args:
 }
 
 cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
-                           size_t stack_size, unsigned int flags)
+                           size_t stack_size, uint8_t flags)
 {
     // Setup stack
 
@@ -352,7 +352,7 @@ int cothread_detach(cothread_t thread)
         return -1;
     }
 
-    ctx->flags |= COTHREAD_DETACHED;
+    ctx->flags_user |= COTHREAD_DETACHED;
 
     return 0;
 }
@@ -419,7 +419,7 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
 
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->wait_irq_mask = mask;
-    ctx->flags |= COTHREAD_WAITING;
+    ctx->flags_wait |= COTHREAD_WAITING;
 
     // It isn't needed to check if the interrupt is in the list twice. This
     // should never happen because a thread waiting for an interrupt should
@@ -451,7 +451,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
 
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->wait_irq_aux_mask = mask;
-    ctx->flags |= COTHREAD_WAITING;
+    ctx->flags_wait |= COTHREAD_WAITING;
 
     cothread_threads_waiting_count++;
 
@@ -478,7 +478,7 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 
     ctx->wait_signal_id = signal_id;
     ctx->wait_irq_mask = 0;
-    ctx->flags |= COTHREAD_WAITING;
+    ctx->flags_wait |= COTHREAD_WAITING;
 
     cothread_threads_waiting_count++;
 
@@ -503,7 +503,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 
     ctx->wait_signal_id = signal_id;
     ctx->wait_irq_mask = mask;
-    ctx->flags |= COTHREAD_WAITING;
+    ctx->flags_wait |= COTHREAD_WAITING;
 
     cothread_threads_waiting_count++;
 
@@ -523,13 +523,13 @@ void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
     while (ctx != NULL)
     {
         // Check if the thread is waiting
-        if (ctx->flags & COTHREAD_WAITING)
+        if (ctx->flags_wait & COTHREAD_WAITING)
         {
             // Check if the signal ID matches
             if (ctx->wait_signal_id == signal_id)
             {
                 // Remove the "waiting" flag
-                ctx->flags &= ~COTHREAD_WAITING;
+                ctx->flags_wait &= ~COTHREAD_WAITING;
 
                 count++;
             }
@@ -569,7 +569,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         {
             // If this thread is waiting for an event (like an interrupt) to
             // happen, skip it.
-            if ((ctx->flags & COTHREAD_WAITING) == 0)
+            if ((ctx->flags_wait & COTHREAD_WAITING) == 0)
             {
                 // Set this thread as the active one and resume it.
                 cothread_active_thread = ctx;
@@ -590,7 +590,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
                     // If it is detached, delete it. If not, save the exit code
                     // so that the user can check it later.
-                    if (ctx->flags & COTHREAD_DETACHED)
+                    if (ctx->flags_user & COTHREAD_DETACHED)
                         cothread_delete_internal(ctx);
                     else
                         ctx->arg = ret;

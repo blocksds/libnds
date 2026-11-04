@@ -17,12 +17,14 @@
 /// cothread_has_joined() or cothread_get_exit_code() isn't allowed.
 #define COTHREAD_DETACHED   (1 << 0)
 
-/// Flags a thread as waiting for an event (like an interrupt)
-#define COTHREAD_WAITING    (1 << 1)
+// Internal: Marks a thread as waiting for an event (like an interrupt)
+#define COTHREAD_WAITING    (1 << 0)
+// Note: Currently, the whole 'flags_wait' field is cleared by the IRQ handler.
+// If more flags are added to it, that code needs to be modified too.
 
 // Offsets to fields inside the cothread_info_t struct
 #define COTHREAD_INFO_NEXT_OFFSET               16
-#define COTHREAD_INFO_FLAGS_OFFSET              20
+#define COTHREAD_INFO_FLAGS_WAIT_OFFSET         21
 #define COTHREAD_INFO_WAIT_IRQ_MASK_OFFSET      28
 
 #endif // LIBNDS_NDS_COTRHEAD_ASM_H__

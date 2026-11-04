@@ -66,7 +66,7 @@ static inline uint32_t cosema_to_signal_id(cosema_t *sema)
 ///     On success, it returns a non-negative value representing the thread ID.
 ///     On failure, it returns -1 and sets errno.
 cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
-                           size_t stack_size, unsigned int flags);
+                           size_t stack_size, uint8_t flags);
 
 /// Create a thread.
 ///
@@ -91,7 +91,7 @@ cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
 ///     On failure, it returns -1 and sets errno.
 cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
-                                  unsigned int flags);
+                                  uint8_t flags);
 
 /// Detach the specified thread.
 ///
@@ -337,9 +337,14 @@ typedef struct
     void *stack_base; // If not NULL, it has to be freed by the scheduler
     void *tls;
 
-    void *next; // Next thread in the global list of threads
+    // Next thread in the global list of threads
+    void *next;
 
-    uint32_t flags; // COTHREAD_DETACHED, COTHREAD_WAITING, etc
+    // Flags are split into different fields to make it easier for the ASM code
+    // to clear some flags without affecting others.
+    uint8_t flags_user; // User-visible flags like COTHREAD_DETACHED
+    uint8_t flags_wait; // Waiting-related flags like COTHREAD_WAITING
+    uint8_t unused[2]; // For alignment
 
     uint32_t wait_signal_id; // Signal ID the thread is waiting for (0 = no signal)
     uint32_t wait_irq_mask; // Mask of IRQ bits the thread is waiting for
@@ -349,7 +354,7 @@ typedef struct
 } cothread_info_t;
 
 static_assert(offsetof(cothread_info_t, next) == COTHREAD_INFO_NEXT_OFFSET);
-static_assert(offsetof(cothread_info_t, flags) == COTHREAD_INFO_FLAGS_OFFSET);
+static_assert(offsetof(cothread_info_t, flags_wait) == COTHREAD_INFO_FLAGS_WAIT_OFFSET);
 static_assert(offsetof(cothread_info_t, wait_irq_mask) == COTHREAD_INFO_WAIT_IRQ_MASK_OFFSET);
 
 #ifdef __cplusplus
