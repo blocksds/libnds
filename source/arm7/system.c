@@ -22,6 +22,7 @@
 
 bool sleepIsEnabled = true;
 bool __dsimode = false; // Set in crt0
+bool __debugger_unit = false; // Set in crt0
 
 void twlEnableSlot1(void);
 void twlDisableSlot1(void);
