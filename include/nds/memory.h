@@ -117,6 +117,30 @@ extern "C" {
 /// 8 bit pointer to GBA slot Save RAM.
 #define SRAM        ((u8 *)0x0A000000)
 
+#ifdef ARM9
+
+// DTCM and ITCM can be moved. Normally they are fixed to a specific address,
+// so we could just hardcode the addresses in the defines, but that makes the
+// code less maintainable, so it's better to get the symbols from the linker.
+extern char __dtcm_start[];
+extern char __itcm_start[];
+
+/// Base address of DTCM
+#define DTCM_START      ((uintptr_t)__dtcm_start)
+/// Size of DTCM
+#define DTCM_SIZE       (16 * 1024)
+/// Address right after DTCM
+#define DTCM_END        (DTCM_START + DTCM_SIZE)
+
+/// Base address of ITCM
+#define ITCM_START      ((uintptr_t)__itcm_start)
+/// Size of ITCM
+#define ITCM_SIZE       (32 * 1024)
+/// Address right after ITCM
+#define ITCM_END        (ITCM_START + ITCM_SIZE)
+
+#endif // ARM9
+
 #ifdef ARM7
 
 /// 16 bit pointer to VRAM from ARM7

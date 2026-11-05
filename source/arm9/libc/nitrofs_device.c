@@ -43,11 +43,6 @@ bool nitrofs_use_for_path(const char *path)
         return (current_drive_index == FD_TYPE_NITRO);
 }
 
-// Symbol defined by the linker
-extern char __dtcm_start[];
-const uintptr_t DTCM_START = (uintptr_t)__dtcm_start;
-const uintptr_t DTCM_END   = DTCM_START + (16 * 1024) - 1;
-
 // Read from NitroFS when it is being read from a file
 static ssize_t nitrofs_read_internal_file(void *ptr, size_t offset, size_t len)
 {

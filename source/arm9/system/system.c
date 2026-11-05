@@ -160,14 +160,12 @@ void disableSlot1(void)
 
 bool memBufferIsInMainRam(const void *buffer, size_t size)
 {
-    extern uint8_t __dtcm_start;
-
     uintptr_t base = (uintptr_t)buffer;
 
     if (base < 0x02000000)
         return false;
 
-    if ((base + size) > (uintptr_t)&__dtcm_start)
+    if ((base + size) > DTCM_START)
         return false;
 
     return true;

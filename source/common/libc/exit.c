@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <nds/exceptions.h>
 #include <nds/fifocommon.h>
+#include <nds/memory.h>
 #include <nds/system.h>
 
 #ifdef ARM9
@@ -50,10 +51,7 @@ ARM_CODE void _exit(int rc)
     struct __bootstub *bootcode = __transferRegion()->bootcode;
 
 #ifdef ARM9
-    extern uint8_t __dtcm_start[];
-
-    if (((uintptr_t) bootcode) >= ((uintptr_t) __dtcm_start) &&
-        ((uintptr_t) bootcode) < (((uintptr_t) __dtcm_start) + 0x4000))
+    if ((((uintptr_t)bootcode) >= DTCM_START) && (((uintptr_t)bootcode) < DTCM_END))
     {
         // The bootstub area may be obscured by DTCM. Reveal it.
         //
