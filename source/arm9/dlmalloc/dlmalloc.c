@@ -157,7 +157,7 @@ static void *libnds_multi_heap_sbrk(bool is_global, size_t size)
 
 // ITCM
 
-void *ictm_malloc(size_t size)
+void *itcm_malloc(size_t size)
 {
     itcm_dlmalloc_init();
 
@@ -212,7 +212,7 @@ void itcm_free(void *ptr)
 
 // DTCM
 
-void *dctm_malloc(size_t size)
+void *dtcm_malloc(size_t size)
 {
     dtcm_dlmalloc_init();
 
