@@ -328,13 +328,14 @@ static inline void cosema_wait(cosema_t *sema)
 // to make it possible to write tests for cothread. It extends __ndsabi_coro_t.
 typedef struct
 {
-    // Present in __ndsabi_coro_t
+    // Start of __ndsabi_coro_t
     uint32_t arm_sp : 31;
     uint32_t joined : 1;
     uint32_t arg;
+    // End of __ndsabi_coro_t
 
-    // Specific to cothread
-    void *stack_base; // If not NULL, it has to be freed by the scheduler
+    void *stack_base;
+    void *stack_top;
     void *tls;
 
     // Next thread in the global list of threads
@@ -342,9 +343,10 @@ typedef struct
 
     // Flags are split into different fields to make it easier for the ASM code
     // to clear some flags without affecting others.
-    uint8_t flags_user; // User-visible flags like COTHREAD_DETACHED
-    uint8_t flags_wait; // Waiting-related flags like COTHREAD_WAITING
-    uint8_t unused[2]; // For alignment
+    uint8_t flags_user;      // User-visible flags like COTHREAD_DETACHED
+    uint8_t flags_wait;      // Waiting-related flags like COTHREAD_WAITING
+    uint8_t flags_resources; // COTHREAD_ALLOCATED_CONTEXT/STACK/...
+    uint8_t unused;          // Unused padding...
 
     uint32_t wait_signal_id; // Signal ID the thread is waiting for (0 = no signal)
     uint32_t wait_irq_mask; // Mask of IRQ bits the thread is waiting for

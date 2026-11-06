@@ -201,12 +201,13 @@ static void cothread_delete_internal(cothread_info_t *ctx)
 
     cothread_list_remove_ctx(ctx);
 
-    if (ctx->stack_base)
+    if (ctx->flags_resources & COTHREAD_ALLOCATED_STACK)
         free_fn(ctx->stack_base);
 
     free(ctx->tls);
 
-    free_fn(ctx);
+    if (ctx->flags_resources & COTHREAD_ALLOCATED_CONTEXT)
+        free_fn(ctx);
 
     cothread_threads_count--;
 
@@ -239,6 +240,7 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            void *stack_top, void *tls,
                                            uint8_t flags)
 {
+    ctx->stack_top = stack_top;
     ctx->flags_user = flags;
     ctx->tls = tls;
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
@@ -272,6 +274,9 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         errno = ENOMEM;
         return -1;
     }
+    ctx->flags_resources |= COTHREAD_ALLOCATED_CONTEXT;
+
+    // Create a new thread-local storage
 
     size_t __tls_size = (uintptr_t)__tls_end - (uintptr_t)__tls_start;
 
@@ -294,6 +299,8 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     cothread_list_add_ctx(ctx);
 
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
+
+    ctx->stack_base = stack_base;
 
     return cothread_create_internal(ctx, entrypoint, arg, stack_top, tls, flags);
 
@@ -335,9 +342,8 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
     }
 
     // Set this stack pointer as owned by cothread
-
     cothread_info_t *ctx = (cothread_info_t *)id;
-    ctx->stack_base = stack_base;
+    ctx->flags_resources |= COTHREAD_ALLOCATED_STACK;
 
     return id;
 }
