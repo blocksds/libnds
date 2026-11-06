@@ -40,6 +40,7 @@
 /// - @ref nds/dma.h "Direct Memory Access"
 /// - @ref nds/ndma.h "DSi New Direct Memory Access"
 /// - @ref nds/nwram.h "DSi New WRAM"
+/// - @ref nds/arm9/tcm_alloc.h "ARM9 DTCM and ITCM dynamic memory allocators"
 ///
 /// @section filesystem_api Storage Access
 /// - @ref nds/card.h "Slot-1 common access functions"
@@ -186,6 +187,7 @@ extern "C" {
 #    include <nds/arm9/sdmmc.h>
 #    include <nds/arm9/sound.h>
 #    include <nds/arm9/sprite.h>
+#    include <nds/arm9/tcm_alloc.h>
 #    include <nds/arm9/trig_lut.h>
 #    include <nds/arm9/video.h>
 #    include <nds/arm9/videoGL.h>
