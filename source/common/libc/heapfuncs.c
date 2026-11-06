@@ -27,6 +27,7 @@ u8 *getHeapLimit(void)
     return fake_heap_end;
 }
 
+#ifdef ARM9
 int reduceHeapSize(size_t size_to_save)
 {
     // Check that the size is a multiple of 4
@@ -43,3 +44,4 @@ int reduceHeapSize(size_t size_to_save)
 
     return 0;
 }
+#endif // ARM9

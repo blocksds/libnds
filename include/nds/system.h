@@ -277,6 +277,7 @@ u8 *getHeapEnd(void);
 ///     address.
 u8 *getHeapLimit(void);
 
+#ifdef ARM9
 /// Reduces the size of the heap from the end.
 ///
 /// This can be useful if you need a lot of stack and you're letting the stack
@@ -284,6 +285,9 @@ u8 *getHeapLimit(void);
 /// available for sbrk() and functions that use it, like malloc(). If you want
 /// to let the stack grow safely you need to remove the end of main RAM from the
 /// heap pool by calling reduceHeapSize().
+///
+/// @note
+///     This function is only available in the ARM9.
 ///
 /// @warning
 ///     You need to call this function before the heap has grown. You can check
@@ -298,6 +302,7 @@ u8 *getHeapLimit(void);
 /// @return
 ///     Returns 0 on success, or a negative value on error.
 int reduceHeapSize(size_t size_to_save);
+#endif
 
 // ARM9 section
 // ------------
