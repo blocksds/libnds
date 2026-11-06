@@ -119,21 +119,15 @@ static void dtcm_dlmalloc_init(void)
     if (dtcm_dlmalloc_initialized)
         return;
 
-    // Only initialize DTCM allocator if the user has reserved static space by
-    // setting the value of __dtcm_data_size to something other than 0.
-    size_t DTCM_DATA_SIZE = (uintptr_t)__dtcm_data_size;
-    if (DTCM_DATA_SIZE >= minimum_available_space)
-    {
-        // Make sure that there's enough space to use the allocator.
-        const uintptr_t DTCM_HEAP_START = (uintptr_t)__sbss_end;
-        const uintptr_t DTCM_HEAP_END = (uintptr_t)__dtcm_data_top;
-        const size_t DTCM_HEAP_SIZE = DTCM_HEAP_END - DTCM_HEAP_START;
+    // Make sure that there's enough space to use the allocator.
+    const uintptr_t DTCM_HEAP_START = (uintptr_t)__sbss_end;
+    const uintptr_t DTCM_HEAP_END = (uintptr_t)__dtcm_data_top;
+    const size_t DTCM_HEAP_SIZE = DTCM_HEAP_END - DTCM_HEAP_START;
 
-        if (DTCM_HEAP_SIZE > minimum_available_space)
-        {
-            // Require a system lock
-            dtcm_mspace = create_mspace_with_base((void *)DTCM_HEAP_START, DTCM_HEAP_SIZE, 1);
-        }
+    if (DTCM_HEAP_SIZE > minimum_available_space)
+    {
+        // Require a system lock
+        dtcm_mspace = create_mspace_with_base((void *)DTCM_HEAP_START, DTCM_HEAP_SIZE, 1);
     }
 
     dtcm_dlmalloc_initialized = true;
