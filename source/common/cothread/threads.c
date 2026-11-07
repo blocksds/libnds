@@ -312,7 +312,8 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     if ((stack_base == NULL) || (entrypoint == NULL))
         goto invalid_args;
 
-    // They must be aligned to 8 bytes
+    // AAPCS wants the stack to be aligned to 8 bytes
+
     if (((stack_size & 7) != 0) || (((uintptr_t)stack_base & 7) != 0))
         goto invalid_args;
 

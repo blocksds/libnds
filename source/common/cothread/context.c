@@ -13,11 +13,8 @@ void cothread_ndsabi_coro_make_noctx(cothread_info_t* __restrict__ coro,
     void cothread_ndsabi_coro_pop_noctx(void);
     uintptr_t pop_function = (uintptr_t)&cothread_ndsabi_coro_pop_noctx;
 
-    /* AAPCS wants stack to be aligned to 8 bytes */
-    unsigned int alignedTop = ((unsigned int) sp_top) & ~0x7u;
-    unsigned int *stack = (unsigned int *) alignedTop;
-
     /* Allocate space for storing r4-r11, lr, self, and entry procedure (11 words) */
+    unsigned int *stack = sp_top;
     stack -= 11;
     stack[8] = (unsigned int) pop_function; /* lr */
     stack[9] = (unsigned int) coro;
