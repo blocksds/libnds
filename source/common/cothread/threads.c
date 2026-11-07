@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ndsabi.h>
 #ifdef ARM9
 #include <nds/arm9/cp15.h>
 #endif
@@ -21,6 +20,8 @@
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
+
+#include "common/cothread/context.h"
 
 // Generate a reference to __retarget_lock_acquire(). This will force the linker
 // to add the version of the function included in libnds.
@@ -295,7 +296,7 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
 #endif
 
     // Initialize context
-    __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
+    cothread_ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
 
     cothread_threads_count++;
 
@@ -454,7 +455,7 @@ void cothread_yield(void)
 
     cothread_info_t *ctx = cothread_active_thread;
 
-    __ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx, 0);
 }
 
 ARM_CODE void cothread_yield_irq(uint32_t mask)
@@ -485,7 +486,7 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    __ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx, 0);
 }
 
 #ifdef ARM7
@@ -513,7 +514,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    __ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx, 0);
 }
 #endif
 
@@ -539,7 +540,7 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    __ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx, 0);
 }
 
 void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
@@ -564,7 +565,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    __ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx, 0);
 }
 
 void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
@@ -631,7 +632,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
                 set_tls(ctx->tls);
 
-                int ret = __ndsabi_coro_resume((void *)ctx);
+                int ret = cothread_ndsabi_coro_resume((void *)ctx);
 
 #ifndef NDEBUG
                 cothread_check_canaries(ctx);
