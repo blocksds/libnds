@@ -13,10 +13,14 @@ void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
     // call from the scheduler. It will jump to the address in LR (so we need to
     // load the system thread entrypoint there) and load all registers that we
     // have prepared here.
+    //
+    // Note that we don't need to align the stack pointer to 8 bytes here
+    // because the first thing that cothread_context_resume() does is to pop 9
+    // words from the stack.
 
     // Allocate space for storing r4-r11, lr
     uint32_t *stack = sp_top;
-    stack -= 10; // 9 words (+ 1 padding word for alignment to 64 bit)
+    stack -= 9; // 9 words
 
     stack[0] = (uintptr_t)arg; // r4
     stack[1] = (uintptr_t)user_entrypoint; // r5
