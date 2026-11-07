@@ -18,12 +18,12 @@ void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
 
 // System entrypoint for threads. It loads the argument stored in the context
 // and jumps to the user entrypoint.
-void cothread_context_entrypoint(cothread_info_t *ctx);
+void cothread_context_entrypoint(void);
 
-/// Starts/resumes a given coroutine.
-void cothread_context_resume(cothread_info_t* ctx);
+// Yield from the scheduler and start/resume the active thread.
+void cothread_context_resume(void);
 
-/// Yields a given value of a coroutine back to the caller.
-void cothread_context_yield(cothread_info_t* ctx);
+// Yields from the current thread and returns to the scheduler.
+void cothread_context_yield(void);
 
 #endif // LIBNDS_CONTEXT_H__

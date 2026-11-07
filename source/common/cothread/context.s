@@ -10,53 +10,64 @@
     .arm
 
 
-BEGIN_ASM_FUNC cothread_context_resume // r0 = cothread_info_t*
+BEGIN_ASM_FUNC cothread_context_resume
 
+    // Save scheduler context
     push    {r4-r11, lr}
-    mov     r1, sp
+    ldr     r0, =cothread_scheduler_sp
+    str     sp, [r0]
 
-    ldr     sp, [r0]
+    // Load active thread context
+    ldr     r0, =cothread_active_thread
+    ldr     r0, [r0]
+    ldr     sp, [r0, #0]
     pop     {r4-r11, lr}
-    str     r1, [r0]
 
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_context_yield // r0 = cothread_info_t*
+BEGIN_ASM_FUNC cothread_context_yield
 
+    // Save active context
     push    {r4-r11, lr}
-    mov     r1, sp
+    ldr     r0, =cothread_active_thread
+    ldr     r0, [r0]
+    str     sp, [r0, #0]
 
+    // Load scheduler context
+    ldr     r0, =cothread_scheduler_sp
     ldr     sp, [r0]
     pop     {r4-r11, lr}
-    str     r1, [r0]
 
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_context_entrypoint // r0 = cothread_info_t*
+BEGIN_ASM_FUNC cothread_context_entrypoint
 
-    ldr     r0, [r0, #4] // Load argument
+    // r4 = arg
+    // r5 = user entrypoint
 
-    ldr     r2, [sp, #4] // Load entrypoint
+    mov     r0, r4 // Load argument
 #ifdef ARM9
-    blx     r2
+    blx     r5
 #else
-    mov     lr, pc       // Load return address (current + 8)
-    bx      r2           // Jump to entrypoint
+    mov     lr, pc // Load return address (current + 8)
+    bx      r5     // Jump to entrypoint
 #endif
+
     // r0 = return value
 
-    ldr     r1, [sp] // r1 = cothread_info_t*
-
-    str     r0, [r1, #4] // Save return value in the same place as the argument
-
-    // Load suspended context
-    ldr     sp, [r1]
-    pop     {r4-r11, lr}
+    ldr     r1, =cothread_active_thread
+    ldr     r1, [r1]
+    str     r0, [r1, #4] // Save return value in 'arg'
 
     // Set "joined" flag. The thread can't resume anymore.
     mov     r2, #0x80000000
-    str     r2, [r1]
+    str     r2, [r1, #0]
+
+    // Load scheduler context
+    ldr     r1, =cothread_scheduler_sp
+    ldr     sp, [r1]
+    pop     {r4-r11, lr}
 
     bx      lr

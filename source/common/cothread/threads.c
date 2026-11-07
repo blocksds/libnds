@@ -62,7 +62,10 @@ __asm__(".equ __retarget_lock_acquire_reference, __retarget_lock_acquire");
 static void (*free_fn)(void *) = NULL;
 
 // Thread that is currently running
-static cothread_info_t *cothread_active_thread = NULL;
+cothread_info_t *cothread_active_thread = NULL;
+
+// Saved stack pointer of the scheduler
+uintptr_t cothread_scheduler_sp;
 
 // This is the context of the main thread, which can't be freed (if the main
 // thread ends, the program ends).
@@ -454,9 +457,7 @@ void cothread_yield(void)
     if (irq_nesting_level > 0)
         return;
 
-    cothread_info_t *ctx = cothread_active_thread;
-
-    cothread_context_yield((void *)ctx);
+    cothread_context_yield();
 }
 
 ARM_CODE void cothread_yield_irq(uint32_t mask)
@@ -487,7 +488,7 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    cothread_context_yield((void *)ctx);
+    cothread_context_yield();
 }
 
 #ifdef ARM7
@@ -515,7 +516,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    cothread_context_yield((void *)ctx);
+    cothread_context_yield();
 }
 #endif
 
@@ -541,7 +542,7 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    cothread_context_yield((void *)ctx);
+    cothread_context_yield();
 }
 
 void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
@@ -566,7 +567,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    cothread_context_yield((void *)ctx);
+    cothread_context_yield();
 }
 
 void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
@@ -633,7 +634,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
                 set_tls(ctx->tls);
 
-                cothread_context_resume((void *)ctx);
+                cothread_context_resume();
 
 #ifndef NDEBUG
                 cothread_check_canaries(ctx);
