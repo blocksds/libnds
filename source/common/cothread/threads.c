@@ -196,10 +196,44 @@ static bool cothread_list_contains_ctx(cothread_info_t *ctx)
 
 //-------------------------------------------------------------------
 
+#ifndef NDEBUG
+void cothread_write_canaries(cothread_info_t *ctx)
+{
+    uint32_t *canary;
+
+    canary = ctx->stack_top;
+    canary[-1] = 0xFEDCBA98;
+    canary[-2] = 0xFEDCBA98;
+
+    canary = ctx->stack_base;
+    canary[0] = 0x12345678;
+    canary[1] = 0x12345678;
+}
+
+void cothread_check_canaries(cothread_info_t *ctx)
+{
+    uint32_t *canary;
+
+    canary = ctx->stack_top;
+    if ((canary[-1] != 0xFEDCBA98) || (canary[-2] != 0xFEDCBA98))
+        libndsCrash("Thread stack underflow");
+
+    canary = ctx->stack_base;
+    if ((canary[0] != 0x12345678) || (canary[1] != 0x12345678))
+        libndsCrash("Thread stack overflow");
+}
+#endif // NDEBUG
+
+//-------------------------------------------------------------------
+
 // This is private, only available inside libnds
 void cothread_main_thread_set_stack_base(void *base)
 {
     main_thread_ctx.stack_base = base;
+
+#ifndef NDEBUG
+    cothread_write_canaries(&main_thread_ctx);
+#endif
 }
 
 //-------------------------------------------------------------------
@@ -253,6 +287,12 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
     ctx->flags_user = flags;
     ctx->tls = tls;
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
+
+#ifndef NDEBUG
+    cothread_write_canaries(ctx);
+    // Reduce size of the stack by 8 bytes to preserve the alignment to 8 bytes
+    stack_top = (void *)((uint32_t *)stack_top - 2);
+#endif
 
     // Initialize context
     __ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
@@ -592,6 +632,10 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
                 set_tls(ctx->tls);
 
                 int ret = __ndsabi_coro_resume((void *)ctx);
+
+#ifndef NDEBUG
+                cothread_check_canaries(ctx);
+#endif
 
                 // Check if the thread has just ended
                 if (ctx->joined)
