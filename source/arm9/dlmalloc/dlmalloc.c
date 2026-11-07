@@ -4,6 +4,7 @@
 // Copyright (C) 2026 Antonio Niño Díaz
 
 #include <nds/cothread.h>
+#include <nds/exceptions.h>
 #include <nds/memory.h>
 
 #pragma GCC optimize("-Os")
@@ -17,6 +18,21 @@
 # define FOOTERS 0
 # define INSECURE 1
 #endif
+
+#ifndef NDEBUG
+static void corruption_error_action(void)
+{
+    libndsCrash("dlmalloc corruption error");
+}
+
+static void usage_error_action(void)
+{
+    libndsCrash("dlmalloc user error");
+}
+
+#define CORRUPTION_ERROR_ACTION(mstate)         corruption_error_action()
+#define USAGE_ERROR_ACTION(mstate, chunk_ptr)   usage_error_action()
+#endif // NDEBUG
 
 #define MSPACES 1
 #define ONLY_MSPACES 0
