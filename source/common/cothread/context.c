@@ -5,12 +5,14 @@
 
 #include "common/cothread/context.h"
 
-static void cothread_ndsabi_coro_make_internal(
-                    cothread_info_t* __restrict__ coro,
-                    void* __restrict__ sp_top,
-                    int(*coproc)(cothread_info_t*, void*),
-                    unsigned int pop_function, void *arg)
+void cothread_ndsabi_coro_make_noctx(cothread_info_t* __restrict__ coro,
+                              void* __restrict__ sp_top,
+                              int(*coproc)(void*),
+                              void *arg)
 {
+    void cothread_ndsabi_coro_pop_noctx(void);
+    uintptr_t pop_function = (uintptr_t)&cothread_ndsabi_coro_pop_noctx;
+
     /* AAPCS wants stack to be aligned to 8 bytes */
     unsigned int alignedTop = ((unsigned int) sp_top) & ~0x7u;
     unsigned int *stack = (unsigned int *) alignedTop;
@@ -24,16 +26,4 @@ static void cothread_ndsabi_coro_make_internal(
     coro->arm_sp = ((unsigned int) stack) & 0x7fffffff;
     coro->joined = 0; /* Clear joined flag (ready to start) */
     coro->arg = (unsigned int)arg;
-}
-
-void cothread_ndsabi_coro_make_noctx(cothread_info_t* __restrict__ coro,
-                              void* __restrict__ sp_top,
-                              int(*coproc)(void*),
-                              void *arg)
-{
-    void cothread_ndsabi_coro_pop_noctx(void);
-    typedef int (*coproc_ctx_fn)(cothread_info_t *, void *);
-
-    cothread_ndsabi_coro_make_internal(coro, sp_top, (coproc_ctx_fn)(uintptr_t)coproc,
-                                (unsigned int)cothread_ndsabi_coro_pop_noctx, arg);
 }
