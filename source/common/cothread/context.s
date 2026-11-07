@@ -10,7 +10,7 @@
     .arm
 
 
-BEGIN_ASM_FUNC cothread_ndsabi_coro_resume
+BEGIN_ASM_FUNC cothread_context_resume // r0 = cothread_info_t*
 
     push    {r4-r11, lr}
     mov     r1, sp
@@ -22,7 +22,7 @@ BEGIN_ASM_FUNC cothread_ndsabi_coro_resume
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_ndsabi_coro_yield
+BEGIN_ASM_FUNC cothread_context_yield // r0 = cothread_info_t*
 
     push    {r4-r11, lr}
     mov     r1, sp
@@ -34,7 +34,7 @@ BEGIN_ASM_FUNC cothread_ndsabi_coro_yield
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_context_entrypoint
+BEGIN_ASM_FUNC cothread_context_entrypoint // r0 = cothread_info_t*
 
     ldr     r0, [r0, #4] // Load argument
 
@@ -45,10 +45,11 @@ BEGIN_ASM_FUNC cothread_context_entrypoint
     mov     lr, pc       // Load return address (current + 8)
     bx      r2           // Jump to entrypoint
 #endif
+    // r0 = return value
 
-    ldr     r1, [sp]
-    // r0 contains return value
-    // r1 points to cothread_info_t*
+    ldr     r1, [sp] // r1 = cothread_info_t*
+
+    str     r0, [r1, #4] // Save return value in the same place as the argument
 
     // Load suspended context
     ldr     sp, [r1]

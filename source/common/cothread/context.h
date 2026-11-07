@@ -21,20 +21,9 @@ void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
 void cothread_context_entrypoint(cothread_info_t *ctx);
 
 /// Starts/resumes a given coroutine.
-///
-/// @param coro
-///     Coroutine to start/resume
-///
-/// @return
-///     Integer value from coroutine
-LIBNDS_NONNULL(1)
-int cothread_ndsabi_coro_resume(cothread_info_t* coro);
+void cothread_context_resume(cothread_info_t* ctx);
 
 /// Yields a given value of a coroutine back to the caller.
-///
-/// @param coro
-///     Coroutine that is yielding
-LIBNDS_NONNULL(1)
-void cothread_ndsabi_coro_yield(cothread_info_t* coro);
+void cothread_context_yield(cothread_info_t* ctx);
 
 #endif // LIBNDS_CONTEXT_H__
