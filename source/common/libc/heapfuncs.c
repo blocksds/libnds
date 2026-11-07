@@ -28,6 +28,9 @@ u8 *getHeapLimit(void)
 }
 
 #ifdef ARM9
+// In source/common/cothread/thread.c
+void cothread_main_thread_set_stack_base(void *base);
+
 int reduceHeapSize(size_t size_to_save)
 {
     // Check that the size is a multiple of 4
@@ -39,6 +42,8 @@ int reduceHeapSize(size_t size_to_save)
     // Check that the heap hasn't already passed the new end
     if (new_end < getHeapEnd())
         return -2;
+
+    cothread_main_thread_set_stack_base(new_end);
 
     fake_heap_end = new_end;
 

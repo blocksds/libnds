@@ -20,6 +20,7 @@
 #include <nds/exceptions.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
+#include <nds/system.h>
 
 // Generate a reference to __retarget_lock_acquire(). This will force the linker
 // to add the version of the function included in libnds.
@@ -191,6 +192,14 @@ static bool cothread_list_contains_ctx(cothread_info_t *ctx)
 
         p = p->next;
     }
+}
+
+//-------------------------------------------------------------------
+
+// This is private, only available inside libnds
+void cothread_main_thread_set_stack_base(void *base)
+{
+    main_thread_ctx.stack_base = base;
 }
 
 //-------------------------------------------------------------------
@@ -699,6 +708,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread.
+    main_thread_ctx.stack_base = getHeapLimit();
     cothread_t id = cothread_create_internal(&main_thread_ctx,
                                              cothread_main, NULL,
                                              main_stack_top, __tls_start, 0);
