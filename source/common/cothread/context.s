@@ -34,7 +34,7 @@ BEGIN_ASM_FUNC cothread_ndsabi_coro_yield
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_ndsabi_coro_pop_noctx
+BEGIN_ASM_FUNC cothread_context_entrypoint
 
     ldr     r0, [r0, #4] // Load argument
 

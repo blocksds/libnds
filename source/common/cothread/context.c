@@ -2,25 +2,23 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2021-2023 agbabi contributors
+// Copyright (C) 2026 Antonio Niño Díaz
 
 #include "common/cothread/context.h"
 
-void cothread_ndsabi_coro_make_noctx(cothread_info_t* __restrict__ coro,
-                              void* __restrict__ sp_top,
-                              int(*coproc)(void*),
-                              void *arg)
+void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
+                                 int (*user_entrypoint)(void*), void *arg)
 {
-    void cothread_ndsabi_coro_pop_noctx(void);
-    uintptr_t pop_function = (uintptr_t)&cothread_ndsabi_coro_pop_noctx;
-
-    /* Allocate space for storing r4-r11, lr, self, and entry procedure (11 words) */
+    // Allocate space for storing r4-r11, lr, context, and user entrypoint
     unsigned int *stack = sp_top;
-    stack -= 11;
-    stack[8] = (unsigned int) pop_function; /* lr */
-    stack[9] = (unsigned int) coro;
-    stack[10] = (unsigned int) coproc;
+    stack -= 11; // 11 words
 
-    coro->arm_sp = ((unsigned int) stack) & 0x7fffffff;
-    coro->joined = 0; /* Clear joined flag (ready to start) */
-    coro->arg = (unsigned int)arg;
+    // stack[0...7] = r4...r11 // We don't need to initialize them
+    stack[8] = (uintptr_t)&cothread_context_entrypoint; // lr
+    stack[9] = (uintptr_t)ctx;
+    stack[10] = (uintptr_t)user_entrypoint;
+
+    ctx->arm_sp = (uintptr_t)stack;
+    ctx->joined = 0; // Clear joined flag (ready to start)
+    ctx->arg = (uintptr_t)arg;
 }

@@ -296,7 +296,7 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
 #endif
 
     // Initialize context
-    cothread_ndsabi_coro_make_noctx((void *)ctx, stack_top, entrypoint, arg);
+    cothread_context_initialize(ctx, stack_top, entrypoint, arg);
 
     cothread_threads_count++;
 
