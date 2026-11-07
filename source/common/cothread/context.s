@@ -25,14 +25,12 @@ BEGIN_ASM_FUNC cothread_ndsabi_coro_resume
 BEGIN_ASM_FUNC cothread_ndsabi_coro_yield
 
     push    {r4-r11, lr}
-    mov     r2, sp
+    mov     r1, sp
 
     ldr     sp, [r0]
     pop     {r4-r11, lr}
-    str     r2, [r0]
+    str     r1, [r0]
 
-    @ Move yield value into r0 and return
-    mov     r0, r1
     bx      lr
 
 

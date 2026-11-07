@@ -43,9 +43,7 @@ int cothread_ndsabi_coro_resume(cothread_info_t* coro);
 ///
 /// @param coro
 ///     Coroutine that is yielding
-/// @param value
-///     Returned to caller.
 LIBNDS_NONNULL(1)
-void cothread_ndsabi_coro_yield(cothread_info_t* coro, int value);
+void cothread_ndsabi_coro_yield(cothread_info_t* coro);
 
 #endif // LIBNDS_CONTEXT_H__

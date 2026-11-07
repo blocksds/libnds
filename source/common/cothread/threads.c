@@ -455,7 +455,7 @@ void cothread_yield(void)
 
     cothread_info_t *ctx = cothread_active_thread;
 
-    cothread_ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx);
 }
 
 ARM_CODE void cothread_yield_irq(uint32_t mask)
@@ -486,7 +486,7 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    cothread_ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx);
 }
 
 #ifdef ARM7
@@ -514,7 +514,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    cothread_ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx);
 }
 #endif
 
@@ -540,7 +540,7 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    cothread_ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx);
 }
 
 void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
@@ -565,7 +565,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    cothread_ndsabi_coro_yield((void *)ctx, 0);
+    cothread_ndsabi_coro_yield((void *)ctx);
 }
 
 void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
