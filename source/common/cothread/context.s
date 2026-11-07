@@ -47,21 +47,15 @@ BEGIN_ASM_FUNC cothread_ndsabi_coro_pop_noctx
 #endif
 
     ldr     r1, [sp]
-    @ r0 contains return value
-    @ r1 points to ndsabi_coro_t*
+    // r0 contains return value
+    // r1 points to cothread_info_t*
 
-    @ Allocate space for storing r4-r12, lr
-    sub     r2, sp, #40
-    ldr     r3, =cothread_ndsabi_coro_pop_noctx
-    str     r3, [r2, #36] @ Next resume will call cothread_ndsabi_coro_pop_noctx
-
-    @ Load suspend context
+    // Load suspended context
     ldr     sp, [r1]
     pop     {r4-r11, lr}
 
-    @ Set "joined" flag
-    orr     r2, r2, #0x80000000
+    // Set "joined" flag. The thread can't resume anymore.
+    mov     r2, #0x80000000
     str     r2, [r1]
 
     bx      lr
-
