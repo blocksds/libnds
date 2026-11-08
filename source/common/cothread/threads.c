@@ -62,26 +62,26 @@ __asm__(".equ __retarget_lock_acquire_reference, __retarget_lock_acquire");
 static void (*free_fn)(void *) = NULL;
 
 // Thread that is currently running
-cothread_info_t *ITCM_BSS_VAR(cothread_active_thread) = NULL;
+cothread_info_t *DTCM_BSS_VAR(cothread_active_thread) = NULL;
 
 // Saved stack pointer of the scheduler
-uintptr_t ITCM_BSS_VAR(cothread_scheduler_sp);
+uintptr_t DTCM_BSS_VAR(cothread_scheduler_sp);
 
 // This is the context of the main thread, which can't be freed (if the main
 // thread ends, the program ends).
 static cothread_info_t main_thread_ctx;
 
 // Linked list of threads
-cothread_info_t *ITCM_BSS_VAR(cothread_list);
+cothread_info_t *DTCM_BSS_VAR(cothread_list);
 
 // TODO: When a non-detached thread ends, remove it from this list and add it to
 // a list of finished-but-not-deleted threads.
 
 // Total number of threads
-uint32_t ITCM_BSS_VAR(cothread_threads_count);
+uint32_t DTCM_BSS_VAR(cothread_threads_count);
 
 // Total number of threads waiting for events such as interrupts
-uint32_t ITCM_BSS_VAR(cothread_threads_waiting_count);
+uint32_t DTCM_BSS_VAR(cothread_threads_waiting_count);
 
 //-------------------------------------------------------------------
 
