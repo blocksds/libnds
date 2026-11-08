@@ -2,11 +2,12 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2021-2023 agbabi contributors
+// Copyright (C) 2026 Antonio Niño Díaz
 
 #include <nds/asminc.h>
+#include <nds/cothread_asm.h>
 
     .syntax unified
-
     .arm
 
 
@@ -59,7 +60,9 @@ BEGIN_ASM_FUNC cothread_context_entrypoint
 
     ldr     r1, =cothread_active_thread
     ldr     r1, [r1]
-    str     r0, [r1, #4] // Save return value in 'arg'
+
+    // Save return value in 'exit_code'
+    str     r0, [r1, #COTHREAD_INFO_EXIT_CODE_OFFSET]
 
     // Set "joined" flag. The thread can't resume anymore.
     mov     r2, #0x80000000

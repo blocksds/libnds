@@ -446,7 +446,7 @@ int cothread_get_exit_code(cothread_t thread)
         return -1;
     }
 
-    return ctx->arg;
+    return ctx->exit_code;
 }
 
 extern uint16_t irq_nesting_level;
@@ -646,7 +646,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
                     // If this is the main() thread, exit the whole program with
                     // the exit code returned by main().
                     if (ctx == &main_thread_ctx)
-                        return ctx->arg;
+                        return ctx->exit_code;
 
                     // This is a regular thread.
 

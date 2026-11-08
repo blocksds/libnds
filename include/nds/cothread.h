@@ -325,14 +325,15 @@ static inline void cosema_wait(cosema_t *sema)
 }
 
 // Private thread information. It is private to the library, but exposed here
-// to make it possible to write tests for cothread. It extends __ndsabi_coro_t.
+// to make it possible to write tests for cothread.
 typedef struct
 {
-    // Start of __ndsabi_coro_t
     uint32_t arm_sp : 31;
     uint32_t joined : 1;
-    uint32_t arg;
-    // End of __ndsabi_coro_t
+
+    // Value returned by a thread. Detached threads never give the user the
+    // possibility to read it because the context is freed right after it ends.
+    uint32_t exit_code;
 
     void *stack_base;
     void *stack_top;
@@ -355,6 +356,7 @@ typedef struct
 #endif
 } cothread_info_t;
 
+static_assert(offsetof(cothread_info_t, exit_code) == COTHREAD_INFO_EXIT_CODE_OFFSET);
 static_assert(offsetof(cothread_info_t, next) == COTHREAD_INFO_NEXT_OFFSET);
 static_assert(offsetof(cothread_info_t, flags_wait) == COTHREAD_INFO_FLAGS_WAIT_OFFSET);
 static_assert(offsetof(cothread_info_t, wait_irq_mask) == COTHREAD_INFO_WAIT_IRQ_MASK_OFFSET);
