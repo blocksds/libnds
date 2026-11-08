@@ -427,7 +427,7 @@ bool cothread_has_joined(cothread_t thread)
         return false;
     }
 
-    return ctx->joined != 0;
+    return (ctx->arm_sp == 0);
 }
 
 int cothread_get_exit_code(cothread_t thread)
@@ -440,7 +440,7 @@ int cothread_get_exit_code(cothread_t thread)
         return -1;
     }
 
-    if (ctx->joined == 0)
+    if (ctx->arm_sp != 0)
     {
         errno = EBUSY;
         return -1;
@@ -622,8 +622,8 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         // next thread.
         cothread_info_t *next_ctx = ctx->next;
 
-        // If the thread has finished, skip it
-        if (ctx->joined == 0)
+        // Check if the thread is still active
+        if (ctx->arm_sp != 0)
         {
             // If this thread is waiting for an event (like an interrupt) to
             // happen, skip it.
@@ -641,7 +641,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 #endif
 
                 // Check if the thread has just ended
-                if (ctx->joined)
+                if (ctx->arm_sp == 0)
                 {
                     // If this is the main() thread, exit the whole program with
                     // the exit code returned by main().

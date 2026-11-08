@@ -40,6 +40,7 @@
 // ---------------
 
 // Offsets to fields inside the cothread_info_t struct
+#define COTHREAD_INFO_STACK_POINTER_OFFSET      0
 #define COTHREAD_INFO_EXIT_CODE_OFFSET          4
 #define COTHREAD_INFO_NEXT_OFFSET               20
 #define COTHREAD_INFO_FLAGS_WAIT_OFFSET         25

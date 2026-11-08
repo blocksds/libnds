@@ -328,8 +328,10 @@ static inline void cosema_wait(cosema_t *sema)
 // to make it possible to write tests for cothread.
 typedef struct
 {
-    uint32_t arm_sp : 31;
-    uint32_t joined : 1;
+    // Saved value of the stack pointer when running in this thread. When a
+    // thread finishes, it's set to 0. At that point, the thread can't resume
+    // anymore.
+    uint32_t arm_sp;
 
     // Value returned by a thread. Detached threads never give the user the
     // possibility to read it because the context is freed right after it ends.
@@ -356,6 +358,7 @@ typedef struct
 #endif
 } cothread_info_t;
 
+static_assert(offsetof(cothread_info_t, arm_sp) == COTHREAD_INFO_STACK_POINTER_OFFSET);
 static_assert(offsetof(cothread_info_t, exit_code) == COTHREAD_INFO_EXIT_CODE_OFFSET);
 static_assert(offsetof(cothread_info_t, next) == COTHREAD_INFO_NEXT_OFFSET);
 static_assert(offsetof(cothread_info_t, flags_wait) == COTHREAD_INFO_FLAGS_WAIT_OFFSET);

@@ -21,7 +21,7 @@ BEGIN_ASM_FUNC cothread_context_resume
     // Load active thread context
     ldr     r0, =cothread_active_thread
     ldr     r0, [r0]
-    ldr     sp, [r0, #0]
+    ldr     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
     pop     {r4-r11, lr}
 
     bx      lr
@@ -33,7 +33,7 @@ BEGIN_ASM_FUNC cothread_context_yield
     push    {r4-r11, lr}
     ldr     r0, =cothread_active_thread
     ldr     r0, [r0]
-    str     sp, [r0, #0]
+    str     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
 
     // Load scheduler context
     ldr     r0, =cothread_scheduler_sp
@@ -64,9 +64,9 @@ BEGIN_ASM_FUNC cothread_context_entrypoint
     // Save return value in 'exit_code'
     str     r0, [r1, #COTHREAD_INFO_EXIT_CODE_OFFSET]
 
-    // Set "joined" flag. The thread can't resume anymore.
-    mov     r2, #0x80000000
-    str     r2, [r1, #0]
+    // Clear the SP to mean that the thread has finished and it can't resume
+    mov     r0, #0
+    str     r0, [r1, #COTHREAD_INFO_STACK_POINTER_OFFSET]
 
     // Load scheduler context
     ldr     r1, =cothread_scheduler_sp

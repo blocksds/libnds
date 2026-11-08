@@ -28,5 +28,4 @@ void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
     stack[8] = (uintptr_t)&cothread_context_entrypoint; // lr = actual entrypoint
 
     ctx->arm_sp = (uintptr_t)stack;
-    ctx->joined = 0; // Clear joined flag (ready to start)
 }
