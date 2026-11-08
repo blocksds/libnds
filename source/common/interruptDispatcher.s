@@ -262,7 +262,7 @@ check_and_clear_next_thread:
     add     r1, r1, #1
 
 check_and_clear_advance:
-    add     r12, r12, COTHREAD_INFO_NEXT_OFFSET
+    add     r12, r12, #COTHREAD_INFO_NEXT_OFFSET
     b       check_and_clear_next_thread
 
 check_and_clear_end: // We've now checked all threads

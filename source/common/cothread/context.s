@@ -69,8 +69,8 @@ BEGIN_ASM_FUNC cothread_context_entrypoint
     str     r0, [r1, #COTHREAD_INFO_STACK_POINTER_OFFSET]
 
     // Load scheduler context
-    ldr     r1, =cothread_scheduler_sp
-    ldr     sp, [r1]
+    ldr     r0, =cothread_scheduler_sp
+    ldr     sp, [r0]
     pop     {r4-r11, lr}
 
     bx      lr
