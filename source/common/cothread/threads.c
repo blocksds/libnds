@@ -62,10 +62,10 @@ __asm__(".equ __retarget_lock_acquire_reference, __retarget_lock_acquire");
 static void (*free_fn)(void *) = NULL;
 
 // Thread that is currently running
-cothread_info_t *cothread_active_thread = NULL;
+cothread_info_t *ITCM_BSS_VAR(cothread_active_thread) = NULL;
 
 // Saved stack pointer of the scheduler
-uintptr_t cothread_scheduler_sp;
+uintptr_t ITCM_BSS_VAR(cothread_scheduler_sp);
 
 // This is the context of the main thread, which can't be freed (if the main
 // thread ends, the program ends).
