@@ -488,7 +488,7 @@ void cothread_yield(void)
     if (irq_nesting_level > 0)
         return;
 
-    cothread_context_yield();
+    cothread_context_switch_to_scheduler();
 }
 
 ARM_CODE void cothread_yield_irq(uint32_t mask)
@@ -513,7 +513,7 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    cothread_context_yield();
+    cothread_context_switch_to_scheduler();
 }
 
 #ifdef ARM7
@@ -539,7 +539,7 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
     // We're going to wait for an IRQ. Make sure that IRQs are enabled.
     REG_IME = 1;
 
-    cothread_context_yield();
+    cothread_context_switch_to_scheduler();
 }
 #endif
 
@@ -563,7 +563,7 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    cothread_context_yield();
+    cothread_context_switch_to_scheduler();
 }
 
 void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
@@ -586,7 +586,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 
     leaveCriticalSection(oldIME);
 
-    cothread_context_yield();
+    cothread_context_switch_to_scheduler();
 }
 
 //-------------------------------------------------------------------
@@ -680,7 +680,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
         set_tls(ctx->tls);
 
-        cothread_context_resume();
+        cothread_context_switch_to_active();
 
 #ifndef NDEBUG
         cothread_check_canaries(ctx);

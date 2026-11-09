@@ -11,7 +11,7 @@
     .arm
 
 
-BEGIN_ASM_FUNC cothread_context_resume itcm
+BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 
     // Save scheduler context
     push    {r4-r11, lr}
@@ -27,7 +27,7 @@ BEGIN_ASM_FUNC cothread_context_resume itcm
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_context_yield itcm
+BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     // Save active context
     push    {r4-r11, lr}

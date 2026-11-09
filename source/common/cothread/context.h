@@ -21,9 +21,9 @@ void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
 void cothread_context_entrypoint(void);
 
 // Yield from the scheduler and start/resume the active thread.
-void cothread_context_resume(void);
+void cothread_context_switch_to_active(void);
 
 // Yields from the current thread and returns to the scheduler.
-void cothread_context_yield(void);
+void cothread_context_switch_to_scheduler(void);
 
 #endif // LIBNDS_CONTEXT_H__
