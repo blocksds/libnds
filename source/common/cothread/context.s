@@ -11,7 +11,7 @@
     .arm
 
 
-BEGIN_ASM_FUNC cothread_context_resume
+BEGIN_ASM_FUNC cothread_context_resume itcm
 
     // Save scheduler context
     push    {r4-r11, lr}
@@ -27,7 +27,7 @@ BEGIN_ASM_FUNC cothread_context_resume
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_context_yield
+BEGIN_ASM_FUNC cothread_context_yield itcm
 
     // Save active context
     push    {r4-r11, lr}
@@ -43,7 +43,7 @@ BEGIN_ASM_FUNC cothread_context_yield
     bx      lr
 
 
-BEGIN_ASM_FUNC cothread_context_entrypoint
+BEGIN_ASM_FUNC cothread_context_entrypoint itcm
 
     // r4 = arg
     // r5 = user entrypoint

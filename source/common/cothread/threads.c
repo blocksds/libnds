@@ -642,6 +642,7 @@ cothread_t cothread_get_current(void)
     return (cothread_t)cothread_active_thread;
 }
 
+__attribute__ ((noinline))
 ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 {
     // We expect at least one active thread when this function starts.
