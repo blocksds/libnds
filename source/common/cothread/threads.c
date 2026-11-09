@@ -66,7 +66,7 @@ volatile uintptr_t DTCM_BSS_VAR(cothread_scheduler_sp);
 
 // This is the context of the main thread, which can't be freed (if the main
 // thread ends, the program ends).
-static cothread_info_t main_thread_ctx;
+static cothread_info_t DTCM_BSS_VAR(main_thread_ctx) = { 0 };
 
 // Linked lists of threads. The first entry in cothread_list_active is the
 // active thread.
@@ -127,22 +127,33 @@ static void ITCM_FUNC(cothread_list_active_add_ctx)(volatile cothread_info_t *ct
     assert(REG_IME == 0);
 
     // Add new active contexts to the end of the list
-    // TODO: This will change a bit when we support thread priorities
 
-    if (cothread_list_active)
+    if (cothread_list_active == NULL)
     {
-        volatile cothread_info_t *p = cothread_list_active;
-
-        while (p->next != NULL)
-            p = p->next;
-
-        p->next = (cothread_info_t *)ctx;
+        cothread_list_active = ctx;
         ctx->next = NULL;
     }
     else
     {
-        cothread_list_active = ctx;
-        ctx->next = NULL;
+        int8_t new_ctx_priority = ctx->priority;
+
+        volatile cothread_info_t *p = cothread_list_active;
+
+        while (1)
+        {
+            cothread_info_t *next = p->next;
+
+            if (next == NULL)
+                break;
+
+            if (next->priority < new_ctx_priority)
+                break;
+
+            p = next;
+        }
+
+        ctx->next = p->next;
+        p->next = (cothread_info_t *)ctx;
     }
 }
 
@@ -351,6 +362,10 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     init_tls(tls);
 
+    // Child threads inherit the priority of their parent
+
+    ctx->priority = cothread_list_active->priority;
+
     // Assign the free() function to the pointer because now we are sure that we
     // will need to free the resources of the newly created thread eventually.
 
@@ -401,6 +416,59 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
     }
 
     return id;
+}
+
+int8_t cothread_get_priority(cothread_t thread)
+{
+    int oldIME = enterCriticalSection();
+
+    if (thread == 0)
+        thread = cothread_get_current();
+
+    cothread_info_t *ctx = (cothread_info_t *)thread;
+
+    int ret;
+
+    if (ctx->state != COTHREAD_STATE_ENDED)
+    {
+        ret = ctx->priority;
+    }
+    else
+    {
+        errno = EINVAL;
+        ret = -128;
+    }
+
+    leaveCriticalSection(oldIME);
+
+    return ret;
+}
+
+int cothread_set_priority(cothread_t thread, int8_t priority)
+{
+    int oldIME = enterCriticalSection();
+
+    if (thread == 0)
+        thread = cothread_get_current();
+
+    cothread_info_t *ctx = (cothread_info_t *)thread;
+
+    int ret;
+
+    if (ctx->state != COTHREAD_STATE_ENDED)
+    {
+        ctx->priority = priority;
+        ret = 0;
+    }
+    else
+    {
+        errno = EINVAL;
+        ret = -1;
+    }
+
+    leaveCriticalSection(oldIME);
+
+    return ret;
 }
 
 int cothread_detach(cothread_t thread)
@@ -685,7 +753,6 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         // Whenever we finish executing a thread, add it to the right list. Even
         // if the thread is still active, it needs to be removed from the list
         // and added to the end.
-        // TODO: This will change a bit when priorities are supported
 
         int oldIME = enterCriticalSection();
 
@@ -767,7 +834,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     // is initialized to __tls_start by the crt0.
 
     // The first element of cothread_list is statically allocated, used for the
-    // main() thread.
+    // main() thread. It starts with priority 0 (base priority).
     main_thread_ctx.stack_base = getHeapLimit();
     cothread_t id = cothread_create_internal(&main_thread_ctx,
                                              cothread_main, NULL,

@@ -93,6 +93,37 @@ cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
                                   uint16_t flags);
 
+/// Gets the priority of the specified thread.
+///
+/// @param thread
+///     The thread to get the priority of. If this is 0, it will return the
+///     priority of the current active thread.
+///
+/// @return
+///     On success, it returns the priority of the thread. On failure, it
+///     returns -128 (the minimum possible priority) and it sets errno.
+int8_t cothread_get_priority(cothread_t thread);
+
+/// Sets the priority of the specified thread.
+///
+/// Threads inherit the priority of the thread that created them. The main()
+/// thread starts with priority 0 (base priority).
+///
+/// @warning
+///     If a thread with high priority never yields for IRQs or events, it will
+///     starve lower priority threads.
+///
+/// @param thread
+///     The thread to modify. If this is 0, it will change the priority of the
+///     current active thread.
+/// @param priority
+///     New priority. The maximum (highest priority) is 127, the minimum (lowest
+///     priority) is -128.
+///
+/// @return
+///     On success, it returns 0. On failure, it returns -1 and sets errno.
+int cothread_set_priority(cothread_t thread, int8_t priority);
+
 /// Detach the specified thread.
 ///
 /// @param thread
@@ -346,7 +377,9 @@ typedef struct
     // Flags like COTHREAD_DETACHED, COTHREAD_ALLOCATED_CONTEXT...
     uint16_t flags;
 
-    uint8_t unused; // Unused padding...
+    // Thread priority. Maximum priority is 127, base priority is 0, minimum
+    // priority is -128.
+    int8_t priority;
 
     // Current thread state: COTHREAD_STATE_ACTIVE, COTHREAD_STATE_WAITING...
     uint8_t state;
