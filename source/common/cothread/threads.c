@@ -136,18 +136,31 @@ static void cothread_list_active_add_ctx(volatile cothread_info_t *ctx)
         while (p->next != NULL)
             p = p->next;
 
-        ctx->next = NULL;
-        ctx->prev = (cothread_info_t *)p;
-
         p->next = (cothread_info_t *)ctx;
+        ctx->next = NULL;
     }
     else
     {
-        ctx->next = NULL;
-        ctx->prev = NULL;
-
         cothread_list_active = ctx;
+        ctx->next = NULL;
     }
+}
+
+static void ITCM_FUNC(cothread_list_active_remove_first_ctx)(void)
+{
+    assert(REG_IME == 0);
+    assert(cothread_list_active);
+
+#ifndef NDEBUG
+    volatile cothread_info_t *old_head = cothread_list_active;
+#endif
+
+    // Make the head point to the next element
+    cothread_list_active = cothread_list_active->next;
+
+#ifndef NDEBUG
+    old_head->next = NULL;
+#endif
 }
 
 static void cothread_list_waiting_add_ctx(volatile cothread_info_t *ctx)
@@ -165,27 +178,6 @@ static void cothread_list_waiting_add_ctx(volatile cothread_info_t *ctx)
     ctx->prev = NULL;
 
     cothread_list_waiting = ctx;
-}
-
-static void ITCM_FUNC(cothread_list_active_remove_ctx)(volatile cothread_info_t *ctx)
-{
-    assert(REG_IME == 0);
-
-    cothread_info_t *prev = ctx->prev;
-    cothread_info_t *next = ctx->next;
-
-    if (prev)
-        prev->next = next;
-    else
-        cothread_list_active = next;
-
-    if (next)
-        next->prev = prev;
-
-#ifndef NDEBUG
-    ctx->next = NULL;
-    ctx->prev = NULL;
-#endif
 }
 
 static void ITCM_FUNC(cothread_list_waiting_remove_ctx)(volatile cothread_info_t *ctx)
@@ -602,6 +594,7 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
         // Check if the IRQ mask contains the received IRQ mask
         if (ctx->wait_irq_mask & irq_mask)
         {
+            // TODO: Optimize removing so that we don't need a doubly linked list
             cothread_list_waiting_remove_ctx(ctx);
             cothread_list_active_add_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
@@ -626,6 +619,7 @@ void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
         // Check if the signal ID matches
         if (ctx->wait_signal_id == signal_id)
         {
+            // TODO: Optimize removing so that we don't need a doubly linked list
             cothread_list_waiting_remove_ctx(ctx);
             cothread_list_active_add_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
@@ -693,7 +687,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
         int oldIME = enterCriticalSection();
 
-        cothread_list_active_remove_ctx(ctx);
+        cothread_list_active_remove_first_ctx();
 
         // Check if the thread has just ended
         if (ctx->state == COTHREAD_STATE_ENDED)
