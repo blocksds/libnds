@@ -289,6 +289,11 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
     stack_top = (void *)((uint32_t *)stack_top - 2);
 #endif
 
+    // Add main thread to the list of active threads
+    int oldIME = enterCriticalSection();
+    cothread_list_add_ctx(&cothread_list_active, ctx);
+    leaveCriticalSection(oldIME);
+
     // Initialize context
     cothread_context_initialize(ctx, stack_top, entrypoint, arg);
 
@@ -337,11 +342,6 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     // will need to free the resources of the newly created thread eventually.
 
     free_fn = free;
-
-    // Add context to the scheduler
-    int oldIME = enterCriticalSection();
-    cothread_list_add_ctx(&cothread_list_active, ctx);
-    leaveCriticalSection(oldIME);
 
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
@@ -784,13 +784,6 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     cothread_t id = cothread_create_internal(&main_thread_ctx,
                                              cothread_main, NULL,
                                              main_stack_top, __tls_start, 0);
-
-    int oldIME = enterCriticalSection();
-
-    // Add main thread to the list of active threads
-    cothread_list_add_ctx(&cothread_list_active, &main_thread_ctx);
-
-    leaveCriticalSection(oldIME);
 
     // Start scheduler after everything is ready.
     cothread_scheduler_start();
