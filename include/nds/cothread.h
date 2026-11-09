@@ -347,9 +347,9 @@ typedef struct
     // Flags are split into different fields to make it easier for the ASM code
     // to clear some flags without affecting others.
     uint8_t flags_user;      // User-visible flags like COTHREAD_DETACHED
-    uint8_t flags_wait;      // Waiting-related flags like COTHREAD_WAITING
     uint8_t flags_resources; // COTHREAD_ALLOCATED_CONTEXT/STACK/...
-    uint8_t unused;          // Unused padding...
+    uint8_t unused1;         // Unused padding...
+    uint8_t unused2;
 
     uint32_t wait_signal_id; // Signal ID the thread is waiting for (0 = no signal)
     uint32_t wait_irq_mask; // Mask of IRQ bits the thread is waiting for
@@ -360,9 +360,6 @@ typedef struct
 
 static_assert(offsetof(cothread_info_t, arm_sp) == COTHREAD_INFO_STACK_POINTER_OFFSET);
 static_assert(offsetof(cothread_info_t, exit_code) == COTHREAD_INFO_EXIT_CODE_OFFSET);
-static_assert(offsetof(cothread_info_t, next) == COTHREAD_INFO_NEXT_OFFSET);
-static_assert(offsetof(cothread_info_t, flags_wait) == COTHREAD_INFO_FLAGS_WAIT_OFFSET);
-static_assert(offsetof(cothread_info_t, wait_irq_mask) == COTHREAD_INFO_WAIT_IRQ_MASK_OFFSET);
 
 #ifdef __cplusplus
 }

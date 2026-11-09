@@ -234,48 +234,11 @@ clear_threads_and_exit:
 #ifdef THREADS_ENABLED
 
     // r2 = Bit of the interrupt we've just handled
+    mov     r0, r2
 
-    mov     r0, #0 // Used to clear fields inside the loop
-    mov     r1, #0 // Counter of how many threads are resumed
-
-    // Resume any threads waiting this interrupt to happen
-    ldr     r12, =cothread_list
-check_and_clear_next_thread:
-    ldr     r12, [r12]
-    cmp     r12, #0
-    beq     check_and_clear_end // Exit if we have reached the end of the list
-
-    // Check if the thread is waiting
-    ldrb    r3, [r12, #COTHREAD_INFO_FLAGS_WAIT_OFFSET]
-    tst     r3, #COTHREAD_WAITING
-    beq     check_and_clear_advance
-
-    // Check if the current interrupt was waiting for this interrupt
-    ldr     r3, [r12, #COTHREAD_INFO_WAIT_IRQ_MASK_OFFSET]
-    tst     r3, r2
-    beq     check_and_clear_advance
-
-    // Clear the "waiting for IRQ" flag
-    strb    r0, [r12, #COTHREAD_INFO_FLAGS_WAIT_OFFSET]
-
-    // Increment the counter of threads we've resumed
-    add     r1, r1, #1
-
-check_and_clear_advance:
-    add     r12, r12, #COTHREAD_INFO_NEXT_OFFSET
-    b       check_and_clear_next_thread
-
-check_and_clear_end: // We've now checked all threads
-
-    // If we haven't resumed any thread, there's nothing to do
-    cmp     r1, #0
-    moveq   pc, lr
-
-    // Decrease number of threads waiting for interrupts
-    ldr     r0, =cothread_threads_waiting_count
-    ldr     r2, [r0]
-    sub     r2, r2, r1
-    str     r2, [r0]
+    push    {lr}
+    bl      cothread_send_irq
+    pop     {lr}
 
 #endif // THREADS_ENABLED
 
