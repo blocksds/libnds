@@ -28,11 +28,20 @@
 #define COTHREAD_ALLOCATED_CONTEXT (1 << 0)
 #define COTHREAD_ALLOCATED_STACK   (1 << 1)
 
+// Thread state
+// ------------
+
+#define COTHREAD_STATE_INVALID      0
+#define COTHREAD_STATE_ACTIVE       1
+#define COTHREAD_STATE_WAITING      2
+#define COTHREAD_STATE_ENDED        3
+
 // cothread_info_t
 // ---------------
 
 // Offsets to fields inside the cothread_info_t struct
 #define COTHREAD_INFO_STACK_POINTER_OFFSET      0
 #define COTHREAD_INFO_EXIT_CODE_OFFSET          4
+#define COTHREAD_INFO_STATE_OFFSET              31
 
 #endif // LIBNDS_NDS_COTRHEAD_ASM_H__

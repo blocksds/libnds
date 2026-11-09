@@ -19,7 +19,7 @@ BEGIN_ASM_FUNC cothread_context_resume itcm
     str     sp, [r0]
 
     // Load active thread context
-    ldr     r0, =cothread_active_thread
+    ldr     r0, =cothread_list_active
     ldr     r0, [r0]
     ldr     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
     pop     {r4-r11, lr}
@@ -31,7 +31,7 @@ BEGIN_ASM_FUNC cothread_context_yield itcm
 
     // Save active context
     push    {r4-r11, lr}
-    ldr     r0, =cothread_active_thread
+    ldr     r0, =cothread_list_active
     ldr     r0, [r0]
     str     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
 
@@ -58,15 +58,15 @@ BEGIN_ASM_FUNC cothread_context_entrypoint itcm
 
     // r0 = return value
 
-    ldr     r1, =cothread_active_thread
+    ldr     r1, =cothread_list_active
     ldr     r1, [r1]
 
     // Save return value in 'exit_code'
     str     r0, [r1, #COTHREAD_INFO_EXIT_CODE_OFFSET]
 
-    // Clear the SP to mean that the thread has finished and it can't resume
-    mov     r0, #0
-    str     r0, [r1, #COTHREAD_INFO_STACK_POINTER_OFFSET]
+    // Mark the thread as ended
+    mov     r0, #COTHREAD_STATE_ENDED
+    strb    r0, [r1, #COTHREAD_INFO_STATE_OFFSET]
 
     // Load scheduler context
     ldr     r0, =cothread_scheduler_sp

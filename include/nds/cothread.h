@@ -328,9 +328,7 @@ static inline void cosema_wait(cosema_t *sema)
 // to make it possible to write tests for cothread.
 typedef struct
 {
-    // Saved value of the stack pointer when running in this thread. When a
-    // thread finishes, it's set to 0. At that point, the thread can't resume
-    // anymore.
+    // Saved value of the stack pointer when running in this thread.
     uint32_t arm_sp;
 
     // Value returned by a thread. Detached threads never give the user the
@@ -341,15 +339,18 @@ typedef struct
     void *stack_top;
     void *tls;
 
-    // Next thread in the global list of threads
+    // Previous and next thread in the linked list the thread belogs to
     void *next;
+    void *prev;
 
     // Flags are split into different fields to make it easier for the ASM code
     // to clear some flags without affecting others.
     uint8_t flags_user;      // User-visible flags like COTHREAD_DETACHED
     uint8_t flags_resources; // COTHREAD_ALLOCATED_CONTEXT/STACK/...
     uint8_t unused1;         // Unused padding...
-    uint8_t unused2;
+
+    // Current thread state: COTHREAD_STATE_ACTIVE, COTHREAD_STATE_WAITING...
+    uint8_t state;
 
     uint32_t wait_signal_id; // Signal ID the thread is waiting for (0 = no signal)
     uint32_t wait_irq_mask; // Mask of IRQ bits the thread is waiting for
@@ -360,6 +361,7 @@ typedef struct
 
 static_assert(offsetof(cothread_info_t, arm_sp) == COTHREAD_INFO_STACK_POINTER_OFFSET);
 static_assert(offsetof(cothread_info_t, exit_code) == COTHREAD_INFO_EXIT_CODE_OFFSET);
+static_assert(offsetof(cothread_info_t, state) == COTHREAD_INFO_STATE_OFFSET);
 
 #ifdef __cplusplus
 }
