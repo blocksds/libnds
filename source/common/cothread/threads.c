@@ -676,13 +676,16 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 #endif
         }
 
-        // Handle the active thread
+        // We have an active thread, execute it
 
+        // Switch to its TLS space
         set_tls(ctx->tls);
 
+        // Jump to the thread
         cothread_context_switch_to_active();
 
 #ifndef NDEBUG
+        // After returning from the thread, check stack canaries
         cothread_check_canaries(ctx);
 #endif
 
