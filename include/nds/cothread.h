@@ -66,7 +66,7 @@ static inline uint32_t cosema_to_signal_id(cosema_t *sema)
 ///     On success, it returns a non-negative value representing the thread ID.
 ///     On failure, it returns -1 and sets errno.
 cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
-                           size_t stack_size, uint8_t flags);
+                           size_t stack_size, uint16_t flags);
 
 /// Create a thread.
 ///
@@ -91,7 +91,7 @@ cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
 ///     On failure, it returns -1 and sets errno.
 cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
-                                  uint8_t flags);
+                                  uint16_t flags);
 
 /// Detach the specified thread.
 ///
@@ -343,11 +343,10 @@ typedef struct
     void *next;
     void *prev;
 
-    // Flags are split into different fields to make it easier for the ASM code
-    // to clear some flags without affecting others.
-    uint8_t flags_user;      // User-visible flags like COTHREAD_DETACHED
-    uint8_t flags_resources; // COTHREAD_ALLOCATED_CONTEXT/STACK/...
-    uint8_t unused1;         // Unused padding...
+    // Flags like COTHREAD_DETACHED, COTHREAD_ALLOCATED_CONTEXT...
+    uint16_t flags;
+
+    uint8_t unused; // Unused padding...
 
     // Current thread state: COTHREAD_STATE_ACTIVE, COTHREAD_STATE_WAITING...
     uint8_t state;

@@ -20,13 +20,13 @@
 /// cothread_has_joined() or cothread_get_exit_code() isn't allowed.
 #define COTHREAD_DETACHED   (1 << 0)
 
-// Resources flags
-// ---------------
+// Resources flags (internal)
+// --------------------------
 
 // The following flags are used to remember which resources have been allocated
 // by the cothread code. If they aren't set, the user has allocated them.
-#define COTHREAD_ALLOCATED_CONTEXT (1 << 0)
-#define COTHREAD_ALLOCATED_STACK   (1 << 1)
+#define COTHREAD_ALLOCATED_CONTEXT (1 << 14)
+#define COTHREAD_ALLOCATED_STACK   (1 << 15)
 
 // Thread state
 // ------------

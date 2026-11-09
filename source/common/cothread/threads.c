@@ -257,12 +257,12 @@ static void cothread_delete_internal(volatile cothread_info_t *ctx)
 {
     assert(REG_IME == 0);
 
-    if (ctx->flags_resources & COTHREAD_ALLOCATED_STACK)
+    if (ctx->flags & COTHREAD_ALLOCATED_STACK)
         free_fn(ctx->stack_base);
 
     free(ctx->tls);
 
-    if (ctx->flags_resources & COTHREAD_ALLOCATED_CONTEXT)
+    if (ctx->flags & COTHREAD_ALLOCATED_CONTEXT)
         free_fn((void *)ctx);
 }
 
@@ -294,10 +294,10 @@ int cothread_delete(cothread_t thread)
 static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            int (*entrypoint)(void *), void *arg,
                                            void *stack_top, void *tls,
-                                           uint8_t flags)
+                                           uint16_t flags)
 {
     ctx->stack_top = stack_top;
-    ctx->flags_user = flags;
+    ctx->flags = flags;
     ctx->tls = tls;
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->state = COTHREAD_STATE_ACTIVE;
@@ -321,7 +321,7 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
 
 cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
                                   void *stack_base, size_t stack_size,
-                                  uint8_t flags)
+                                  uint16_t flags)
 {
     // stack_size can be zero, like for the main() thread.
 
@@ -341,7 +341,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         errno = ENOMEM;
         return -1;
     }
-    ctx->flags_resources |= COTHREAD_ALLOCATED_CONTEXT;
+    ctx->flags |= COTHREAD_ALLOCATED_CONTEXT;
 
     // Create a new thread-local storage
 
@@ -374,7 +374,7 @@ invalid_args:
 }
 
 cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
-                           size_t stack_size, uint8_t flags)
+                           size_t stack_size, uint16_t flags)
 {
     // Setup stack
 
@@ -394,6 +394,7 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
         errno = ENOMEM;
         return -1;
     }
+    flags |= COTHREAD_ALLOCATED_STACK;
 
     // Create thread
 
@@ -404,10 +405,6 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
         free_fn(stack_base);
         return -1;
     }
-
-    // Set this stack pointer as owned by cothread
-    cothread_info_t *ctx = (cothread_info_t *)id;
-    ctx->flags_resources |= COTHREAD_ALLOCATED_STACK;
 
     return id;
 }
@@ -422,7 +419,7 @@ int cothread_detach(cothread_t thread)
 
     if (ctx->state != COTHREAD_STATE_ENDED)
     {
-        ctx->flags_user |= COTHREAD_DETACHED;
+        ctx->flags |= COTHREAD_DETACHED;
         ret = 0;
     }
     else
@@ -706,7 +703,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
             if (ctx == &main_thread_ctx)
                 return ctx->exit_code;
 
-            if (ctx->flags_user & COTHREAD_DETACHED)
+            if (ctx->flags & COTHREAD_DETACHED)
                 cothread_delete_internal(ctx);
         }
         else if (ctx->state == COTHREAD_STATE_WAITING)
