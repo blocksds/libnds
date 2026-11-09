@@ -502,9 +502,9 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
         return;
     }
 
-    volatile cothread_info_t *ctx = cothread_list_active;
-
     REG_IME = 0;
+
+    volatile cothread_info_t *ctx = cothread_list_active;
 
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->wait_irq_mask = mask;
@@ -528,9 +528,9 @@ ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
         return;
     }
 
-    volatile cothread_info_t *ctx = cothread_list_active;
-
     REG_IME = 0;
+
+    volatile cothread_info_t *ctx = cothread_list_active;
 
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->wait_irq_aux_mask = mask;
@@ -553,9 +553,9 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
     if (signal_id == COTHREAD_NO_SIGNAL)
         return;
 
-    volatile cothread_info_t *ctx = cothread_list_active;
-
     int oldIME = enterCriticalSection();
+
+    volatile cothread_info_t *ctx = cothread_list_active;
 
     ctx->wait_signal_id = signal_id;
     ctx->wait_irq_mask = 0;
@@ -576,9 +576,9 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
     if (signal_id == 0)
         return;
 
-    volatile cothread_info_t *ctx = cothread_list_active;
-
     int oldIME = enterCriticalSection();
+
+    volatile cothread_info_t *ctx = cothread_list_active;
 
     ctx->wait_signal_id = signal_id;
     ctx->wait_irq_mask = mask;
