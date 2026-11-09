@@ -122,7 +122,7 @@ static inline void set_tls(void *tls)
 
 //-------------------------------------------------------------------
 
-static void cothread_list_active_add_ctx(volatile cothread_info_t *ctx)
+static void ITCM_FUNC(cothread_list_active_add_ctx)(volatile cothread_info_t *ctx)
 {
     assert(REG_IME == 0);
 
@@ -163,7 +163,7 @@ static void ITCM_FUNC(cothread_list_active_remove_first_ctx)(void)
 #endif
 }
 
-static void cothread_list_waiting_add_ctx(volatile cothread_info_t *ctx)
+static void ITCM_FUNC(cothread_list_waiting_add_ctx)(volatile cothread_info_t *ctx)
 {
     assert(REG_IME == 0);
 
@@ -204,7 +204,7 @@ static void ITCM_FUNC(cothread_list_waiting_remove_ctx)(volatile cothread_info_t
 //-------------------------------------------------------------------
 
 #ifndef NDEBUG
-void cothread_write_canaries(volatile cothread_info_t *ctx)
+static void cothread_write_canaries(volatile cothread_info_t *ctx)
 {
     uint32_t *canary;
 
@@ -217,7 +217,7 @@ void cothread_write_canaries(volatile cothread_info_t *ctx)
     canary[1] = 0x12345678;
 }
 
-void cothread_check_canaries(volatile cothread_info_t *ctx)
+static void ITCM_FUNC(cothread_check_canaries)(volatile cothread_info_t *ctx)
 {
     uint32_t *canary;
 
@@ -245,6 +245,7 @@ void cothread_main_thread_set_stack_base(void *base)
 
 //-------------------------------------------------------------------
 
+__attribute__((noinline))
 static void cothread_delete_internal(volatile cothread_info_t *ctx)
 {
     assert(REG_IME == 0);
@@ -283,6 +284,7 @@ int cothread_delete(cothread_t thread)
     return ret;
 }
 
+__attribute__((noinline))
 static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            int (*entrypoint)(void *), void *arg,
                                            void *stack_top, void *tls,
@@ -480,7 +482,7 @@ void cothread_yield(void)
     cothread_context_switch_to_scheduler();
 }
 
-ARM_CODE void cothread_yield_irq(uint32_t mask)
+void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
@@ -506,7 +508,7 @@ ARM_CODE void cothread_yield_irq(uint32_t mask)
 }
 
 #ifdef ARM7
-ARM_CODE void cothread_yield_irq_aux(uint32_t mask)
+void cothread_yield_irq_aux(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
