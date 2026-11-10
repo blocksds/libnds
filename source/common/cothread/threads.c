@@ -354,9 +354,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
                                   void *stack_base, size_t stack_size,
                                   uint16_t flags)
 {
-    // stack_size can be zero, like for the main() thread.
-
-    if ((stack_base == NULL) || (entrypoint == NULL))
+    if ((stack_base == NULL) || (stack_size == 0) || (entrypoint == NULL))
         goto invalid_args;
 
     // AAPCS wants the stack to be aligned to 8 bytes
