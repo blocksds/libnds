@@ -323,9 +323,10 @@ int cothread_delete(cothread_t thread)
 __attribute__((noinline))
 static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            int (*entrypoint)(void *), void *arg,
-                                           void *stack_top, void *tls,
-                                           uint16_t flags)
+                                           void *stack_base, void *stack_top,
+                                           void *tls, uint16_t flags)
 {
+    ctx->stack_base = stack_base;
     ctx->stack_top = stack_top;
     ctx->flags = flags;
     ctx->tls = tls;
@@ -408,9 +409,8 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
-    ctx->stack_base = stack_base;
-
-    return cothread_create_internal(ctx, entrypoint, arg, stack_top, tls, flags);
+    return cothread_create_internal(ctx, entrypoint, arg,
+                                    stack_base, stack_top, tls, flags);
 
 invalid_args:
     errno = EINVAL;
@@ -879,14 +879,14 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread. It starts with priority 0 (base priority).
-    main_thread_ctx.stack_base = getHeapLimit();
-    cothread_t id = cothread_create_internal(&main_thread_ctx,
-                                             cothread_main, NULL,
-                                             main_stack_top, __tls_start, 0);
+    cothread_create_internal(&main_thread_ctx,
+                             cothread_main, NULL,
+                             getHeapLimit(), main_stack_top,
+                             __tls_start, 0);
 
     // Start scheduler after everything is ready.
     cothread_scheduler_start();
 
     // If the scheduler returns it's because main() has returned.
-    return cothread_get_exit_code(id);
+    return main_thread_ctx.exit_code;
 }
