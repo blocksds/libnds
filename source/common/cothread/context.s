@@ -22,8 +22,7 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     // Load active thread context
     ldr     r0, =cothread_list_active
     ldr     r0, [r0]
-    ldr     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
-    pop     {r4-r11, lr}
+    ldmia   r0, {r4-r11, sp, lr}
 
     // Enable interrupts
     mrs     r0, cpsr
@@ -36,15 +35,12 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     // Save active context
-    push    {r4-r11, lr}
     ldr     r0, =cothread_list_active
     ldr     r0, [r0]
-    str     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
+    stmia   r0, {r4-r11, sp, lr}
 
     // Disable interrupts
-    mrs     r0, cpsr
-    orr     r0, r0, #CPSR_FLAG_IRQ_DIS
-    msr     cpsr, r0
+    msr     cpsr, #(CPSR_FLAG_IRQ_DIS | CPSR_MODE_SYSTEM)
 
     // Load scheduler context
     ldr     r0, =cothread_scheduler_sp

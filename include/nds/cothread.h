@@ -359,8 +359,13 @@ static inline void cosema_wait(cosema_t *sema)
 // to make it possible to write tests for cothread.
 typedef struct
 {
-    // Saved value of the stack pointer when running in this thread.
-    uint32_t arm_sp;
+    // Context of the thread while it's sleeping
+    struct
+    {
+        uint32_t r4, r5, r6, r7, r8, r9, r10, r11;
+        uint32_t sp, lr;
+    }
+    cpu;
 
     // Value returned by a thread. Detached threads never give the user the
     // possibility to read it because the context is freed right after it ends.
@@ -389,9 +394,10 @@ typedef struct
 #ifdef ARM7
     uint32_t wait_irq_aux_mask; // Extended ARM7 interrupts
 #endif
-} cothread_info_t;
+}
+cothread_info_t;
 
-static_assert(offsetof(cothread_info_t, arm_sp) == COTHREAD_INFO_STACK_POINTER_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.sp) == COTHREAD_INFO_STACK_POINTER_OFFSET);
 static_assert(offsetof(cothread_info_t, exit_code) == COTHREAD_INFO_EXIT_CODE_OFFSET);
 static_assert(offsetof(cothread_info_t, state) == COTHREAD_INFO_STATE_OFFSET);
 

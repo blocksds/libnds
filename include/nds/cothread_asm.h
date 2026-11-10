@@ -58,8 +58,8 @@
 // ---------------
 
 // Offsets to fields inside the cothread_info_t struct
-#define COTHREAD_INFO_STACK_POINTER_OFFSET      0
-#define COTHREAD_INFO_EXIT_CODE_OFFSET          4
-#define COTHREAD_INFO_STATE_OFFSET              31
+#define COTHREAD_INFO_STACK_POINTER_OFFSET      (8 * 4)
+#define COTHREAD_INFO_EXIT_CODE_OFFSET          (10 * 4)
+#define COTHREAD_INFO_STATE_OFFSET              (27 + 10 * 4)
 
 #endif // LIBNDS_NDS_COTRHEAD_ASM_H__
