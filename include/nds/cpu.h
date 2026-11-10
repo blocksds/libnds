@@ -19,6 +19,12 @@ void setCPSR(uint32_t);
 /// Returns the cpu status register.
 uint32_t getCPSR(void);
 
+/// Enable interrupts in CPSR
+void cpsrEnableInterrupts(void);
+
+/// Disable interrupts in CPSR
+void cpsrDisableInterrupts(void);
+
 #ifdef __cplusplus
 }
 #endif
