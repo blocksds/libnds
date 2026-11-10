@@ -70,6 +70,13 @@ volatile uintptr_t DTCM_BSS_VAR(cothread_scheduler_sp);
 // thread ends, the program ends).
 static cothread_info_t DTCM_BSS_VAR(main_thread_ctx) = { 0 };
 
+// This is the sleep thread context, which always has the lowest possible
+// priority, and it runs whenever there are no more threads awake.
+static cothread_info_t DTCM_BSS_VAR(sleep_thread_ctx) = { 0 };
+
+// This is the stack used by the sleep thread.
+ALIGN(8) static uint8_t DTCM_BSS_VAR(sleep_stack)[512];
+
 // Linked lists of threads. The first entry in cothread_list_active is the
 // active thread.
 volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_active);
@@ -149,7 +156,7 @@ static void free_anywhere(void *ptr)
 
 static void ITCM_FUNC(cothread_list_active_add_ctx)(volatile cothread_info_t *ctx)
 {
-    assert(REG_IME == 0);
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
     // Add new active contexts to the end of the list
 
@@ -184,7 +191,7 @@ static void ITCM_FUNC(cothread_list_active_add_ctx)(volatile cothread_info_t *ct
 
 static void ITCM_FUNC(cothread_list_active_remove_first_ctx)(void)
 {
-    assert(REG_IME == 0);
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
     assert(cothread_list_active);
 
 #ifndef NDEBUG
@@ -201,7 +208,7 @@ static void ITCM_FUNC(cothread_list_active_remove_first_ctx)(void)
 
 static void ITCM_FUNC(cothread_list_waiting_add_ctx)(volatile cothread_info_t *ctx)
 {
-    assert(REG_IME == 0);
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
     // Add new waiting contexts to the front of the list. It doesn't matter
     // where they are added because they all have to be checked when an
@@ -218,7 +225,7 @@ static void ITCM_FUNC(cothread_list_waiting_add_ctx)(volatile cothread_info_t *c
 
 static void ITCM_FUNC(cothread_list_waiting_remove_ctx)(volatile cothread_info_t *ctx)
 {
-    assert(REG_IME == 0);
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
     cothread_info_t *prev = ctx->prev;
     cothread_info_t *next = ctx->next;
@@ -284,7 +291,7 @@ void cothread_main_thread_set_stack_base(void *base)
 __attribute__((noinline))
 static void cothread_delete_internal(volatile cothread_info_t *ctx)
 {
-    assert(REG_IME == 0);
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
     if (ctx->flags & COTHREAD_ALLOCATED_STACK)
         free_fn(ctx->stack_base);
@@ -605,7 +612,7 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
     }
 
     // Disable interrupts until the scheduler moves this thread to the waiting list
-    REG_IME = 0;
+    cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
@@ -629,7 +636,7 @@ void cothread_yield_irq_aux(uint32_t mask)
     }
 
     // Disable interrupts until the scheduler moves this thread to the waiting list
-    REG_IME = 0;
+    cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
@@ -675,7 +682,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
         return;
 
     // Disable interrupts until the scheduler moves this thread to the waiting list
-    REG_IME = 0;
+    cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
@@ -741,41 +748,47 @@ void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
 
 //-------------------------------------------------------------------
 
+// This thread runs whenever there are no more active threads, its purpose is to
+// always remain in active state and to sleep whenever it runs.
+__attribute__((noreturn))
+ARM_CODE static int ITCM_FUNC(cothread_sleep)(void *arg)
+{
+    (void)arg;
+
+    while (1)
+    {
+#if defined(ARM9)
+        CP15_WaitForInterrupt();
+#elif defined(ARM7)
+        swiHalt();
+#endif
+
+        cothread_yield();
+    }
+}
+
+//-------------------------------------------------------------------
+
 cothread_t cothread_get_current(void)
 {
     return (cothread_t)cothread_list_active;
 }
 
+// The scheduler can't handle interrupts, they can only be handled from inside a
+// thread. Also, the scheduler doesn't have a valid TLS, so it can't use things
+// like malloc().
 __attribute__ ((noinline))
 ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 {
-    // We expect at least one active thread when this function starts.
+    // The main and sleep threads should already be in the active list when
+    // this function starts.
     assert(cothread_list_active != NULL);
 
     while (1)
     {
-        volatile cothread_info_t *ctx;
-
-        while (1)
-        {
-            ctx = cothread_list_active;
-            if (ctx != NULL)
-                break;
-
-            // No active threads. Halt the CPU using the BIOS
-#if defined(ARM9)
-            // TODO: We should be able to use CP15_WaitForInterrupt(), but
-            // it hangs the CPU for some reason. swiIntrWait() sets REG_IME
-            // to 1 internally so it can exit halt state.
-
-            // Wait for all IRQs enabled by the user.
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, REG_IE);
-#elif defined(ARM7)
-            swiHalt();
-#endif
-        }
-
-        // We have an active thread, execute it
+        // Get the first entry in the list of active threads and switch to it.
+        // There's always an active thread (even if it's the sleep thread).
+        volatile cothread_info_t *ctx = cothread_list_active;
 
         // Switch to its TLS space
         set_tls(ctx->tls);
@@ -787,8 +800,6 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         // After returning from the thread, check stack canaries
         cothread_check_canaries(ctx);
 #endif
-
-        int oldIME = enterCriticalSection();
 
         // Whenever we finish executing a thread, add it to the right list. Even
         // if the thread is still active, it needs to be removed from the list
@@ -815,12 +826,6 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         {
             cothread_list_active_add_ctx(ctx);
         }
-
-        // If there are waiting threads, enable interrupts no matter what
-        if (cothread_list_waiting)
-            REG_IME = 1;
-        else
-            leaveCriticalSection(oldIME);
     }
 }
 
@@ -869,6 +874,12 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     (void)argv;
 #endif
 
+    // The scheduler can't handle interrupts
+    cpsrDisableInterrupts();
+
+    // Setup main thread
+    // -----------------
+
     // Initialize TLS of the main thread
     init_tls(__tls_start);
 
@@ -882,7 +893,25 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
                              getHeapLimit(), main_stack_top,
                              __tls_start, 0);
 
-    // Start scheduler after everything is ready.
+    // Setup sleep thread
+    // ------------------
+
+    // The sleep thread doesn't do anything, it just sleeps. It doesn't need a
+    // valid TLS. Use TCB_SIZE as the size so that the TLS pointer assigned by
+    // set_tls() to __tls is NULL.
+    void *sleep_tls = (void *)TCB_SIZE;
+    cothread_create_internal(&sleep_thread_ctx,
+                             cothread_sleep, NULL,
+                             &sleep_stack[0], &sleep_stack[sizeof(sleep_stack)],
+                             sleep_tls, 0);
+
+    // It has the minimum possible priority so that it only runs if there are no
+    // other active threads.
+    sleep_thread_ctx.priority = -128;
+
+    // Start scheduler
+    // ---------------
+
     cothread_scheduler_start();
 
     // If the scheduler returns it's because main() has returned.

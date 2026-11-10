@@ -5,6 +5,7 @@
 // Copyright (C) 2026 Antonio Niño Díaz
 
 #include <nds/asminc.h>
+#include <nds/cpu_asm.h>
 #include <nds/cothread_asm.h>
 
     .syntax unified
@@ -24,6 +25,11 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     ldr     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
     pop     {r4-r11, lr}
 
+    // Enable interrupts
+    mrs     r0, cpsr
+    bic     r0, r0, #CPSR_FLAG_IRQ_DIS
+    msr     cpsr, r0
+
     bx      lr
 
 
@@ -34,6 +40,11 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
     ldr     r0, =cothread_list_active
     ldr     r0, [r0]
     str     sp, [r0, #COTHREAD_INFO_STACK_POINTER_OFFSET]
+
+    // Disable interrupts
+    mrs     r0, cpsr
+    orr     r0, r0, #CPSR_FLAG_IRQ_DIS
+    msr     cpsr, r0
 
     // Load scheduler context
     ldr     r0, =cothread_scheduler_sp
@@ -58,6 +69,7 @@ BEGIN_ASM_FUNC cothread_context_entrypoint itcm
 
     // r0 = return value
 
+    // Get pointer to the current thread contest
     ldr     r1, =cothread_list_active
     ldr     r1, [r1]
 
@@ -67,6 +79,11 @@ BEGIN_ASM_FUNC cothread_context_entrypoint itcm
     // Mark the thread as ended
     mov     r0, #COTHREAD_STATE_ENDED
     strb    r0, [r1, #COTHREAD_INFO_STATE_OFFSET]
+
+    // Disable interrupts
+    mrs     r0, cpsr
+    orr     r0, r0, #CPSR_FLAG_IRQ_DIS
+    msr     cpsr, r0
 
     // Load scheduler context
     ldr     r0, =cothread_scheduler_sp
