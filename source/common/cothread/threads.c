@@ -794,7 +794,7 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
         // Whenever we finish executing a thread, add it to the right list. Even
         // if the thread is still active, it needs to be removed from the list
-        // and added to the end.
+        // and added back to it in the right place according to its priority.
 
         cothread_list_active_remove_first_ctx();
 
