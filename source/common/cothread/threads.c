@@ -606,6 +606,7 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
         return;
     }
 
+    // Disable interrupts until the scheduler moves this thread to the waiting list
     REG_IME = 0;
 
     volatile cothread_info_t *ctx = cothread_list_active;
@@ -613,9 +614,6 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->wait_irq_mask = mask;
     ctx->state = COTHREAD_STATE_WAITING;
-
-    // We're going to wait for an IRQ. Make sure that IRQs are enabled.
-    REG_IME = 1;
 
     cothread_context_switch_to_scheduler();
 }
@@ -632,6 +630,7 @@ void cothread_yield_irq_aux(uint32_t mask)
         return;
     }
 
+    // Disable interrupts until the scheduler moves this thread to the waiting list
     REG_IME = 0;
 
     volatile cothread_info_t *ctx = cothread_list_active;
@@ -639,9 +638,6 @@ void cothread_yield_irq_aux(uint32_t mask)
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
     ctx->wait_irq_aux_mask = mask;
     ctx->state = COTHREAD_STATE_WAITING;
-
-    // We're going to wait for an IRQ. Make sure that IRQs are enabled.
-    REG_IME = 1;
 
     cothread_context_switch_to_scheduler();
 }
@@ -680,15 +676,14 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
     if (signal_id == 0)
         return;
 
-    int oldIME = enterCriticalSection();
+    // Disable interrupts until the scheduler moves this thread to the waiting list
+    REG_IME = 0;
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
     ctx->wait_signal_id = signal_id;
     ctx->wait_irq_mask = mask;
     ctx->state = COTHREAD_STATE_WAITING;
-
-    leaveCriticalSection(oldIME);
 
     cothread_context_switch_to_scheduler();
 }
@@ -795,11 +790,11 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
         cothread_check_canaries(ctx);
 #endif
 
+        int oldIME = enterCriticalSection();
+
         // Whenever we finish executing a thread, add it to the right list. Even
         // if the thread is still active, it needs to be removed from the list
         // and added to the end.
-
-        int oldIME = enterCriticalSection();
 
         cothread_list_active_remove_first_ctx();
 
@@ -823,7 +818,11 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
             cothread_list_active_add_ctx(ctx);
         }
 
-        leaveCriticalSection(oldIME);
+        // If there are waiting threads, enable interrupts no matter what
+        if (cothread_list_waiting)
+            REG_IME = 1;
+        else
+            leaveCriticalSection(oldIME);
     }
 }
 
