@@ -13,11 +13,13 @@
 
 #ifdef ARM9
 #include <nds/arm9/cp15.h>
+#include <nds/arm9/tcm_alloc.h>
 #endif
 #include <nds/bios.h>
 #include <nds/cothread.h>
 #include <nds/exceptions.h>
 #include <nds/interrupts.h>
+#include <nds/memory.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
 
@@ -118,6 +120,29 @@ void *ITCM_DATA_VAR(__tls) = __tls_start - TCB_SIZE;
 static inline void set_tls(void *tls)
 {
     __tls = (uint8_t *)tls - TCB_SIZE;
+}
+
+//-------------------------------------------------------------------
+
+static void free_anywhere(void *ptr)
+{
+#ifdef ARM9
+    uintptr_t address = (uintptr_t)ptr;
+
+    if ((DTCM_START <= address) && (address < DTCM_END))
+    {
+        dtcm_free(ptr);
+        return;
+    }
+
+    if ((ITCM_START <= address) && (address < ITCM_END))
+    {
+        itcm_free(ptr);
+        return;
+    }
+#endif
+
+    free(ptr);
 }
 
 //-------------------------------------------------------------------
@@ -264,7 +289,7 @@ static void cothread_delete_internal(volatile cothread_info_t *ctx)
     if (ctx->flags & COTHREAD_ALLOCATED_STACK)
         free_fn(ctx->stack_base);
 
-    free(ctx->tls);
+    free_fn(ctx->tls);
 
     if (ctx->flags & COTHREAD_ALLOCATED_CONTEXT)
         free_fn((void *)ctx);
@@ -340,7 +365,17 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     // Setup context
 
-    cothread_info_t *ctx = calloc(1, sizeof(cothread_info_t));
+    cothread_info_t *ctx;
+
+#ifdef ARM9
+    if (flags & COTHREAD_CONTEXT_IN_ITCM)
+        ctx = itcm_calloc(1, sizeof(cothread_info_t));
+    else if (flags & COTHREAD_CONTEXT_IN_DTCM)
+        ctx = dtcm_calloc(1, sizeof(cothread_info_t));
+    else
+#endif
+        ctx = calloc(1, sizeof(cothread_info_t));
+
     if (ctx == NULL)
     {
         errno = ENOMEM;
@@ -355,7 +390,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     void *tls = malloc(__tls_size);
     if (tls == NULL)
     {
-        free(ctx);
+        free_anywhere(ctx);
         errno = ENOMEM;
         return -1;
     }
@@ -369,7 +404,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     // Assign the free() function to the pointer because now we are sure that we
     // will need to free the resources of the newly created thread eventually.
 
-    free_fn = free;
+    free_fn = free_anywhere;
 
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
@@ -397,7 +432,17 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
         stack_size = DEFAULT_STACK_SIZE_CHILD;
 
     // The stack must be aligned to 8 bytes
-    void *stack_base = memalign(8, stack_size);
+    void *stack_base;
+
+#ifdef ARM9
+    if (flags & COTHREAD_STACK_IN_ITCM)
+        stack_base = itcm_memalign(8, stack_size);
+    else if (flags & COTHREAD_STACK_IN_DTCM)
+        stack_base = dtcm_memalign(8, stack_size);
+    else
+#endif
+        stack_base = memalign(8, stack_size);
+
     if (stack_base == NULL)
     {
         errno = ENOMEM;

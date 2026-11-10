@@ -60,7 +60,7 @@ static inline uint32_t cosema_to_signal_id(cosema_t *sema)
 ///     Size of the stack. If it is set to zero it will use a default value. If
 ///     non-zero, it must be aligned to 64 bit.
 /// @param flags
-///     Set of ORed flags (like COTHREAD_DETACHED) or 0.
+///     ORed option flags (COTHREAD_DETACHED, COTHREAD_CONTEXT_IN_DTCM...).
 ///
 /// @return
 ///     On success, it returns a non-negative value representing the thread ID.
@@ -84,7 +84,7 @@ cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
 /// @param stack_size
 ///     Size of the stack. Must be aligned to 64 bit.
 /// @param flags
-///     Set of ORed flags (like COTHREAD_DETACHED) or 0.
+///     ORed option flags (COTHREAD_DETACHED, COTHREAD_CONTEXT_IN_DTCM...).
 ///
 /// @return
 ///     On success, it returns a non-negative value representing the thread ID.

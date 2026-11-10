@@ -18,7 +18,25 @@
 ///
 /// A detached thread deallocates all memory used by it when it ends. Calling
 /// cothread_has_joined() or cothread_get_exit_code() isn't allowed.
-#define COTHREAD_DETACHED   (1 << 0)
+#define COTHREAD_DETACHED           (1 << 0)
+
+#ifdef ARM9
+
+/// Makes cothread_create() or cothread_create_manual() allocate the thread
+/// context in ITCM.
+#define COTHREAD_CONTEXT_IN_ITCM    (1 << 1)
+
+/// Makes cothread_create() or cothread_create_manual() allocate the thread
+/// context in DTCM.
+#define COTHREAD_CONTEXT_IN_DTCM    (1 << 2)
+
+/// Makes cothread_create() allocate the thread stack in ITCM.
+#define COTHREAD_STACK_IN_ITCM      (1 << 3)
+
+/// Makes cothread_create() allocate the thread stack in DTCM.
+#define COTHREAD_STACK_IN_DTCM      (1 << 4)
+
+#endif // ARM9
 
 // Resources flags (internal)
 // --------------------------
