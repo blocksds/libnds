@@ -33,7 +33,7 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     ldr     r0, [r0] // The CPU state is right at the start of the context
 
     ldr     sp, [r0, #COTHREAD_INFO_CPU_SP_OFFSET]
-    ldr     lr, [lr, #COTHREAD_INFO_CPU_LR_OFFSET]
+    ldr     lr, [r0, #COTHREAD_INFO_CPU_LR_OFFSET]
 
     msr     cpsr, #(CPSR_MODE_ABORT | CPSR_FLAG_IRQ_DIS) // Keep IRQs off
 
