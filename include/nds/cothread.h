@@ -398,7 +398,12 @@ typedef struct
 }
 cothread_info_t;
 
-static_assert(offsetof(cothread_info_t, cpu.sp) == COTHREAD_INFO_STACK_POINTER_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu) == COTHREAD_INFO_CPU_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.r4) == COTHREAD_INFO_CPU_R4_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.sp) == COTHREAD_INFO_CPU_SP_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.lr) == COTHREAD_INFO_CPU_LR_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.pc) == COTHREAD_INFO_CPU_PC_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.cpsr) == COTHREAD_INFO_CPU_CPSR_OFFSET);
 static_assert(offsetof(cothread_info_t, exit_code) == COTHREAD_INFO_EXIT_CODE_OFFSET);
 static_assert(offsetof(cothread_info_t, state) == COTHREAD_INFO_STATE_OFFSET);
 

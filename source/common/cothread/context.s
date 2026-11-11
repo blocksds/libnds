@@ -30,17 +30,17 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     // Load active thread context
 
     ldr     r0, =cothread_list_active
-    ldr     r0, [r0]
+    ldr     r0, [r0] // The CPU state is right at the start of the context
 
-    ldr     sp, [r0, #(13 * 4)] // Load sp
-    ldr     lr, [lr, #(14 * 4)] // Load lr
+    ldr     sp, [r0, #COTHREAD_INFO_CPU_SP_OFFSET]
+    ldr     lr, [lr, #COTHREAD_INFO_CPU_LR_OFFSET]
 
-    msr     cpsr, #(CPSR_MODE_ABORT | CPSR_FLAG_IRQ_DIS) // Abort mode. IRQs off
+    msr     cpsr, #(CPSR_MODE_ABORT | CPSR_FLAG_IRQ_DIS) // Keep IRQs off
 
-    ldr     r1, [r0, #(16 * 4)] // Load cpsr
+    ldr     r1, [r0, #COTHREAD_INFO_CPU_CPSR_OFFSET]
     msr     spsr, r1
 
-    ldr     lr, [r0, #(15 * 4)] // Load pc
+    ldr     lr, [r0, #COTHREAD_INFO_CPU_PC_OFFSET]
 
     mov     sp, r0
     ldmia   sp, {r0-r12}
@@ -48,14 +48,17 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     movs    r15, r14 // Return from abort mode
 
 
+// We don't need to save r0-r3 from this function. The thread is yielding
+// manually, which means it has used a function call, and the compiler only
+// expects registers {r4-r11, lr} to be preserved.
 BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     // Save active context
 
     ldr     r0, =cothread_list_active
-    ldr     r0, [r0]
+    ldr     r0, [r0] // The CPU state is right at the start of the context
 
-    add     r0, #(4 * 4) // We don't need to save r0-r3 from this function
+    add     r0, #COTHREAD_INFO_CPU_R4_OFFSET // Skip r0-r3
     stmia   r0!, {r4-r12, sp, lr} // r12 isn't needed, but it's faster to save it
 
     // When saving CPSR we need to check LR to see if the return function was in
@@ -67,7 +70,7 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     str     lr, [r0] // Save pc
 
-    // Disable interrupts
+    // Disable interrupts before entering the scheduler
 
     msr     cpsr, #(CPSR_FLAG_IRQ_DIS | CPSR_MODE_SYSTEM)
 
