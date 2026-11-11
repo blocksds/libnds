@@ -42,8 +42,7 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 
     ldr     lr, [r0, #COTHREAD_INFO_CPU_PC_OFFSET]
 
-    mov     sp, r0
-    ldmia   sp, {r0-r12}
+    ldmia   r0, {r0-r12}
 
     movs    r15, r14 // Return from abort mode
 
