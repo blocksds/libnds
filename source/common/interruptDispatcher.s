@@ -190,13 +190,11 @@ main_irq_found:
     add     r1, r1, #1
     strh    r1, [r0]
 
-    // Enable IRQ and FIQ, set mode to System
-    mrs     r0, cpsr
-    bic     r1, r0, #(CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS | CPSR_MODE_MASK)
-    orr     r1, r1, #CPSR_MODE_SYSTEM
-    msr     cpsr, r1
+    // Enable IRQ and FIQ, set mode to System to use its stack. However, that
+    // means we need to preserve its banked lr register.
+    msr     cpsr, #CPSR_MODE_SYSTEM
 
-    push    {r0, lr}                // {old cpsr, lr_sys}
+    push    {lr} // {lr_sys}
 
 #ifdef ARM9
     blx     r3
@@ -208,9 +206,10 @@ main_irq_found:
 interrupt_return:
 #endif
 
-    pop     {r0, lr}                // {old cpsr, lr_sys}
+    pop     {lr} // {lr_sys}
 
-    msr     cpsr, r0                // Return to IRQ mode with IRQs and FIQs disabled
+    // Return to IRQ mode with IRQs and FIQs disabled
+    msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
 #ifdef THREADS_ENABLED
     pop     {r0-r2, r12, lr}        // {spsr_irq, IME, IRQ bit, REG_BASE, lr_irq}
