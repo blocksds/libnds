@@ -62,6 +62,8 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     // When saving CPSR we need to check LR to see if the return function was in
     // ARM or Thumb mode so that we can set the Thumb flag in CPSR as well.
+    // This is needed because the function that has called us may be in Thumb,
+    // and CPSR is modified when jumping here, running in ARM mode.
     mrs     r1, cpsr
     tst     lr, #1
     orrne   r1, #CPSR_FLAG_THUMB
