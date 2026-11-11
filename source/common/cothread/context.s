@@ -12,6 +12,13 @@
     .arm
 
 
+// This function switches to abort mode to do the context change because it
+// isn't possible to set CPSR, PC and update the Thumb/ARM execution mode with a
+// single instruction. Modifying CPSR by hand has undefined results when
+// changing the Thumb flag, for example. The only safe way to do it is to switch
+// to a privileged mode with its own spsr (like abort) and switch from there.
+// The abort handler of the BIOS sets the stack pointer as soon as it starts, so
+// this doesn't break the abort handler either.
 BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 
     // Save scheduler context
@@ -22,17 +29,23 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 
     // Load active thread context
 
-    ldr     lr, =cothread_list_active
-    ldr     lr, [lr]
+    ldr     r0, =cothread_list_active
+    ldr     r0, [r0]
 
-    ldr     r0, [lr, #(16 * 4)] // Load cpsr
-    msr     cpsr, r0
+    ldr     sp, [r0, #(13 * 4)] // Load sp
+    ldr     lr, [lr, #(14 * 4)] // Load lr
 
-    ldmia   lr!, {r0-r12, sp}
-    ldr     lr, [lr, #0] // Load lr
-    // Skip pc for now
+    msr     cpsr, #(CPSR_MODE_ABORT | CPSR_FLAG_IRQ_DIS) // Abort mode. IRQs off
 
-    bx      lr
+    ldr     r1, [r0, #(16 * 4)] // Load cpsr
+    msr     spsr, r1
+
+    ldr     lr, [r0, #(15 * 4)] // Load pc
+
+    mov     sp, r0
+    ldmia   sp, {r0-r12}
+
+    movs    r15, r14 // Return from abort mode
 
 
 BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
@@ -44,9 +57,15 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     add     r0, #(4 * 4) // We don't need to save r0-r3 from this function
     stmia   r0!, {r4-r12, sp, lr} // r12 isn't needed, but it's faster to save it
-    str     lr, [r0], #4 // Save pc
+
+    // When saving CPSR we need to check LR to see if the return function was in
+    // ARM or Thumb mode so that we can set the Thumb flag in CPSR as well.
     mrs     r1, cpsr
-    str     r1, [r0] // Save cpsr
+    tst     lr, #1
+    orrne   r1, #CPSR_FLAG_THUMB
+    str     r1, [r0, #4] // Save cpsr
+
+    str     lr, [r0] // Save pc
 
     // Disable interrupts
 

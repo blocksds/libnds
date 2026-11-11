@@ -34,6 +34,7 @@
 #define CPSR_FLAG_FIQ_DIS       BIT(6) // 0 = Enable, 1 = Disable
 #define CPSR_FLAG_F             BIT(6)
 #define CPSR_FLAG_STATE         BIT(5) // 0 = ARM, 1 = THUMB
+#define CPSR_FLAG_THUMB         BIT(5)
 #define CPSR_FLAG_T             BIT(5)
 
 #endif // LIBNDS_NDS_CPU_ASM_H__
