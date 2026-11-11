@@ -4,6 +4,7 @@
 // Copyright (C) 2021-2023 agbabi contributors
 // Copyright (C) 2026 Antonio Niño Díaz
 
+#include <nds/cpu_asm.h>
 #include <nds/cothread.h>
 
 #include "common/cothread/context.h"
@@ -23,8 +24,11 @@
 void cothread_context_initialize(cothread_info_t *ctx, void *sp_top,
                                  int (*user_entrypoint)(void*), void *arg)
 {
-    ctx->cpu.r4 = (uintptr_t)arg;
+    ctx->cpu.r0 = (uintptr_t)arg;
     ctx->cpu.r5 = (uintptr_t)user_entrypoint;
     ctx->cpu.sp = (uintptr_t)sp_top;
+    // TODO: Stop assigning lr
     ctx->cpu.lr = (uintptr_t)&cothread_context_entrypoint; // System entrypoint
+    ctx->cpu.pc = (uintptr_t)&cothread_context_entrypoint; // System entrypoint
+    ctx->cpu.cpsr = CPSR_MODE_SYSTEM; // ARM mode. Interrupts enabled by default
 }

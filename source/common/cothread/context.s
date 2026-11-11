@@ -15,19 +15,22 @@
 BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 
     // Save scheduler context
+
     push    {r4-r11, lr}
     ldr     r0, =cothread_scheduler_sp
     str     sp, [r0]
 
     // Load active thread context
-    ldr     r0, =cothread_list_active
-    ldr     r0, [r0]
-    ldmia   r0, {r4-r11, sp, lr}
 
-    // Enable interrupts
-    mrs     r0, cpsr
-    bic     r0, r0, #CPSR_FLAG_IRQ_DIS
+    ldr     lr, =cothread_list_active
+    ldr     lr, [lr]
+
+    ldr     r0, [lr, #(16 * 4)] // Load cpsr
     msr     cpsr, r0
+
+    ldmia   lr!, {r0-r12, sp}
+    ldr     lr, [lr, #0] // Load lr
+    // Skip pc for now
 
     bx      lr
 
@@ -35,14 +38,22 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
 BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
     // Save active context
+
     ldr     r0, =cothread_list_active
     ldr     r0, [r0]
-    stmia   r0, {r4-r11, sp, lr}
+
+    add     r0, #(4 * 4) // We don't need to save r0-r3 from this function
+    stmia   r0!, {r4-r12, sp, lr} // r12 isn't needed, but it's faster to save it
+    str     lr, [r0], #4 // Save pc
+    mrs     r1, cpsr
+    str     r1, [r0] // Save cpsr
 
     // Disable interrupts
+
     msr     cpsr, #(CPSR_FLAG_IRQ_DIS | CPSR_MODE_SYSTEM)
 
     // Load scheduler context
+
     ldr     r0, =cothread_scheduler_sp
     ldr     sp, [r0]
     pop     {r4-r11, lr}
@@ -52,10 +63,9 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
 
 BEGIN_ASM_FUNC cothread_context_entrypoint itcm
 
-    // r4 = arg
+    // r0 = arg
     // r5 = user entrypoint
 
-    mov     r0, r4 // Load argument
 #ifdef ARM9
     blx     r5
 #else
@@ -65,7 +75,7 @@ BEGIN_ASM_FUNC cothread_context_entrypoint itcm
 
     // r0 = return value
 
-    // Get pointer to the current thread contest
+    // Get pointer to the current thread context
     ldr     r1, =cothread_list_active
     ldr     r1, [r1]
 
