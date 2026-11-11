@@ -346,13 +346,13 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
     stack_top = (void *)((uint32_t *)stack_top - 2);
 #endif
 
+    // Initialize context
+    cothread_context_initialize(ctx, stack_top, entrypoint, arg);
+
     // Add main thread to the list of active threads
     int oldIME = enterCriticalSection();
     cothread_list_active_add_ctx(ctx);
     leaveCriticalSection(oldIME);
-
-    // Initialize context
-    cothread_context_initialize(ctx, stack_top, entrypoint, arg);
 
     return (cothread_t)ctx;
 }
