@@ -658,15 +658,14 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
     if (signal_id == COTHREAD_NO_SIGNAL)
         return;
 
-    int oldIME = enterCriticalSection();
+    // Disable interrupts until the scheduler moves this thread to the waiting list
+    cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
     ctx->wait_signal_id = signal_id;
     ctx->wait_irq_mask = 0;
     ctx->state = COTHREAD_STATE_WAITING;
-
-    leaveCriticalSection(oldIME);
 
     cothread_context_switch_to_scheduler();
 }
@@ -698,7 +697,7 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 // Internal function
 ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
 {
-    int oldIME = enterCriticalSection();
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
     volatile cothread_info_t *ctx = cothread_list_waiting;
 
@@ -717,8 +716,6 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
 
         ctx = next;
     }
-
-    leaveCriticalSection(oldIME);
 }
 
 void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
