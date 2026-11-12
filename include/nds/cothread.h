@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2023-2025 Antonio Niño Díaz
+// Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #ifndef LIBNDS_NDS_COTHREAD_H__
 #define LIBNDS_NDS_COTHREAD_H__
@@ -257,11 +257,7 @@ cothread_t cothread_get_current(void);
 ///
 /// @return
 ///     It returns true if the mutex has been initialized, false if not.
-static inline bool comutex_init(comutex_t *mutex)
-{
-    *mutex = 0;
-    return true;
-}
+bool comutex_init(comutex_t *mutex);
 
 /// Tries to acquire a mutex without blocking execution.
 ///
@@ -270,14 +266,7 @@ static inline bool comutex_init(comutex_t *mutex)
 ///
 /// @return
 ///     It returns true if the mutex has been acquired, false if not.
-static inline bool comutex_try_acquire(comutex_t *mutex)
-{
-    if (*mutex != 0)
-        return false;
-
-    *mutex = 1;
-    return true;
-}
+bool comutex_try_acquire(comutex_t *mutex);
 
 /// Waits in a loop until the mutex is available.
 ///
@@ -286,11 +275,7 @@ static inline bool comutex_try_acquire(comutex_t *mutex)
 ///
 /// @param mutex
 ///     Pointer to the mutex.
-static inline void comutex_acquire(comutex_t *mutex)
-{
-    while (comutex_try_acquire(mutex) == false)
-        cothread_yield_signal(comutex_to_signal_id(mutex));
-}
+void comutex_acquire(comutex_t *mutex);
 
 /// Releases a mutex.
 ///
@@ -298,11 +283,7 @@ static inline void comutex_acquire(comutex_t *mutex)
 ///
 /// @param mutex
 ///     Pointer to the mutex.
-static inline void comutex_release(comutex_t *mutex)
-{
-    *mutex = 0;
-    cothread_send_signal(comutex_to_signal_id(mutex));
-}
+void comutex_release(comutex_t *mutex);
 
 /// Initializes a counting semaphore to the desired value.
 ///
@@ -313,11 +294,7 @@ static inline void comutex_release(comutex_t *mutex)
 ///
 /// @return
 ///     It returns true if the semaphore has been initialized, false if not.
-static inline bool cosema_init(cosema_t *sema, uint32_t init_val)
-{
-    *sema = init_val;
-    return true;
-}
+bool cosema_init(cosema_t *sema, uint32_t init_val);
 
 /// Signals a semaphore.
 ///
@@ -327,11 +304,7 @@ static inline bool cosema_init(cosema_t *sema, uint32_t init_val)
 ///
 /// @param sema
 ///     Pointer to the semaphore.
-static inline void cosema_signal(cosema_t *sema)
-{
-    *sema = *sema + 1;
-    cothread_send_signal(cosema_to_signal_id(sema));
-}
+void cosema_signal(cosema_t *sema);
 
 /// Checks if a semaphore has been signalled.
 ///
@@ -343,16 +316,7 @@ static inline void cosema_signal(cosema_t *sema)
 ///
 /// @return
 ///     If the semaphore has been signalled it returns true. If not, false.
-static inline bool cosema_try_wait(cosema_t *sema)
-{
-    if (*sema > 0)
-    {
-        *sema = *sema - 1;
-        return true;
-    }
-
-    return false;
-}
+bool cosema_try_wait(cosema_t *sema);
 
 /// Waits in a loop until the semaphore is signalled.
 ///
@@ -361,11 +325,7 @@ static inline bool cosema_try_wait(cosema_t *sema)
 ///
 /// @param sema
 ///     Pointer to the semaphore.
-static inline void cosema_wait(cosema_t *sema)
-{
-    while (cosema_try_wait(sema) == false)
-        cothread_yield_signal(cosema_to_signal_id(sema));
-}
+void cosema_wait(cosema_t *sema);
 
 // Private thread information. It is private to the library, but exposed here
 // to make it possible to write tests for cothread.
