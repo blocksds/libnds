@@ -87,17 +87,20 @@ bool cothread_preemption_enabled = false;
 //-------------------------------------------------------------------
 
 // Linker symbols
+extern char __tls_size[];
+
+// This is a reference TLS data section that is used to initialize the TLS of
+// threads after boot.
 extern char __tdata_start[];
 extern char __tdata_size[];
 
-extern char __tbss_start[];
+//extern char __tbss_start[];
 extern char __tbss_size[];
-
-extern char __tls_start[];
-extern char __tls_end[];
 
 void init_tls(void *__tls)
 {
+    // Copy reference TLS data to the new TLS context, and clear the new TLS bss
+
     char *tls = __tls;
 
     char *tdata_start = tls;
@@ -124,7 +127,10 @@ void init_tls(void *__tls)
 // the linker (by setting __dtcm_data_size). If not, this variable would be
 // placed at the start of DTCM, so the stack wouldn't be able to grow to main
 // RAM if it runs out of space in DTCM.
-void *ITCM_DATA_VAR(__tls) = __tls_start - TCB_SIZE;
+//
+// It starts as NULL so that any usage of TLS before initializing the threading
+// system causes a crash.
+void *ITCM_DATA_VAR(__tls) = (char *)NULL - TCB_SIZE;
 
 static inline void set_tls(void *tls)
 {
@@ -393,9 +399,7 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     // Create a new thread-local storage
 
-    size_t __tls_size = (uintptr_t)__tls_end - (uintptr_t)__tls_start;
-
-    void *tls = malloc(__tls_size);
+    void *tls = malloc((size_t)__tls_size);
     if (tls == NULL)
     {
         free_anywhere(ctx);
@@ -888,6 +892,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     // -----------------
 
     // Initialize TLS of the main thread
+    extern char __tls_start[];
     init_tls(__tls_start);
 
     // Thread local storage for the main thread, defined by the linker,
@@ -903,14 +908,14 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     // Setup sleep thread
     // ------------------
 
-    // The sleep thread doesn't do anything, it just sleeps. It doesn't need a
-    // valid TLS. Use TCB_SIZE as the size so that the TLS pointer assigned by
-    // set_tls() to __tls is NULL.
-    void *sleep_tls = (void *)TCB_SIZE;
+    // Initialize TLS of the sleep thread
+    extern char __tls_sleep_start[];
+    init_tls(__tls_sleep_start);
+
     cothread_create_internal(&sleep_thread_ctx,
                              cothread_sleep, NULL,
                              &sleep_stack[0], &sleep_stack[sizeof(sleep_stack)],
-                             sleep_tls, 0);
+                             __tls_sleep_start, 0);
 
     // It has the minimum possible priority so that it only runs if there are no
     // other active threads.
