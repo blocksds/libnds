@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include <nds/cothread.h>
+#include <nds/interrupts.h>
 #include <nds/system_counter.h>
 
 // This implementation needs to be improved when system counter tasks are
@@ -29,5 +30,15 @@ int usleep(useconds_t usec)
 
 unsigned int sleep(unsigned int seconds)
 {
-    return usleep(seconds * 1000000);
+    uint64_t now = systemCounterGetTicks();
+    uint64_t end = now + systemCounterUsecsToTicks(seconds * 1000000);
+
+    while (1)
+    {
+        now = systemCounterGetTicks();
+        if (now >= end)
+            return 0;
+
+        cothread_yield_irq(IRQ_TIMER(LIBNDS_TIMER_SYSTEM_COUNTER));
+    }
 }
