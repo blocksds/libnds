@@ -75,12 +75,13 @@ static cothread_info_t DTCM_BSS_VAR(main_thread_ctx) = { 0 };
 static cothread_info_t DTCM_BSS_VAR(sleep_thread_ctx) = { 0 };
 
 // This is the stack used by the sleep thread.
-ALIGN(8) static uint8_t DTCM_BSS_VAR(sleep_stack)[512];
+ALIGN(8) static uint8_t DTCM_BSS_VAR(sleep_stack)[768];
 
 // Linked lists of threads. The first entry in cothread_list_active is the
 // active thread.
 volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_active);
 volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_waiting);
+volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_finished);
 
 bool cothread_preemption_enabled = false;
 
@@ -231,6 +232,18 @@ static void ITCM_FUNC(cothread_list_waiting_add_ctx)(volatile cothread_info_t *c
     cothread_list_waiting = ctx;
 }
 
+static void ITCM_FUNC(cothread_list_finished_add_ctx)(volatile cothread_info_t *ctx)
+{
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
+
+    // Add new waiting contexts to the front of the list. It doesn't matter
+    // where they are added because they will all be deleted at the same time.
+
+    ctx->next = (cothread_info_t *)cothread_list_finished;
+
+    cothread_list_finished = ctx;
+}
+
 static void ITCM_FUNC(cothread_list_waiting_remove_ctx)(volatile cothread_info_t *ctx)
 {
     assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
@@ -299,8 +312,6 @@ void cothread_main_thread_set_stack_base(void *base)
 __attribute__((noinline))
 static void cothread_delete_internal(volatile cothread_info_t *ctx)
 {
-    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
-
     if (ctx->flags & COTHREAD_ALLOCATED_STACK)
         free_fn(ctx->stack_base);
 
@@ -308,6 +319,29 @@ static void cothread_delete_internal(volatile cothread_info_t *ctx)
 
     if (ctx->flags & COTHREAD_ALLOCATED_CONTEXT)
         free_fn((void *)ctx);
+}
+
+static void cothread_delete_all_finished_threads(void)
+{
+    // Get a pointer to the start of the list and immediately set it to NULL so
+    // that the scheduler can start adding more threads to it whenever it wants.
+    // After that, it's safe to delete the thread contexts at our own pace.
+
+    cpsrDisableInterrupts();
+
+    volatile cothread_info_t *ctx = cothread_list_finished;
+    cothread_list_finished = NULL;
+
+    cpsrEnableInterrupts();
+
+    while (ctx)
+    {
+        cothread_info_t *next = ctx->next;
+
+        cothread_delete_internal(ctx);
+
+        ctx = next;
+    }
 }
 
 // Only for non-detached threads, and only for finished threads
@@ -760,6 +794,10 @@ ARM_CODE static int ITCM_FUNC(cothread_sleep)(void *arg)
 
     while (1)
     {
+        // While in the sleep thread, do garbage collection of all detached
+        // threads that have ended.
+        cothread_delete_all_finished_threads();
+
 #if defined(ARM9)
         CP15_WaitForInterrupt();
 #elif defined(ARM7)
@@ -818,8 +856,11 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
             if (ctx == &main_thread_ctx)
                 return ctx->exit_code;
 
+            // It isn't safe to use free() from the scheduler, so we need to
+            // make the sleep thread do the garbage collection of detached
+            // threads that have ended.
             if (ctx->flags & COTHREAD_DETACHED)
-                cothread_delete_internal(ctx);
+                cothread_list_finished_add_ctx(ctx);
         }
         else if (ctx->state == COTHREAD_STATE_WAITING)
         {
