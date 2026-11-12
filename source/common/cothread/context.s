@@ -67,6 +67,10 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
     mrs     r1, cpsr
     tst     lr, #1
     orrne   r1, #CPSR_FLAG_THUMB
+    // Force interrupts to be enabled. When yielding, we have to set CPSR.I so
+    // that there are no race conditions, but we want it to be clear when we
+    // resume the thread.
+    bic     r1, r1, #CPSR_FLAG_IRQ_DIS
     str     r1, [r0, #4] // Save cpsr
 
     str     lr, [r0] // Save pc
