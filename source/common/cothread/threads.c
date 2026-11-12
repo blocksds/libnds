@@ -82,6 +82,8 @@ ALIGN(8) static uint8_t DTCM_BSS_VAR(sleep_stack)[512];
 volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_active);
 volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_waiting);
 
+bool cothread_preemption_enabled = false;
+
 //-------------------------------------------------------------------
 
 // Linker symbols
@@ -759,8 +761,8 @@ ARM_CODE static int ITCM_FUNC(cothread_sleep)(void *arg)
 #elif defined(ARM7)
         swiHalt();
 #endif
-
-        cothread_yield();
+        if (!cothread_preemption_enabled)
+            cothread_yield();
     }
 }
 
@@ -853,11 +855,19 @@ int cothread_main(void *arg)
     // Initialize global constructors after threads are working
     __libc_init_array();
 
+    // TODO: Enable this by default when libnds actually uses it
+    //cothread_preemption_setup(true);
+
 #ifdef ARM9
     return main(main_args.argc, main_args.argv, NULL);
 #else
     return main(0, NULL, NULL);
 #endif
+}
+
+void cothread_preemption_enable(bool enabled)
+{
+    cothread_preemption_enabled = enabled;
 }
 
 int cothread_start(int argc, char **argv, void *main_stack_top)

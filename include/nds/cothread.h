@@ -93,6 +93,18 @@ cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
                                   uint16_t flags);
 
+/// Enables or disables preemption in the multithreading system.
+///
+/// When preemption is disabled, the only way to switch between thread contexts
+/// is to call the `cothread_yield()` functions. When it is enabled, even if you
+/// don't call the yield functions, whenever an interrupt is handled, there will
+/// be a context switch. This allows you to have a high priority thread that
+/// runs as soon as a specific IRQ happens, for example.
+///
+/// @param enabled
+///     If true, it will enable preemption. If false, it will disable it.
+void cothread_preemption_enable(bool enabled);
+
 /// Gets the priority of the specified thread.
 ///
 /// @param thread
@@ -400,6 +412,7 @@ cothread_info_t;
 
 static_assert(offsetof(cothread_info_t, cpu) == COTHREAD_INFO_CPU_OFFSET);
 static_assert(offsetof(cothread_info_t, cpu.r4) == COTHREAD_INFO_CPU_R4_OFFSET);
+static_assert(offsetof(cothread_info_t, cpu.r12) == COTHREAD_INFO_CPU_R12_OFFSET);
 static_assert(offsetof(cothread_info_t, cpu.sp) == COTHREAD_INFO_CPU_SP_OFFSET);
 static_assert(offsetof(cothread_info_t, cpu.lr) == COTHREAD_INFO_CPU_LR_OFFSET);
 static_assert(offsetof(cothread_info_t, cpu.pc) == COTHREAD_INFO_CPU_PC_OFFSET);

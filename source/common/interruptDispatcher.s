@@ -225,23 +225,81 @@ interrupt_return:
     sub     r1, r1, #1
     strh    r1, [r0]
 
-    // After handling all high priority things, unblock any threads that were
-    // waiting for this interrupt.
-
 clear_threads_and_exit:
 
-#ifdef THREADS_ENABLED
+#ifndef THREADS_ENABLED
+
+    // If threading isn't enabled, return
+
+    mov     pc, lr
+
+#else // ifdef THREADS_ENABLED
+
+    // After handling all high priority things, unblock any threads that were
+    // waiting for this interrupt.
 
     // r2 = Bit of the interrupt we've just handled
     mov     r0, r2
 
+    // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}
     bl      cothread_send_irq
     pop     {lr}
 
-#endif // THREADS_ENABLED
+    // Check if preemption is enabled. If so, save the current thread context
+    // and switch to the scheduler.
 
-    mov     pc, lr
+    // Global pre-emption enable setting
+    ldr     r0, =cothread_preemption_enabled
+    ldrb    r0, [r0]
+    cmp     r0, #0
+    moveq   pc, lr
+
+    // If we're in a nested interrupt, don't change thread context.
+    adr     r0, irq_nesting_level
+    ldrh    r1, [r0]
+    cmp     r1, #0
+    movne   pc, lr
+
+    // Save context of the active thread
+
+    ldr     r0, =cothread_list_active
+    ldr     r0, [r0] // The CPU state is right at the start of the context
+
+    add     r0, #COTHREAD_INFO_CPU_R4_OFFSET // Skip r0-r3 for now
+    stmia   r0, {r4-r11}^ // Writeback not allowed in this mode
+    add     r0, r0, #(COTHREAD_INFO_CPU_SP_OFFSET - COTHREAD_INFO_CPU_R4_OFFSET) // Skip r12 for now
+    stmia   r0, {sp, lr}^ // Save user version of SP and LR
+
+    mrs     r1, spsr
+    str     r1, [r0, #(COTHREAD_INFO_CPU_CPSR_OFFSET - COTHREAD_INFO_CPU_SP_OFFSET)] // Save cpsr
+
+    // We won't bother returning to the BIOS, so let's pop the registers saved
+    // by the BIOS before calling the IRQ dispatcher. This will restore sp_irq
+    // to the state it had before handling this IRQ, and we can do whatever we
+    // want to exit this IRQ handler.
+    pop     {r4-r7, r8, r9} // Load r0-r3, r12, lr
+
+    sub     r0, r0, #COTHREAD_INFO_CPU_SP_OFFSET
+    stmia   r0, {r4-r7} // Save r0-r3
+    str     r8, [r0, #COTHREAD_INFO_CPU_R12_OFFSET] // Save r12
+    sub     r9, r9, #4
+    str     r9, [r0, #COTHREAD_INFO_CPU_PC_OFFSET] // Save lr in the pc
+
+    // Switch to system mode manually to enter the scheduler without going
+    // through the BIOS. Disable interrupts before entering it.
+
+    msr     cpsr, #(CPSR_MODE_SYSTEM | CPSR_FLAG_IRQ_DIS)
+
+    // Load scheduler context
+
+    ldr     r0, =cothread_scheduler_sp
+    ldr     sp, [r0]
+    pop     {r4-r11, lr}
+
+    bx      lr
+
+#endif // THREADS_ENABLED
 
     .pool
 

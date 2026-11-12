@@ -60,6 +60,7 @@
 // Offsets to fields inside the cothread_info_t struct
 #define COTHREAD_INFO_CPU_OFFSET            (0)
 #define COTHREAD_INFO_CPU_R4_OFFSET         (4 * 4)
+#define COTHREAD_INFO_CPU_R12_OFFSET        (12 * 4)
 #define COTHREAD_INFO_CPU_SP_OFFSET         (13 * 4)
 #define COTHREAD_INFO_CPU_LR_OFFSET         (14 * 4)
 #define COTHREAD_INFO_CPU_PC_OFFSET         (15 * 4)
