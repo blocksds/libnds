@@ -936,8 +936,9 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     extern char __tls_start[];
     init_tls(__tls_start);
 
-    // Thread local storage for the main thread, defined by the linker,
-    // is initialized to __tls_start by the crt0.
+    // We could add canaries to the stack of the scheduler, but it's placed
+    // right on top of the main thread stack, which has a canary as well, so it
+    // we don't need to add an extra canary for the scheduler.
 
     // The first element of cothread_list is statically allocated, used for the
     // main() thread. It starts with priority 0 (base priority).
