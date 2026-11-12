@@ -11,9 +11,13 @@ extern "C" {
 
 /// @file nds/cothread.h
 ///
-/// @brief Cooperative multithreading system
+/// @brief Multithreading system
 ///
-/// Only enabled in the ARM9 at the moment.
+/// This system allows cooperative or preemptive multithreading. By default,
+/// it's cooperative, and it can be switched to preemptive by calling
+/// `cothread_preemption_enable()`.
+///
+/// It's only enabled in the ARM9 at the moment.
 
 #include <assert.h>
 #include <stdbool.h>

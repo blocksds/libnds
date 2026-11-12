@@ -63,7 +63,7 @@
 /// - @ref nds/device_list.h "Device List structures used by DSi/3DS launchers"
 ///
 /// @section multithreading_api Multithreading
-/// - @ref nds/cothread.h "Cooperative multithreading"
+/// - @ref nds/cothread.h "Multithreading system"
 ///
 /// @section dynamic_library_api Dynamic libraries
 /// - @ref dlfcn.h "Helpers to load dynamic libraries"
