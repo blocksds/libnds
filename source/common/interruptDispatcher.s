@@ -18,6 +18,13 @@
 
     .arm
 
+    .set REG_BASE,      0x04000000
+    .set OFFSET_IME,    0x208
+    .set OFFSET_IE,     0x210
+    .set OFFSET_IF,     0x214
+    .set OFFSET_AUXIE,  0x218
+    .set OFFSET_AUXIF,  0x21C
+
 // Find the highest set IRQ bit
 //
 // Input:
@@ -48,43 +55,83 @@
 #endif
 .endm
 
-    .set REG_BASE,      0x04000000
-    .set OFFSET_IME,    0x208
-    .set OFFSET_IE,     0x210
-    .set OFFSET_IF,     0x214
-    .set OFFSET_AUXIE,  0x218
-    .set OFFSET_AUXIF,  0x21C
+    // =================
+    // ARM9 initial part
+    // =================
+
+#ifdef ARM9
 
 // Global interrupt dispatcher of libnds
-#ifdef ARM9
 BEGIN_ASM_FUNC IntrMain itcm
-#endif
-#ifdef ARM7
-BEGIN_ASM_FUNC IntrMain
-#endif
+
     // Note: The BIOS saves the following registers, so we are free to use them
-    // here without saving them before: {r0-r3, r12, lr}
+    // in the handler without saving them before: {r0-r3, r12, lr}
 
     mov     r12, #REG_BASE
 
     // We can assume that if we're here:
-    // - ARM9 and ARM7: IME = 1
-    // - ARM9:          IE & IF != 0
-    // - ARM7:          (IE & IF != 0) || (AUXIE & AUXIF != 0)
+    // - IME = 1
+    // - IE & IF != 0
 
     ldr     r1, [r12, #OFFSET_IE]
     ldr     r2, [r12, #OFFSET_IF]
     ands    r1, r1, r2              // r1 = IE & IF
 
-#ifdef ARM9
     moveq   pc, lr                  // if (IE & IF == 0) return
-#endif
+
+    do_ctz
+
+    mov     r1, #1
+    mov     r1, r1, lsl r0
+
+    // r0 = Index of IRQ with the highest priority
+    // r1 = Bit of IRQ with the highest priority
+
+    str     r1, [r12, #OFFSET_IF]   // Clear that bit in IF
+
+    // Notify the BIOS
+    ldr     r2, =__irq_flags        // Symbol defined by linker script
+    ldr     r3, [r2]
+    orr     r3, r3, r1
+    str     r3, [r2]
+
+    // Save the bit of the interrupt that we are handling
+    mov     r2, r1
+
+    // Calculate address of the IRQ vector
+    ldr     r3, =irqTable
+    add     r3, r3, r0, lsl #2
+
+    // r2 = IRQ bit that we are handling
+    // r3 = Target IRQ table address
+
+#endif // ARM9
+
+    // =================
+    // ARM7 initial part
+    // =================
+
 #ifdef ARM7
+
+BEGIN_ASM_FUNC IntrMain
+
+    // Note: The BIOS saves the following registers, so we are free to use them
+    // in the handler without saving them before: {r0-r3, r12, lr}
+
+    mov     r12, #REG_BASE
+
+    // We can assume that if we're here:
+    // - IME = 1
+    // - (IE & IF != 0) || (AUXIE & AUXIF != 0)
+
+    ldr     r1, [r12, #OFFSET_IE]
+    ldr     r2, [r12, #OFFSET_IF]
+    ands    r1, r1, r2              // r1 = IE & IF
+
     // Check if no main IRQ bits are set. This can only happen in DSi mode, so
     // there is no need to check the __dsimode flag. If no bits are set, we need
     // to check AUX IRQs.
     beq     check_aux_irqs
-#endif
 
     do_ctz
 
@@ -114,7 +161,6 @@ BEGIN_ASM_FUNC IntrMain
     // r2 = Pointer to list of threads waiting for this interrupt
     // r3 = Target IRQ table address
 
-#ifdef ARM7
     b       main_irq_found
 
 check_aux_irqs:
@@ -156,7 +202,11 @@ check_aux_irqs:
 
 main_irq_found:
 
-#endif
+#endif // ARM7
+
+    // =========================
+    // Common ARM9 and ARM7 part
+    // =========================
 
     // Check if there is no user IRQ handler
     ldr     r3, [r3]
