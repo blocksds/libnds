@@ -87,12 +87,15 @@ BEGIN_ASM_FUNC IntrMain
 #ifdef THREADS_ENABLED
     // Save the bit of the interrupt that we are handling
     mov     r2, r1
+
+    ldr     r1, =cothread_send_irq
 #endif
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTable
     add     r3, r3, r0, lsl #2
 
+    // r1 = Address of cothread check function
     // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
@@ -125,13 +128,15 @@ check_aux_irqs:
 #ifdef THREADS_ENABLED
     // Save the bit of the interrupt that we are handling
     mov     r2, r1
-#error "We need to remember that this is an AUX flag, not regular flag."
+
+    ldr     r1, =cothread_send_irq_aux
 #endif
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTableAUX
     add     r3, r3, r0, lsl #2
 
+    // r1 = Address of cothread check function
     // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
@@ -149,19 +154,19 @@ main_irq_found:
     // cleared the IF/AUXIF bit we're going to handle, we've notified the BIOS,
     // and we've notified the cothread library.
 
-    ldr     r1, [r12, #OFFSET_IME]  // r1 = IME
+    ldr     r0, [r12, #OFFSET_IME]  // r0 = IME
 
     // Disable IME because we're going to enable interrupts in CPSR but we want
     // to let the user decide whether interrupts can be nested or not.
     str     r12, [r12, #OFFSET_IME] // Only bit 0 is used, it's okay to write
                                     // any value with bit 0 clear.
 
-    mrs     r0, spsr
+    mrs     r12, spsr
 
 #ifdef THREADS_ENABLED
-    push    {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
+    push    {r0-r2, r12, lr} // {IME, cothread function, IRQ bit, spsr_irq, lr_irq}
 #else
-    push    {r0-r1, lr}        // {spsr_irq, IME, lr_irq}
+    push    {r0, r12, lr} // {IME, spsr_irq, lr_irq}
 #endif
 
     // Increment counter of nested interrupts being handled
@@ -186,21 +191,21 @@ interrupt_return:
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
 #ifdef THREADS_ENABLED
-    pop     {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
+    pop     {r0-r2, r12, lr} // {IME, cothread function, IRQ bit, spsr_irq, lr_irq}
 #else
-    pop     {r0-r1, lr}        // {spsr_irq, IME, lr_irq}
+    pop     {r0, r12, lr} // {IME, spsr_irq, lr_irq}
 #endif
 
-    msr     spsr, r0                // Restore SPSR
+    msr     spsr, r12               // Restore SPSR
 
     mov     r12, #REG_BASE
-    str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
+    str     r0, [r12, #OFFSET_IME]  // Restore REG_IME
 
     // Decrement counter of nested interrupts being handled
-    adr     r0, irq_nesting_level
-    ldrh    r1, [r0]
-    sub     r1, r1, #1
-    strh    r1, [r0]
+    adr     r12, irq_nesting_level
+    ldrh    r3, [r12]
+    sub     r3, r3, #1
+    strh    r3, [r12]
 
 clear_threads_and_exit:
 
@@ -215,12 +220,14 @@ clear_threads_and_exit:
     // After handling all high priority things, unblock any threads that were
     // waiting for this interrupt.
 
-    // r2 = Bit of the interrupt we've just handled
     mov     r0, r2
+
+    // r1 = cothread function
+    // r0 = Bit of the interrupt we've just handled
 
     // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}
-    bl      cothread_send_irq
+    bl      r1   // Jump to the right cothread function to wake up threads
     pop     {lr}
 
     // Check if preemption is enabled. If so, save the current thread context

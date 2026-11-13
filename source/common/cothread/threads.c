@@ -758,6 +758,32 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
     }
 }
 
+#ifdef ARM7
+// Internal function
+ARM_CODE void ITCM_FUNC(cothread_send_irq_aux)(uint32_t irq_mask)
+{
+    assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
+
+    volatile cothread_info_t *ctx = cothread_list_waiting;
+
+    while (ctx != NULL)
+    {
+        volatile cothread_info_t *next = ctx->next;
+
+        // Check if the IRQ mask contains the received IRQ mask
+        if (ctx->wait_irq_aux_mask & irq_mask)
+        {
+            // TODO: Optimize removing so that we don't need a doubly linked list
+            cothread_list_waiting_remove_ctx(ctx);
+            cothread_list_active_add_ctx(ctx);
+            ctx->state = COTHREAD_STATE_ACTIVE;
+        }
+
+        ctx = next;
+    }
+}
+#endif // ARM7
+
 void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
 {
     int oldIME = enterCriticalSection();
