@@ -9,11 +9,6 @@
 #include <nds/cothread_asm.h>
 #include <nds/cpu_asm.h>
 
-// TODO: Enable this code in the ARM7 if threads are enabled in the ARM7
-#ifdef ARM9
-#define THREADS_ENABLED
-#endif
-
     .syntax  unified
 
     .arm
@@ -22,8 +17,6 @@
     .set OFFSET_IME,    0x208
     .set OFFSET_IE,     0x210
     .set OFFSET_IF,     0x214
-    .set OFFSET_AUXIE,  0x218
-    .set OFFSET_AUXIF,  0x21C
 
 // Find the highest set IRQ bit
 //
@@ -32,34 +25,9 @@
 // Output:
 //     r0 = Position of the highest bit set in r1
 .macro do_ctz
-#ifdef ARM9
     clz     r0, r1      // This counts leading zeroes, not trailing zeroes
     rsb     r0, r0, #31 // Flip to convert to trailing zeroes: r0 = 31 - r0
-#else
-    mov     r0, #0
-    cmp     r1, #0x10000
-    movcs   r1, r1, lsr #16
-    addcs   r0, r0, #16
-    tst     r1, #0xFF00
-    movne   r1, r1, lsr #8
-    addne   r0, r0, #8
-    tst     r1, #0xF0
-    movne   r1, r1, lsr #4
-    addne   r0, r0, #4
-    tst     r1, #0xC
-    movne   r1, r1, lsr #2
-    addne   r0, r0, #2
-    // r1 is now equal to 0, 1, 2 or 3
-    // If it's equal to 2 or 3, add 1 to r0
-    add     r0, r0, r1, lsr #1
-#endif
 .endm
-
-    // =================
-    // ARM9 initial part
-    // =================
-
-#ifdef ARM9
 
 // Global interrupt dispatcher of libnds
 BEGIN_ASM_FUNC IntrMain itcm
@@ -105,109 +73,6 @@ BEGIN_ASM_FUNC IntrMain itcm
     // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
-#endif // ARM9
-
-    // =================
-    // ARM7 initial part
-    // =================
-
-#ifdef ARM7
-
-BEGIN_ASM_FUNC IntrMain
-
-    // Note: The BIOS saves the following registers, so we are free to use them
-    // in the handler without saving them before: {r0-r3, r12, lr}
-
-    mov     r12, #REG_BASE
-
-    // We can assume that if we're here:
-    // - IME = 1
-    // - (IE & IF != 0) || (AUXIE & AUXIF != 0)
-
-    ldr     r1, [r12, #OFFSET_IE]
-    ldr     r2, [r12, #OFFSET_IF]
-    ands    r1, r1, r2              // r1 = IE & IF
-
-    // Check if no main IRQ bits are set. This can only happen in DSi mode, so
-    // there is no need to check the __dsimode flag. If no bits are set, we need
-    // to check AUX IRQs.
-    beq     check_aux_irqs
-
-    do_ctz
-
-    mov     r1, #1
-    mov     r1, r1, lsl r0
-
-    // r0 = Index of IRQ with the highest priority
-    // r1 = Bit of IRQ with the highest priority
-
-    str     r1, [r12, #OFFSET_IF]   // Clear that bit in IF
-
-    // Notify the BIOS
-    ldr     r2, =__irq_flags        // Symbol defined by linker script
-    ldr     r3, [r2]
-    orr     r3, r3, r1
-    str     r3, [r2]
-
-#ifdef THREADS_ENABLED
-    // Save the bit of the interrupt that we are handling
-    mov     r2, r1
-#endif
-
-    // Calculate address of the IRQ vector
-    ldr     r3, =irqTable
-    add     r3, r3, r0, lsl #2
-
-    // r2 = IRQ bit that we are handling
-    // r3 = Target IRQ table address
-
-    b       main_irq_found
-
-check_aux_irqs:
-
-    ldr     r1, [r12, #OFFSET_AUXIE]
-    ldr     r2, [r12, #OFFSET_AUXIF]
-    ands    r1, r1, r2              // r1 = AUXIE & AUXIF
-
-    moveq   pc, lr                  // if (AUXIE & AUXIF == 0) return
-
-    do_ctz
-
-    mov     r1, #1
-    mov     r1, r1, lsl r0
-
-    // r0 = Index of IRQ with the highest priority
-    // r1 = Bit of IRQ with the highest priority
-
-    str     r1, [r12, #OFFSET_AUXIF] // Clear that bit in AUXIF
-
-    // Notify the BIOS
-    ldr     r2, =__irq_flagsaux     // Symbol defined by linker script
-    ldr     r3, [r2]
-    orr     r3, r3, r1
-    str     r3, [r2]
-
-#ifdef THREADS_ENABLED
-    // Save the bit of the interrupt that we are handling
-    mov     r2, r1
-#error "We need to remember that this is an AUX flag, not regular flag."
-#endif
-
-    // Calculate address of the IRQ vector
-    ldr     r3, =irqTableAUX
-    add     r3, r3, r0, lsl #2
-
-    // r2 = IRQ bit that we are handling
-    // r3 = Target IRQ table address
-
-main_irq_found:
-
-#endif // ARM7
-
-    // =========================
-    // Common ARM9 and ARM7 part
-    // =========================
-
     // Check if there is no user IRQ handler
     ldr     r3, [r3]
     cmp     r3, #0
@@ -229,11 +94,7 @@ main_irq_found:
 
     mrs     r0, spsr
 
-#ifdef THREADS_ENABLED
     push    {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
-#else
-    push    {r0-r1, lr}        // {spsr_irq, IME, lr_irq}
-#endif
 
     // Increment counter of nested interrupts being handled
     adr     r0, irq_nesting_level
@@ -247,26 +108,14 @@ main_irq_found:
 
     push    {lr} // {lr_sys}
 
-#ifdef ARM9
     blx     r3
-#endif
-
-#ifdef ARM7
-    adr     lr, interrupt_return
-    bx      r3
-interrupt_return:
-#endif
 
     pop     {lr} // {lr_sys}
 
     // Return to IRQ mode with IRQs and FIQs disabled
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
-#ifdef THREADS_ENABLED
     pop     {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
-#else
-    pop     {r0-r1, lr}        // {spsr_irq, IME, lr_irq}
-#endif
 
     msr     spsr, r0                // Restore SPSR
 
@@ -280,14 +129,6 @@ interrupt_return:
     strh    r1, [r0]
 
 clear_threads_and_exit:
-
-#ifndef THREADS_ENABLED
-
-    // If threading isn't enabled, return
-
-    mov     pc, lr
-
-#else // ifdef THREADS_ENABLED
 
     // After handling all high priority things, unblock any threads that were
     // waiting for this interrupt.
@@ -352,8 +193,6 @@ clear_threads_and_exit:
     pop     {r4-r11, lr}
 
     bx      lr
-
-#endif // THREADS_ENABLED
 
     .pool
 
