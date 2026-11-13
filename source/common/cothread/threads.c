@@ -848,8 +848,15 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
 
         cothread_list_active_remove_first_ctx();
 
-        // Check if the thread has just ended
-        if (ctx->state == COTHREAD_STATE_ENDED)
+        if (ctx->state == COTHREAD_STATE_WAITING)
+        {
+            cothread_list_waiting_add_ctx(ctx);
+        }
+        else if (ctx->state == COTHREAD_STATE_ACTIVE)
+        {
+            cothread_list_active_add_ctx(ctx);
+        }
+        else if (ctx->state == COTHREAD_STATE_ENDED)
         {
             // If this is the main() thread, exit the whole program with the
             // exit code returned by main().
@@ -862,13 +869,9 @@ ARM_CODE static int ITCM_FUNC(cothread_scheduler_start)(void)
             if (ctx->flags & COTHREAD_DETACHED)
                 cothread_list_finished_add_ctx(ctx);
         }
-        else if (ctx->state == COTHREAD_STATE_WAITING)
+        else
         {
-            cothread_list_waiting_add_ctx(ctx);
-        }
-        else if (ctx->state == COTHREAD_STATE_ACTIVE)
-        {
-            cothread_list_active_add_ctx(ctx);
+            libndsCrash("Invalid thread state");
         }
     }
 }
