@@ -9,9 +9,6 @@
 #include <nds/cothread_asm.h>
 #include <nds/cpu_asm.h>
 
-// TODO: Enable this code in the ARM7 if threads are enabled in the ARM7
-//#define THREADS_ENABLED
-
     .syntax  unified
 
     .arm
@@ -88,9 +85,7 @@ BEGIN_ASM_FUNC IntrMain
     ldr     r3, =irqTable
     add     r3, r3, r1, lsl #2
 
-#ifdef THREADS_ENABLED
     ldr     r1, =cothread_send_irq
-#endif
 
     // r0 = Mask of the IRQ with the highest priority
     // r1 = Address of cothread check function
@@ -126,9 +121,7 @@ check_aux_irqs:
     ldr     r3, =irqTableAUX
     add     r3, r3, r1, lsl #2
 
-#ifdef THREADS_ENABLED
     ldr     r1, =cothread_send_irq_aux
-#endif
 
     // r0 = Mask of the IRQ with the highest priority
     // r1 = Address of cothread check function
@@ -154,11 +147,7 @@ main_irq_found:
 
     mrs     r12, spsr
 
-#ifdef THREADS_ENABLED
     push    {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
-#else
-    push    {r2, r12, lr} // {IME, spsr_irq, lr_irq}
-#endif
 
     // Increment counter of nested interrupts being handled
     adr     r0, irq_nesting_level
@@ -180,11 +169,7 @@ interrupt_return:
     // Return to IRQ mode with IRQs and FIQs disabled
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
-#ifdef THREADS_ENABLED
     pop     {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
-#else
-    pop     {r2, r12, lr} // {IME, spsr_irq, lr_irq}
-#endif
 
     msr     spsr, r12               // Restore SPSR
 
@@ -199,14 +184,6 @@ interrupt_return:
 
 clear_threads_and_exit:
 
-#ifndef THREADS_ENABLED
-
-    // If threading isn't enabled, return
-
-    mov     pc, lr
-
-#else // ifdef THREADS_ENABLED
-
     // After handling all high priority things, unblock any threads that were
     // waiting for this interrupt.
 
@@ -215,7 +192,9 @@ clear_threads_and_exit:
 
     // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}
-    bl      r1   // Jump to the right cothread function to wake up threads
+    adr     lr, check_return
+    bx      r1   // Jump to the right cothread function to wake up threads
+check_return:
     pop     {lr}
 
     // Check if preemption is enabled. If so, save the current thread context
@@ -270,8 +249,6 @@ clear_threads_and_exit:
     pop     {r4-r11, lr}
 
     bx      lr
-
-#endif // THREADS_ENABLED
 
     .pool
 

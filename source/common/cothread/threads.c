@@ -19,6 +19,7 @@
 #include <nds/cothread.h>
 #include <nds/exceptions.h>
 #include <nds/interrupts.h>
+#include <nds/ipc.h>
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
@@ -98,7 +99,8 @@ extern char __tdata_size[];
 //extern char __tbss_start[];
 extern char __tbss_size[];
 
-void init_tls(void *__tls)
+__attribute__((noinline))
+static void init_tls(void *__tls)
 {
     // Copy reference TLS data to the new TLS context, and clear the new TLS bss
 
@@ -918,16 +920,32 @@ int cothread_main(void *arg)
     (void)arg;
 
     extern void __libc_init_array(void); // This is in picolibc
-    extern void initSystem(void); // This is in libnds
     extern int main(int argc, char **argv, char *envp[]); // This is in user code
 
 #ifdef ARM9
     // Initialize hardware
+    extern void initSystem(void); // This is in libnds
     initSystem();
-#endif
 
     // Initialize global constructors after threads are working
     __libc_init_array();
+#else
+    // Initialize global constructors after threads are working
+    __libc_init_array();
+
+    // Checks if the argv struct has been passed to the application. If not,
+    // it constructs one from the device list (if any). We need to do this
+    // before the ARM9 can fully setup main().
+    extern void check_device_list(void); // This is in libnds
+    check_device_list();
+
+    // Send 0x7 to the ARM9 to tell it that we are ready to enter main().
+    REG_IPC_SYNC = 0x7 << 8;
+
+    // Wait until the ARM9 has read our message and it sends 0x7 to allow us
+    // to enter main().
+    while ((REG_IPC_SYNC & 0xF) != 0x7);
+#endif
 
     // TODO: Enable this by default when libnds actually uses it
     //cothread_preemption_setup(true);
