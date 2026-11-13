@@ -158,7 +158,7 @@ BEGIN_ASM_FUNC IntrMain
     ldr     r3, =irqTable
     add     r3, r3, r0, lsl #2
 
-    // r2 = Pointer to list of threads waiting for this interrupt
+    // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
     b       main_irq_found
@@ -197,7 +197,7 @@ check_aux_irqs:
     ldr     r3, =irqTableAUX
     add     r3, r3, r0, lsl #2
 
-    // r2 = Pointer to list of threads waiting for this interrupt
+    // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
 main_irq_found:
@@ -228,10 +228,11 @@ main_irq_found:
                                     // any value with bit 0 clear.
 
     mrs     r0, spsr
+
 #ifdef THREADS_ENABLED
-    push    {r0-r2, r12, lr}        // {spsr_irq, IME, IRQ bit, REG_BASE, lr_irq}
+    push    {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
 #else
-    push    {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+    push    {r0-r1, lr}        // {spsr_irq, IME, lr_irq}
 #endif
 
     // Increment counter of nested interrupts being handled
@@ -262,11 +263,14 @@ interrupt_return:
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
 #ifdef THREADS_ENABLED
-    pop     {r0-r2, r12, lr}        // {spsr_irq, IME, IRQ bit, REG_BASE, lr_irq}
+    pop     {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
 #else
-    pop     {r0-r1, r12, lr}        // {spsr_irq, IME, REG_BASE, lr_irq}
+    pop     {r0-r1, lr}        // {spsr_irq, IME, lr_irq}
 #endif
+
     msr     spsr, r0                // Restore SPSR
+
+    mov     r12, #REG_BASE
     str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
 
     // Decrement counter of nested interrupts being handled
