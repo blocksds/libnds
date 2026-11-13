@@ -21,12 +21,12 @@
 // Find the highest set IRQ bit
 //
 // Input:
-//     r1 = interrupt mask
+//     r0 = interrupt mask
 // Output:
-//     r0 = Position of the highest bit set in r1
+//     r1 = Position of the highest bit set in r0
 .macro do_ctz
-    clz     r0, r1      // This counts leading zeroes, not trailing zeroes
-    rsb     r0, r0, #31 // Flip to convert to trailing zeroes: r0 = 31 - r0
+    clz     r1, r0      // This counts leading zeroes, not trailing zeroes
+    rsb     r1, r1, #31 // Flip to convert to trailing zeroes: r1 = 31 - r1
 .endm
 
 // Global interrupt dispatcher of libnds
@@ -41,36 +41,33 @@ BEGIN_ASM_FUNC IntrMain itcm
     // - IME = 1
     // - IE & IF != 0
 
-    ldr     r1, [r12, #OFFSET_IE]
+    ldr     r0, [r12, #OFFSET_IE]
     ldr     r2, [r12, #OFFSET_IF]
-    ands    r1, r1, r2              // r1 = IE & IF
+    ands    r0, r0, r2              // IE & IF
 
     moveq   pc, lr                  // if (IE & IF == 0) return
 
     do_ctz
 
-    mov     r1, #1
-    mov     r1, r1, lsl r0
+    mov     r0, #1
+    mov     r0, r0, lsl r1
 
-    // r0 = Index of IRQ with the highest priority
-    // r1 = Bit of IRQ with the highest priority
+    // r0 = Mask of the IRQ with the highest priority
+    // r1 = Index of IRQ with the highest priority
 
-    str     r1, [r12, #OFFSET_IF]   // Clear that bit in IF
+    str     r0, [r12, #OFFSET_IF]   // Clear that bit in IF
 
     // Notify the BIOS
     ldr     r2, =__irq_flags        // Symbol defined by linker script
     ldr     r3, [r2]
-    orr     r3, r3, r1
+    orr     r3, r3, r0
     str     r3, [r2]
-
-    // Save the bit of the interrupt that we are handling
-    mov     r2, r1
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTable
-    add     r3, r3, r0, lsl #2
+    add     r3, r3, r1, lsl #2
 
-    // r2 = IRQ bit that we are handling
+    // r0 = Mask of the IRQ with the highest priority
     // r3 = Target IRQ table address
 
     // Check if there is no user IRQ handler
@@ -78,23 +75,20 @@ BEGIN_ASM_FUNC IntrMain itcm
     cmp     r3, #0
     beq     clear_threads_and_exit
 
-    // r2 = Bit of the interrupt that we're currently handling
-    // r3 = Address of user IRQ handler
-
     // If we've reached this point, we have found an interrupt handler, we have
     // cleared the IF/AUXIF bit we're going to handle, we've notified the BIOS,
     // and we've notified the cothread library.
 
-    ldr     r1, [r12, #OFFSET_IME]  // r1 = IME
+    ldr     r2, [r12, #OFFSET_IME]  // r2 = IME
 
     // Disable IME because we're going to enable interrupts in CPSR but we want
     // to let the user decide whether interrupts can be nested or not.
     str     r12, [r12, #OFFSET_IME] // Only bit 0 is used, it's okay to write
                                     // any value with bit 0 clear.
 
-    mrs     r0, spsr
+    mrs     r12, spsr
 
-    push    {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
+    push    {r0, r2, r12, lr} // {IRQ bit, IME, spsr_irq, lr_irq}
 
     // Increment counter of nested interrupts being handled
     adr     r0, irq_nesting_level
@@ -106,35 +100,33 @@ BEGIN_ASM_FUNC IntrMain itcm
     // means we need to preserve its banked lr register.
     msr     cpsr, #CPSR_MODE_SYSTEM
 
+    // Call user handler
     push    {lr} // {lr_sys}
-
     blx     r3
-
     pop     {lr} // {lr_sys}
 
     // Return to IRQ mode with IRQs and FIQs disabled
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
-    pop     {r0-r2, lr}        // {spsr_irq, IME, IRQ bit, lr_irq}
+    pop     {r0, r2, r12, lr} // {IRQ bit, IME, spsr_irq, lr_irq}
 
-    msr     spsr, r0                // Restore SPSR
+    msr     spsr, r12
 
     mov     r12, #REG_BASE
-    str     r1, [r12, #OFFSET_IME]  // Restore REG_IME
+    str     r2, [r12, #OFFSET_IME]  // Restore REG_IME
 
     // Decrement counter of nested interrupts being handled
-    adr     r0, irq_nesting_level
-    ldrh    r1, [r0]
+    adr     r3, irq_nesting_level
+    ldrh    r1, [r3]
     sub     r1, r1, #1
-    strh    r1, [r0]
+    strh    r1, [r3]
 
 clear_threads_and_exit:
 
     // After handling all high priority things, unblock any threads that were
     // waiting for this interrupt.
 
-    // r2 = Bit of the interrupt we've just handled
-    mov     r0, r2
+    // r0 = Mask of the IRQ with the highest priority
 
     // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}

@@ -26,26 +26,26 @@
 // Find the highest set IRQ bit
 //
 // Input:
-//     r1 = interrupt mask
+//     r0 = interrupt mask
 // Output:
-//     r0 = Position of the highest bit set in r1
+//     r1 = Position of the highest bit set in r0
 .macro do_ctz
-    mov     r0, #0
-    cmp     r1, #0x10000
-    movcs   r1, r1, lsr #16
-    addcs   r0, r0, #16
-    tst     r1, #0xFF00
-    movne   r1, r1, lsr #8
-    addne   r0, r0, #8
-    tst     r1, #0xF0
-    movne   r1, r1, lsr #4
-    addne   r0, r0, #4
-    tst     r1, #0xC
-    movne   r1, r1, lsr #2
-    addne   r0, r0, #2
-    // r1 is now equal to 0, 1, 2 or 3
-    // If it's equal to 2 or 3, add 1 to r0
-    add     r0, r0, r1, lsr #1
+    mov     r1, #0
+    cmp     r0, #0x10000
+    movcs   r0, r0, lsr #16
+    addcs   r1, r1, #16
+    tst     r0, #0xFF00
+    movne   r0, r0, lsr #8
+    addne   r1, r1, #8
+    tst     r0, #0xF0
+    movne   r0, r0, lsr #4
+    addne   r1, r1, #4
+    tst     r0, #0xC
+    movne   r0, r0, lsr #2
+    addne   r1, r1, #2
+    // r0 is now equal to 0, 1, 2 or 3
+    // If it's equal to 2 or 3, add 1 to r1
+    add     r1, r1, r0, lsr #1
 .endm
 
 BEGIN_ASM_FUNC IntrMain
@@ -59,9 +59,9 @@ BEGIN_ASM_FUNC IntrMain
     // - IME = 1
     // - (IE & IF != 0) || (AUXIE & AUXIF != 0)
 
-    ldr     r1, [r12, #OFFSET_IE]
+    ldr     r0, [r12, #OFFSET_IE]
     ldr     r2, [r12, #OFFSET_IF]
-    ands    r1, r1, r2              // r1 = IE & IF
+    ands    r0, r0, r2              // IE & IF
 
     // Check if no main IRQ bits are set. This can only happen in DSi mode, so
     // there is no need to check the __dsimode flag. If no bits are set, we need
@@ -70,74 +70,68 @@ BEGIN_ASM_FUNC IntrMain
 
     do_ctz
 
-    mov     r1, #1
-    mov     r1, r1, lsl r0
+    mov     r0, #1
+    mov     r0, r0, lsl r1
 
-    // r0 = Index of IRQ with the highest priority
-    // r1 = Bit of IRQ with the highest priority
+    // r0 = Mask of the IRQ with the highest priority
+    // r1 = Index of IRQ with the highest priority
 
-    str     r1, [r12, #OFFSET_IF]   // Clear that bit in IF
+    str     r0, [r12, #OFFSET_IF]   // Clear that bit in IF
 
     // Notify the BIOS
     ldr     r2, =__irq_flags        // Symbol defined by linker script
     ldr     r3, [r2]
-    orr     r3, r3, r1
+    orr     r3, r3, r0
     str     r3, [r2]
-
-#ifdef THREADS_ENABLED
-    // Save the bit of the interrupt that we are handling
-    mov     r2, r1
-
-    ldr     r1, =cothread_send_irq
-#endif
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTable
-    add     r3, r3, r0, lsl #2
+    add     r3, r3, r1, lsl #2
 
+#ifdef THREADS_ENABLED
+    ldr     r1, =cothread_send_irq
+#endif
+
+    // r0 = Mask of the IRQ with the highest priority
     // r1 = Address of cothread check function
-    // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
     b       main_irq_found
 
 check_aux_irqs:
 
-    ldr     r1, [r12, #OFFSET_AUXIE]
+    ldr     r0, [r12, #OFFSET_AUXIE]
     ldr     r2, [r12, #OFFSET_AUXIF]
-    ands    r1, r1, r2              // r1 = AUXIE & AUXIF
+    ands    r0, r0, r2              // AUXIE & AUXIF
 
     moveq   pc, lr                  // if (AUXIE & AUXIF == 0) return
 
     do_ctz
 
-    mov     r1, #1
-    mov     r1, r1, lsl r0
+    mov     r0, #1
+    mov     r0, r0, lsl r1
 
-    // r0 = Index of IRQ with the highest priority
-    // r1 = Bit of IRQ with the highest priority
+    // r0 = Mask of the IRQ with the highest priority
+    // r1 = Index of IRQ with the highest priority
 
-    str     r1, [r12, #OFFSET_AUXIF] // Clear that bit in AUXIF
+    str     r0, [r12, #OFFSET_AUXIF] // Clear that bit in AUXIF
 
     // Notify the BIOS
     ldr     r2, =__irq_flagsaux     // Symbol defined by linker script
     ldr     r3, [r2]
-    orr     r3, r3, r1
+    orr     r3, r3, r0
     str     r3, [r2]
-
-#ifdef THREADS_ENABLED
-    // Save the bit of the interrupt that we are handling
-    mov     r2, r1
-
-    ldr     r1, =cothread_send_irq_aux
-#endif
 
     // Calculate address of the IRQ vector
     ldr     r3, =irqTableAUX
-    add     r3, r3, r0, lsl #2
+    add     r3, r3, r1, lsl #2
 
+#ifdef THREADS_ENABLED
+    ldr     r1, =cothread_send_irq_aux
+#endif
+
+    // r0 = Mask of the IRQ with the highest priority
     // r1 = Address of cothread check function
-    // r2 = IRQ bit that we are handling
     // r3 = Target IRQ table address
 
 main_irq_found:
@@ -147,14 +141,11 @@ main_irq_found:
     cmp     r3, #0
     beq     clear_threads_and_exit
 
-    // r2 = Bit of the interrupt that we're currently handling
-    // r3 = Address of user IRQ handler
-
     // If we've reached this point, we have found an interrupt handler, we have
     // cleared the IF/AUXIF bit we're going to handle, we've notified the BIOS,
     // and we've notified the cothread library.
 
-    ldr     r0, [r12, #OFFSET_IME]  // r0 = IME
+    ldr     r2, [r12, #OFFSET_IME]  // r2 = IME
 
     // Disable IME because we're going to enable interrupts in CPSR but we want
     // to let the user decide whether interrupts can be nested or not.
@@ -164,9 +155,9 @@ main_irq_found:
     mrs     r12, spsr
 
 #ifdef THREADS_ENABLED
-    push    {r0-r2, r12, lr} // {IME, cothread function, IRQ bit, spsr_irq, lr_irq}
+    push    {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
 #else
-    push    {r0, r12, lr} // {IME, spsr_irq, lr_irq}
+    push    {r2, r12, lr} // {IME, spsr_irq, lr_irq}
 #endif
 
     // Increment counter of nested interrupts being handled
@@ -179,27 +170,26 @@ main_irq_found:
     // means we need to preserve its banked lr register.
     msr     cpsr, #CPSR_MODE_SYSTEM
 
+    // Call user handler
     push    {lr} // {lr_sys}
-
     adr     lr, interrupt_return
     bx      r3
 interrupt_return:
-
     pop     {lr} // {lr_sys}
 
     // Return to IRQ mode with IRQs and FIQs disabled
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
 #ifdef THREADS_ENABLED
-    pop     {r0-r2, r12, lr} // {IME, cothread function, IRQ bit, spsr_irq, lr_irq}
+    pop     {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
 #else
-    pop     {r0, r12, lr} // {IME, spsr_irq, lr_irq}
+    pop     {r2, r12, lr} // {IME, spsr_irq, lr_irq}
 #endif
 
     msr     spsr, r12               // Restore SPSR
 
     mov     r12, #REG_BASE
-    str     r0, [r12, #OFFSET_IME]  // Restore REG_IME
+    str     r2, [r12, #OFFSET_IME]  // Restore REG_IME
 
     // Decrement counter of nested interrupts being handled
     adr     r12, irq_nesting_level
@@ -220,10 +210,8 @@ clear_threads_and_exit:
     // After handling all high priority things, unblock any threads that were
     // waiting for this interrupt.
 
-    mov     r0, r2
-
-    // r1 = cothread function
-    // r0 = Bit of the interrupt we've just handled
+    // r0 = Mask of the IRQ with the highest priority
+    // r1 = Address of cothread check function
 
     // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}
