@@ -20,7 +20,12 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
+#include <nds/ndstypes.h>
+
+u8 *getItcmHeapStart(void);
+u8 *getItcmHeapLimit(void);
+u8 *getDtcmHeapStart(void);
+u8 *getDtcmHeapLimit(void);
 
 void *itcm_malloc(size_t size);
 void *itcm_calloc(size_t n, size_t size);

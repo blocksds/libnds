@@ -98,6 +98,12 @@ extern char __dtcm_data_size[]; // Total size of the reserved space by the user
 
 extern char __itcm_end[];   // End of statically-allocated data and code in ITCM
 
+const uintptr_t DTCM_HEAP_START = (uintptr_t)__sbss_end;
+const uintptr_t DTCM_HEAP_END = (uintptr_t)__dtcm_data_top;
+
+const uintptr_t ITCM_HEAP_START = (uintptr_t)__itcm_end;
+const uintptr_t ITCM_HEAP_END = ITCM_END;
+
 // Only try to initialize the allocators once, even if they have failed. They
 // depend on statically-allocated variables and code, which doesn't change while
 // the application is running.
@@ -113,18 +119,38 @@ static mspace dtcm_mspace = 0;
 // makes sense.
 const size_t minimum_available_space = 1024;
 
+u8 *getItcmHeapStart(void)
+{
+    return (u8 *)ITCM_HEAP_START;
+}
+
+u8 *getItcmHeapLimit(void)
+{
+    return (u8 *)ITCM_HEAP_END;
+}
+
+u8 *getDtcmHeapStart(void)
+{
+    return (u8 *)DTCM_HEAP_START;
+}
+
+u8 *getDtcmHeapLimit(void)
+{
+    return (u8 *)DTCM_HEAP_END;
+}
+
 static void itcm_dlmalloc_init(void)
 {
     if (itcm_dlmalloc_initialized)
         return;
 
-    const uintptr_t ITCM_HEAP_START = (uintptr_t)__itcm_end;
-    const size_t ITCM_HEAP_SIZE = ITCM_END - ITCM_HEAP_START;
+    const size_t size = getItcmHeapLimit() - getItcmHeapStart();
 
-    if (ITCM_HEAP_SIZE >= minimum_available_space)
+    // Make sure that there's enough space to use the allocator.
+    if (size >= minimum_available_space)
     {
         // Require a system lock
-        itcm_mspace = create_mspace_with_base((void *)ITCM_HEAP_START, ITCM_HEAP_SIZE, 1);
+        itcm_mspace = create_mspace_with_base(getItcmHeapStart(), size, 1);
     }
 
     itcm_dlmalloc_initialized = true;
@@ -135,15 +161,13 @@ static void dtcm_dlmalloc_init(void)
     if (dtcm_dlmalloc_initialized)
         return;
 
-    // Make sure that there's enough space to use the allocator.
-    const uintptr_t DTCM_HEAP_START = (uintptr_t)__sbss_end;
-    const uintptr_t DTCM_HEAP_END = (uintptr_t)__dtcm_data_top;
-    const size_t DTCM_HEAP_SIZE = DTCM_HEAP_END - DTCM_HEAP_START;
+    const size_t size = getDtcmHeapLimit() - getDtcmHeapStart();
 
-    if (DTCM_HEAP_SIZE > minimum_available_space)
+    // Make sure that there's enough space to use the allocator.
+    if (size > minimum_available_space)
     {
         // Require a system lock
-        dtcm_mspace = create_mspace_with_base((void *)DTCM_HEAP_START, DTCM_HEAP_SIZE, 1);
+        dtcm_mspace = create_mspace_with_base(getDtcmHeapStart(), size, 1);
     }
 
     dtcm_dlmalloc_initialized = true;
