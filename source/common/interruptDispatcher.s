@@ -27,6 +27,10 @@
 // Output:
 //     r1 = Position of the highest bit set in r0
 .macro do_ctz
+#ifdef ARM9
+    clz     r1, r0      // This counts leading zeroes, not trailing zeroes
+    rsb     r1, r1, #31 // Flip to convert to trailing zeroes: r1 = 31 - r1
+#else // ARM7
     mov     r1, #0
     cmp     r0, #0x10000
     movcs   r0, r0, lsr #16
@@ -43,9 +47,15 @@
     // r0 is now equal to 0, 1, 2 or 3
     // If it's equal to 2 or 3, add 1 to r1
     add     r1, r1, r0, lsr #1
+#endif
 .endm
 
+// Global interrupt dispatcher of libnds
+#ifdef ARM9
+BEGIN_ASM_FUNC IntrMain itcm
+#else
 BEGIN_ASM_FUNC IntrMain
+#endif
 
     // Note: The BIOS saves the following registers, so we are free to use them
     // in the handler without saving them before: {r0-r3, r12, lr}
@@ -60,10 +70,18 @@ BEGIN_ASM_FUNC IntrMain
     ldr     r2, [r12, #OFFSET_IF]
     ands    r0, r0, r2              // IE & IF
 
+#ifdef ARM9
+
+    moveq   pc, lr                  // if (IE & IF == 0) return
+
+#else // ARM7
+
     // Check if no main IRQ bits are set. This can only happen in DSi mode, so
     // there is no need to check the __dsimode flag. If no bits are set, we need
     // to check AUX IRQs.
     beq     check_aux_irqs
+
+#endif
 
     do_ctz
 
@@ -85,11 +103,15 @@ BEGIN_ASM_FUNC IntrMain
     ldr     r3, =irqTable
     add     r3, r3, r1, lsl #2
 
+#ifdef ARM7
     ldr     r1, =cothread_send_irq
+#endif
 
     // r0 = Mask of the IRQ with the highest priority
-    // r1 = Address of cothread check function
+    // r1 = Address of cothread check function (ARM7)
     // r3 = Target IRQ table address
+
+#ifdef ARM7
 
     b       main_irq_found
 
@@ -124,10 +146,12 @@ check_aux_irqs:
     ldr     r1, =cothread_send_irq_aux
 
     // r0 = Mask of the IRQ with the highest priority
-    // r1 = Address of cothread check function
+    // r1 = Address of cothread check function (ARM7)
     // r3 = Target IRQ table address
 
 main_irq_found:
+
+#endif // ARM7
 
     // Check if there is no user IRQ handler
     ldr     r3, [r3]
@@ -147,7 +171,11 @@ main_irq_found:
 
     mrs     r12, spsr
 
-    push    {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
+#ifdef ARM9
+    push    {r0, r2, r12, lr} // {IRQ bit, IME, spsr_irq, lr_irq}
+#else
+    push    {r0-r2, r12, lr}  // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
+#endif
 
     // Increment counter of nested interrupts being handled
     adr     r0, irq_nesting_level
@@ -161,15 +189,23 @@ main_irq_found:
 
     // Call user handler
     push    {lr} // {lr_sys}
+#ifdef ARM9
+    blx     r3
+#else
     adr     lr, interrupt_return
     bx      r3
 interrupt_return:
+#endif
     pop     {lr} // {lr_sys}
 
     // Return to IRQ mode with IRQs and FIQs disabled
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
+#ifdef ARM9
+    pop     {r0, r2, r12, lr} // {IRQ bit, IME, spsr_irq, lr_irq}
+#else
     pop     {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
+#endif
 
     msr     spsr, r12               // Restore SPSR
 
@@ -188,13 +224,17 @@ clear_threads_and_exit:
     // waiting for this interrupt.
 
     // r0 = Mask of the IRQ with the highest priority
-    // r1 = Address of cothread check function
+    // r1 = Address of cothread check function (ARM7)
 
     // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}
+#ifdef ARM9
+    bl      cothread_send_irq
+#else
     adr     lr, check_return
     bx      r1   // Jump to the right cothread function to wake up threads
 check_return:
+#endif
     pop     {lr}
 
     // Check if preemption is enabled. If so, save the current thread context
