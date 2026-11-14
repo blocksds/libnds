@@ -165,39 +165,58 @@ static void free_anywhere(void *ptr)
 
 //-------------------------------------------------------------------
 
+// This can add new contexts to the list, but only after the first one. This is
+// useful when waking threads up. The functions that wake threads up are usually
+// called from other threads, and we don't want the first context in the list
+// to be replaced by anything (because it's the active thread, and it would
+// cause weird issues when returning to the scheduler!).
+static void ITCM_FUNC(cothread_list_active_add_after_first_ctx)(volatile cothread_info_t *ctx)
+{
+    int8_t new_ctx_priority = ctx->priority;
+
+    volatile cothread_info_t *p = cothread_list_active;
+
+    while (1)
+    {
+        cothread_info_t *next = p->next;
+
+        if (next == NULL)
+            break;
+
+        if (next->priority < new_ctx_priority)
+            break;
+
+        p = next;
+    }
+
+    ctx->next = p->next;
+    p->next = (cothread_info_t *)ctx;
+}
+
+// This can add new contexts anywhere in the list, even if the list is empty or
+// before the first node of the list. This should only be used from the
+// scheduler, and when creating the initial main and sleep threads.
 static void ITCM_FUNC(cothread_list_active_add_ctx)(volatile cothread_info_t *ctx)
 {
     assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
-    // Add new active contexts to the end of the list
-
     if (cothread_list_active == NULL)
     {
-        cothread_list_active = ctx;
         ctx->next = NULL;
+        cothread_list_active = ctx;
+        return;
     }
-    else
+
+    int8_t new_ctx_priority = ctx->priority;
+
+    if (cothread_list_active->priority < new_ctx_priority)
     {
-        int8_t new_ctx_priority = ctx->priority;
-
-        volatile cothread_info_t *p = cothread_list_active;
-
-        while (1)
-        {
-            cothread_info_t *next = p->next;
-
-            if (next == NULL)
-                break;
-
-            if (next->priority < new_ctx_priority)
-                break;
-
-            p = next;
-        }
-
-        ctx->next = p->next;
-        p->next = (cothread_info_t *)ctx;
+        ctx->next = (cothread_info_t *)cothread_list_active;
+        cothread_list_active = ctx;
+        return;
     }
+
+    cothread_list_active_add_after_first_ctx(ctx);
 }
 
 static void ITCM_FUNC(cothread_list_active_remove_first_ctx)(void)
@@ -393,11 +412,6 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
     // Initialize context
     cothread_context_initialize(ctx, stack_top, entrypoint, arg);
 
-    // Add main thread to the list of active threads
-    int oldIME = enterCriticalSection();
-    cothread_list_active_add_ctx(ctx);
-    leaveCriticalSection(oldIME);
-
     return (cothread_t)ctx;
 }
 
@@ -456,8 +470,15 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
 
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
-    return cothread_create_internal(ctx, entrypoint, arg,
-                                    stack_base, stack_top, tls, flags);
+    cothread_t id = cothread_create_internal(ctx, entrypoint, arg,
+                                             stack_base, stack_top, tls, flags);
+
+    // Add main thread to the list of active threads
+    int oldIME = enterCriticalSection();
+    cothread_list_active_add_after_first_ctx(ctx);
+    leaveCriticalSection(oldIME);
+
+    return id;
 
 invalid_args:
     errno = EINVAL;
@@ -752,7 +773,7 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
         {
             // TODO: Optimize removing so that we don't need a doubly linked list
             cothread_list_waiting_remove_ctx(ctx);
-            cothread_list_active_add_ctx(ctx);
+            cothread_list_active_add_after_first_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
         }
 
@@ -777,7 +798,7 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq_aux)(uint32_t irq_mask)
         {
             // TODO: Optimize removing so that we don't need a doubly linked list
             cothread_list_waiting_remove_ctx(ctx);
-            cothread_list_active_add_ctx(ctx);
+            cothread_list_active_add_after_first_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
         }
 
@@ -801,7 +822,7 @@ void ITCM_FUNC(cothread_send_signal)(uint32_t signal_id)
         {
             // TODO: Optimize removing so that we don't need a doubly linked list
             cothread_list_waiting_remove_ctx(ctx);
-            cothread_list_active_add_ctx(ctx);
+            cothread_list_active_add_after_first_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
         }
 
@@ -994,6 +1015,8 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
                              getHeapLimit(), main_stack_top,
                              __tls_start, 0);
 
+    cothread_list_active_add_ctx(&main_thread_ctx);
+
     // Setup sleep thread
     // ------------------
 
@@ -1009,6 +1032,8 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     // It has the minimum possible priority so that it only runs if there are no
     // other active threads.
     sleep_thread_ctx.priority = -128;
+
+    cothread_list_active_add_ctx(&sleep_thread_ctx);
 
     // Start scheduler
     // ---------------
