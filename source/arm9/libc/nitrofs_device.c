@@ -12,6 +12,7 @@
 #include <nds/arm9/dldi.h>
 #include <nds/arm9/sassert.h>
 #include <nds/card.h>
+#include <nds/cothread.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -27,6 +28,7 @@ static nitrofs_t nitrofs_local =
     .fat_offset = 0,
     .current_dir = 0,
     .use_slot2 = false,
+    .read_mutex = 0,
 };
 
 /// Configuration
@@ -106,13 +108,20 @@ static ssize_t nitrofs_read_internal_cart(void *ptr, size_t offset, size_t len)
 // This reads from NitroFS using the right access system
 static ssize_t nitrofs_read_internal(void *ptr, size_t offset, size_t len)
 {
+    ssize_t ret;
+
+    comutex_acquire(&nitrofs_local.read_mutex);
+
     if (nitrofs_local.fd != -1)
-        return nitrofs_read_internal_file(ptr, offset, len);
+        ret = nitrofs_read_internal_file(ptr, offset, len);
+    else if (nitrofs_local.use_slot2)
+        ret = nitrofs_read_internal_slot2(ptr, offset, len);
+    else
+        ret = nitrofs_read_internal_cart(ptr, offset, len);
 
-    if (nitrofs_local.use_slot2)
-        return nitrofs_read_internal_slot2(ptr, offset, len);
+    comutex_release(&nitrofs_local.read_mutex);
 
-    return nitrofs_read_internal_cart(ptr, offset, len);
+    return ret;
 }
 
 /// Directory I/O
@@ -811,6 +820,8 @@ bool nitroFSInit(const char *basepath)
 {
     if (nitrofs_local.fat_offset)
         nitroFSExit();
+
+    comutex_init(&nitrofs_local.read_mutex);
 
     nitrofs_local.fd = -1;
     nitrofs_local.current_dir = 0xF000;

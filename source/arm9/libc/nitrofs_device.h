@@ -8,12 +8,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <nds/cothread.h>
+
 typedef struct {
     int fd; // if -1, use direct cartridge I/O
     uint32_t fnt_offset;
     uint32_t fat_offset;
     uint16_t current_dir;
     bool use_slot2;
+    comutex_t read_mutex;
 } nitrofs_t;
 
 typedef struct {
