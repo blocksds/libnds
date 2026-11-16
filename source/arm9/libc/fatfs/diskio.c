@@ -52,6 +52,8 @@
 #define DEV_SD      0x01 // SD slot of the DSi
 #define DEV_NAND    0x02 // NAND of the DSi
 
+#define DEV_MAX     0x02
+
 // Debugging defines.
 // #define DISABLE_DIRECT_READS
 // #define DISABLE_DIRECT_WRITES
@@ -93,8 +95,11 @@ static const DISC_INTERFACE *get_disk_interface(BYTE pdrv)
 // pdrv: Physical drive nmuber to identify the drive
 DSTATUS disk_status(BYTE pdrv)
 {
+    if (pdrv > DEV_MAX)
+        return STA_NOINIT;
+
     const DISC_INTERFACE *io = get_disk_interface(pdrv);
-    if(!io)
+    if (!io)
         return STA_NOINIT;
 
     DSTATUS result = 0;
@@ -125,13 +130,16 @@ DSTATUS disk_status(BYTE pdrv)
 // pdrv: Physical drive nmuber to identify the drive
 DSTATUS disk_initialize(BYTE pdrv)
 {
+    if (pdrv > DEV_MAX)
+        return STA_NOINIT;
+
     // TODO: Should we fail if the device has been initialized, or succeed?
     if (fs_initialized[pdrv])
         return 0;
 
     const DISC_INTERFACE *io = get_disk_interface(pdrv);
 
-    if(!io)
+    if (!io)
         return STA_NODISK;
 
     if (!(io->features & FEATURE_MEDIUM_CANREAD))
@@ -169,6 +177,9 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
     bool cacheable = (pdrv & 0x80);
 #endif
     pdrv &= 0x7F;
+
+    if (pdrv > DEV_MAX)
+        return RES_NOTRDY;
 
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
@@ -256,6 +267,9 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 // count:  Number of sectors to write
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 {
+    if (pdrv > DEV_MAX)
+        return RES_NOTRDY;
+
     if (fs_initialized[pdrv] == 0)
         return RES_NOTRDY;
 
@@ -319,6 +333,9 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 {
     (void)buff;
+
+    if (pdrv > DEV_MAX)
+        return RES_NOTRDY;
 
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
