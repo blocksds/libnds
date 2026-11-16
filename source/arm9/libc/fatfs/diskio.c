@@ -3,7 +3,7 @@
 /-------------------------------------------------------------------------/
 /
 / Copyright (C) 2019, ChaN, all right reserved.
-/ Copyright (C) 2023, Antonio Niño Díaz, all right reserved.
+/ Copyright (C) 2023-2026, Antonio Niño Díaz, all right reserved.
 /
 / FatFs module is an open source software. Redistribution and use of FatFs in
 / source and binary forms, with or without modification, are permitted provided
@@ -38,6 +38,7 @@
 #include <nds/arm9/sassert.h>
 #include <nds/arm9/sdmmc.h>
 #include <nds/interrupts.h>
+#include <nds/cothread.h>
 #include <nds/memory.h>
 #include <nds/system.h>
 
@@ -65,6 +66,10 @@
 
 static bool fs_initialized[FF_VOLUMES];
 static const DISC_INTERFACE *fs_io[FF_VOLUMES];
+// All drives use the same temporary storage, returned by cache_sector_borrow(),
+// so we need a global lock for it. Also, we need a lock for DLDI in the ARM9,
+// so this lock has that double purpose.
+static comutex_t fs_io_mutex;
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "This file assumes that the sector size is always the same".
@@ -153,6 +158,7 @@ DSTATUS disk_initialize(BYTE pdrv)
 
     fs_io[pdrv] = io;
     fs_initialized[pdrv] = true;
+    comutex_init(&fs_io_mutex);
 
     return disk_status(pdrv);
 }
@@ -184,6 +190,10 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
     if (!fs_initialized[pdrv])
         return RES_NOTRDY;
 
+    comutex_acquire(&fs_io_mutex);
+
+    DRESULT ret = 0;
+
     switch (pdrv)
     {
         case DEV_DLDI:
@@ -199,9 +209,11 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
                 && (pdrv == DEV_SD || IS_WORD_ALIGNED(buff)))
             {
                 if (!io->readSectors(sector, count, buff))
-                    return RES_ERROR;
+                    ret = RES_ERROR;
+                else
+                    ret = RES_OK;
 
-                return RES_OK;
+                break;
             }
 #endif
 
@@ -213,7 +225,8 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
                 {
                     if (!io->readSectors(sector, 1, cache))
                     {
-                        return RES_ERROR;
+                        ret = RES_ERROR;
+                        goto exit;
                     }
 
                     __aeabi_memcpy(buff, cache, FF_MAX_SS);
@@ -236,7 +249,8 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
                         if (!io->readSectors(sector, 1, cache))
                         {
                             cache_sector_invalidate(pdrv, sector, sector);
-                            return RES_ERROR;
+                            ret = RES_ERROR;
+                            goto exit;
                         }
                     }
 
@@ -248,11 +262,19 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
                 }
             }
 
-            return RES_OK;
+            ret = RES_OK;
+            break;
         }
+
+        default:
+            ret = RES_PARERR;
+            break;
     }
 
-    return RES_PARERR;
+exit:
+    comutex_release(&fs_io_mutex);
+
+    return ret;
 }
 
 //-----------------------------------------------------------------------
@@ -272,6 +294,10 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 
     if (fs_initialized[pdrv] == 0)
         return RES_NOTRDY;
+
+    comutex_acquire(&fs_io_mutex);
+
+    DRESULT ret;
 
     switch (pdrv)
     {
@@ -298,7 +324,8 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
                     if (!io->writeSectors(sector, 1, align_buffer))
                     {
                         free(align_buffer);
-                        return RES_ERROR;
+                        ret = RES_ERROR;
+                        goto exit;
                     }
 
                     count--;
@@ -310,15 +337,26 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
             else
             {
                 if (!io->writeSectors(sector, count, buff))
-                    return RES_ERROR;
+                {
+                    ret = RES_ERROR;
+                    break;
+                }
             }
 #endif
 
-            return RES_OK;
+            ret = RES_OK;
+            break;
         }
+
+        default:
+            ret = RES_PARERR;
+            break;
     }
 
-    return RES_PARERR;
+exit:
+    comutex_release(&fs_io_mutex);
+
+    return ret;
 }
 
 #endif
