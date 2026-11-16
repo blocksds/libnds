@@ -96,7 +96,7 @@ DSTATUS disk_status(BYTE pdrv)
     const DISC_INTERFACE *io = get_disk_interface(pdrv);
     if(!io)
         return STA_NOINIT;
-    
+
     DSTATUS result = 0;
 
     switch (pdrv)
@@ -108,7 +108,7 @@ DSTATUS disk_status(BYTE pdrv)
             result = sdmmc_GetDiskStatus();
             break;
     }
-    
+
     result |= (io->features & FEATURE_MEDIUM_CANREAD)
         ? ((io->features & FEATURE_MEDIUM_CANWRITE) ? 0 : STA_PROTECT)
         : STA_NODISK;
