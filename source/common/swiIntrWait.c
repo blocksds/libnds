@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: Zlib
 //
-// Copyright (C) 2025 Antonio Niño Díaz
+// Copyright (C) 2025-2026 Antonio Niño Díaz
 
 // This implements some BIOS functions that are buggy in the real BIOS. The bugs
-// depend on the CPU and the NDS model, so it's better to reimplement them
-// ourselves. The compiler does a pretty good job, so it's better to have them
-// as C than as hand-written ASM.
+// depend on the CPU and the NDS model (each BIOS implementation has different
+// bugs), so it's better to do a clean reimplementation in libnds.
+//
+// The main reason for the bugs is that the original code was hand-written
+// assembly, so it's better to keep this function as C code (the compiler does a
+// good job at it anyway).
 
 #include <nds/bios.h>
 #include <nds/interrupts.h>
