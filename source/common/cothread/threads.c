@@ -667,12 +667,7 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
-    {
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, mask);
-
         return;
-    }
 
     // Disable interrupts until the scheduler moves this thread to the waiting list
     cpsrDisableInterrupts();
@@ -691,12 +686,7 @@ void cothread_yield_irq_aux(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
     if (irq_nesting_level > 0)
-    {
-        if (REG_IME == 1)
-            swiIntrWaitAUX(INTRWAIT_KEEP_FLAGS, 0, mask);
-
         return;
-    }
 
     // Disable interrupts until the scheduler moves this thread to the waiting list
     cpsrDisableInterrupts();
