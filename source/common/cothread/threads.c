@@ -729,8 +729,8 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
     if (irq_nesting_level > 0)
         return;
 
-    // An ID of zero is treated as "not used"
-    if (signal_id == 0)
+    assert(signal_id != COTHREAD_NO_SIGNAL);
+    if (signal_id == COTHREAD_NO_SIGNAL)
         return;
 
     // Disable interrupts until the scheduler moves this thread to the waiting list
