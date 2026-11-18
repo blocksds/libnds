@@ -924,8 +924,6 @@ bool fifoInit(void)
     return true;
 }
 
-#ifdef ARM9
-
 // Helpers to prevent multiple threads from using the same FIFO channel
 // --------------------------------------------------------------------
 
@@ -954,5 +952,3 @@ void fifoMutexRelease(u32 channel)
 
     comutex_release(&fifo_mutex[channel]);
 }
-
-#endif // ARM9

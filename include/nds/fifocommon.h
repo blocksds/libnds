@@ -377,14 +377,7 @@ static inline void fifoWaitValue32(u32 channel)
 static inline void fifoWaitValue32Async(u32 channel)
 {
     while (!fifoCheckValue32(channel))
-    {
-#ifdef ARM9
         cothread_yield_irq(IRQ_RECV_FIFO);
-#else
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
-#endif
-    }
 }
 
 /// Waits for any address message in a FIFO channel and blocks until there is
@@ -409,14 +402,7 @@ static inline void fifoWaitAddress(u32 channel)
 static inline void fifoWaitAddressAsync(u32 channel)
 {
     while (!fifoCheckAddress(channel))
-    {
-#ifdef ARM9
         cothread_yield_irq(IRQ_RECV_FIFO);
-#else
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
-#endif
-    }
 }
 
 /// Waits for any data message in a FIFO channel and blocks until there is
@@ -441,17 +427,8 @@ static inline void fifoWaitDatamsg(u32 channel)
 static inline void fifoWaitDatamsgAsync(u32 channel)
 {
     while (!fifoCheckDatamsg(channel))
-    {
-#ifdef ARM9
         cothread_yield_irq(IRQ_RECV_FIFO);
-#else
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
-#endif
-    }
 }
-
-#ifdef ARM9
 
 /// Acquires the mutex of the specified FIFO channel.
 ///
@@ -473,8 +450,6 @@ bool fifoMutexTryAcquire(u32 channel);
 /// @param channel
 ///     Channel number.
 void fifoMutexRelease(u32 channel);
-
-#endif // ARM9
 
 #ifdef __cplusplus
 };
