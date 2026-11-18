@@ -144,11 +144,12 @@ static u32 fifo_buffer_wait_block(void)
         // receives some words and we can free up some space in our TX buffer.
         // TODO: This waits until all of the hardware TX FIFO has been emptied.
         // It may be better to wait until it isn't full.
-        // TODO: Enabling interrupts may be dangerous, this needs to be
-        // double-checked.
+
         REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
-        REG_IME = 1;
+
+        // REG_IME is set to 1 inside swiIntrWait()
         swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_SEND_FIFO);
+
         REG_IME = 0;
     }
 }
