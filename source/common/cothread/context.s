@@ -38,6 +38,11 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     msr     cpsr, #(CPSR_MODE_ABORT | CPSR_FLAG_IRQ_DIS) // Keep IRQs off
 
     ldr     r1, [r0, #COTHREAD_INFO_CPU_CPSR_OFFSET]
+    // Force interrupts to be enabled whenever a thread is resumed. When
+    // yielding, we have to set CPSR.I so that there are no race conditions,
+    // but we want it to be clear when we resume the thread or all interrupts
+    // will be disabled.
+    bic     r1, r1, #CPSR_FLAG_IRQ_DIS
     msr     spsr, r1
 
     ldr     lr, [r0, #COTHREAD_INFO_CPU_PC_OFFSET]
@@ -67,10 +72,6 @@ BEGIN_ASM_FUNC cothread_context_switch_to_scheduler itcm
     mrs     r1, cpsr
     tst     lr, #1
     orrne   r1, #CPSR_FLAG_THUMB
-    // Force interrupts to be enabled. When yielding, we have to set CPSR.I so
-    // that there are no race conditions, but we want it to be clear when we
-    // resume the thread.
-    bic     r1, r1, #CPSR_FLAG_IRQ_DIS
     str     r1, [r0, #4] // Save cpsr
 
     str     lr, [r0] // Save pc
