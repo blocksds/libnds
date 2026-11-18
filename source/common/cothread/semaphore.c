@@ -3,6 +3,7 @@
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include <nds/cothread.h>
+#include <nds/cpu.h>
 #include <nds/interrupts.h>
 
 bool cosema_init(cosema_t *sema, uint32_t init_val)
@@ -18,7 +19,7 @@ bool cosema_init(cosema_t *sema, uint32_t init_val)
 
 void cosema_signal(cosema_t *sema)
 {
-    int oldIME = enterCriticalSection();
+    cpsrDisableInterrupts();
 
     COMPILER_MEMORY_BARRIER();
 
@@ -26,7 +27,7 @@ void cosema_signal(cosema_t *sema)
 
     COMPILER_MEMORY_BARRIER();
 
-    leaveCriticalSection(oldIME);
+    cpsrEnableInterrupts();
 
     cothread_send_signal(cosema_to_signal_id(sema));
 }
@@ -35,7 +36,7 @@ bool cosema_try_wait(cosema_t *sema)
 {
     bool success;
 
-    int oldIME = enterCriticalSection();
+    cpsrDisableInterrupts();
 
     COMPILER_MEMORY_BARRIER();
 
@@ -51,7 +52,7 @@ bool cosema_try_wait(cosema_t *sema)
 
     COMPILER_MEMORY_BARRIER();
 
-    leaveCriticalSection(oldIME);
+    cpsrEnableInterrupts();
 
     return success;
 }

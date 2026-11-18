@@ -3,6 +3,7 @@
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include <nds/cothread.h>
+#include <nds/cpu.h>
 #include <nds/interrupts.h>
 
 bool comutex_init(comutex_t *mutex)
@@ -18,7 +19,7 @@ bool comutex_try_acquire(comutex_t *mutex)
 {
     bool acquired;
 
-    int oldIME = enterCriticalSection();
+    cpsrDisableInterrupts();
 
     COMPILER_MEMORY_BARRIER();
 
@@ -34,7 +35,7 @@ bool comutex_try_acquire(comutex_t *mutex)
 
     COMPILER_MEMORY_BARRIER();
 
-    leaveCriticalSection(oldIME);
+    cpsrEnableInterrupts();
 
     return acquired;
 }
