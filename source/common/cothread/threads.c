@@ -396,6 +396,8 @@ static cothread_t cothread_create_internal(cothread_info_t *ctx,
                                            void *stack_base, void *stack_top,
                                            void *tls, uint16_t flags)
 {
+    init_tls(tls);
+
     ctx->stack_base = stack_base;
     ctx->stack_top = stack_top;
     ctx->flags = flags;
@@ -456,8 +458,6 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         errno = ENOMEM;
         return -1;
     }
-
-    init_tls(tls);
 
     // Child threads inherit the priority of their parent
 
@@ -990,9 +990,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     // Setup main thread
     // -----------------
 
-    // Initialize TLS of the main thread
     extern char __tls_start[];
-    init_tls(__tls_start);
 
     // We could add canaries to the stack of the scheduler, but it's placed
     // right on top of the main thread stack, which has a canary as well, so it
@@ -1010,9 +1008,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     // Setup sleep thread
     // ------------------
 
-    // Initialize TLS of the sleep thread
     extern char __tls_sleep_start[];
-    init_tls(__tls_sleep_start);
 
     cothread_create_internal(&sleep_thread_ctx,
                              cothread_sleep, NULL,
