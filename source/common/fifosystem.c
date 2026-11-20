@@ -16,6 +16,7 @@
 #include <nds/system.h>
 
 #include "fifo_messages_helpers.h"
+#include "common/cothread/threads.h"
 
 // Arbitrary maximum number of bytes that can be sent in a fifo data message.
 // In practice, the maximum number of bytes that could fit is around
@@ -41,6 +42,8 @@
 // This value is used in the "next" field of a block to mean that there are no
 // more entries in the queue.
 #define FIFO_BUFFER_TERMINATE   0xFFFF
+
+#define FIFO_EVENT_ID           0x8000F1F0
 
 // Global FIFO pool
 // ----------------
@@ -361,10 +364,36 @@ static void fifoFillBufferFromRxFifo(void)
     }
 }
 
-static void fifoProcessRxBuffer(void)
+// FIFO RX dispatcher thread
+// -------------------------
+
+// This is the sleep thread context, which always has the lowest possible
+// priority, and it runs whenever there are no more threads awake.
+static cothread_info_t DTCM_BSS_VAR(fifo_thread_ctx) = { 0 };
+
+// This is the stack used by the sleep thread.
+ALIGN(8) static uint8_t DTCM_BSS_VAR(fifo_thread_stack)[512];
+
+__attribute__((noreturn))
+static int fifoProcessThread(void *arg)
 {
-    while (fifo_rx_queue.head != FIFO_BUFFER_TERMINATE)
+    (void)arg;
+
+    cpsrDisableInterrupts();
+
+    while (1)
     {
+        while (1)
+        {
+            cothread_yield_signal(FIFO_EVENT_ID);
+            cpsrDisableInterrupts();
+
+            fifoFillBufferFromRxFifo();
+
+            if (fifo_rx_queue.head != FIFO_BUFFER_TERMINATE)
+                break;
+        }
+
         u32 block = fifo_rx_queue.head;
         u32 data = POOL_DATA(block);
 
@@ -377,7 +406,8 @@ static void fifoProcessRxBuffer(void)
             // Message sent from the ARM7 to the ARM9 to start a reset
             if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
             {
-                REG_IME = 1;
+                cpsrEnableInterrupts();
+
                 exit(0);
             }
 #endif
@@ -386,7 +416,8 @@ static void fifoProcessRxBuffer(void)
             // Message sent from the ARM9 to the ARM7 to start a reset
             if (cmd == FIFO_ARM9_REQUESTS_ARM7_RESET)
             {
-                REG_IME = 1;
+                cpsrEnableInterrupts();
+
                 // Make sure that the two CPUs reset at the same time. The other
                 // CPU reset function (located in the bootstub struct) is
                 // responsible for issuing the same commands to ensure that both
@@ -410,9 +441,10 @@ static void fifoProcessRxBuffer(void)
             if (fifo_address_func[channel])
             {
                 fifo_buffer_free_block(block);
-                REG_IME = 1;
+
+                cpsrEnableInterrupts();
                 fifo_address_func[channel](address, fifo_address_data[channel]);
-                REG_IME = 0;
+                cpsrDisableInterrupts();
             }
             else
             {
@@ -430,7 +462,7 @@ static void fifoProcessRxBuffer(void)
 
                 // If the extra word hasn't been received, try later
                 if (next == FIFO_BUFFER_TERMINATE)
-                    break;
+                    continue;
 
                 fifo_buffer_free_block(block);
                 block = next;
@@ -447,9 +479,10 @@ static void fifoProcessRxBuffer(void)
             if (fifo_value32_func[channel])
             {
                 fifo_buffer_free_block(block);
-                REG_IME = 1;
+
+                cpsrEnableInterrupts();
                 fifo_value32_func[channel](value32, fifo_value32_data[channel]);
-                REG_IME = 0;
+                cpsrDisableInterrupts();
             }
             else
             {
@@ -474,7 +507,7 @@ static void fifoProcessRxBuffer(void)
 
             // If we haven't received enough blocks, try later
             if (count != n_words)
-                break;
+                continue;
 
             fifo_rx_queue.head = POOL_NEXT(end);
 
@@ -492,9 +525,9 @@ static void fifoProcessRxBuffer(void)
                 // Call the handler and tell it the number of available bytes to
                 // use. They need to be fetched and turned into a proper message
                 // by calling fifoGetDatamsg().
-                REG_IME = 1;
+                cpsrEnableInterrupts();
                 fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
-                REG_IME = 0;
+                cpsrDisableInterrupts();
 
                 // If the user hasn't fetched the message from the queue by
                 // calling fifoGetDatamsg(), it is still in the queue. Delete it
@@ -515,20 +548,7 @@ static volatile bool fifo_rx_processing = false;
 
 static void fifoReadRxFifoAndProcessBuffer(void)
 {
-    fifoFillBufferFromRxFifo();
-
-    // This handler can be nested. This check makes sure that there is
-    // only one level of nesting, and that the nested handler can only read data
-    // from the IPC registers and save it to the FIFO RX queue. The processing
-    // will happen in the non-nested handler when the nested handler finishes.
-    if (fifo_rx_processing)
-        return;
-
-    fifo_rx_processing = true;
-
-    fifoProcessRxBuffer();
-
-    fifo_rx_processing = false;
+    cothread_send_signal(FIFO_EVENT_ID);
 }
 
 // Helpers add messages to the software TX queue
@@ -790,9 +810,7 @@ bool fifoCheckAddress(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
-    int oldIME = enterCriticalSection();
     fifoReadRxFifoAndProcessBuffer();
-    leaveCriticalSection(oldIME);
 
     return fifo_address_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
@@ -802,9 +820,7 @@ bool fifoCheckDatamsg(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
-    int oldIME = enterCriticalSection();
     fifoReadRxFifoAndProcessBuffer();
-    leaveCriticalSection(oldIME);
 
     return fifo_data_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
@@ -814,9 +830,7 @@ int fifoCheckDatamsgLength(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return -1;
 
-    int oldIME = enterCriticalSection();
     fifoReadRxFifoAndProcessBuffer();
-    leaveCriticalSection(oldIME);
 
     if (!fifoCheckDatamsg(channel))
         return -1;
@@ -830,9 +844,7 @@ bool fifoCheckValue32(u32 channel)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
-    int oldIME = enterCriticalSection();
     fifoReadRxFifoAndProcessBuffer();
-    leaveCriticalSection(oldIME);
 
     return fifo_value32_queue[channel].head != FIFO_BUFFER_TERMINATE;
 }
@@ -844,7 +856,9 @@ bool fifoCheckValue32(u32 channel)
 // ready to be read.
 static void fifoInternalRecvInterrupt(void)
 {
-    fifoReadRxFifoAndProcessBuffer();
+    fifoFillBufferFromRxFifo();
+
+    cothread_send_signal(FIFO_EVENT_ID);
 }
 
 // This interrupt handler is called when the TX FIFO hardware registers become
@@ -915,6 +929,20 @@ bool fifoInit(void)
 
     fifo_rx_queue.head = FIFO_BUFFER_TERMINATE;
     fifo_rx_queue.tail = FIFO_BUFFER_TERMINATE;
+
+    // Start FIFO processing thread
+    extern char __tls_fifo_start[];
+
+    cothread_t id = cothread_create_internal(&fifo_thread_ctx,
+                             fifoProcessThread, NULL,
+                             &fifo_thread_stack[0], &fifo_thread_stack[sizeof(fifo_thread_stack)],
+                             __tls_fifo_start, 0);
+
+    cothread_set_priority(id, 64);
+
+    int oldIME = enterCriticalSection();
+    cothread_list_active_add_after_first_ctx(&fifo_thread_ctx);
+    leaveCriticalSection(oldIME);
 
     // Setup interrupt handlers
     irqSet(IRQ_SEND_FIFO, fifoInternalSendInterrupt);

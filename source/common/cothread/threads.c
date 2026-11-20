@@ -170,7 +170,8 @@ static void free_anywhere(void *ptr)
 // called from other threads, and we don't want the first context in the list
 // to be replaced by anything (because it's the active thread, and it would
 // cause weird issues when returning to the scheduler!).
-static void ITCM_FUNC(cothread_list_active_add_after_first_ctx)(volatile cothread_info_t *ctx)
+// Internal function.
+void ITCM_FUNC(cothread_list_active_add_after_first_ctx)(volatile cothread_info_t *ctx)
 {
     int8_t new_ctx_priority = ctx->priority;
 
@@ -390,11 +391,12 @@ int cothread_delete(cothread_t thread)
     return ret;
 }
 
+// Internal function
 __attribute__((noinline))
-static cothread_t cothread_create_internal(cothread_info_t *ctx,
-                                           int (*entrypoint)(void *), void *arg,
-                                           void *stack_base, void *stack_top,
-                                           void *tls, uint16_t flags)
+cothread_t cothread_create_internal(cothread_info_t *ctx,
+                                    int (*entrypoint)(void *), void *arg,
+                                    void *stack_base, void *stack_top,
+                                    void *tls, uint16_t flags)
 {
     init_tls(tls);
 
