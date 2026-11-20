@@ -960,8 +960,8 @@ int cothread_main(void *arg)
     while ((REG_IPC_SYNC & 0xF) != 0x7);
 #endif
 
-    // TODO: Enable this by default when libnds actually uses it
-    //cothread_preemption_setup(true);
+    // Enable this by default. libnds uses it for basic FIFO services
+    cothread_preemption_enable(true);
 
 #ifdef ARM9
     return main(main_args.argc, main_args.argv, NULL);
