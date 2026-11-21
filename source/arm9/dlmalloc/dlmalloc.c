@@ -6,6 +6,7 @@
 #include <nds/cothread.h>
 #include <nds/exceptions.h>
 #include <nds/memory.h>
+#include <nds/arm9/peripherals/slot2.h>
 
 #pragma GCC optimize("-Os")
 
@@ -87,8 +88,8 @@ void *__malloc_malloc(size_t) __attribute__((alias("malloc"), leaf, malloc, noth
 void __malloc_free(void *) __attribute__((alias("free"), leaf, nothrow));
 void cfree(void *) __attribute__((alias("free"), leaf, nothrow));
 
-// Custom functions to use dlmalloc in DTCM and ITCM
-// =================================================
+// Custom functions to use dlmalloc in DTCM, ITCM and Slot-2
+// =========================================================
 
 // Linker symbols
 extern char __sbss_end[];      // End of statically-allocated data in reserved space in DTCM
@@ -109,10 +110,12 @@ const uintptr_t ITCM_HEAP_END = ITCM_END;
 // the application is running.
 static bool itcm_dlmalloc_initialized = false;
 static bool dtcm_dlmalloc_initialized = false;
+static bool slot2_dlmalloc_initialized = false;
 
 // Context of the allocators
 static mspace itcm_mspace = 0;
 static mspace dtcm_mspace = 0;
+static mspace slot2_mspace = 0;
 
 // dlmalloc uses less than `128 * sizeof(size_t))` bytes (512 bytes). Check how
 // much free ITCM/DTCM is available and initialize the allocators only if it
@@ -171,6 +174,19 @@ static void dtcm_dlmalloc_init(void)
     }
 
     dtcm_dlmalloc_initialized = true;
+}
+
+static void slot2_dlmalloc_init(void)
+{
+    if (slot2_dlmalloc_initialized)
+        return;
+
+    // Return if Slot-2 peripheral not present.
+    if (!peripheralSlot2RamStart())
+        return;
+
+    slot2_mspace = create_mspace_with_base(peripheralSlot2RamStart(), peripheralSlot2RamSize(), 1);
+    slot2_dlmalloc_initialized = true;
 }
 
 static void *libnds_multi_heap_sbrk(bool is_global, size_t size)
@@ -297,4 +313,59 @@ void dtcm_free(void *ptr)
         return;
 
     mspace_free(dtcm_mspace, ptr);
+}
+
+// Slot-2
+
+void *slot2_malloc(size_t size)
+{
+    slot2_dlmalloc_init();
+
+    if (slot2_mspace == 0)
+        return NULL;
+
+    return mspace_malloc(slot2_mspace, size);
+}
+
+void *slot2_calloc(size_t n, size_t size)
+{
+    slot2_dlmalloc_init();
+
+    if (slot2_mspace == 0)
+        return NULL;
+
+    return mspace_calloc(slot2_mspace, n, size);
+}
+
+void *slot2_realloc(void *p, size_t size)
+{
+    slot2_dlmalloc_init();
+
+    if (slot2_mspace == 0)
+        return NULL;
+
+    return mspace_realloc(slot2_mspace, p, size);
+}
+
+void *slot2_memalign(size_t alignment, size_t size)
+{
+    slot2_dlmalloc_init();
+
+    if (slot2_mspace == 0)
+        return NULL;
+
+    return mspace_memalign(slot2_mspace, alignment, size);
+}
+
+void *slot2_aligned_alloc(size_t alignment, size_t size)
+{
+    return slot2_memalign(alignment, size);
+}
+
+void slot2_free(void *ptr)
+{
+    if (slot2_mspace == 0)
+        return;
+
+    mspace_free(slot2_mspace, ptr);
 }

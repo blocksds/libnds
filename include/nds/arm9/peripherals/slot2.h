@@ -13,8 +13,8 @@ extern "C" {
 ///
 /// @brief Slot-2 peripheral detection, external RAM.
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <stddef.h>
+#include <nds/ndstypes.h>
 
 // TODO: Peripherals marked as "TODO" are not currently detected.
 // In addition, the following are not listed due to insufficient information:
@@ -120,6 +120,13 @@ uint32_t peripheralSlot2RamBanks(void);
 /// @param bank
 ///     The bank to switch to.
 void peripheralSlot2RamSetBank(uint32_t bank);
+
+void *slot2_malloc(size_t size);
+void *slot2_calloc(size_t n, size_t size);
+void *slot2_realloc(void *p, size_t size);
+void *slot2_memalign(size_t alignment, size_t size);
+void *slot2_aligned_alloc(size_t alignment, size_t size);
+void slot2_free(void *ptr);
 
 #ifdef __cplusplus
 }
