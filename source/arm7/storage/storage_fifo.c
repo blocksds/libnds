@@ -17,28 +17,12 @@ static const DISC_INTERFACE *dldi_io = NULL;
 int sdmmcMsgHandler(int bytes, void *user_data, FifoMessage *msg);
 int sdmmcValueHandler(u32 value, void *user_data);
 
-static void fifoIrqDisable(void)
-{
-    int oldIME = enterCriticalSection();
-    REG_IE &= ~(IRQ_SEND_FIFO | IRQ_RECV_FIFO);
-    leaveCriticalSection(oldIME);
-}
-
-static void fifoIrqEnable(void)
-{
-    int oldIME = enterCriticalSection();
-    REG_IE |= IRQ_SEND_FIFO | IRQ_RECV_FIFO;
-    leaveCriticalSection(oldIME);
-}
-
 void storageMsgHandler(int bytes, void *user_data)
 {
     FifoMessage msg;
     int retval = 0;
 
     fifoGetDatamsg(FIFO_STORAGE, bytes, (u8 *)&msg);
-
-    fifoIrqDisable();
 
     switch (msg.type)
     {
@@ -94,16 +78,12 @@ void storageMsgHandler(int bytes, void *user_data)
             break;
     }
 
-    fifoIrqEnable();
-
     fifoSendValue32(FIFO_STORAGE, retval);
 }
 
 void storageValueHandler(u32 value, void *user_data)
 {
     int result = 0;
-
-    fifoIrqDisable();
 
     switch (value)
     {
@@ -135,8 +115,6 @@ void storageValueHandler(u32 value, void *user_data)
                 result = dldi_io->shutdown();
             break;
     }
-
-    fifoIrqEnable();
 
     fifoSendValue32(FIFO_STORAGE, result);
 }
