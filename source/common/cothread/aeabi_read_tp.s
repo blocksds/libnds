@@ -3,6 +3,7 @@
 // Copyright (C) 2023-2026 Antonio Niño Díaz
 
 #include <nds/asminc.h>
+#include <nds/cpu_asm.h>
 
 // __aeabi_read_tp() is used by GCC to get a pointer to the thread local
 // storage.
@@ -23,28 +24,30 @@
 // isn't a good idea to keep it in release builds for now.
 
     .syntax  unified
-    .thumb
+    .arm
 
 BEGIN_ASM_FUNC __aeabi_read_tp
 
     // Check this in debug and release builds of libnds. It's very easy to use
     // TLS from an interrupt context, which can cause memory corruption issues,
     // so we should always check.
-    ldr     r0, =irq_nesting_level
-    ldr     r0, [r0]
-    cmp     r0, #0
-    beq     not_in_irq
+
+    // Threads run in system mode. Interrupts run in undefined mode.
+    mrs     r0, cpsr
+    and     r0, r0, #CPSR_MODE_MASK
+    cmp     r0, #CPSR_MODE_SYSTEM
+    beq     inside_thread
 
     // Jump to libndsCrash(), which should never return
     ldr     r0, =__aeabi_read_tp_error_msg
     ldr     r1, =libndsCrash
     bx      r1
 
-not_in_irq:
+inside_thread:
 
     ldr     r0, =__tls
     ldr     r0, [r0]
     bx      lr
 
 __aeabi_read_tp_error_msg:
-    .asciz "Using TLS from IRQ"
+    .asciz "Using TLS outside of a thread"

@@ -177,18 +177,11 @@ main_irq_found:
     push    {r0-r2, r12, lr}  // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
 #endif
 
-    // Increment counter of nested interrupts being handled
-    adr     r0, irq_nesting_level
-    ldrh    r1, [r0]
-    add     r1, r1, #1
-    strh    r1, [r0]
-
-    // Enable IRQ and FIQ, set mode to System to use its stack. However, that
-    // means we need to preserve its banked lr register.
-    msr     cpsr, #CPSR_MODE_SYSTEM
+    // Enable IRQ and FIQ, set mode to Undefined to use its stack
+    msr     cpsr, #CPSR_MODE_UNDEFINED
 
     // Call user handler
-    push    {lr} // {lr_sys}
+    push    {lr} // {lr_und}
 #ifdef ARM9
     blx     r3
 #else
@@ -196,7 +189,7 @@ main_irq_found:
     bx      r3
 interrupt_return:
 #endif
-    pop     {lr} // {lr_sys}
+    pop     {lr} // {lr_und}
 
     // Return to IRQ mode with IRQs and FIQs disabled
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
@@ -211,12 +204,6 @@ interrupt_return:
 
     mov     r12, #REG_BASE
     str     r2, [r12, #OFFSET_IME]  // Restore REG_IME
-
-    // Decrement counter of nested interrupts being handled
-    adr     r12, irq_nesting_level
-    ldrh    r3, [r12]
-    sub     r3, r3, #1
-    strh    r3, [r12]
 
 clear_threads_and_exit:
 
@@ -246,11 +233,13 @@ check_return:
     cmp     r0, #0
     moveq   pc, lr
 
-    // If we're in a nested interrupt, don't change thread context.
-    adr     r0, irq_nesting_level
-    ldrh    r1, [r0]
-    cmp     r1, #0
-    movne   pc, lr
+    // Check the mode we are returning to. If we are going to return to
+    // undefined mode, we are in a nested interrupt, so we can't change the
+    // thread context.
+    mrs     r0, spsr
+    and     r0, r0, #CPSR_MODE_MASK
+    cmp     r0, #CPSR_MODE_UNDEFINED
+    moveq   pc, lr
 
     // Save context of the active thread
 
@@ -291,11 +280,5 @@ check_return:
     bx      lr
 
     .pool
-
-// This variable holds the current number of user interrupt handlers that have
-// been nested. If 0, no interrupt is currently being handled.
-    .global irq_nesting_level
-irq_nesting_level:
-    .space  2
 
     .end

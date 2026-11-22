@@ -664,12 +664,10 @@ int cothread_get_exit_code(cothread_t thread)
     return ret;
 }
 
-extern uint16_t irq_nesting_level;
-
 void cothread_yield(void)
 {
     // We can't yield from inside an interrupt handler
-    if (irq_nesting_level > 0)
+    if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
 
     cothread_context_switch_to_scheduler();
@@ -678,7 +676,7 @@ void cothread_yield(void)
 void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
-    if (irq_nesting_level > 0)
+    if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
 
     // Disable interrupts until the scheduler moves this thread to the right
@@ -707,7 +705,7 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
 void cothread_yield_irq_aux(uint32_t mask)
 {
     // We can't yield from inside an interrupt handler
-    if (irq_nesting_level > 0)
+    if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
 
     // Disable interrupts until the scheduler moves this thread to the right
@@ -736,7 +734,7 @@ void cothread_yield_irq_aux(uint32_t mask)
 void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 {
     // We can't yield from inside an interrupt handler
-    if (irq_nesting_level > 0)
+    if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
 
     assert(signal_id != COTHREAD_NO_SIGNAL);
@@ -758,7 +756,7 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 {
     // We can't yield from inside an interrupt handler
-    if (irq_nesting_level > 0)
+    if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
 
     assert(signal_id != COTHREAD_NO_SIGNAL);
