@@ -374,8 +374,13 @@ static cothread_info_t DTCM_BSS_VAR(fifo_thread_ctx) = { 0 };
 // This is the stack used by the sleep thread.
 ALIGN(8) static uint8_t DTCM_BSS_VAR(fifo_thread_stack)[512];
 
-static void fifoProcessFirstMessage(void)
+// It returns true if a message was processed. If a message hasn't been
+// completely received (or the queue is empty) it returns false.
+static bool fifoProcessFirstMessage(void)
 {
+    if (fifo_rx_queue.head == FIFO_BUFFER_TERMINATE)
+        return false;
+
     u32 block = fifo_rx_queue.head;
     u32 data = POOL_DATA(block);
 
@@ -444,7 +449,7 @@ static void fifoProcessFirstMessage(void)
 
             // If the extra word hasn't been received, try later
             if (next == FIFO_BUFFER_TERMINATE)
-                return;
+                return false;
 
             fifo_buffer_free_block(block);
             block = next;
@@ -489,7 +494,7 @@ static void fifoProcessFirstMessage(void)
 
         // If we haven't received enough blocks, try later
         if (count != n_words)
-            return;
+            return false;
 
         fifo_rx_queue.head = POOL_NEXT(end);
 
@@ -523,6 +528,8 @@ static void fifoProcessFirstMessage(void)
         fifo_rx_queue.head = POOL_NEXT(block);
         fifo_buffer_free_block(block);
     }
+
+    return true;
 }
 
 __attribute__((noreturn))
@@ -534,18 +541,20 @@ static int fifoProcessThread(void *arg)
 
     while (1)
     {
+        // Process all available messages until the queue becomes empty or the
+        // first message isn't complete.
         while (1)
         {
-            cothread_yield_signal(FIFO_EVENT_ID);
-            cpsrDisableInterrupts();
-
-            fifoFillBufferFromRxFifo();
-
-            if (fifo_rx_queue.head != FIFO_BUFFER_TERMINATE)
+            bool processed = fifoProcessFirstMessage();
+            if (!processed)
                 break;
         }
 
-        fifoProcessFirstMessage();
+        // Sleep until there is a new message in the queue
+        cothread_yield_signal(FIFO_EVENT_ID);
+        cpsrDisableInterrupts();
+
+        fifoFillBufferFromRxFifo();
     }
 }
 
