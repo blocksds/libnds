@@ -48,12 +48,41 @@ static inline uint32_t cosema_to_signal_id(cosema_t *sema)
     return BIT(31) | (uintptr_t)sema;
 }
 
-/// Creates a thread and allocate the stack for it.
+/// Creates a thread with a specific priority and allocates the stack for it.
 ///
 /// This stack will be freed when the thread is deleted.
 ///
 /// Important: If this thread is going to do filesystem accesses, you need to
 /// assign it a reasonably big stack size.
+///
+/// @param entrypoint
+///     Function to be run. The argument is the value of 'arg' passed to
+///     cothread_create().
+/// @param arg
+///     Argument to be passed to entrypoint.
+/// @param stack_size
+///     Size of the stack. If it is set to zero it will use a default value. If
+///     non-zero, it must be aligned to 64 bit.
+/// @param priority
+///     Priority of the new thread. By default, threads are created with
+///     priority 0. The maximum (highest priority) is 127, the minimum (lowest
+///     priority) is -128.
+/// @param flags
+///     ORed option flags (COTHREAD_DETACHED, COTHREAD_CONTEXT_IN_DTCM...).
+///
+/// @return
+///     On success, it returns a non-negative value representing the thread ID.
+///     On failure, it returns -1 and sets errno.
+cothread_t cothread_create_priority(cothread_entrypoint_t entrypoint, void *arg,
+                                    size_t stack_size, int8_t priority, uint16_t flags);
+
+/// Creates a thread and allocates the stack for it.
+///
+/// Important: If this thread is going to do filesystem accesses, you need to
+/// assign it a reasonably big stack size.
+///
+/// The new thread inherits the priority of the thread that created it (main()
+/// starts with priority 0).
 ///
 /// @param entrypoint
 ///     Function to be run. The argument is the value of 'arg' passed to
@@ -72,10 +101,42 @@ static inline uint32_t cosema_to_signal_id(cosema_t *sema)
 cothread_t cothread_create(cothread_entrypoint_t entrypoint, void *arg,
                            size_t stack_size, uint16_t flags);
 
-/// Create a thread.
+/// Create a thread with a specific priority and a pre-allocated stack.
 ///
 /// The stack is owned by the caller of this function, and it has to be freed
 /// manually after the thread ends.
+///
+/// @param entrypoint
+///     Function to be run. The argument is the value of 'arg' passed to
+///     cothread_create_manual().
+/// @param arg
+///     Argument to be passed to entrypoint.
+/// @param stack_base
+///     Pointer to the base of the memory to be used as stack.  It must be
+///     aligned to 64 bit.
+/// @param stack_size
+///     Size of the stack. Must be aligned to 64 bit.
+/// @param priority
+///     Priority of the thread. By default, threads are created with priority 0.
+///     The maximum priority is 127 (highest priority) and the lowest priority
+///     is -128.
+/// @param flags
+///     ORed option flags (COTHREAD_DETACHED, COTHREAD_CONTEXT_IN_DTCM...).
+///
+/// @return
+///     On success, it returns a non-negative value representing the thread ID.
+///     On failure, it returns -1 and sets errno.
+cothread_t cothread_create_priority_manual(cothread_entrypoint_t entrypoint, void *arg,
+                                           void *stack_base, size_t stack_size,
+                                           int8_t priority, uint16_t flags);
+
+/// Create a thread with a pre-allocated stack..
+///
+/// The stack is owned by the caller of this function, and it has to be freed
+/// manually after the thread ends.
+///
+/// The new thread inherits the priority of the thread that created it (main()
+/// starts with priority 0).
 ///
 /// @param entrypoint
 ///     Function to be run. The argument is the value of 'arg' passed to
@@ -124,6 +185,12 @@ int8_t cothread_get_priority(cothread_t thread);
 ///
 /// Threads inherit the priority of the thread that created them. The main()
 /// thread starts with priority 0 (base priority).
+///
+/// @note
+///     If you change the priority of the active thread (or a thread that is
+///     waiting for an IRQ/signal), the priority is updated right away. If you
+///     change the priority of a thread that is already scheduled, the priority
+///     change only has effect after the next time it is scheduled.
 ///
 /// @warning
 ///     If a thread with high priority never yields for IRQs or events, it will

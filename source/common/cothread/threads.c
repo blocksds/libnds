@@ -404,12 +404,13 @@ __attribute__((noinline))
 cothread_t cothread_create_internal(cothread_info_t *ctx,
                                     int (*entrypoint)(void *), void *arg,
                                     void *stack_base, void *stack_top,
-                                    void *tls, uint16_t flags)
+                                    void *tls, int8_t priority, uint16_t flags)
 {
     init_tls(tls);
 
     ctx->stack_base = stack_base;
     ctx->stack_top = stack_top;
+    ctx->priority = priority;
     ctx->flags = flags;
     ctx->tls = tls;
     ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
@@ -427,9 +428,9 @@ cothread_t cothread_create_internal(cothread_info_t *ctx,
     return (cothread_t)ctx;
 }
 
-cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
-                                  void *stack_base, size_t stack_size,
-                                  uint16_t flags)
+cothread_t cothread_create_priority_manual(int (*entrypoint)(void *), void *arg,
+                                           void *stack_base, size_t stack_size,
+                                           int8_t priority, uint16_t flags)
 {
     if ((stack_base == NULL) || (stack_size == 0) || (entrypoint == NULL))
         goto invalid_args;
@@ -469,10 +470,6 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
         return -1;
     }
 
-    // Child threads inherit the priority of their parent
-
-    ctx->priority = cothread_list_active->priority;
-
     // Assign the free() function to the pointer because now we are sure that we
     // will need to free the resources of the newly created thread eventually.
 
@@ -481,7 +478,8 @@ cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
     void *stack_top = (void *)((uintptr_t)stack_base + stack_size);
 
     cothread_t id = cothread_create_internal(ctx, entrypoint, arg,
-                                             stack_base, stack_top, tls, flags);
+                                             stack_base, stack_top, tls,
+                                             priority, flags);
 
     // Add main thread to the list of active threads
     int oldIME = enterCriticalSection();
@@ -495,8 +493,19 @@ invalid_args:
     return -1;
 }
 
-cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
-                           size_t stack_size, uint16_t flags)
+cothread_t cothread_create_manual(int (*entrypoint)(void *), void *arg,
+                                  void *stack_base, size_t stack_size,
+                                  uint16_t flags)
+{
+    // Inherit the priority of the parent thread
+    int8_t priority = cothread_list_active->priority;
+
+    return cothread_create_priority_manual(entrypoint, arg, stack_base, stack_size,
+                                           priority, flags);
+}
+
+cothread_t cothread_create_priority(cothread_entrypoint_t entrypoint, void *arg,
+                                    size_t stack_size, int8_t priority, uint16_t flags)
 {
     // Setup stack
 
@@ -530,8 +539,9 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
 
     // Create thread
 
-    cothread_t id = cothread_create_manual(entrypoint, arg,
-                                           stack_base, stack_size, flags);
+    cothread_t id = cothread_create_priority_manual(entrypoint, arg,
+                                                    stack_base, stack_size,
+                                                    priority, flags);
     if (id == -1)
     {
         free_fn(stack_base);
@@ -539,6 +549,15 @@ cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
     }
 
     return id;
+}
+
+cothread_t cothread_create(int (*entrypoint)(void *), void *arg,
+                           size_t stack_size, uint16_t flags)
+{
+    // Inherit the priority of the parent thread
+    int8_t priority = cothread_list_active->priority;
+
+    return cothread_create_priority(entrypoint, arg, stack_size, priority, flags);
 }
 
 int8_t cothread_get_priority(cothread_t thread)
@@ -561,8 +580,6 @@ int8_t cothread_get_priority(cothread_t thread)
         errno = EINVAL;
         ret = -128;
     }
-
-    // TODO: Refresh list of active threads to reflect the new priority?
 
     leaveCriticalSection(oldIME);
 
@@ -590,6 +607,11 @@ int cothread_set_priority(cothread_t thread, int8_t priority)
         errno = EINVAL;
         ret = -1;
     }
+
+    // TODO: If we're changing the priority of any thread other than the active
+    // thread, we could rearrange the list of active threads. However, that
+    // requires cothread_list_active to become a doubly linked list, which is
+    // a bit slower and more complicated.
 
     leaveCriticalSection(oldIME);
 
@@ -1053,7 +1075,7 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
     cothread_create_internal(&main_thread_ctx,
                              cothread_main, NULL,
                              getHeapLimit(), main_stack_top,
-                             __tls_start, 0);
+                             __tls_start, 0, 0);
 
     cothread_list_active_add_ctx(&main_thread_ctx);
 
@@ -1062,14 +1084,12 @@ int cothread_start(int argc, char **argv, void *main_stack_top)
 
     extern char __tls_sleep_start[];
 
+    // It has the minimum possible priority (-128) so that it only runs if there
+    // are no other active threads.
     cothread_create_internal(&sleep_thread_ctx,
                              cothread_sleep, NULL,
                              &sleep_stack[0], &sleep_stack[sizeof(sleep_stack)],
-                             __tls_sleep_start, 0);
-
-    // It has the minimum possible priority so that it only runs if there are no
-    // other active threads.
-    sleep_thread_ctx.priority = -128;
+                             __tls_sleep_start, -128, 0);
 
     cothread_list_active_add_ctx(&sleep_thread_ctx);
 
