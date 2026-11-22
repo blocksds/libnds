@@ -551,7 +551,7 @@ static int fifoProcessThread(void *arg)
         }
 
         // Sleep until there is a new message in the queue
-        cothread_yield_signal(FIFO_EVENT_ID);
+        cothread_yield_irq_or_signal(IRQ_RECV_FIFO, FIFO_EVENT_ID);
         cpsrDisableInterrupts();
 
         fifoFillBufferFromRxFifo();
@@ -871,8 +871,6 @@ bool fifoCheckValue32(u32 channel)
 static void fifoInternalRecvInterrupt(void)
 {
     fifoFillBufferFromRxFifo();
-
-    cothread_send_signal(FIFO_EVENT_ID);
 }
 
 // This interrupt handler is called when the TX FIFO hardware registers become
