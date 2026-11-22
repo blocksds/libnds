@@ -554,6 +554,8 @@ int8_t cothread_get_priority(cothread_t thread)
         ret = -128;
     }
 
+    // TODO: Refresh list of active threads to reflect the new priority?
+
     leaveCriticalSection(oldIME);
 
     return ret;
