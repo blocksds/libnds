@@ -86,6 +86,14 @@ volatile cothread_info_t *DTCM_BSS_VAR(cothread_list_finished);
 
 bool cothread_preemption_enabled = false;
 
+// When an interrupt is handled and there are no threads waiting for it, the bit
+// is set in the following variables. The next time thread yields trying to wait
+// for one of the unhandled interrupts, it will be waken up right away.
+static uint32_t unhandled_irq_mask;
+#ifdef ARM7
+static uint32_t unhandled_irq_aux_mask;
+#endif
+
 //-------------------------------------------------------------------
 
 // Linker symbols
@@ -673,14 +681,24 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
     if (irq_nesting_level > 0)
         return;
 
-    // Disable interrupts until the scheduler moves this thread to the waiting list
+    // Disable interrupts until the scheduler moves this thread to the right
+    // destination list.
     cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
-    ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
-    ctx->wait_irq_mask = mask;
-    ctx->state = COTHREAD_STATE_WAITING;
+    if (unhandled_irq_mask & mask)
+    {
+        // If there's an unhandled interrupt of this type, return to the
+        // scheduler, but don't sleep.
+        unhandled_irq_mask &= ~mask;
+    }
+    else
+    {
+        ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
+        ctx->wait_irq_mask = mask;
+        ctx->state = COTHREAD_STATE_WAITING;
+    }
 
     cothread_context_switch_to_scheduler();
 }
@@ -692,14 +710,24 @@ void cothread_yield_irq_aux(uint32_t mask)
     if (irq_nesting_level > 0)
         return;
 
-    // Disable interrupts until the scheduler moves this thread to the waiting list
+    // Disable interrupts until the scheduler moves this thread to the right
+    // destination list.
     cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
-    ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
-    ctx->wait_irq_aux_mask = mask;
-    ctx->state = COTHREAD_STATE_WAITING;
+    if (unhandled_irq_aux_mask & mask)
+    {
+        // If there's an unhandled interrupt of this type, return to the
+        // scheduler, but don't sleep.
+        unhandled_irq_aux_mask &= ~mask;
+    }
+    else
+    {
+        ctx->wait_signal_id = COTHREAD_NO_SIGNAL;
+        ctx->wait_irq_aux_mask = mask;
+        ctx->state = COTHREAD_STATE_WAITING;
+    }
 
     cothread_context_switch_to_scheduler();
 }
@@ -737,14 +765,24 @@ void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
     if (signal_id == COTHREAD_NO_SIGNAL)
         return;
 
-    // Disable interrupts until the scheduler moves this thread to the waiting list
+    // Disable interrupts until the scheduler moves this thread to the right
+    // destination list.
     cpsrDisableInterrupts();
 
     volatile cothread_info_t *ctx = cothread_list_active;
 
-    ctx->wait_signal_id = signal_id;
-    ctx->wait_irq_mask = mask;
-    ctx->state = COTHREAD_STATE_WAITING;
+    if (unhandled_irq_mask & mask)
+    {
+        // If there's an unhandled interrupt of this type, return to the
+        // scheduler, but don't sleep.
+        unhandled_irq_mask &= ~mask;
+    }
+    else
+    {
+        ctx->wait_signal_id = signal_id;
+        ctx->wait_irq_mask = mask;
+        ctx->state = COTHREAD_STATE_WAITING;
+    }
 
     cothread_context_switch_to_scheduler();
 }
@@ -758,6 +796,8 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
 
     volatile cothread_info_t *ctx = cothread_list_waiting;
 
+    bool handled = false;
+
     while (ctx != NULL)
     {
         volatile cothread_info_t *next = ctx->next;
@@ -769,10 +809,14 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq)(uint32_t irq_mask)
             cothread_list_waiting_remove_ctx(ctx);
             cothread_list_active_add_after_first_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
+            handled = true;
         }
 
         ctx = next;
     }
+
+    if (!handled)
+        unhandled_irq_mask |= irq_mask;
 }
 
 #ifdef ARM7
@@ -782,6 +826,8 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq_aux)(uint32_t irq_mask)
     assert((REG_IME == 0) || (getCPSR() & CPSR_FLAG_IRQ_DIS));
 
     volatile cothread_info_t *ctx = cothread_list_waiting;
+
+    bool handled = false;
 
     while (ctx != NULL)
     {
@@ -794,10 +840,14 @@ ARM_CODE void ITCM_FUNC(cothread_send_irq_aux)(uint32_t irq_mask)
             cothread_list_waiting_remove_ctx(ctx);
             cothread_list_active_add_after_first_ctx(ctx);
             ctx->state = COTHREAD_STATE_ACTIVE;
+            handled = true;
         }
 
         ctx = next;
     }
+
+    if (!handled)
+        unhandled_irq_aux_mask |= irq_mask;
 }
 #endif // ARM7
 

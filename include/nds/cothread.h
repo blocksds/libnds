@@ -199,6 +199,11 @@ void cothread_yield(void);
 /// Tells the scheduler to switch to a different thread until the specified IRQ
 /// has happened.
 ///
+/// If an IRQ is handled by the global IRQ dispatcher (even if it doesn't have a
+/// user handler) but it doesn't wake up any thread, it is saved. The next
+/// thread that yields waiting for that IRQ is woken up right away and clears
+/// the saved flag.
+///
 /// @param mask
 ///     Mask of IRQ flags to wait for (IRQ_VBLANK, IRQ_VCOUNT, IRQ_ALL, etc).
 void cothread_yield_irq(uint32_t mask);
@@ -206,6 +211,11 @@ void cothread_yield_irq(uint32_t mask);
 #ifdef ARM7
 /// Tells the scheduler to switch to a different thread until the specified ARM7
 /// AUX IRQ has happened.
+///
+/// If an IRQ is handled by the global IRQ dispatcher (even if it doesn't have a
+/// user handler) but it doesn't wake up any thread, it is saved. The next
+/// thread that yields waiting for that IRQ is woken up right away and clears
+/// the saved flag.
 ///
 /// @param flag
 ///     Mask of AUX IRQ flags to wait for.
@@ -230,6 +240,11 @@ void cothread_yield_signal(uint32_t signal_id);
 
 /// Tells the scheduler to switch to a different thread until the specified IRQ
 /// or the specified event have happened.
+///
+/// If an IRQ is handled by the global IRQ dispatcher (even if it doesn't have a
+/// user handler) but it doesn't wake up any thread, it is saved. The next
+/// thread that yields waiting for that IRQ is woken up right away and clears
+/// the saved flag.
 ///
 /// @param mask
 ///     Mask of IRQ flags to wait for (IRQ_VBLANK, IRQ_VCOUNT, IRQ_ALL, etc).
