@@ -76,7 +76,7 @@ static cothread_info_t DTCM_BSS_VAR(main_thread_ctx) = { 0 };
 static cothread_info_t DTCM_BSS_VAR(sleep_thread_ctx) = { 0 };
 
 // This is the stack used by the sleep thread.
-ALIGN(8) static uint8_t DTCM_BSS_VAR(sleep_stack)[768];
+ALIGN(8) static uint8_t DTCM_BSS_VAR(sleep_stack)[192];
 
 // Linked lists of threads. The first entry in cothread_list_active is the
 // active thread.
