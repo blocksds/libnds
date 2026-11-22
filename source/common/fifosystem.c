@@ -372,7 +372,7 @@ static void fifoFillBufferFromRxFifo(void)
 static cothread_info_t DTCM_BSS_VAR(fifo_thread_ctx) = { 0 };
 
 // This is the stack used by the sleep thread.
-ALIGN(8) static uint8_t DTCM_BSS_VAR(fifo_thread_stack)[512];
+ALIGN(8) static uint8_t DTCM_BSS_VAR(fifo_thread_stack)[1024];
 
 // It returns true if a message was processed. If a message hasn't been
 // completely received (or the queue is empty) it returns false.
