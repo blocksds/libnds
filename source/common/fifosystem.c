@@ -374,6 +374,157 @@ static cothread_info_t DTCM_BSS_VAR(fifo_thread_ctx) = { 0 };
 // This is the stack used by the sleep thread.
 ALIGN(8) static uint8_t DTCM_BSS_VAR(fifo_thread_stack)[512];
 
+static void fifoProcessFirstMessage(void)
+{
+    u32 block = fifo_rx_queue.head;
+    u32 data = POOL_DATA(block);
+
+    u32 channel = fifo_msg_unpack_channel(data);
+
+    if (fifo_msg_type_is_special_command(data))
+    {
+        uint32_t cmd = data & FIFO_SPECIAL_COMMAND_MASK;
+#ifdef ARM9
+        // Message sent from the ARM7 to the ARM9 to start a reset
+        if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
+        {
+            cpsrEnableInterrupts();
+
+            exit(0);
+        }
+#endif
+
+#ifdef ARM7
+        // Message sent from the ARM9 to the ARM7 to start a reset
+        if (cmd == FIFO_ARM9_REQUESTS_ARM7_RESET)
+        {
+            cpsrEnableInterrupts();
+
+            // Make sure that the two CPUs reset at the same time. The other
+            // CPU reset function (located in the bootstub struct) is
+            // responsible for issuing the same commands to ensure that both
+            // CPUs are in sync and they reset at the same time.
+            REG_IPC_SYNC = 0x100;
+            while ((REG_IPC_SYNC & 0x0f) != 1);
+            REG_IPC_SYNC = 0;
+            swiSoftReset();
+        }
+#endif
+
+        // Special commands are supposed to be used internally by libnds.
+        // Receiving an unknown command is a fatal error.
+        libndsCrash("Unknown FIFO command");
+    }
+    else if (fifo_msg_type_is_address(data))
+    {
+        void *address = fifo_msg_address_unpack(data);
+
+        fifo_rx_queue.head = POOL_NEXT(block);
+        if (fifo_address_func[channel])
+        {
+            fifo_buffer_free_block(block);
+
+            cpsrEnableInterrupts();
+            fifo_address_func[channel](address, fifo_address_data[channel]);
+            cpsrDisableInterrupts();
+        }
+        else
+        {
+            POOL_DATA(block) = (u32)address;
+            fifo_queue_append_block(&fifo_address_queue[channel], block);
+        }
+    }
+    else if (fifo_msg_type_is_value32(data))
+    {
+        u32 value32;
+
+        if (fifo_msg_value32_has_extra(data))
+        {
+            int next = POOL_NEXT(block);
+
+            // If the extra word hasn't been received, try later
+            if (next == FIFO_BUFFER_TERMINATE)
+                return;
+
+            fifo_buffer_free_block(block);
+            block = next;
+            value32 = POOL_DATA(block);
+        }
+        else
+        {
+            value32 = fifo_msg_value32_unpack_noextra(data);
+        }
+
+        // Increase read pointer
+        fifo_rx_queue.head = POOL_NEXT(block);
+
+        if (fifo_value32_func[channel])
+        {
+            fifo_buffer_free_block(block);
+
+            cpsrEnableInterrupts();
+            fifo_value32_func[channel](value32, fifo_value32_data[channel]);
+            cpsrDisableInterrupts();
+        }
+        else
+        {
+            POOL_DATA(block) = value32;
+            fifo_queue_append_block(&fifo_value32_queue[channel], block);
+        }
+    }
+    else if (fifo_msg_type_is_data(data))
+    {
+        // Calculate the number of expected blocks
+        int n_bytes = fifo_msg_data_unpack_length(data);
+        int n_words = (n_bytes + 3) >> 2;
+
+        // Count the number of available blocks
+        int count = 0;
+        int end = block;
+        while (count < n_words && POOL_NEXT(end) != FIFO_BUFFER_TERMINATE)
+        {
+            end = POOL_NEXT(end);
+            count++;
+        }
+
+        // If we haven't received enough blocks, try later
+        if (count != n_words)
+            return;
+
+        fifo_rx_queue.head = POOL_NEXT(end);
+
+        // Add messages from the FIFO buffer to the RX queue.
+        int tmp = POOL_NEXT(block);
+        fifo_buffer_free_block(block);
+
+        POOL_EXTRA(tmp) = n_bytes;
+
+        fifo_queue_append_list(&fifo_data_queue[channel], tmp, end);
+        if (fifo_datamsg_func[channel])
+        {
+            block = fifo_data_queue[channel].head;
+
+            // Call the handler and tell it the number of available bytes to
+            // use. They need to be fetched and turned into a proper message
+            // by calling fifoGetDatamsg().
+            cpsrEnableInterrupts();
+            fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
+            cpsrDisableInterrupts();
+
+            // If the user hasn't fetched the message from the queue by
+            // calling fifoGetDatamsg(), it is still in the queue. Delete it
+            // now.
+            if (block == fifo_data_queue[channel].head)
+                fifoGetDatamsg(channel, 0, 0);
+        }
+    }
+    else
+    {
+        fifo_rx_queue.head = POOL_NEXT(block);
+        fifo_buffer_free_block(block);
+    }
+}
+
 __attribute__((noreturn))
 static int fifoProcessThread(void *arg)
 {
@@ -394,153 +545,7 @@ static int fifoProcessThread(void *arg)
                 break;
         }
 
-        u32 block = fifo_rx_queue.head;
-        u32 data = POOL_DATA(block);
-
-        u32 channel = fifo_msg_unpack_channel(data);
-
-        if (fifo_msg_type_is_special_command(data))
-        {
-            uint32_t cmd = data & FIFO_SPECIAL_COMMAND_MASK;
-#ifdef ARM9
-            // Message sent from the ARM7 to the ARM9 to start a reset
-            if (cmd == FIFO_ARM7_REQUESTS_ARM9_RESET)
-            {
-                cpsrEnableInterrupts();
-
-                exit(0);
-            }
-#endif
-
-#ifdef ARM7
-            // Message sent from the ARM9 to the ARM7 to start a reset
-            if (cmd == FIFO_ARM9_REQUESTS_ARM7_RESET)
-            {
-                cpsrEnableInterrupts();
-
-                // Make sure that the two CPUs reset at the same time. The other
-                // CPU reset function (located in the bootstub struct) is
-                // responsible for issuing the same commands to ensure that both
-                // CPUs are in sync and they reset at the same time.
-                REG_IPC_SYNC = 0x100;
-                while ((REG_IPC_SYNC & 0x0f) != 1);
-                REG_IPC_SYNC = 0;
-                swiSoftReset();
-            }
-#endif
-
-            // Special commands are supposed to be used internally by libnds.
-            // Receiving an unknown command is a fatal error.
-            libndsCrash("Unknown FIFO command");
-        }
-        else if (fifo_msg_type_is_address(data))
-        {
-            void *address = fifo_msg_address_unpack(data);
-
-            fifo_rx_queue.head = POOL_NEXT(block);
-            if (fifo_address_func[channel])
-            {
-                fifo_buffer_free_block(block);
-
-                cpsrEnableInterrupts();
-                fifo_address_func[channel](address, fifo_address_data[channel]);
-                cpsrDisableInterrupts();
-            }
-            else
-            {
-                POOL_DATA(block) = (u32)address;
-                fifo_queue_append_block(&fifo_address_queue[channel], block);
-            }
-        }
-        else if (fifo_msg_type_is_value32(data))
-        {
-            u32 value32;
-
-            if (fifo_msg_value32_has_extra(data))
-            {
-                int next = POOL_NEXT(block);
-
-                // If the extra word hasn't been received, try later
-                if (next == FIFO_BUFFER_TERMINATE)
-                    continue;
-
-                fifo_buffer_free_block(block);
-                block = next;
-                value32 = POOL_DATA(block);
-            }
-            else
-            {
-                value32 = fifo_msg_value32_unpack_noextra(data);
-            }
-
-            // Increase read pointer
-            fifo_rx_queue.head = POOL_NEXT(block);
-
-            if (fifo_value32_func[channel])
-            {
-                fifo_buffer_free_block(block);
-
-                cpsrEnableInterrupts();
-                fifo_value32_func[channel](value32, fifo_value32_data[channel]);
-                cpsrDisableInterrupts();
-            }
-            else
-            {
-                POOL_DATA(block) = value32;
-                fifo_queue_append_block(&fifo_value32_queue[channel], block);
-            }
-        }
-        else if (fifo_msg_type_is_data(data))
-        {
-            // Calculate the number of expected blocks
-            int n_bytes = fifo_msg_data_unpack_length(data);
-            int n_words = (n_bytes + 3) >> 2;
-
-            // Count the number of available blocks
-            int count = 0;
-            int end = block;
-            while (count < n_words && POOL_NEXT(end) != FIFO_BUFFER_TERMINATE)
-            {
-                end = POOL_NEXT(end);
-                count++;
-            }
-
-            // If we haven't received enough blocks, try later
-            if (count != n_words)
-                continue;
-
-            fifo_rx_queue.head = POOL_NEXT(end);
-
-            // Add messages from the FIFO buffer to the RX queue.
-            int tmp = POOL_NEXT(block);
-            fifo_buffer_free_block(block);
-
-            POOL_EXTRA(tmp) = n_bytes;
-
-            fifo_queue_append_list(&fifo_data_queue[channel], tmp, end);
-            if (fifo_datamsg_func[channel])
-            {
-                block = fifo_data_queue[channel].head;
-
-                // Call the handler and tell it the number of available bytes to
-                // use. They need to be fetched and turned into a proper message
-                // by calling fifoGetDatamsg().
-                cpsrEnableInterrupts();
-                fifo_datamsg_func[channel](n_bytes, fifo_datamsg_data[channel]);
-                cpsrDisableInterrupts();
-
-                // If the user hasn't fetched the message from the queue by
-                // calling fifoGetDatamsg(), it is still in the queue. Delete it
-                // now.
-                if (block == fifo_data_queue[channel].head)
-                    fifoGetDatamsg(channel, 0, 0);
-            }
-        }
-        else
-        {
-            fifo_rx_queue.head = POOL_NEXT(block);
-            fifo_buffer_free_block(block);
-        }
+        fifoProcessFirstMessage();
     }
 }
 
