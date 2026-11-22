@@ -45,14 +45,6 @@ BEGIN_ASM_FUNC cothread_context_switch_to_active itcm
     bic     r1, r1, #CPSR_FLAG_IRQ_DIS
     msr     spsr, r1
 
-    // Enable IME as well
-    // TODO: This shouldn't really be needed, threads shouldn't yield while
-    // REG_IME is 0. This is a workaround until the FIFO handler is refactored
-    // to stop relying on nested interrupts.
-    mov     r3, #0x4000000
-    mov     r4, #1
-    str     r4, [r3, #0x208]
-
     ldr     lr, [r0, #COTHREAD_INFO_CPU_PC_OFFSET]
 
     ldmia   r0, {r0-r12}
