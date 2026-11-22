@@ -1033,18 +1033,13 @@ int cothread_main(void *arg)
 #endif
 
     // Enable this by default. libnds uses it for basic FIFO services
-    cothread_preemption_enable(true);
+    cothread_preemption_enabled = true;
 
 #ifdef ARM9
     return main(main_args.argc, main_args.argv, NULL);
 #else
     return main(0, NULL, NULL);
 #endif
-}
-
-void cothread_preemption_enable(bool enabled)
-{
-    cothread_preemption_enabled = enabled;
 }
 
 int cothread_start(int argc, char **argv, void *main_stack_top)

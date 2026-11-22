@@ -11,13 +11,9 @@ extern "C" {
 
 /// @file nds/cothread.h
 ///
-/// @brief Multithreading system
+/// @brief Preemptive multithreading system
 ///
-/// This system allows cooperative or preemptive multithreading. By default,
-/// it's cooperative, and it can be switched to preemptive by calling
-/// `cothread_preemption_enable()`.
-///
-/// It's only enabled in the ARM9 at the moment.
+/// Available on both CPUs.
 
 #include <assert.h>
 #include <stdbool.h>
@@ -157,18 +153,6 @@ cothread_t cothread_create_priority_manual(cothread_entrypoint_t entrypoint, voi
 cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
                                   uint16_t flags);
-
-/// Enables or disables preemption in the multithreading system.
-///
-/// When preemption is disabled, the only way to switch between thread contexts
-/// is to call the `cothread_yield()` functions. When it is enabled, even if you
-/// don't call the yield functions, whenever an interrupt is handled, there will
-/// be a context switch. This allows you to have a high priority thread that
-/// runs as soon as a specific IRQ happens, for example.
-///
-/// @param enabled
-///     If true, it will enable preemption. If false, it will disable it.
-void cothread_preemption_enable(bool enabled);
 
 /// Gets the priority of the specified thread.
 ///
