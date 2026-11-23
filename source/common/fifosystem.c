@@ -925,14 +925,16 @@ bool fifoInit(void)
     cothread_set_priority(id, 64);
 
     int oldIME = enterCriticalSection();
+
     cothread_list_active_add_after_first_ctx(&fifo_thread_ctx);
-    leaveCriticalSection(oldIME);
 
     // Setup interrupt handlers
     irqSet(IRQ_SEND_FIFO, fifoInternalSendInterrupt);
     irqSet(IRQ_RECV_FIFO, fifoInternalRecvInterrupt);
     REG_IPC_FIFO_CR = IPC_FIFO_ENABLE | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
     irqEnable(IRQ_RECV_FIFO | IRQ_SEND_FIFO);
+
+    leaveCriticalSection(oldIME);
 
     return true;
 }
