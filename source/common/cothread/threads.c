@@ -689,6 +689,8 @@ int cothread_get_exit_code(cothread_t thread)
 
 void cothread_yield(void)
 {
+    assert(REG_IME != 0);
+
     // We can't yield from inside an interrupt handler
     if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
@@ -698,6 +700,8 @@ void cothread_yield(void)
 
 void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
 {
+    assert(REG_IME != 0);
+
     // We can't yield from inside an interrupt handler
     if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
@@ -727,6 +731,8 @@ void ITCM_FUNC(cothread_yield_irq)(uint32_t mask)
 #ifdef ARM7
 void cothread_yield_irq_aux(uint32_t mask)
 {
+    assert(REG_IME != 0);
+
     // We can't yield from inside an interrupt handler
     if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
@@ -756,6 +762,8 @@ void cothread_yield_irq_aux(uint32_t mask)
 
 void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 {
+    assert(REG_IME != 0);
+
     // We can't yield from inside an interrupt handler
     if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
@@ -778,6 +786,8 @@ void ITCM_FUNC(cothread_yield_signal)(uint32_t signal_id)
 
 void ITCM_FUNC(cothread_yield_irq_or_signal)(uint32_t mask, uint32_t signal_id)
 {
+    assert(REG_IME != 0);
+
     // We can't yield from inside an interrupt handler
     if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
