@@ -231,17 +231,11 @@ bool fifoSetAddressHandler(u32 channel, FifoAddressHandlerFunc newhandler, void 
     fifo_address_func[channel] = newhandler;
     fifo_address_data[channel] = userdata;
 
-    // If a new handler has been set, check if there are pending messages
-    // and send them right away.
-    if (newhandler)
-    {
-        while (fifoCheckAddress(channel))
-        {
-            newhandler(fifoGetAddress(channel), userdata);
-        }
-    }
-
     leaveCriticalSection(oldIME);
+
+    // If a new handler has been set, resume the FIFO processing thread.
+    if (newhandler)
+        fifoRxProcessingThreadWakeUp();
 
     return true;
 }
@@ -257,17 +251,11 @@ bool fifoSetValue32Handler(u32 channel, FifoValue32HandlerFunc newhandler, void 
     fifo_value32_func[channel] = newhandler;
     fifo_value32_data[channel] = userdata;
 
-    // If a new handler has been set, check if there are pending messages
-    // and send them right away.
-    if (newhandler)
-    {
-        while (fifoCheckValue32(channel))
-        {
-            newhandler(fifoGetValue32(channel), userdata);
-        }
-    }
-
     leaveCriticalSection(oldIME);
+
+    // If a new handler has been set, resume the FIFO processing thread.
+    if (newhandler)
+        fifoRxProcessingThreadWakeUp();
 
     return true;
 }
@@ -283,24 +271,11 @@ bool fifoSetDatamsgHandler(u32 channel, FifoDatamsgHandlerFunc newhandler, void 
     fifo_datamsg_func[channel] = newhandler;
     fifo_datamsg_data[channel] = userdata;
 
-    // If a new handler has been set, check if there are pending messages
-    // and send them right away.
-    if (newhandler)
-    {
-        while (fifoCheckDatamsg(channel))
-        {
-            int block = fifo_data_queue[channel].head;
-            int n_bytes = fifo_msg_data_unpack_length(POOL_DATA(block));
-            newhandler(n_bytes, userdata);
-
-            // If the user hasn't fetched the message from the queue by calling
-            // fifoGetDatamsg(), it is still in the queue. Delete it now.
-            if (block == fifo_data_queue[channel].head)
-                fifoGetDatamsg(channel, 0, 0);
-        }
-    }
-
     leaveCriticalSection(oldIME);
+
+    // If a new handler has been set, resume the FIFO processing thread.
+    if (newhandler)
+        fifoRxProcessingThreadWakeUp();
 
     return true;
 }
