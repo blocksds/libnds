@@ -43,7 +43,7 @@ extern "C" {
 
 #define REG_SOUNDCNT                (*(vu16 *)0x4000500)
 
-#define SOUNDCNT_VOL(n)             (n) // 0 (mute) to 127 (max)
+#define SOUNDCNT_VOL(n)             ((n) & 127) // 0 (mute) to 127 (max)
 
 #define SOUNDCNT_LEFT_OUTPUT_MIXER          (0 << 8) // Mixer = All channels
 #define SOUNDCNT_LEFT_OUTPUT_CH1            (1 << 8) // Bypasses mixer
@@ -74,7 +74,7 @@ extern "C" {
 
 #define REG_SOUNDXCNT(n)            (*(vu32 *)(0x04000400 + ((n) << 4)))
 
-#define SOUNDXCNT_VOL_MUL(v)        (v) // 0 (mute) to 127 (max)
+#define SOUNDXCNT_VOL_MUL(v)        ((v) & 127) // 0 (mute) to 127 (max)
 
 #define SOUNDXCNT_VOL_DIV(v)        ((v) << 8)
 
