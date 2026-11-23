@@ -154,6 +154,27 @@ cothread_t cothread_create_manual(cothread_entrypoint_t entrypoint, void *arg,
                                   void *stack_base, size_t stack_size,
                                   uint16_t flags);
 
+/// Initializes a timer to setup time slicing.
+///
+/// This function isn't normally required. Every time an IRQ is handled by the
+/// global interrupt dispatcher, the active thread is saved and the next thread
+/// in the list is resumed.
+///
+/// This function sets up a timer to cause IRQs at a regular frequency to force
+/// more thread changes even if the thread hasn't manually yielded or there
+/// hasn't been any other IRQ.
+///
+/// @note
+///     Thread changes are relatively slow, so having a high preemption
+///     frequency can slow down programs that are CPU-bound.
+///
+/// @param timer
+///     Hardware timer to use (0-3).
+/// @param irqs_per_second
+///     Number of interruptions per second. A sensible value would be 60 * 10 or
+///     60 * 20. 0 disables the timer and the interrupt associated to it.
+void cothread_setup_time_slicing(int timer, uint16_t irqs_per_second);
+
 /// Gets the priority of the specified thread.
 ///
 /// @param thread

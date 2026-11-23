@@ -23,6 +23,7 @@
 #include <nds/memory.h>
 #include <nds/ndstypes.h>
 #include <nds/system.h>
+#include <nds/timers.h>
 
 #include "common/cothread/context.h"
 
@@ -918,6 +919,26 @@ ARM_CODE static int ITCM_FUNC(cothread_sleep)(void *arg)
 #endif
         if (!cothread_preemption_enabled)
             cothread_yield();
+    }
+}
+
+//-------------------------------------------------------------------
+
+void cothread_setup_time_slicing(int timer, uint16_t irqs_per_second)
+{
+    assert((timer >= 0) && (timer < 4));
+
+    TIMER_CR(timer) = 0; // Stop it before setting it up
+
+    if (irqs_per_second > 0)
+    {
+        TIMER_DATA(timer) = TIMER_FREQ_256(irqs_per_second);
+        irqEnable(IRQ_TIMER(timer));
+        TIMER_CR(timer) = TIMER_IRQ_REQ | ClockDivider_256 | TIMER_ENABLE;
+    }
+    else
+    {
+        irqDisable(IRQ_TIMER(timer));
     }
 }
 
