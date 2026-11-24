@@ -15,6 +15,7 @@ extern "C" {
 #include <nds/arm9/sassert.h>
 #endif
 #include <nds/cothread.h>
+#include <nds/cpu.h>
 #include <nds/interrupts.h>
 #include <nds/ndstypes.h>
 
@@ -355,19 +356,12 @@ u32 fifoGetValue32(u32 channel);
 /// actual size first with fifoCheckDatamsgLength().
 int fifoGetDatamsg(u32 channel, int buffersize, u8 *destbuffer);
 
-/// Waits for any value32 message in a FIFO channel and blocks until there is
+/// Waits for any value32 message in a FIFO channel and yields until there isn't
 /// one available.
 ///
 /// @param channel
 ///     Channel number.
-static inline void fifoWaitValue32(u32 channel)
-{
-    while (!fifoCheckValue32(channel))
-    {
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
-    }
-}
+void fifoWaitValue32(u32 channel);
 
 /// Waits for any value32 message in a FIFO channel and yields until there isn't
 /// one available.
@@ -376,23 +370,15 @@ static inline void fifoWaitValue32(u32 channel)
 ///     Channel number.
 static inline void fifoWaitValue32Async(u32 channel)
 {
-    while (!fifoCheckValue32(channel))
-        cothread_yield_irq(IRQ_RECV_FIFO);
+    fifoWaitValue32(channel);
 }
 
-/// Waits for any address message in a FIFO channel and blocks until there is
+/// Waits for any address message in a FIFO channel and yields until there isn't
 /// one available.
 ///
 /// @param channel
 ///     Channel number.
-static inline void fifoWaitAddress(u32 channel)
-{
-    while (!fifoCheckAddress(channel))
-    {
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
-    }
-}
+void fifoWaitAddress(u32 channel);
 
 /// Waits for any address message in a FIFO channel and yields until there isn't
 /// one available.
@@ -401,23 +387,15 @@ static inline void fifoWaitAddress(u32 channel)
 ///     Channel number.
 static inline void fifoWaitAddressAsync(u32 channel)
 {
-    while (!fifoCheckAddress(channel))
-        cothread_yield_irq(IRQ_RECV_FIFO);
+    fifoWaitAddress(channel);
 }
 
-/// Waits for any data message in a FIFO channel and blocks until there is
+/// Waits for any data message in a FIFO channel and yields until there isn't
 /// one available.
 ///
 /// @param channel
 ///     Channel number.
-static inline void fifoWaitDatamsg(u32 channel)
-{
-    while (!fifoCheckDatamsg(channel))
-    {
-        if (REG_IME == 1)
-            swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_RECV_FIFO);
-    }
-}
+void fifoWaitDatamsg(u32 channel);
 
 /// Waits for any data message in a FIFO channel and yields until there isn't
 /// one available.
@@ -426,8 +404,7 @@ static inline void fifoWaitDatamsg(u32 channel)
 ///     Channel number.
 static inline void fifoWaitDatamsgAsync(u32 channel)
 {
-    while (!fifoCheckDatamsg(channel))
-        cothread_yield_irq(IRQ_RECV_FIFO);
+    fifoWaitDatamsg(channel);
 }
 
 /// Acquires the mutex of the specified FIFO channel.

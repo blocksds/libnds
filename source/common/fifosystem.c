@@ -939,6 +939,49 @@ bool fifoInit(void)
     return true;
 }
 
+// Helpers to wait for messages
+// ----------------------------
+
+void fifoWaitValue32(u32 channel)
+{
+    cpsrDisableInterrupts();
+
+    while (!fifoCheckValue32(channel))
+    {
+        cothread_yield_irq(IRQ_RECV_FIFO);
+        cpsrDisableInterrupts();
+    }
+
+    cpsrEnableInterrupts();
+}
+
+void fifoWaitAddress(u32 channel)
+{
+    cpsrDisableInterrupts();
+
+    while (!fifoCheckAddress(channel))
+    {
+        cothread_yield_irq(IRQ_RECV_FIFO);
+        cpsrDisableInterrupts();
+    }
+
+    cpsrEnableInterrupts();
+}
+
+void fifoWaitDatamsg(u32 channel)
+{
+    cpsrDisableInterrupts();
+
+    while (!fifoCheckDatamsg(channel))
+    {
+        cothread_yield_irq(IRQ_RECV_FIFO);
+        cpsrDisableInterrupts();
+    }
+
+    cpsrEnableInterrupts();
+}
+
+
 // Helpers to prevent multiple threads from using the same FIFO channel
 // --------------------------------------------------------------------
 
