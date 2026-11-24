@@ -162,19 +162,17 @@ main_irq_found:
     // cleared the IF/AUXIF bit we're going to handle, we've notified the BIOS,
     // and we've notified the cothread library.
 
-    ldr     r2, [r12, #OFFSET_IME]  // r2 = IME
-
     // Disable IME because we're going to enable interrupts in CPSR but we want
     // to let the user decide whether interrupts can be nested or not.
     str     r12, [r12, #OFFSET_IME] // Only bit 0 is used, it's okay to write
                                     // any value with bit 0 clear.
 
-    mrs     r12, spsr
+    mrs     r12, spsr // Preserve SPSR
 
 #ifdef ARM9
-    push    {r0, r2, r12, lr} // {IRQ bit, IME, spsr_irq, lr_irq}
+    push    {r0, r12, lr} // {IRQ bit, spsr_irq, lr_irq}
 #else
-    push    {r0-r2, r12, lr}  // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
+    push    {r0-r1, r12, lr}  // {IRQ bit, cothread function, spsr_irq, lr_irq}
 #endif
 
     // Enable IRQ and FIQ, set mode to Undefined to use its stack
@@ -195,15 +193,18 @@ interrupt_return:
     msr     cpsr, #(CPSR_MODE_IRQ | CPSR_FLAG_IRQ_DIS | CPSR_FLAG_FIQ_DIS)
 
 #ifdef ARM9
-    pop     {r0, r2, r12, lr} // {IRQ bit, IME, spsr_irq, lr_irq}
+    pop     {r0, r12, lr} // {IRQ bit, spsr_irq, lr_irq}
 #else
-    pop     {r0-r2, r12, lr} // {IRQ bit, cothread function, IME, spsr_irq, lr_irq}
+    pop     {r0-r1, r12, lr} // {IRQ bit, cothread function, spsr_irq, lr_irq}
 #endif
 
-    msr     spsr, r12               // Restore SPSR
+    msr     spsr, r12 // Restore SPSR
 
+    // We're returning from handling an interrupt, so IME was necessarily 1
+    // before the interrupt was triggered.
+    mov     r2, #1
     mov     r12, #REG_BASE
-    str     r2, [r12, #OFFSET_IME]  // Restore REG_IME
+    str     r2, [r12, #OFFSET_IME]  // Enable REG_IME
 
 clear_threads_and_exit:
 
@@ -228,6 +229,7 @@ check_return:
     // and switch to the scheduler.
 
     // Global pre-emption enable setting
+    // TODO: We should be able to remove this check
     ldr     r0, =cothread_preemption_enabled
     ldrb    r0, [r0]
     cmp     r0, #0
