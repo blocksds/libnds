@@ -59,7 +59,13 @@ bool cosema_try_wait(cosema_t *sema)
 
 void cosema_wait(cosema_t *sema)
 {
-    while (cosema_try_wait(sema) == false)
-        cothread_yield_signal(cosema_to_signal_id(sema));
-}
+    cpsrDisableInterrupts();
 
+    while (cosema_try_wait(sema) == false)
+    {
+        cothread_yield_signal(cosema_to_signal_id(sema));
+        cpsrDisableInterrupts();
+    }
+
+    cpsrEnableInterrupts();
+}

@@ -42,8 +42,15 @@ bool comutex_try_acquire(comutex_t *mutex)
 
 void comutex_acquire(comutex_t *mutex)
 {
+    cpsrDisableInterrupts();
+
     while (comutex_try_acquire(mutex) == false)
+    {
         cothread_yield_signal(comutex_to_signal_id(mutex));
+        cpsrDisableInterrupts();
+    }
+
+    cpsrEnableInterrupts();
 }
 
 void comutex_release(comutex_t *mutex)
