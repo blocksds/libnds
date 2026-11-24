@@ -62,6 +62,16 @@ BEGIN_ASM_FUNC IntrMain
 
     mov     r12, #REG_BASE
 
+    // Between writing 0 to IME and actually disabling IRQs there's a small
+    // delay that can cause the dispatcher to be called with IME = 0. The thread
+    // scheduler expects IME = 1 and CPSR.I = 1. We can't safely handle IRQs
+    // in which IME = 0 because the code we've just interrupted relies on IME
+    // being 0 after resuming it. The only safe thing for us to do is to exit if
+    // we detect the issue.
+    ldr     r0, [r12, #OFFSET_IME]
+    cmp     r0, #0
+    moveq   pc, lr                  // if (IME == 0) return
+
     // We can assume that if we're here:
     // - IME = 1
     // - (IE & IF != 0) || (AUXIE & AUXIF != 0)
