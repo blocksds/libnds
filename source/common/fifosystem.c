@@ -133,30 +133,6 @@ static u32 fifo_buffer_alloc_block(void)
     return entry;
 }
 
-// Allocate a new block, blocking until there is an available slot.
-static u32 fifo_buffer_wait_block(void)
-{
-    while (1)
-    {
-        u32 block = fifo_buffer_alloc_block();
-
-        if (block != FIFO_BUFFER_TERMINATE)
-            return block;
-
-        // There are no free blocks. We need to wait until the other CPU
-        // receives some words and we can free up some space in our TX buffer.
-        // TODO: This waits until all of the hardware TX FIFO has been emptied.
-        // It may be better to wait until it isn't full.
-
-        REG_IPC_FIFO_CR |= IPC_FIFO_SEND_EMPTY_IRQ;
-
-        // REG_IME is set to 1 inside swiIntrWait()
-        swiIntrWait(INTRWAIT_KEEP_FLAGS, IRQ_SEND_FIFO);
-
-        REG_IME = 0;
-    }
-}
-
 // Frees the specified block.
 static void fifo_buffer_free_block(u32 index)
 {
@@ -567,7 +543,9 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         }
     }
 
-    u32 head = fifo_buffer_wait_block();
+    u32 head = fifo_buffer_alloc_block();
+    assert(head != FIFO_BUFFER_TERMINATE); // There should be enough space
+
     if (fifo_tx_queue.head == FIFO_BUFFER_TERMINATE)
     {
         fifo_tx_queue.head = head;
@@ -588,7 +566,9 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         // adding them to the software queue and from there to the hardware
         // queue.
 
-        u32 next = fifo_buffer_wait_block();
+        u32 next = fifo_buffer_alloc_block();
+        assert(next != FIFO_BUFFER_TERMINATE); // There should be enough space
+
         if (fifo_tx_queue.head == FIFO_BUFFER_TERMINATE)
         {
             fifo_tx_queue.head = next;
