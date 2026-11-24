@@ -90,9 +90,15 @@ u32 systemSetBacklightLevel(u32 level)
     if (level > PM_BACKLIGHT_MAX)
         level = PM_BACKLIGHT_MAX;
 
+    fifoMutexAcquire(FIFO_PM);
+
     fifoSendValue32(FIFO_PM, PM_REQ_BACKLIGHT_LEVEL | level);
-    fifoWaitValue32(FIFO_PM);
-    return fifoGetValue32(FIFO_PM);
+    fifoWaitValue32Async(FIFO_PM);
+    u32 val = fifoGetValue32(FIFO_PM);
+
+    fifoMutexRelease(FIFO_PM);
+
+    return val;
 }
 
 void systemSleep(void)
@@ -141,9 +147,15 @@ void ledBlink(PM_LedStates value)
 
 u32 getBatteryLevel(void)
 {
+    fifoMutexAcquire(FIFO_PM);
+
     fifoSendValue32(FIFO_PM, PM_REQ_BATTERY);
-    fifoWaitValue32(FIFO_PM);
-    return fifoGetValue32(FIFO_PM);
+    fifoWaitValue32Async(FIFO_PM);
+    u32 val = fifoGetValue32(FIFO_PM);
+
+    fifoMutexRelease(FIFO_PM);
+
+    return val;
 }
 
 void enableSlot1(void)
