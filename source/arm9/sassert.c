@@ -47,7 +47,7 @@ static void assert_print_epilogue(void)
 
     while (1)
     {
-        swiWaitForVBlank();
+        //swiWaitForVBlank();
         scanKeys();
         uint16_t keys_mask = KEY_START | KEY_SELECT;
         if ((keysHeld() & keys_mask) == keys_mask)
@@ -72,6 +72,8 @@ LIBNDS_NORETURN
 void __sassert_nofmt(const char *fileName, int lineNumber, const char *conditionString,
                      const char *format)
 {
+    REG_IME = 0;
+
     // This function can be called from IRQ handlers
 
     assert_print_prelude(fileName, lineNumber, conditionString);
@@ -85,6 +87,8 @@ LIBNDS_NORETURN
 void __sassert(const char *fileName, int lineNumber, const char *conditionString,
                const char *format, ...)
 {
+    REG_IME = 0;
+
     // This function can't be called from IRQ handlers, so it's possible to use
     // the printf() family of functions.
 
