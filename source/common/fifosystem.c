@@ -517,14 +517,11 @@ static int fifoProcessThread(void *arg)
 // Helpers add messages to the software TX queue
 // ---------------------------------------------
 
-static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
+static bool fifoInternalSend(u32 *words, u32 word_count)
 {
-    // If the caller has provided at least one extra word, check that the
-    // pointer with data isn't NULL. If not, ignore both values.
-    if ((extrawordcount > 0) && (wordlist == NULL))
-        return false;
-
-    if (extrawordcount > (FIFO_MAX_DATA_BYTES / 4))
+    // Check that the size of the message (in words) isn't too big.
+    // Note: Add one word of empty space so that the queue doesn't break
+    if ((word_count + 1) >= (FIFO_MAX_DATA_BYTES / 4))
         return false;
 
     int oldIME = enterCriticalSection();
@@ -532,35 +529,20 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
     // Check if there's enough space to send the whole message. If not, try to
     // flush some words pending from the software queue into the hardware TX
     // queue. If that doesn't free up enough space, give up.
-    if (global_pool_free_words < extrawordcount + 1)
+    if (global_pool_free_words <= word_count)
     {
         fifoFillTxFifoFromBuffer();
 
-        if (global_pool_free_words < extrawordcount + 1)
+        if (global_pool_free_words <= word_count)
         {
             leaveCriticalSection(oldIME);
             return false;
         }
     }
 
-    u32 head = fifo_buffer_alloc_block();
-    assert(head != FIFO_BUFFER_TERMINATE); // There should be enough space
-
-    if (fifo_tx_queue.head == FIFO_BUFFER_TERMINATE)
-    {
-        fifo_tx_queue.head = head;
-    }
-    else
-    {
-        POOL_NEXT(fifo_tx_queue.tail) = head;
-    }
-    POOL_DATA(head) = firstword;
-    fifo_tx_queue.tail = head;
-
     // Add the words we're trying to send to the software queue.
 
-    u32 count = 0;
-    while (count < extrawordcount)
+    for (u32 i = 0; i < word_count; i++)
     {
         // TODO: Try to write words directly in the hardware TX queue instead of
         // adding them to the software queue and from there to the hardware
@@ -577,8 +559,7 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
         {
             POOL_NEXT(fifo_tx_queue.tail) = next;
         }
-        POOL_DATA(next) = wordlist[count];
-        count++;
+        POOL_DATA(next) = words[i];
         fifo_tx_queue.tail = next;
     }
 
@@ -594,7 +575,9 @@ static bool fifoInternalSend(u32 firstword, u32 extrawordcount, u32 *wordlist)
 // Send a special command to the other CPU
 bool fifoSendSpecialCommand(u32 cmd)
 {
-    return fifoInternalSend(fifo_msg_special_command_pack(cmd), 0, 0);
+    u32 word = fifo_msg_special_command_pack(cmd);
+
+    return fifoInternalSend(&word, 1);
 }
 
 // Send an address (from mainram only) to the other cpu (on a specific channel)
@@ -607,7 +590,9 @@ bool fifoSendAddress(u32 channel, void *address)
     if (!fifo_msg_address_is_pointer_valid(address))
         return false;
 
-    return fifoInternalSend(fifo_msg_address_pack(channel, address), 0, 0);
+    u32 word = fifo_msg_address_pack(channel, address);
+
+    return fifoInternalSend(&word, 1);
 }
 
 bool fifoSendValue32(u32 channel, u32 value32)
@@ -615,20 +600,21 @@ bool fifoSendValue32(u32 channel, u32 value32)
     if (channel >= FIFO_NUM_CHANNELS)
         return false;
 
-    u32 send_first, send_extra[1];
-
     if (fifo_msg_value32_needs_extra(value32))
     {
         // The value doesn't fit in just one 32-bit message
-        send_first = fifo_msg_value32_pack_extra(channel);
-        send_extra[0] = value32;
-        return fifoInternalSend(send_first, 1, send_extra);
+        u32 words[2] = {
+            fifo_msg_value32_pack_extra(channel),
+            value32
+        };
+
+        return fifoInternalSend(words, 2);
     }
     else
     {
         // The value fits in a 32-bit message
-        send_first = fifo_msg_value32_pack(channel, value32);
-        return fifoInternalSend(send_first, 0, 0);
+        u32 word = fifo_msg_value32_pack(channel, value32);
+        return fifoInternalSend(&word, 1);
     }
 }
 
@@ -639,8 +625,8 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
 
     if (num_bytes == 0)
     {
-        u32 send_first = fifo_msg_data_pack_header(channel, 0);
-        return fifoInternalSend(send_first, 0, NULL);
+        u32 word = fifo_msg_data_pack_header(channel, 0);
+        return fifoInternalSend(&word, 1);
     }
 
     if (data_array == NULL)
@@ -649,22 +635,23 @@ bool fifoSendDatamsg(u32 channel, u32 num_bytes, u8 *data_array)
     if (num_bytes > FIFO_MAX_DATA_BYTES)
         return false;
 
-    u32 num_words = (num_bytes + 3) >> 2;
+    u32 num_words = (num_bytes + 3) >> 2; // Convert to words rounding up
 
     // Early check. fifoInternalSend() will do another check, but this one will
     // save us time from preparing buffer_array[].
     if (global_pool_free_words < num_words + 1)
         return false;
 
-    u32 buffer_array[num_words]; // TODO: This is a VLA, remove?
+    u32 buffer_array[num_words + 1]; // TODO: This is a VLA, remove?
+
     // Clear the last few bytes before the copy. The rest of the array will be
     // overwritten by memcpy().
-    buffer_array[num_words - 1] = 0;
-    memcpy(buffer_array, data_array, num_bytes);
+    buffer_array[num_words] = 0;
 
-    u32 send_first = fifo_msg_data_pack_header(channel, num_bytes);
+    buffer_array[0] = fifo_msg_data_pack_header(channel, num_bytes);
+    memcpy(&(buffer_array[1]), data_array, num_bytes);
 
-    return fifoInternalSend(send_first, num_words, buffer_array);
+    return fifoInternalSend(buffer_array, num_words + 1);
 }
 
 // Helpers to get messages from the software RX queues
