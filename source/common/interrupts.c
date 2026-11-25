@@ -2,12 +2,13 @@
 // SPDX-FileNotice: Modified from the original version by the BlocksDS project.
 //
 // Copyright (C) 2005 Dave Murphy (WinterMute)
-// Copyright (C) 2025 Antonio Niño Díaz
+// Copyright (C) 2025-2026 Antonio Niño Díaz
 
 #ifdef ARM7
 #include <nds/arm7/i2c.h>
 #include <nds/arm7/tmio.h>
 #endif
+#include <nds/exceptions.h>
 #include <nds/interrupts.h>
 #include <nds/ipc.h>
 #include <nds/system.h>
@@ -130,8 +131,47 @@ void irqInitHandler(VoidFn handler)
     IRQ_HANDLER = handler;
 }
 
+#ifndef NDEBUG
+void irqAllocateCanaries(void); // In interruptDispatcher.s
+
+extern char __sp_irq_user[]; // Top
+extern char __irq_user_stack_size[]; // Size
+
+static void irqWriteCanaries(void)
+{
+    assert(REG_IME == 0);
+
+    irqAllocateCanaries();
+
+    uint32_t *canary;
+
+    canary = (uint32_t *)((uintptr_t)__sp_irq_user - sizeof(uint32_t));
+    *canary = 0xFEDCBA98;
+
+    canary = (uint32_t *)((uintptr_t)__sp_irq_user - (size_t)__irq_user_stack_size);
+    *canary = 0x12345678;
+}
+
+ARM_CODE void ITCM_FUNC(irqCheckCanaries)(void)
+{
+    uint32_t *canary;
+
+    canary = (uint32_t *)((uintptr_t)__sp_irq_user - sizeof(uint32_t));
+    if (*canary != 0xFEDCBA98)
+        libndsCrash("IRQ stack underflow");
+
+    canary = (uint32_t *)((uintptr_t)__sp_irq_user - (size_t)__irq_user_stack_size);
+    if (*canary != 0x12345678)
+        libndsCrash("IRQ stack overflow");
+}
+#endif // NDEBUG
+
 void irqInit(void)
 {
+#ifndef NDEBUG
+    irqWriteCanaries();
+#endif
+
     irqInitHandler(IntrMain);
 
     // Set all interrupts to dummy functions.

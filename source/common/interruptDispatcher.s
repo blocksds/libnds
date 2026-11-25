@@ -226,13 +226,22 @@ clear_threads_and_exit:
 
     // This will preserve r4-r11. We don't care about the other registers.
     push    {lr}
+
 #ifdef ARM9
     bl      cothread_send_irq
 #else
+    // Jump to the right function to wake up threads. The functions are built in
+    // ARM mode.
     adr     lr, check_return
-    bx      r1   // Jump to the right cothread function to wake up threads
+    bx      r1
 check_return:
 #endif
+
+#ifndef NDEBUG
+    // Check user stack canaries. The function is built in ARM mode.
+    bl      irqCheckCanaries
+#endif
+
     pop     {lr}
 
     // Check if preemption is enabled. If so, save the current thread context
@@ -290,6 +299,22 @@ check_return:
     pop     {r4-r11, lr}
 
     bx      lr
+
+#ifndef NDEBUG
+
+BEGIN_ASM_FUNC irqAllocateCanaries
+
+    mrs     r0, cpsr // Preserve current mode
+
+    // Make room for the canary in the IRQ user stack
+    msr     cpsr, #CPSR_MODE_UNDEFINED
+    sub     sp, sp, #4
+
+    msr     cpsr, r0 // Restore previous mode
+
+    bx      lr
+
+#endif // NDEBUG
 
     .pool
 
