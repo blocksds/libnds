@@ -695,6 +695,10 @@ void cothread_yield(void)
     if ((getCPSR() & CPSR_MODE_MASK) != CPSR_MODE_SYSTEM)
         return;
 
+    // Disable interrupts until the scheduler moves this thread to the right
+    // destination list.
+    cpsrDisableInterrupts();
+
     cothread_context_switch_to_scheduler();
 }
 
