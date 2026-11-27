@@ -10,7 +10,11 @@ extern "C" {
 #endif
 
 #include <sys/types.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include_next <sys/dirent.h>
+#pragma GCC diagnostic pop
 
 #define MAXNAMLEN NAME_MAX
 
