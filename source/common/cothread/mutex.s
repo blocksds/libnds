@@ -9,6 +9,7 @@
     .arm
 
 
+// This must match the implementation in cothread.h
 .macro COMUTEX_TO_SIGNAL_ID out_signal, in_mutex
     orr     \out_signal, \in_mutex, #(1 << 31)
 .endm

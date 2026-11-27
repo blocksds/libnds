@@ -8,10 +8,11 @@
     .syntax unified
     .arm
 
-
+// This must match the implementation in cothread.h
 .macro COSEMA_TO_SIGNAL_ID out_signal, in_mutex
     orr     \out_signal, \in_mutex, #(1 << 31)
 .endm
+
 
 BEGIN_ASM_FUNC cosema_init // (cosema_t *sema, uint32_t init_val)
 

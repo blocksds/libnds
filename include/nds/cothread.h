@@ -32,6 +32,20 @@ typedef volatile uint32_t cosema_t;
 /// Thread entrypoint
 typedef int (*cothread_entrypoint_t)(void *);
 
+// Internal helper to create a signal ID from a comutex_t
+static inline uint32_t comutex_to_signal_id(comutex_t *mutex)
+{
+    // Note: This must match the implementation in mutex.s
+    return BIT(31) | (uintptr_t)mutex;
+}
+
+// Internal helper to create a signal ID from a cosema_t
+static inline uint32_t cosema_to_signal_id(cosema_t *sema)
+{
+    // Note: This must match the implementation in semaphore.s
+    return BIT(31) | (uintptr_t)sema;
+}
+
 /// Creates a thread with a specific priority and allocates the stack for it.
 ///
 /// This stack will be freed when the thread is deleted.
