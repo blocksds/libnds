@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#include <malloc.h>
+
 #include <nds/ndstypes.h>
 
 u8 *getItcmHeapStart(void);
@@ -33,6 +35,7 @@ void *itcm_realloc(void *p, size_t size);
 void *itcm_memalign(size_t alignment, size_t size);
 void *itcm_aligned_alloc(size_t alignment, size_t size);
 void itcm_free(void *ptr);
+struct mallinfo itcm_mallinfo(void);
 
 void *dtcm_malloc(size_t size);
 void *dtcm_calloc(size_t n, size_t size);
@@ -40,6 +43,7 @@ void *dtcm_realloc(void *p, size_t size);
 void *dtcm_memalign(size_t alignment, size_t size);
 void *dtcm_aligned_alloc(size_t alignment, size_t size);
 void dtcm_free(void *ptr);
+struct mallinfo dtcm_mallinfo(void);
 
 #ifdef __cplusplus
 }

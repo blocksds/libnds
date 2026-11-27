@@ -3,6 +3,8 @@
 // Copyright (C) 2026 Adrian "asie" Siekierka
 // Copyright (C) 2026 Antonio Niño Díaz
 
+#include <malloc.h>
+
 #include <nds/cothread.h>
 #include <nds/exceptions.h>
 #include <nds/memory.h>
@@ -260,6 +262,17 @@ void itcm_free(void *ptr)
     mspace_free(itcm_mspace, ptr);
 }
 
+struct mallinfo itcm_mallinfo(void)
+{
+    if (itcm_mspace == 0)
+    {
+        struct mallinfo nm = { 0 };
+        return nm;
+    }
+
+    return mspace_mallinfo(itcm_mspace);
+}
+
 // DTCM
 
 void *dtcm_malloc(size_t size)
@@ -315,6 +328,17 @@ void dtcm_free(void *ptr)
     mspace_free(dtcm_mspace, ptr);
 }
 
+struct mallinfo dtcm_mallinfo(void)
+{
+    if (dtcm_mspace == 0)
+    {
+        struct mallinfo nm = { 0 };
+        return nm;
+    }
+
+    return mspace_mallinfo(dtcm_mspace);
+}
+
 // Slot-2
 
 void *slot2_malloc(size_t size)
@@ -368,4 +392,15 @@ void slot2_free(void *ptr)
         return;
 
     mspace_free(slot2_mspace, ptr);
+}
+
+struct mallinfo slot2_mallinfo(void)
+{
+    if (slot2_mspace == 0)
+    {
+        struct mallinfo nm = { 0 };
+        return nm;
+    }
+
+    return mspace_mallinfo(slot2_mspace);
 }

@@ -14,6 +14,7 @@ extern "C" {
 /// @brief Slot-2 peripheral detection, external RAM.
 
 #include <stddef.h>
+#include <malloc.h>
 #include <nds/ndstypes.h>
 
 // TODO: Peripherals marked as "TODO" are not currently detected.
@@ -127,6 +128,7 @@ void *slot2_realloc(void *p, size_t size);
 void *slot2_memalign(size_t alignment, size_t size);
 void *slot2_aligned_alloc(size_t alignment, size_t size);
 void slot2_free(void *ptr);
+struct mallinfo slot2_mallinfo(void);
 
 #ifdef __cplusplus
 }
